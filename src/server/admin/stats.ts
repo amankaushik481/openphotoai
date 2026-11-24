@@ -179,7 +179,7 @@ async function userStats(from: Date): Promise<AdminStats["users"]> {
   const [row] = await db
     .select({
       total: count(),
-      new: sql<number>`count(*) filter (where ${user.createdAt} >= ${from})`,
+      new: sql<number>`count(*) filter (where ${user.createdAt} >= ${from.toISOString()}::timestamptz)`,
       suspended: sql<number>`count(*) filter (where ${user.banned} is true)`,
     })
     .from(user)
@@ -235,7 +235,8 @@ async function jobStats(from: Date, days: string[]): Promise<{ jobs: AdminStats[
       status: jobs.status,
       total: count(),
       submitted: sql<number>`count(*) filter (where ${submitted})`,
-      costUsd: sql<number>`coalesce(sum(${jobs.costUsd}) filter (where ${submitted}), 0)`,
+      // costUsd is float4: sum it as numeric so totals don't drift.
+      costUsd: sql<number>`coalesce(sum(${jobs.costUsd}::numeric) filter (where ${submitted}), 0)`,
       creditsCharged: sql<number>`coalesce(sum(${jobs.creditsCharged}), 0)`,
       creditsRefunded: sql<number>`coalesce(sum(${jobs.creditsRefunded}), 0)`,
     })
