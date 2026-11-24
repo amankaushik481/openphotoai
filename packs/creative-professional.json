@@ -1,0 +1,86 @@
+{
+  "slug": "creative-professional",
+  "name": "Creative Professional",
+  "tagline": "Portraits for designers, architects, artists and makers.",
+  "description": "Personal-brand photos for portfolios and studio sites: moodboard walls, architecture models, painting and ceramics studios, ateliers, workshops and bold colored backdrops. Expressive, crafted and still professional enough for client pitches.",
+  "category": "professional",
+  "emoji": "🎨",
+  "tags": [
+    "creative",
+    "designer",
+    "architect",
+    "artist",
+    "portfolio",
+    "studio",
+    "personal brand",
+    "maker"
+  ],
+  "colors": [
+    "#db2777",
+    "#f59e0b"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, brand logos, messy clutter",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 520,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Moodboard wall",
+      "prompt": "portrait of {subject} in a bright design studio in front of a wall-sized moodboard of color swatches and printed images, wearing a black turtleneck, arms loosely crossed, confident creative expression, soft north-facing window light, 35mm lens, portfolio about-page photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Architecture model",
+      "prompt": "portrait of {subject} leaning over a detailed white architectural model on a large worktable, wearing a crisp white shirt, glancing up at the camera, drafting tools and rolled plans around, soft daylight, 50mm lens, architecture practice portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Painter's studio",
+      "prompt": "portrait of {subject} in a sunlit painter's studio holding a paint-smudged palette, wearing a canvas apron over a linen shirt, large abstract canvases leaning against the walls, relaxed proud smile, 35mm lens, artist feature photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tangerine backdrop",
+      "prompt": "bold portrait of {subject} against a saturated tangerine paper backdrop, wearing an oversized cobalt blue shirt, playful confident pose with hands in pockets, crisp hard light with a defined shadow, 85mm lens, graphic creative-agency portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pottery wheel",
+      "prompt": "portrait of {subject} at a pottery wheel shaping a clay vessel, wearing a stained work apron with sleeves pushed up, focused gentle smile, warm window light, shelves of glazed pottery softly blurred, 50mm lens, artisan maker photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Photo studio",
+      "prompt": "portrait of {subject} holding a vintage film camera at chest height, wearing a utility jacket, standing in a photo studio with softboxes and a paper backdrop roll, confident friendly expression, 50mm lens, creative behind-the-scenes portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fashion atelier",
+      "prompt": "portrait of {subject} in a fashion atelier draping fabric on a dress form, a tape measure around the neck, wearing a simple black outfit, focused thoughtful expression, bolts of fabric and sketches softly blurred, soft daylight, 50mm lens, designer feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Agency loft",
+      "prompt": "candid portrait of {subject} sitting on a long communal desk in a creative agency loft, laptop and sketchbook beside, wearing a patterned shirt, laughing mid-conversation, warm industrial lighting, 35mm lens, culture-forward studio photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Woodworking shop",
+      "prompt": "portrait of {subject} in a woodworking shop holding a hand plane over a walnut board, wearing a denim apron, sawdust drifting in warm light beams, proud focused expression, 50mm lens, craftsperson portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gallery opening",
+      "prompt": "portrait of {subject} beside a large framed abstract artwork at a gallery opening, wearing an all-black outfit and holding a glass of sparkling water, confident warm smile, cool gallery lighting, guests softly blurred, 50mm lens, art scene photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Writer's desk",
+      "prompt": "portrait of {subject} at a writing desk by a window with a vintage typewriter and stacks of notebooks, wearing a cozy cardigan, looking up from the page with a thoughtful smile, soft afternoon light, 50mm lens, author and copywriter portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dusty pink headshot",
+      "prompt": "creative headshot of {subject} on a dusty pink seamless backdrop, wearing a mustard knit sweater, slight head tilt, warm genuine smile, soft directional light, 85mm lens, modern colorful personal-branding portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Design workshop",
+      "prompt": "candid portrait of {subject} placing colorful sticky notes on a glass wall during a design workshop, wearing a simple sweater, glancing back at the camera with a grin, bright daylight, 35mm lens, product design team photo, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

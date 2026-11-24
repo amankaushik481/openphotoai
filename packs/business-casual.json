@@ -1,0 +1,92 @@
+{
+  "slug": "business-casual",
+  "name": "Business Casual",
+  "tagline": "Polished but relaxed: the modern workplace look.",
+  "description": "Approachable professional photos for team pages, LinkedIn, résumés and company blogs. Open-collar shirts, knitwear and soft blazers in bright offices, cafés and coworking spaces, with candid moments that feel like a real day at work instead of a stiff studio session.",
+  "category": "professional",
+  "emoji": "👔",
+  "tags": [
+    "business casual",
+    "linkedin",
+    "office",
+    "smart casual",
+    "headshot",
+    "team page",
+    "resume",
+    "coworking"
+  ],
+  "colors": [
+    "#0f766e",
+    "#5eead4"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, stiff pose, tuxedo, heavy makeup, harsh flash",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 40,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Bright office desk",
+      "prompt": "relaxed professional portrait of {subject} seated at a light oak desk in a bright modern office, wearing an open-collar shirt under a soft unstructured blazer, leaning slightly forward with forearms on the desk, warm genuine smile, large windows with soft diffused daylight, plants and colleagues softly blurred behind, 50mm lens at f/2, shallow depth of field, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "relaxed professional portrait of {subject} seated at a light oak desk in a bright modern office, wearing a light blue open-collar oxford shirt under a navy unstructured blazer, leaning slightly forward with forearms on the desk, warm genuine smile, large windows with soft diffused daylight, plants and colleagues softly blurred behind, 50mm lens at f/2, shallow depth of field, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "relaxed professional portrait of {subject} seated at a light oak desk in a bright modern office, wearing a cream silk blouse under a camel unstructured blazer, leaning slightly forward with forearms on the desk, warm genuine smile, large windows with soft diffused daylight, plants and colleagues softly blurred behind, 50mm lens at f/2, shallow depth of field, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Coworking lounge",
+      "prompt": "candid portrait of {subject} in a stylish coworking lounge with velvet sofas and brass lamps, wearing a fine merino crew-neck sweater over a collared shirt, holding a ceramic coffee mug, mid-laugh while glancing toward the camera, warm ambient light mixed with window light, 35mm documentary style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Glass meeting room",
+      "prompt": "waist-up portrait of {subject} standing in a glass-walled meeting room, wearing a crisp button-down shirt with rolled sleeves and tailored chinos, one hand resting on the back of a chair, confident friendly expression, whiteboard softly out of focus, cool daylight balanced with warm practical lights, 85mm f/1.8, crisp focus on the eyes, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "waist-up portrait of {subject} standing in a glass-walled meeting room, wearing a crisp white button-down with sleeves rolled to the forearm and tailored navy chinos, one hand resting on the back of a chair, confident friendly expression, whiteboard softly out of focus, cool daylight balanced with warm practical lights, 85mm f/1.8, crisp focus on the eyes, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "waist-up portrait of {subject} standing in a glass-walled meeting room, wearing a striped poplin shirt tucked into high-waisted tailored trousers, one hand resting on the back of a chair, confident friendly expression, whiteboard softly out of focus, cool daylight balanced with warm practical lights, 85mm f/1.8, crisp focus on the eyes, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Café laptop",
+      "prompt": "lifestyle business portrait of {subject} at a window table in a minimalist café with a laptop open, wearing a soft knit polo, looking up from the screen with a relaxed smile, morning sunlight streaming across the table, latte and notebook slightly blurred in the foreground, 50mm lens, editorial lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Warm taupe studio",
+      "prompt": "head-and-shoulders portrait of {subject} on a warm taupe seamless backdrop, wearing a textured knit sweater over a collared shirt, soft clamshell lighting, open approachable expression, slight three-quarter turn, 85mm lens at f/4, even sharpness, clean modern team-page photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "head-and-shoulders portrait of {subject} on a warm taupe seamless backdrop, wearing a charcoal quarter-zip sweater over a white collared shirt, soft clamshell lighting, open approachable expression, slight three-quarter turn, 85mm lens at f/4, even sharpness, clean modern team-page photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "head-and-shoulders portrait of {subject} on a warm taupe seamless backdrop, wearing a fine-gauge oatmeal cardigan over a simple white top, soft clamshell lighting, open approachable expression, slight three-quarter turn, 85mm lens at f/4, even sharpness, clean modern team-page photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Walking to work",
+      "prompt": "candid street portrait of {subject} walking along a tree-lined downtown sidewalk with a leather work bag over one shoulder, wearing a lightweight trench coat over a smart casual outfit, natural mid-stride pose, morning golden light, city buildings softly blurred, 85mm lens, editorial street style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Standing desk",
+      "prompt": "environmental portrait of {subject} at a standing desk in a sunlit open-plan office, wearing a chambray shirt, turning from the monitor toward the camera with a calm confident smile, warm wood and greenery around, soft natural light, 35mm lens, documentary workplace photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Brick loft lean",
+      "prompt": "three-quarter portrait of {subject} leaning against an exposed brick wall in a converted loft office, arms loosely crossed, wearing a soft navy blazer over a crew-neck t-shirt, friendly self-assured expression, large industrial windows casting soft side light, 85mm f/2, warm natural color grade, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "three-quarter portrait of {subject} leaning against an exposed brick wall in a converted loft office, arms loosely crossed, wearing a navy blazer over a white crew-neck t-shirt and dark jeans, friendly self-assured expression, large industrial windows casting soft side light, 85mm f/2, warm natural color grade, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "three-quarter portrait of {subject} leaning against an exposed brick wall in a converted loft office, arms loosely crossed, wearing an oversized beige blazer over a black fitted top and dark jeans, friendly self-assured expression, large industrial windows casting soft side light, 85mm f/2, warm natural color grade, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Team huddle",
+      "prompt": "candid portrait of {subject} at the head of a bright meeting table, colleagues softly out of focus in the foreground, wearing a smart casual button-down shirt, gesturing mid-conversation with an engaged warm expression, overhead daylight, 50mm lens, authentic company culture photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Office plant corner",
+      "prompt": "close portrait of {subject} in a calm office corner full of leafy plants, wearing a rust-colored knit sweater, soft window light from the left, gentle smile, creamy green bokeh background, 105mm lens, fresh natural tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Terrace meeting",
+      "prompt": "portrait of {subject} seated on a sunny office terrace with a city view, wearing a linen-blend overshirt over a t-shirt, holding a tablet, relaxed confident smile, late afternoon warm light, background softly blurred, 85mm lens, airy lifestyle look, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hallway headshot",
+      "prompt": "business casual headshot of {subject} in a modern office hallway, wearing a soft collared knit shirt, soft window light, warm approachable smile, deep layered bokeh of glass and wood behind, 85mm lens at f/1.8, tack-sharp eyes, profile-photo framing, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "business casual headshot of {subject} in a modern office hallway, wearing a navy knit polo shirt, soft window light, warm approachable smile, deep layered bokeh of glass and wood behind, 85mm lens at f/1.8, tack-sharp eyes, profile-photo framing, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "business casual headshot of {subject} in a modern office hallway, wearing a soft cowl-neck knit top, soft window light, warm approachable smile, deep layered bokeh of glass and wood behind, 85mm lens at f/1.8, tack-sharp eyes, profile-photo framing, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

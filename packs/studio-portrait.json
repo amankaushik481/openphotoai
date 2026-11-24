@@ -1,0 +1,77 @@
+{
+  "slug": "studio-portrait",
+  "name": "Studio Portrait",
+  "tagline": "Editorial studio portraits with real photographic lighting.",
+  "description": "A full studio session without booking a photographer: seamless paper backdrops, colored gels, beauty dishes, hard and soft light setups, and editorial poses. Great for personal branding, press kits, social profiles and portfolio covers.",
+  "category": "creative",
+  "emoji": "📸",
+  "tags": ["studio", "portrait", "editorial", "fashion", "lighting", "branding"],
+  "colors": ["#7c3aed", "#ec4899"],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "cartoon, anime, illustration, 3d render, painting, plastic skin, deformed face, distorted features, extra limbs, extra fingers, bad hands, blurry, lowres, jpeg artifacts, text, watermark, logo, nudity",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 2,
+  "subjects": ["man", "woman", "person"],
+  "prompts": [
+    {
+      "title": "Beauty dish classic",
+      "prompt": "studio portrait of {subject} lit by a silver beauty dish from slightly above, seamless light grey paper backdrop, wearing a simple black turtleneck, crisp defined cheek shadows, bright catchlights, serene confident expression, shot on 105mm lens, medium-format detail, editorial magazine quality"
+    },
+    {
+      "title": "Color gel duotone",
+      "prompt": "creative studio portrait of {subject} with magenta and teal colored gel lighting from opposite sides, dark backdrop, bold duotone glow on {possessive} face, intense cinematic gaze, wearing a black jacket, high contrast, sharp focus, modern music-magazine aesthetic"
+    },
+    {
+      "title": "Low-key dramatic",
+      "prompt": "low-key dramatic portrait of {subject}, single hard light from the side carving the face, deep black background, chiaroscuro shadows, contemplative expression, wearing a dark textured shirt, rich detail in the highlights, fine-art studio photography, 85mm lens"
+    },
+    {
+      "title": "High-key bright",
+      "prompt": "high-key studio portrait of {subject} on a pure white seamless background, wearing an all-white outfit, soft wraparound lighting with no harsh shadows, joyful natural laugh, airy and fresh, clean commercial look, shot on 85mm lens, crisp and bright"
+    },
+    {
+      "title": "Warm terracotta backdrop",
+      "prompt": "editorial studio portrait of {subject} against a warm terracotta painted canvas backdrop, wearing an oatmeal linen shirt, soft directional window-style light, calm natural expression, earthy warm color palette, 85mm lens, shallow depth of field, lifestyle brand campaign look"
+    },
+    {
+      "title": "Cinematic rim light",
+      "prompt": "cinematic studio portrait of {subject} with strong backlit rim light outlining {possessive} hair and shoulders, soft frontal fill, smoky dark background with subtle haze, wearing a dark overcoat, determined gaze off-camera, film still aesthetic, anamorphic color grade"
+    },
+    {
+      "title": "Seated on apple box",
+      "prompt": "full-body seated studio portrait of {subject} sitting casually on a wooden apple box, seamless warm grey backdrop, wearing relaxed denim and a white t-shirt, soft large octabox light, natural relaxed pose with forearms on knees, editorial fashion photography, 50mm lens",
+      "aspectRatio": "2:3"
+    },
+    {
+      "title": "Hand-painted canvas",
+      "prompt": "classic studio portrait of {subject} in front of a hand-painted mottled olive-brown canvas backdrop, Rembrandt lighting, wearing a textured wool blazer, timeless painterly mood, rich muted tones, soft shadow falloff, medium-format portrait, sharp eyes"
+    },
+    {
+      "title": "Bold primary color",
+      "prompt": "playful studio portrait of {subject} on a saturated cobalt blue seamless backdrop, wearing a bright yellow sweater, even hard flash lighting with a crisp shadow, big genuine smile, pop-art color palette, fashion editorial energy, sharp detail"
+    },
+    {
+      "title": "Black and white fashion",
+      "prompt": "black and white fashion portrait of {subject}, strong window-style light through blinds casting striped shadows across the face and wall, wearing a crisp white shirt, intense direct gaze, high contrast monochrome, film grain, classic Vogue-inspired editorial"
+    },
+    {
+      "title": "Profile silhouette",
+      "prompt": "elegant side-profile studio portrait of {subject}, soft light from the front sculpting the facial profile, gradient backdrop from deep blue to black, calm expression with eyes closed, minimalist fine-art composition, crisp edges, 105mm lens"
+    },
+    {
+      "title": "Golden hour studio",
+      "prompt": "studio portrait of {subject} lit with a warm orange gelled key light imitating golden hour sun through a window, soft shadow patterns on a cream wall, wearing a soft knit cardigan, gentle smile, cozy warm atmosphere, 85mm lens, dreamy shallow depth of field"
+    },
+    {
+      "title": "Ring light close-up",
+      "prompt": "tight beauty close-up portrait of {subject} lit by a ring light, circular catchlights in the eyes, flawless even illumination, neutral background, natural skin texture with fine detail, subtle smile, macro-level sharpness on the eyes, modern beauty campaign",
+      "aspectRatio": "1:1"
+    },
+    {
+      "title": "Editorial lean",
+      "prompt": "three-quarter length editorial portrait of {subject} leaning against a textured grey studio wall, wearing a tailored monochrome outfit, soft overhead key light with a gentle fill, relaxed confident pose with hands in pockets, fashion-magazine styling, 70mm lens, crisp detail",
+      "aspectRatio": "2:3"
+    }
+  ]
+}

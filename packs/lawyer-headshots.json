@@ -1,0 +1,86 @@
+{
+  "slug": "lawyer-headshots",
+  "name": "Lawyer & Legal",
+  "tagline": "Credible, composed portraits for firms and practices.",
+  "description": "Portraits that say trustworthy counsel: law libraries, courthouse steps, conference rooms and classic studio headshots. Dark tailoring and calm, confident expressions for firm websites, directory listings and speaker bios, plus a warmer, approachable option for family and community practices.",
+  "category": "professional",
+  "emoji": "⚖️",
+  "tags": [
+    "lawyer",
+    "attorney",
+    "legal",
+    "law firm",
+    "headshot",
+    "counsel",
+    "professional",
+    "corporate"
+  ],
+  "colors": [
+    "#1e3a8a",
+    "#94a3b8"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, judge robe, gavel, casual clothes, cluttered desk",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 500,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Law library",
+      "prompt": "portrait of {subject} standing in a law library lined with leather-bound volumes, wearing a tailored charcoal suit, one hand resting on an open book on a reading table, composed confident expression, warm brass lamp light and soft window light, 85mm lens, distinguished legal portrait, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} standing in a law library lined with leather-bound volumes, wearing a charcoal suit, white shirt and navy tie, one hand resting on an open book on a reading table, composed confident expression, warm brass lamp light and soft window light, 85mm lens, distinguished legal portrait, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} standing in a law library lined with leather-bound volumes, wearing a charcoal skirt suit with a white blouse, one hand resting on an open book on a reading table, composed confident expression, warm brass lamp light and soft window light, 85mm lens, distinguished legal portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Courthouse steps",
+      "prompt": "portrait of {subject} on the stone steps of a neoclassical courthouse with tall columns, holding a leather briefcase, wearing a navy suit, determined assured expression, crisp morning light, 70mm lens, editorial legal feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Conference table",
+      "prompt": "portrait of {subject} at a polished conference table with neatly stacked case files, wearing a dark suit, hands steepled, calm attentive gaze, city skyline through glass walls softly blurred, 50mm lens, law firm website photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Classic blue headshot",
+      "prompt": "classic attorney headshot of {subject} on a deep blue mottled backdrop, wearing a dark suit, soft key light and gentle fill, trustworthy approachable smile, 85mm lens at f/4, crisp professional retouch, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "classic attorney headshot of {subject} on a deep blue mottled backdrop, wearing a dark suit, white shirt and silver tie, soft key light and gentle fill, trustworthy approachable smile, 85mm lens at f/4, crisp professional retouch, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "classic attorney headshot of {subject} on a deep blue mottled backdrop, wearing a dark tailored blazer over a white blouse, soft key light and gentle fill, trustworthy approachable smile, 85mm lens at f/4, crisp professional retouch, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mahogany office",
+      "prompt": "seated portrait of {subject} at a mahogany desk in a private office, bookshelves and framed certificates softly blurred behind, wearing a grey suit, warm composed smile, window light from the side, 50mm lens, established practice portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Marble hallway",
+      "prompt": "candid portrait of {subject} walking briskly down a marble hallway holding a file folder, wearing a tailored dark suit, focused confident expression, soft directional light from tall windows, 85mm lens, legal drama editorial look, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Signing the contract",
+      "prompt": "close portrait of {subject} signing a contract with a fountain pen at a polished desk, wearing a dark suit, glancing up at the camera with a reassuring expression, warm desk lamp light, shallow depth of field, 50mm lens, trustworthy counsel photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Glass office skyline",
+      "prompt": "portrait of {subject} standing in a glass-walled office high above the city, arms crossed, wearing a light grey suit, confident subtle smile, bright diffused daylight, skyline in soft focus, 85mm lens, modern law firm portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Approachable practice",
+      "prompt": "warm approachable headshot of {subject} for a family law practice, wearing a soft blazer over a fine knit sweater, gentle genuine smile, light beige backdrop, soft window-style light, 85mm lens, kind and trustworthy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome counsel",
+      "prompt": "black and white portrait of {subject} in a dark suit, three-quarter view, Rembrandt lighting against a dark background, steady assured gaze, fine grain, 105mm lens, timeless legal portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Client meeting",
+      "prompt": "candid portrait of {subject} explaining a document to a client across a table, the client softly blurred in the foreground, wearing a navy suit, attentive empathetic expression, soft daylight, 35mm lens, client-focused practice photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Window ledge reading",
+      "prompt": "portrait of {subject} seated on a wide window ledge reading case notes, wearing a crisp shirt with neatly folded sleeves, soft backlight from the window, calm thoughtful expression, 50mm lens, quiet editorial portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

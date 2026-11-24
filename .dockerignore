@@ -1,0 +1,31 @@
+# Keep the build context small and secret-free. The image installs its own dependencies.
+.git
+.github
+.vercel
+.next
+out
+build
+node_modules
+.pnpm-store
+.data
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+*.tsbuildinfo
+*.log
+.DS_Store
+
+# Never bake local secrets (or a local .env's NEXT_PUBLIC_* values) into the image.
+.env
+.env.*
+
+# Not needed to build or run the app.
+tests
+playwright.config.ts
+vitest.config.ts
+Dockerfile
+.dockerignore
+docker-compose*.yml
+compose*.yml

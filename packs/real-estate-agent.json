@@ -1,0 +1,86 @@
+{
+  "slug": "real-estate-agent",
+  "name": "Real Estate Agent",
+  "tagline": "Friendly, trustworthy photos for listings, signs and socials.",
+  "description": "Everything an agent needs for listings, yard signs, business cards and social posts: welcoming portraits in front of homes, staged kitchens and city condos, key-handover moments and a clean studio headshot. Warm, bright and approachable, so clients feel they already know you.",
+  "category": "professional",
+  "emoji": "🏡",
+  "tags": [
+    "real estate",
+    "realtor",
+    "agent",
+    "property",
+    "headshot",
+    "marketing",
+    "listing",
+    "broker"
+  ],
+  "colors": [
+    "#0369a1",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable signs, brand logos, cluttered room",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 480,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Front walkway",
+      "prompt": "friendly portrait of {subject} on the front walkway of a modern family home with a manicured lawn, wearing a tailored blazer, warm welcoming smile, soft late-afternoon light, the house softly blurred behind, 85mm lens at f/2, real estate marketing photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "friendly portrait of {subject} on the front walkway of a modern family home with a manicured lawn, wearing a navy blazer over an open-collar shirt, warm welcoming smile, soft late-afternoon light, the house softly blurred behind, 85mm lens at f/2, real estate marketing photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "friendly portrait of {subject} on the front walkway of a modern family home with a manicured lawn, wearing a royal blue blazer over a white top, warm welcoming smile, soft late-afternoon light, the house softly blurred behind, 85mm lens at f/2, real estate marketing photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Handing over keys",
+      "prompt": "portrait of {subject} holding out a set of house keys toward the camera with an excited genuine smile, standing in the bright entryway of a newly staged home, wearing a smart blazer, keys and face both crisp, soft natural light, 50mm lens, celebratory closing-day photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Open house kitchen",
+      "prompt": "portrait of {subject} leaning on a white marble kitchen island during an open house, wearing a crisp button-down shirt, warm inviting expression, pendant lights and a bowl of lemons, bright airy daylight, 35mm lens, lifestyle real estate photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Staged living room",
+      "prompt": "portrait of {subject} standing in an elegant staged living room with floor-to-ceiling windows, wearing a tailored dark suit, confident hospitable expression, soft daylight, neutral designer furniture softly blurred, 50mm lens, luxury property marketing, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sign-ready headshot",
+      "prompt": "clean headshot of {subject} on a soft light grey backdrop, wearing a bright brand-color blazer, approachable confident smile, soft even studio lighting, 85mm lens, crisp detail, ideal for yard signs and business cards, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "clean headshot of {subject} on a soft light grey backdrop, wearing a medium blue blazer over a white shirt, approachable confident smile, soft even studio lighting, 85mm lens, crisp detail, ideal for yard signs and business cards, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "clean headshot of {subject} on a soft light grey backdrop, wearing a coral blazer over a cream blouse, approachable confident smile, soft even studio lighting, 85mm lens, crisp detail, ideal for yard signs and business cards, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Neighborhood stroll",
+      "prompt": "candid portrait of {subject} walking along a leafy suburban street lined with charming houses, wearing a light trench coat and holding a leather folio, friendly mid-stride smile, golden morning light, 85mm lens, community-focused realtor photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Porch steps",
+      "prompt": "portrait of {subject} sitting on the steps of a classic porch with white columns and potted flowers, wearing smart casual layers, elbows relaxed on knees, warm open smile, soft shade, 50mm lens, welcoming hometown feel, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Condo balcony view",
+      "prompt": "portrait of {subject} on the balcony of a high-rise condo with a sweeping city view, wearing a sleek charcoal blazer, one hand on the glass railing, confident smile, golden-hour light, 35mm lens, urban luxury listing photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Curbside arrival",
+      "prompt": "portrait of {subject} beside a clean dark SUV parked at the curb outside a listing, holding a tablet, wearing a navy blazer, cheerful professional expression, soft overcast light, no badges visible, 50mm lens, on-the-go agent lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Home tour",
+      "prompt": "candid portrait of {subject} giving a home tour in a bright open-plan house, gesturing toward large windows, a client softly blurred in the foreground, wearing a smart casual blazer, engaged warm expression, natural daylight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Boutique office",
+      "prompt": "portrait of {subject} seated at a desk in a bright boutique brokerage office, architectural models and plants softly blurred behind, wearing a crisp shirt and blazer, friendly confident smile, window light, 50mm lens, trustworthy agent photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Twilight exterior",
+      "prompt": "portrait of {subject} in front of a contemporary home glowing with warm interior lights at twilight, wearing a dark tailored coat, calm proud smile, deep blue sky, soft fill light balanced with ambient light, 35mm lens, premium listing marketing, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

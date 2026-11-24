@@ -193,12 +193,11 @@ export async function listLedger(
   const conditions = [eq(creditLedger.userId, userId)];
   if (opts?.cursor) {
     const after = alias(creditLedger, "cursor_entry");
-    conditions.push(
-      sql`(${creditLedger.createdAt}, ${creditLedger.id}) < (
-        select ${after.createdAt}, ${after.id} from ${after}
-        where ${after.id} = ${opts.cursor} and ${after.userId} = ${userId}
-      )`,
-    );
+    const cursorRow = db
+      .select({ createdAt: after.createdAt, id: after.id })
+      .from(after)
+      .where(and(eq(after.id, opts.cursor), eq(after.userId, userId)));
+    conditions.push(sql`(${creditLedger.createdAt}, ${creditLedger.id}) < (${cursorRow})`);
   }
 
   const rows = await db

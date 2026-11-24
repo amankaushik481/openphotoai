@@ -1,0 +1,76 @@
+{
+  "slug": "linkedin-headshots",
+  "name": "LinkedIn Headshots",
+  "tagline": "Polished, recruiter-ready headshots that still look like you.",
+  "description": "Professional headshots for LinkedIn, résumés, company pages and speaker bios. Clean studio and office backdrops, flattering soft light, business and smart-casual wardrobe, and natural expressions that read as confident and approachable.",
+  "category": "professional",
+  "emoji": "💼",
+  "tags": ["linkedin", "headshot", "business", "corporate", "resume", "professional"],
+  "colors": ["#1d4ed8", "#0ea5e9"],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "cartoon, illustration, 3d render, painting, deformed face, distorted features, extra fingers, bad hands, blurry, out of focus, oversaturated, heavy makeup, harsh shadows, text, watermark, logo, cropped head",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 1,
+  "subjects": ["man", "woman", "person"],
+  "prompts": [
+    {
+      "title": "Classic grey studio",
+      "prompt": "professional corporate headshot of {subject}, head and shoulders, wearing a tailored charcoal suit jacket, neutral mottled grey studio backdrop, soft key light with gentle fill, catchlights in the eyes, confident relaxed smile, shot on 85mm lens at f/2.8, sharp focus on the eyes, natural skin texture, high-end retouching",
+      "promptMan": "professional corporate headshot of {subject}, head and shoulders, wearing a tailored charcoal suit, crisp white shirt and a navy tie, neutral mottled grey studio backdrop, soft key light with gentle fill, catchlights in the eyes, confident relaxed smile, shot on 85mm lens at f/2.8, sharp focus on the eyes, natural skin texture, high-end retouching",
+      "promptWoman": "professional corporate headshot of {subject}, head and shoulders, wearing a tailored charcoal blazer over a silk blouse, neutral mottled grey studio backdrop, soft key light with gentle fill, catchlights in the eyes, confident relaxed smile, shot on 85mm lens at f/2.8, sharp focus on the eyes, natural skin texture, high-end retouching"
+    },
+    {
+      "title": "Bright modern office",
+      "prompt": "headshot of {subject} in a bright modern open-plan office, softly blurred glass walls and plants in the background, wearing a smart navy blazer, warm genuine smile, natural window light from the side, shallow depth of field, 85mm portrait lens, crisp detail, editorial corporate photography"
+    },
+    {
+      "title": "Clean white background",
+      "prompt": "clean professional headshot of {subject} on a seamless pure white background, head and shoulders, wearing a light blue button-down shirt, even soft beauty lighting, approachable friendly expression, looking directly at the camera, high resolution, true-to-life skin tones, commercial studio photography"
+    },
+    {
+      "title": "Executive dark backdrop",
+      "prompt": "executive portrait of {subject} against a deep charcoal gradient backdrop, dramatic yet flattering Rembrandt lighting, wearing a black suit jacket, calm self-assured expression, slight head tilt, subtle rim light separating {possessive} hair from the background, medium-format look, ultra sharp, premium annual-report style"
+    },
+    {
+      "title": "Smart casual creative",
+      "prompt": "smart-casual headshot of {subject} for a creative professional profile, wearing a well-fitted knit sweater, warm beige studio background, soft window-style light, relaxed natural smile, slight three-quarter angle, 85mm lens, shallow depth of field, modern magazine look"
+    },
+    {
+      "title": "City window view",
+      "prompt": "professional portrait of {subject} standing by a large office window with a softly blurred city skyline behind, golden late-afternoon light, wearing a tailored grey blazer, confident approachable expression, bokeh background, 85mm f/1.8, crisp focus on the eyes, LinkedIn profile photo"
+    },
+    {
+      "title": "Outdoor natural light",
+      "prompt": "outdoor professional headshot of {subject} in front of soft green foliage, open shade with gentle natural light, wearing a crisp white shirt and an unstructured blazer, warm friendly smile, creamy bokeh background, 105mm portrait lens, fresh and approachable, natural skin texture"
+    },
+    {
+      "title": "Startup founder",
+      "prompt": "startup founder headshot of {subject}, wearing a minimal dark crew-neck t-shirt under a casual blazer, exposed brick wall softly blurred behind, warm practical lighting, confident slight smile, arms relaxed, shot at eye level, documentary-style editorial portrait, sharp and natural"
+    },
+    {
+      "title": "Navy studio color",
+      "prompt": "polished headshot of {subject} on a solid deep navy blue studio background, head and shoulders, wearing a light grey suit jacket, soft clamshell lighting, bright catchlights, friendly confident smile, color-graded for a modern corporate brand, high-end retouching while keeping natural skin texture"
+    },
+    {
+      "title": "Library and bookshelves",
+      "prompt": "professional portrait of {subject} in a warm wood-panelled library, bookshelves softly out of focus behind, wearing a tweed blazer, thoughtful approachable expression, soft window light from the left, 85mm lens, rich warm tones, academic and trustworthy look, sharp focus on the face"
+    },
+    {
+      "title": "Conference speaker",
+      "prompt": "conference speaker headshot of {subject}, wearing a sharp dark blazer, blurred stage lights and a large screen glow in the background, confident open expression, soft frontal key light, cinematic color grade, 85mm portrait lens, ideal for a speaker bio and event program"
+    },
+    {
+      "title": "Black and white classic",
+      "prompt": "timeless black and white headshot of {subject}, head and shoulders, wearing a dark suit jacket, soft directional studio light, rich tonal range, subtle film grain, calm confident gaze into the camera, fine-art portrait style, sharp eyes, natural skin texture"
+    },
+    {
+      "title": "Healthcare professional",
+      "prompt": "professional headshot of {subject} wearing a clean white lab coat over a light blue shirt, bright modern clinic softly blurred in the background, warm reassuring smile, soft even lighting, trustworthy and approachable, 85mm lens, crisp detail, natural skin tones"
+    },
+    {
+      "title": "Warm cafe meeting",
+      "prompt": "relaxed professional portrait of {subject} seated at a table in a bright minimalist cafe, laptop and coffee cup softly blurred in the foreground, wearing a smart-casual oxford shirt, natural window light, genuine smile, shallow depth of field, lifestyle business photography"
+    }
+  ]
+}

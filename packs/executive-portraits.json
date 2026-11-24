@@ -1,0 +1,92 @@
+{
+  "slug": "executive-portraits",
+  "name": "Executive Portraits",
+  "tagline": "Boardroom-ready authority for leaders and founders.",
+  "description": "Leadership portraits for annual reports, board pages, investor decks and press. Dark tailoring, corner offices, marble lobbies and skyline terraces, lit like a magazine business profile: composed, credible and unmistakably you.",
+  "category": "professional",
+  "emoji": "🏛️",
+  "tags": [
+    "executive",
+    "ceo",
+    "leadership",
+    "corporate",
+    "boardroom",
+    "annual report",
+    "headshot",
+    "suit"
+  ],
+  "colors": [
+    "#111827",
+    "#b45309"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, casual clothes, messy background, cheesy stock photo, oversaturated",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 50,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Head of the table",
+      "prompt": "executive portrait of {subject} standing at the head of a long walnut boardroom table, wearing a tailored dark navy suit, fingertips lightly resting on the table, composed confident expression, floor-to-ceiling windows with a softly blurred skyline, cool daylight with warm fill, 50mm lens, annual-report photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "executive portrait of {subject} standing at the head of a long walnut boardroom table, wearing a tailored dark navy suit, white shirt and burgundy silk tie, fingertips lightly resting on the table, composed confident expression, floor-to-ceiling windows with a softly blurred skyline, cool daylight with warm fill, 50mm lens, annual-report photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "executive portrait of {subject} standing at the head of a long walnut boardroom table, wearing a tailored dark navy pantsuit with a silk shell top, fingertips lightly resting on the table, composed confident expression, floor-to-ceiling windows with a softly blurred skyline, cool daylight with warm fill, 50mm lens, annual-report photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Corner office window",
+      "prompt": "waist-up portrait of {subject} beside the window of a high-rise corner office, wearing a charcoal suit, turning from the view toward the camera with a subtle assured smile, late-afternoon light raking across the face, city far below in soft focus, 85mm f/2, cinematic corporate look, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Arms crossed studio",
+      "prompt": "executive studio portrait of {subject} with arms crossed, wearing a black tailored suit, deep charcoal backdrop, soft Rembrandt key light with a subtle hair light, calm authoritative gaze into the lens, 85mm lens at f/5.6, crisp detail, business magazine profile style, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "executive studio portrait of {subject} with arms crossed, wearing a black tailored suit, white shirt and dark tie, deep charcoal backdrop, soft Rembrandt key light with a subtle hair light, calm authoritative gaze into the lens, 85mm lens at f/5.6, crisp detail, business magazine profile style, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "executive studio portrait of {subject} with arms crossed, wearing a black tailored blazer and trousers with an ivory blouse, deep charcoal backdrop, soft Rembrandt key light with a subtle hair light, calm authoritative gaze into the lens, 85mm lens at f/5.6, crisp detail, business magazine profile style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wingback chair",
+      "prompt": "seated portrait of {subject} in a tan leather wingback chair in a wood-paneled executive office, wearing a navy three-piece suit, legs crossed, hands relaxed, bookshelves and a glowing desk lamp behind, warm low-key lighting, 50mm lens, timeless leadership portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Marble lobby walk",
+      "prompt": "full-length portrait of {subject} walking through a grand marble office lobby, wearing a tailored overcoat over a dark suit, purposeful stride, morning sunlight through tall glass, reflections on the polished floor, 70mm lens, editorial business feature, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "full-length portrait of {subject} walking through a grand marble office lobby, wearing a camel overcoat over a dark navy suit, purposeful stride, morning sunlight through tall glass, reflections on the polished floor, 70mm lens, editorial business feature, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "full-length portrait of {subject} walking through a grand marble office lobby, wearing a camel overcoat over a tailored black sheath dress, purposeful stride, morning sunlight through tall glass, reflections on the polished floor, 70mm lens, editorial business feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Leading the board",
+      "prompt": "candid portrait of {subject} leading a board meeting beside a large display showing a blurred chart, wearing a light grey suit, mid-sentence with a confident open-hand gesture, attentive colleagues softly out of focus, cool overhead daylight, 35mm documentary style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Skyline at blue hour",
+      "prompt": "portrait of {subject} on a rooftop terrace at blue hour, city lights glittering behind in creamy bokeh, wearing a dark tailored suit with an open collar, relaxed confident posture with hands in pockets, soft key light from the left, 85mm f/1.4, premium cinematic look, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome authority",
+      "prompt": "black and white executive portrait of {subject}, head and shoulders, wearing a dark suit, strong side light with deep shadow, steady direct gaze, fine film grain, rich tonal range, 105mm lens, classic magazine leadership portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bright atrium",
+      "prompt": "bright annual-report portrait of {subject} in a modern white atrium, wearing a light grey suit, standing at a three-quarter angle with a warm assured smile, airy high-key lighting, clean architectural lines behind, 85mm lens, crisp and optimistic, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "bright annual-report portrait of {subject} in a modern white atrium, wearing a light grey suit with an open-collar white shirt, standing at a three-quarter angle with a warm assured smile, airy high-key lighting, clean architectural lines behind, 85mm lens, crisp and optimistic, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "bright annual-report portrait of {subject} in a modern white atrium, wearing a light grey tailored suit with a pale blue blouse, standing at a three-quarter angle with a warm assured smile, airy high-key lighting, clean architectural lines behind, 85mm lens, crisp and optimistic, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desk with fountain pen",
+      "prompt": "portrait of {subject} seated at a clean executive desk reviewing documents with a fountain pen, wearing a navy suit, glancing up at the camera with a confident slight smile, warm desk lamp and window light, shallow depth of field, 50mm lens, refined leadership photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Private library",
+      "prompt": "portrait of {subject} standing in front of floor-to-ceiling dark bookshelves in a private office library, wearing a charcoal suit, hands loosely clasped, thoughtful composed expression, soft window light and warm lamps, 85mm lens, rich deep tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Navy studio headshot",
+      "prompt": "polished executive headshot of {subject} on a deep navy studio backdrop, wearing a dark suit, soft beauty-dish key light, gentle rim light on the shoulders, confident trustworthy expression, 85mm lens at f/4, high-end corporate retouch, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "polished executive headshot of {subject} on a deep navy studio backdrop, wearing a dark suit, light blue shirt and navy tie, soft beauty-dish key light, gentle rim light on the shoulders, confident trustworthy expression, 85mm lens at f/4, high-end corporate retouch, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "polished executive headshot of {subject} on a deep navy studio backdrop, wearing a dark tailored blazer with a cream silk blouse, soft beauty-dish key light, gentle rim light on the shoulders, confident trustworthy expression, 85mm lens at f/4, high-end corporate retouch, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

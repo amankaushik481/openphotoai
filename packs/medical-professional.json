@@ -1,0 +1,86 @@
+{
+  "slug": "medical-professional",
+  "name": "Medical Professional",
+  "tagline": "Trustworthy portraits for doctors, nurses and clinicians.",
+  "description": "Credible, caring photos for practice websites, hospital directories, telehealth profiles and conference bios. White coats and scrubs in clinics, corridors, labs and consultation rooms, lit softly so you look calm, competent and approachable.",
+  "category": "professional",
+  "emoji": "🩺",
+  "tags": [
+    "doctor",
+    "medical",
+    "healthcare",
+    "nurse",
+    "clinic",
+    "hospital",
+    "physician",
+    "dentist"
+  ],
+  "colors": [
+    "#0891b2",
+    "#a7f3d0"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, medical gore, injury, messy hospital, harsh green light",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 490,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "White coat studio",
+      "prompt": "professional headshot of {subject} wearing a crisp white physician coat over a light blue shirt with a stethoscope around the neck, soft light grey backdrop, warm reassuring smile, even soft lighting, 85mm lens at f/4, clean healthcare portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hospital corridor",
+      "prompt": "portrait of {subject} walking down a bright modern hospital corridor, wearing navy scrubs under a white coat with a tablet in hand, calm confident expression, soft overhead light, corridor softly blurred, 85mm f/2, authentic medical photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Consultation room",
+      "prompt": "portrait of {subject} seated at a desk in a calm consultation room, wearing a white coat, leaning forward attentively with a kind smile as if listening to a patient, an anatomical model and plants softly blurred, warm window light, 50mm lens, compassionate care photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Scrubs and cap",
+      "prompt": "portrait of {subject} in ceil-blue scrubs and a patterned scrub cap, arms crossed, standing in a clean prep area, confident focused expression, cool clinical light softened with warm fill, 85mm lens, medical team portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Research laboratory",
+      "prompt": "portrait of {subject} in a modern research laboratory wearing a white lab coat with safety glasses pushed up on the head, holding a sample tube up to the light, curious focused expression, blue-tinted lab light with a warm key, 50mm lens, science feature photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Reviewing scans",
+      "prompt": "portrait of {subject} reviewing a softly glowing x-ray on a lightbox, wearing a white coat, turning toward the camera with a thoughtful expression, cool backlight and gentle frontal fill, 50mm lens, editorial medical feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Nurse station",
+      "prompt": "friendly portrait of {subject} at a nurse station, wearing teal scrubs with a stethoscope draped around the neck, warm approachable smile, colleagues softly blurred in the background, bright even light, 35mm lens, caring healthcare team photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Clinic entrance",
+      "prompt": "portrait of {subject} standing outside a modern glass clinic entrance, wearing a white coat over smart clothes, arms relaxed, warm confident smile, soft overcast daylight, 85mm lens, practice website hero image, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dental practice",
+      "prompt": "portrait of {subject} in a bright modern dental practice, wearing a fitted white clinical tunic, standing beside a dental chair, friendly reassuring smile with natural teeth, soft daylight, 50mm lens, clean clinic marketing photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Telehealth call",
+      "prompt": "portrait of {subject} on a telehealth consultation at a tidy desk with a laptop, wearing a white coat over a light sweater, warm engaged expression toward the camera, soft window light, home office bookshelf softly blurred, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome clinician",
+      "prompt": "black and white portrait of {subject} wearing a white coat and stethoscope, head and shoulders, soft window side light, calm empathetic expression, fine grain, 85mm lens, dignified documentary portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "End of shift",
+      "prompt": "portrait of {subject} leaning in a hospital doorway in navy scrubs with a coffee cup at the end of a shift, tired but warm smile, early morning light through tall windows, 35mm lens, honest documentary healthcare photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Physical therapy studio",
+      "prompt": "portrait of {subject} in a bright physical therapy studio, wearing a navy clinic polo shirt, standing beside exercise equipment and resistance bands, encouraging smile, natural daylight, 35mm lens, active healthcare photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

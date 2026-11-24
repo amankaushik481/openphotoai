@@ -1,0 +1,89 @@
+{
+  "slug": "founder-press-kit",
+  "name": "Founder & Press Kit",
+  "tagline": "Editorial portraits for features, funding news and About pages.",
+  "description": "The photos journalists ask for when your startup makes the news. Magazine-feature portraits in loft offices, workshops and launch stages, plus clean press-kit shots with room to crop. Smart casual founder style, honest light and no cheesy stock-photo poses.",
+  "category": "professional",
+  "emoji": "🚀",
+  "tags": [
+    "founder",
+    "startup",
+    "press kit",
+    "entrepreneur",
+    "editorial",
+    "tech",
+    "about page",
+    "media"
+  ],
+  "colors": [
+    "#4f46e5",
+    "#f97316"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, cheesy stock photo, thumbs up, fake handshake, oversaturated",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 100,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Loft feature story",
+      "prompt": "editorial magazine-feature portrait of {subject} in a sunlit loft office, wearing a dark crew-neck sweater, leaning on a reclaimed wood desk with arms crossed, confident easy smile, a small team softly blurred working in the background, natural window light, 35mm lens, business-feature photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Whiteboard thinking",
+      "prompt": "candid portrait of {subject} in front of a whiteboard covered in blurred abstract diagrams, holding a marker, turning toward the camera mid-thought, wearing a casual button-down shirt, cool daylight, 50mm lens, authentic startup documentary style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hoodie and blazer",
+      "prompt": "founder portrait of {subject} wearing a grey hoodie under a navy blazer, standing in a modern open office with exposed ductwork, hands in pockets, grounded confident expression, soft side light, 85mm lens, crisp editorial look, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Press-kit studio",
+      "prompt": "clean press portrait of {subject} on a solid warm grey backdrop, wearing a minimal dark sweater, waist-up, open approachable smile, soft large key light, generous space around for cropping, 85mm lens at f/5.6, high-resolution press-kit photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "clean press portrait of {subject} on a solid warm grey backdrop, wearing a black merino crew-neck sweater, waist-up, open approachable smile, soft large key light, generous space around for cropping, 85mm lens at f/5.6, high-resolution press-kit photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "clean press portrait of {subject} on a solid warm grey backdrop, wearing a black merino turtleneck, waist-up, open approachable smile, soft large key light, generous space around for cropping, 85mm lens at f/5.6, high-resolution press-kit photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Launch stage",
+      "prompt": "portrait of {subject} on a product launch stage holding a presentation clicker, a large glowing screen with abstract blurred visuals behind, wearing a dark t-shirt and blazer, energetic confident expression, stage spotlight and light haze, 70-200mm lens, keynote event photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "3:2"
+    },
+    {
+      "title": "Rooftop optimism",
+      "prompt": "portrait of {subject} on an office rooftop with the downtown skyline behind, wearing a casual jacket over a t-shirt, relaxed stance, warm golden-hour backlight with soft fill, 85mm f/1.8, optimistic tech-founder feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hardware workshop",
+      "prompt": "environmental portrait of {subject} in a hardware workshop with prototypes and pegboard walls, wearing a canvas work apron over a t-shirt, holding a small prototype device, proud focused expression, warm practical lights, 35mm lens, documentary maker photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Late night build",
+      "prompt": "moody portrait of {subject} working late at a desk lit by a laptop glow and a warm desk lamp, wearing a dark sweater, city lights through the window behind, contemplative determined expression, cinematic low-key lighting, 50mm lens, magazine profile feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Team behind",
+      "prompt": "portrait of {subject} standing in the foreground of a busy bright open office, the team collaborating out of focus behind, wearing a casual blazer over a t-shirt, warm genuine smile, natural daylight, 85mm f/1.4 with deep bokeh, startup culture press photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Concrete stairs",
+      "prompt": "editorial portrait of {subject} sitting on concrete stairs in a minimalist modern building, elbows on knees, wearing a black t-shirt and dark jeans, direct thoughtful gaze, soft directional daylight and graphic shadows, 35mm lens, contemporary business magazine style, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Podcast guest",
+      "prompt": "portrait of {subject} as a guest in a podcast studio, broadcast microphone on a boom arm in the foreground, wearing a casual button-down shirt, mid-laugh, warm studio lights and acoustic panels softly blurred, 50mm lens, media appearance photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome press portrait",
+      "prompt": "black and white portrait of {subject} against a textured concrete wall, wearing a simple dark jacket, chin slightly lowered with a determined gaze, hard window light, deep blacks and fine grain, 85mm lens, timeless press portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Campus coffee walk",
+      "prompt": "candid portrait of {subject} walking across a tech campus courtyard holding a coffee cup and a laptop, wearing a light jacket, mid-stride with a relaxed smile, morning sun, background softly blurred, 85mm lens, lifestyle press photo, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "slug": "academic-speaker",
+  "name": "Academic & Speaker",
+  "tagline": "Faculty, author and keynote portraits with gravitas and warmth.",
+  "description": "For professors, researchers, authors and keynote speakers: lecture halls, book-lined offices, labs, conference stages and green rooms. Use them for faculty pages, book jackets, event programs and speaker one-sheets.",
+  "category": "professional",
+  "emoji": "🧑‍🏫",
+  "tags": [
+    "academic",
+    "professor",
+    "keynote",
+    "speaker",
+    "author",
+    "researcher",
+    "conference",
+    "faculty"
+  ],
+  "colors": [
+    "#7c2d12",
+    "#fbbf24"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, readable slides, cluttered stage",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 510,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Keynote spotlight",
+      "prompt": "portrait of {subject} speaking on a large conference stage under a warm spotlight, wearing a dark blazer and a discreet headset microphone, open-hand gesture mid-sentence, huge glowing screen with abstract visuals behind, audience silhouettes in the foreground, 70-200mm lens, keynote event photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "3:2"
+    },
+    {
+      "title": "Lecture hall",
+      "prompt": "portrait of {subject} at the front of a tiered wooden lecture hall, leaning on the lectern, wearing a tweed blazer over a knit sweater, engaged warm expression, rows of seats softly blurred, soft daylight from high windows, 35mm lens, university feature photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Faculty office",
+      "prompt": "portrait of {subject} in a book-filled faculty office, seated on the edge of a desk stacked with papers, wearing a cardigan over a collared shirt, thoughtful smile, warm lamp light and window light, 50mm lens, author bio photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Panel discussion",
+      "prompt": "candid portrait of {subject} speaking on a conference panel, seated in a modern lounge chair holding a handheld microphone, wearing a smart blazer, animated thoughtful expression, other panelists softly blurred, stage lights, 85mm lens, event coverage photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Chalkboard",
+      "prompt": "portrait of {subject} in front of a large chalkboard filled with softly blurred abstract diagrams, holding a piece of chalk, wearing a shirt with rolled sleeves, curious playful smile, classroom daylight, 50mm lens, editorial science feature, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Campus quad",
+      "prompt": "portrait of {subject} walking across a historic university quad with ivy-covered stone buildings, carrying a leather satchel, wearing a wool coat and scarf, relaxed confident smile, crisp autumn light, 85mm lens, alumni magazine photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Book jacket",
+      "prompt": "author portrait of {subject} for a book jacket, seated in a leather armchair by a window, wearing a dark roll-neck sweater, hands folded in the lap, contemplative gaze into the camera, soft window light, warm muted tones, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "author portrait of {subject} for a book jacket, seated in a leather armchair by a window, wearing a charcoal roll-neck sweater and wool trousers, hands folded in the lap, contemplative gaze into the camera, soft window light, warm muted tones, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "author portrait of {subject} for a book jacket, seated in a leather armchair by a window, wearing a black roll-neck sweater and a long wool skirt, hands folded in the lap, contemplative gaze into the camera, soft window light, warm muted tones, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Research lab",
+      "prompt": "portrait of {subject} in a modern research lab beside a microscope, wearing a white lab coat over a sweater, looking up from the eyepiece with an intrigued smile, cool blue lab light with a warm key, 50mm lens, research institute photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Green room notes",
+      "prompt": "candid portrait of {subject} in a conference green room before a talk, reviewing notes on index cards, wearing a smart blazer, calm focused expression, warm mirror bulbs softly blurred, 35mm lens, behind-the-scenes speaker photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Event program headshot",
+      "prompt": "speaker headshot of {subject} for an event program, wearing a navy blazer, warm confident smile, dark gradient backdrop with a subtle blue stage glow, soft frontal key light, 85mm lens at f/2.8, crisp and professional, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Library stacks",
+      "prompt": "portrait of {subject} between tall library stacks, pulling a book from the shelf and glancing toward the camera, wearing a corduroy blazer, soft warm light, rows of books receding in shallow focus, 50mm lens, scholarly editorial portrait, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seminar table",
+      "prompt": "candid portrait of {subject} leading a small seminar around an oval wooden table, adult participants softly blurred in the foreground, wearing a knit sweater over a shirt, mid-explanation with an expressive gesture, natural daylight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Book signing",
+      "prompt": "portrait of {subject} at a signing table in an independent bookstore, a stack of hardcover books with plain covers beside, pen in hand, warm smile looking up, cozy warm lighting, 50mm lens, author event photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}
