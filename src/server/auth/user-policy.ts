@@ -10,8 +10,6 @@ import { db } from "@/db";
 import { user as userTable } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { env } from "@/lib/env";
-import { applyCredit } from "@/server/credits/ledger";
-import { sendEmail } from "@/server/email";
 import type { UserRole } from "@/types/domain";
 
 export function normalizeEmail(email: string): string {
@@ -86,6 +84,7 @@ export async function onUserCreated(u: { id: string; email: string; name?: strin
   const bonus = env.SIGNUP_BONUS_CREDITS;
   if (bonus > 0) {
     try {
+      const { applyCredit } = await import("@/server/credits/ledger");
       await applyCredit({
         userId: u.id,
         delta: bonus,
@@ -98,7 +97,7 @@ export async function onUserCreated(u: { id: string; email: string; name?: strin
     }
   }
   // Fire-and-forget: signup must not wait on (or fail because of) the email provider.
-  void Promise.resolve()
-    .then(() => sendEmail("welcome", u.email, { name: u.name ?? "" }, { userId: u.id }))
+  void import("@/server/email")
+    .then(({ sendEmail }) => sendEmail("welcome", u.email, { name: u.name ?? "" }, { userId: u.id }))
     .catch((err: unknown) => console.error("[auth] welcome email failed", { userId: u.id, err }));
 }

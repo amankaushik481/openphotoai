@@ -13,7 +13,6 @@ import { db } from "@/db";
 import { account, session, user, verification } from "@/db/schema";
 import { env } from "@/lib/env";
 import { newId } from "@/lib/ids";
-import { sendEmail } from "@/server/email";
 import { enforceMagicLinkRateLimit, toVerifyPageUrl } from "./magic-link";
 import { admitSignIn, onUserCreated, prepareNewUser, type SignInBlock } from "./user-policy";
 
@@ -114,6 +113,7 @@ function createAuth() {
         storeToken: "hashed",
         sendMagicLink: async ({ email, url }, ctx) => {
           await enforceMagicLinkRateLimit(requestHeaders(ctx));
+          const { sendEmail } = await import("@/server/email"); // lazy: keeps provider SDKs off the auth path
           await sendEmail("magic_link", email, { url: toVerifyPageUrl(url, appUrl) });
         },
       }),

@@ -12,7 +12,7 @@
  * layer. All network/SDK errors propagate: callers fail closed.
  */
 import type { DetectedFace, FaceProvider } from "../types";
-import { decodeRgb, loadSharp, toUprightJpeg } from "./image-decode";
+import { loadSharp, toUprightJpeg } from "./image-decode";
 import { createLocalFaceProvider } from "./local-face";
 
 /** Rekognition accepts JPEG/PNG up to 5 MB as raw bytes. */
@@ -263,22 +263,20 @@ export function createRekognitionFaceProvider(opts: RekognitionOptions): Rekogni
 }
 
 /**
- * Standalone RecognizeCelebrities check, shaped like `ModerationProvider.detectPublicFigure`
- * so the moderation layer can use it with any moderation backend.
+ * Celebrity check shaped like `ModerationProvider.detectPublicFigure`, so the moderation layer
+ * can use RecognizeCelebrities with any moderation backend. Reuse the returned function (it
+ * holds one SDK client).
  */
-export function detectCelebrity(
-  bytes: Uint8Array,
+export function createRekognitionCelebrityDetector(
   opts: Pick<RekognitionOptions, "region" | "accessKeyId" | "secretAccessKey" | "client" | "celebrityMinConfidence">,
-): Promise<PublicFigureResult> {
-  return createRekognitionFaceProvider({ ...opts, embedder: noEmbedder }).detectCelebrity(bytes);
+): (bytes: Uint8Array) => Promise<PublicFigureResult> {
+  const provider = createRekognitionFaceProvider({ ...opts, embedder: unusedEmbedder });
+  return (bytes) => provider.detectCelebrity(bytes);
 }
 
-/** Placeholder embedder for celebrity-only use (never called by `detectCelebrity`). */
-const noEmbedder: FaceProvider = {
+/** Celebrity-only use never analyzes faces, so no local models are loaded. */
+const unusedEmbedder: FaceProvider = {
   name: "none",
   matchThreshold: 1,
   analyze: () => Promise.reject(new Error("embedder not configured")),
 };
-
-/** Kept for callers that only need the decode step's upright size (e.g. diagnostics). */
-export { decodeRgb as _decodeRgbForDiagnostics };
