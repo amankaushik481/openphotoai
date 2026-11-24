@@ -89,13 +89,14 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 |---|---|---|---|
 | GET | `/api/models` | UK | → `{ models: IdentityModelDTO[] }` (own + shared) |
 | POST | `/api/models` | U | `{ name, subject }` → `{ model }` (status `awaiting_consent`) |
-| GET | `/api/models/:id` | UK | → `{ model, photos: TrainingPhotoDTO[], readiness: ReadinessDTO }` |
+| GET | `/api/models/:id` | UK | → `{ model, photos: TrainingPhotoDTO[], readiness: ReadinessDTO, readinessByMode }` |
 | PATCH | `/api/models/:id` | U | `{ name }` → `{ model }` |
 | DELETE | `/api/models/:id` | U | → `{ ok }` (real deletion + email) |
-| POST | `/api/models/:id/consent` | U | multipart `selfie` (live camera capture) → `{ model }` |
-| POST | `/api/models/:id/photos` | U | multipart `file` → `{ photo: TrainingPhotoDTO }` (quality + safety checked) |
-| DELETE | `/api/models/:id/photos/:photoId` | U | → `{ ok }` |
-| POST | `/api/models/:id/train` | U | → `{ job: JobDTO }` |
+| POST | `/api/models/:id/consent/challenge` | U | → `{ captureToken, expiresAt }` (single-use, 5 min) |
+| POST | `/api/models/:id/consent` | U | multipart `selfie` (live camera capture) + `captureToken` → `{ model }` |
+| POST | `/api/models/:id/photos` | U | multipart `file` → `{ photo, readiness, readinessByMode }` (quality + safety checked; safety failures are rejected with 422 and never stored) |
+| DELETE | `/api/models/:id/photos/:photoId` | U | → `{ ok, model, readiness }` |
+| POST | `/api/models/:id/train` | U | `{ mode: "instant" \| "trained" }` → `{ model, job: JobDTO \| null }` (instant: free, immediate) |
 
 ### Jobs / generation
 | Method | Path | Auth | Body → Response |
