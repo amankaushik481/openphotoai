@@ -95,14 +95,24 @@ function decodeCursor(cursor: string): { createdAt: Date; id: string } {
   return { createdAt, id };
 }
 
+/**
+ * A Date as a raw-SQL timestamptz parameter. Raw `sql` templates don't get the column's encoder,
+ * and the postgres-js driver rejects bare Date parameters there (PGlite happens to accept them).
+ */
+function tsParam(d: Date): SQL {
+  return sql`${d.toISOString()}::timestamptz`;
+}
+
 /** Rows strictly older than `c` in (createdAt desc, id desc) order. */
 function olderThan(c: { createdAt: Date; id: string }): SQL {
-  return or(sql`${createdMs} < ${c.createdAt}`, and(sql`${createdMs} = ${c.createdAt}`, lt(media.id, c.id)))!;
+  const at = tsParam(c.createdAt);
+  return or(sql`${createdMs} < ${at}`, and(sql`${createdMs} = ${at}`, lt(media.id, c.id)))!;
 }
 
 /** Rows strictly newer than `c` in (createdAt desc, id desc) order. */
 function newerThan(c: { createdAt: Date; id: string }): SQL {
-  return or(sql`${createdMs} > ${c.createdAt}`, and(sql`${createdMs} = ${c.createdAt}`, gt(media.id, c.id)))!;
+  const at = tsParam(c.createdAt);
+  return or(sql`${createdMs} > ${at}`, and(sql`${createdMs} = ${at}`, gt(media.id, c.id)))!;
 }
 
 export interface MediaPage {

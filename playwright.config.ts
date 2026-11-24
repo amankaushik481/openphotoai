@@ -35,6 +35,9 @@ export default defineConfig({
     // Traces are off by default (also forced by `pnpm test:e2e`); enable with `--trace on`.
     trace: "off",
     screenshot: "only-on-failure",
+    // Long journeys raise the test timeout; single actions should still fail fast.
+    actionTimeout: 15_000,
+    navigationTimeout: 30_000,
   },
   projects: [
     {

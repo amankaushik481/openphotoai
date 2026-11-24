@@ -99,7 +99,9 @@ export async function listJobsForUser(userId: string, q: ListJobsQuery): Promise
   if (q.ids?.length) conds.push(inArray(jobs.id, q.ids));
   if (q.cursor) {
     const c = decodeCursor(q.cursor);
-    conds.push(or(sql`${createdMs} < ${c.createdAt}`, and(sql`${createdMs} = ${c.createdAt}`, lt(jobs.id, c.id))));
+    // ISO string + cast: the postgres-js driver rejects bare Date parameters in raw `sql` templates.
+    const at = sql`${c.createdAt.toISOString()}::timestamptz`;
+    conds.push(or(sql`${createdMs} < ${at}`, and(sql`${createdMs} = ${at}`, lt(jobs.id, c.id))));
   }
   const rows = await db
     .select()
