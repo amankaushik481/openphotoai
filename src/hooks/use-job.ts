@@ -107,7 +107,8 @@ export function useJobs(ids: readonly string[], options: { onAllTerminal?: (jobs
 
   const jobs = React.useMemo(() => data ?? [], [data]);
   const allDone = ids.length > 0 && jobs.length === ids.length && allJobsTerminal(jobs);
-  const summary = React.useMemo(() => ({ status: allDone ? "done" : "running" }), [allDone]);
+  // Undefined until loaded, so jobs that were already finished on mount don't fire the callback.
+  const summary = React.useMemo(() => (data ? { status: allDone ? "done" : "running" } : undefined), [data, allDone]);
   useOnTerminal(summary, allDone, options.onAllTerminal ? () => options.onAllTerminal?.(jobs) : undefined);
 
   return { jobs, error, isLoading, allDone, mutate };

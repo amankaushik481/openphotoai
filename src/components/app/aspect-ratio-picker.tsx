@@ -5,6 +5,7 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ASPECT_RATIOS, type AspectRatio } from "@/types/domain";
+import type { TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 
@@ -18,11 +19,11 @@ export interface AspectRatioPickerProps {
   className?: string;
 }
 
-const NAMES: Partial<Record<AspectRatio, string>> = {
-  "1:1": "Square",
-  "4:5": "Portrait",
-  "9:16": "Story",
-  "16:9": "Wide",
+const NAMES: Partial<Record<AspectRatio, TranslationKey>> = {
+  "1:1": "create.ratios.square",
+  "4:5": "create.ratios.portrait",
+  "9:16": "create.ratios.story",
+  "16:9": "create.ratios.wide",
 };
 
 /** Shape preview scaled into a 20×20 box. */
@@ -71,7 +72,7 @@ export function AspectRatioPicker({
           <ToggleGroupItem
             key={ratio}
             value={ratio}
-            aria-label={NAMES[ratio] ? `${ratio} ${NAMES[ratio]}` : ratio}
+            aria-label={NAMES[ratio] ? `${ratio} ${t(NAMES[ratio])}` : ratio}
             className="h-auto min-w-[4.25rem] flex-none flex-col gap-1 rounded-lg border px-3 py-2 first:rounded-lg last:rounded-lg data-[variant=outline]:border-l"
           >
             <RatioShape ratio={ratio} />

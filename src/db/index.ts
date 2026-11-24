@@ -28,7 +28,7 @@ function createDb(url: string): Database {
     return drizzlePglite(client, { schema, casing: "snake_case" }) as unknown as Database;
   }
   const client = postgres(url, {
-    max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+    max: Number(process.env.DATABASE_POOL_MAX) || 10,
     prepare: !/pooler|pgbouncer|:6543/.test(url), // transaction poolers don't support prepared statements
   });
   closer = () => client.end({ timeout: 5 });

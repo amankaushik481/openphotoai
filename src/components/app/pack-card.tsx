@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import type { PackSummary } from "@/types/pack";
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export interface PackCardProps {
@@ -54,12 +55,12 @@ export function PackCard({ pack, href, priority = false, className }: PackCardPr
         )}
         {(pack.isNew || pack.featured) && (
           <div className="absolute top-2 left-2 flex gap-1">
-            {pack.isNew && <Badge className="bg-background/90 text-foreground">New</Badge>}
-            {pack.featured && <Badge className="bg-background/90 text-foreground">Featured</Badge>}
+            {pack.isNew && <Badge className="bg-background/90 text-foreground">{t("packs.new")}</Badge>}
+            {pack.featured && <Badge className="bg-background/90 text-foreground">{t("packs.featured")}</Badge>}
           </div>
         )}
         <span className="absolute right-2 bottom-2 rounded-full bg-black/45 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
-          {pack.promptCount} styles
+          {t("packs.styles", { count: pack.promptCount })}
         </span>
       </div>
       <div className="flex flex-col gap-0.5 px-0.5">

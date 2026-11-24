@@ -165,6 +165,17 @@ export const en = {
   },
   create: {
     aspectRatio: "Aspect ratio",
+    ratios: {
+      square: "Square",
+      portrait: "Portrait",
+      story: "Story",
+      wide: "Wide",
+    },
+  },
+  packs: {
+    new: "New",
+    featured: "Featured",
+    styles: "{count} styles",
   },
   dashboard: {
     welcome: "Welcome back, {name}",

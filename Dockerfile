@@ -8,9 +8,9 @@
 # Final image layout
 #   /app    Next.js standalone server (`node server.js`): .next/standalone + .next/static + public
 #           + packs + drizzle. Only what the server's file trace needs.
-#   /tools  Runtime for the CLI scripts (scripts/migrate.ts, seed.ts, worker.ts): production
-#           node_modules + src + scripts + drizzle + packs + tsconfig, executed with tsx
-#           (installed globally, same version as the lockfile).
+#   /tools  Runtime for the CLI scripts (db:migrate, db:seed, worker): production node_modules +
+#           src + scripts + drizzle + packs + tsconfig + package.json. The entrypoint runs the
+#           package.json script commands verbatim with tsx (installed globally, lockfile version).
 #           Why not bundle the scripts with esbuild? The worker imports providers lazily and uses
 #           native/wasm packages (sharp, ffmpeg-static, tfjs, PGlite); keeping the real dependency
 #           tree means it runs exactly the code `pnpm worker` runs in dev, with no bundler edge cases.
