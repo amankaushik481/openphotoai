@@ -168,7 +168,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/webhooks/ai/[provider]` | P (signature) | fal / replicate / mock completion webhooks |
 | GET | `/api/cron/jobs` | `Authorization: Bearer CRON_SECRET` | poll stale jobs |
 | GET | `/api/cron/maintenance` | CRON_SECRET | low-credit emails, expire shares/invites/deletions, prune rate limits |
-| GET | `/api/files/[...key]` | signed token (`?token&exp`) | local storage driver file serving |
+| GET/HEAD | `/api/files/[...key]` | signature (`?exp&sig&dl`) | local storage driver file serving (Range supported) |
 
 ### Admin (auth A)
 `GET /api/admin/stats`, `GET /api/admin/users?q`, `GET /api/admin/users/:id`,

@@ -23,7 +23,13 @@ const nextConfig: NextConfig = {
   ],
   // Packs are JSON data files read at runtime; make sure they ship with serverless bundles.
   outputFileTracingIncludes: {
-    "/**": ["./packs/**/*.json", "./drizzle/**/*"],
+    "/**": [
+      "./packs/**/*.json",
+      "./drizzle/**/*",
+      // ffmpeg binary used to sample video frames for moderation + thumbnails.
+      "./node_modules/ffmpeg-static/ffmpeg",
+      "./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg",
+    ],
   },
   images: {
     // User media is served through signed URLs from our own API / S3; avoid the
