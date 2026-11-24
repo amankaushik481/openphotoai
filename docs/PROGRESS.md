@@ -51,10 +51,20 @@ Live status of the autonomous build. Updated after every wave.
 ## Wave 3 — integration
 | Item | Owner | Status |
 |---|---|---|
-| Integration follow-ups (docs/agents/INTEGRATION_TODO.md) | agent W3-integration-fixes | 🔄 running |
-| Production build + standalone trace check | orchestrator | ⏳ |
-| Playwright full journey + safety e2e on mocks | e2e agent | ⏳ |
-| docker compose up | orchestrator | ⏳ |
+| Integration follow-ups (docs/agents/INTEGRATION_TODO.md) | agent W3-integration-fixes | ✅ done (1,729 unit tests, tsc clean) |
+| Production build + standalone trace check | orchestrator | ✅ done (ffmpeg + safety models traced) |
+| Playwright full journey + safety e2e on mocks | e2e agent | 🔄 running |
+| docker compose up (zero keys): db/minio/web/worker healthy; sign-in → mock checkout → consent → photos → instant model → generate job completed by worker | orchestrator | ✅ done |
 
-## Wave 4 — hardening · Wave 5 — ship
+## Wave 4 — hardening (independent reviewers, report-only, then fixes)
+| Lens | Status |
+|---|---|
+| Security (authz, IDOR, webhooks, uploads, CSRF) | 🔄 reviewing |
+| Safety bypass red-team | 🔄 reviewing |
+| Payments + credits edge cases | 🔄 reviewing |
+| Performance (Lighthouse readiness, N+1, bundles) | 🔄 reviewing |
+| Accessibility + mobile UI | 🔄 reviewing |
+| Docs accuracy | ⏳ after docs are written |
+
+## Wave 5 — ship
 _Pending._

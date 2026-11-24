@@ -8,7 +8,12 @@
  *
  * The mock face/moderation providers read the markers (src/providers/mock/markers.ts).
  * alice-01..12 are picked so the set covers frontal/left/right/up/down head poses, are
- * mutually distinct (dHash) and sharp. Run: pnpm exec tsx scripts/generate-fixtures.ts
+ * mutually distinct (dHash) and sharp. default-01..12 are the same kind of set for the mock
+ * "default" identity: the identity of unmarked images, e.g. Chromium's fake camera in the
+ * Playwright consent-selfie step, so e2e training photos match that consent selfie.
+ *
+ * Run: pnpm exec tsx scripts/generate-fixtures.ts
+ *      ONLY=dark-01 / ONLY='default-*' / ONLY=bob-01,teen-01  regenerate some selfies only
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -40,10 +45,16 @@ interface SelfieSpec {
 }
 
 const ALICE: Partial<Marker> = { identity: "alice", age: 29 };
-const ALICE_POSES: PoseBucket[] = ["frontal", "left", "right", "up", "down", "frontal", "left", "right", "up", "down", "frontal", "frontal"];
+const DEFAULT_IDENTITY: Partial<Marker> = { identity: "default", age: 29 };
+const POSE_SET: PoseBucket[] = ["frontal", "left", "right", "up", "down", "frontal", "left", "right", "up", "down", "frontal", "frontal"];
+
+/** 12 selfies of one identity covering every head pose (a complete Trained-mode training set). */
+function poseSet(prefix: string, marker: Partial<Marker>): SelfieSpec[] {
+  return POSE_SET.map((pose, i) => ({ name: `${prefix}-${String(i + 1).padStart(2, "0")}`, marker, pose }));
+}
 
 const SELFIES: SelfieSpec[] = [
-  ...ALICE_POSES.map((pose, i) => ({ name: `alice-${String(i + 1).padStart(2, "0")}`, marker: ALICE, pose })),
+  ...poseSet("alice", ALICE),
   { name: "bob-01", marker: { identity: "bob", age: 34 } },
   { name: "teen-01", marker: { identity: "alice", age: 15 } },
   { name: "group-01", marker: { ...ALICE, faces: 2 }, faces: 2 },
@@ -51,16 +62,29 @@ const SELFIES: SelfieSpec[] = [
   { name: "dark-01", marker: ALICE, brightness: 0.2, noise: 8, quality: 75 },
   { name: "nsfw-01", marker: { ...ALICE, nsfw: true } },
   { name: "celebrity-01", marker: { identity: "oscar", age: 45, publicFigure: true } },
+  ...poseSet("default", DEFAULT_IDENTITY),
 ];
+
+/** `ONLY` filter: comma-separated names, `prefix*` patterns allowed. */
+function selected(name: string, only: string | undefined): boolean {
+  if (!only) return true;
+  return only.split(",").some((p) => {
+    const pattern = p.trim();
+    return pattern.endsWith("*") ? name.startsWith(pattern.slice(0, -1)) : name === pattern;
+  });
+}
 
 const face = createMockFaceProvider();
 
 async function main() {
   await mkdir(path.join(ROOT, "selfies"), { recursive: true });
-  const hashes: string[] = [];
+  // Pose sets must be mutually distinct (no near-duplicates) within one identity only.
+  const hashesByIdentity = new Map<string, string[]>();
   const only = process.env.ONLY; // e.g. ONLY=dark-01 to iterate on one non-pose fixture
-  for (const spec of SELFIES.filter((s) => !only || s.name === only)) {
-    const { bytes, seed, pose } = await findSelfie(spec, hashes);
+  for (const spec of SELFIES.filter((s) => selected(s.name, only))) {
+    const identity = spec.marker.identity ?? "default";
+    if (!hashesByIdentity.has(identity)) hashesByIdentity.set(identity, []);
+    const { bytes, seed, pose } = await findSelfie(spec, hashesByIdentity.get(identity)!);
     const out = path.join(ROOT, "selfies", `${spec.name}.jpg`);
     await writeFile(out, bytes);
     const m = await metrics(bytes);
@@ -70,6 +94,7 @@ async function main() {
     );
   }
 
+  if (only) return;
   const garment = await finish(await renderGarment(), { faces: 0 });
   await writeFile(path.join(ROOT, "garment.jpg"), garment);
   const pose = await finish(await renderReferencePose(), { identity: "judy", age: 31 });

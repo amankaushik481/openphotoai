@@ -11,11 +11,21 @@ export const FIXTURES_DIR = path.dirname(fileURLToPath(import.meta.url));
 
 export const ALICE_SELFIES = Array.from({ length: 12 }, (_, i) => `alice-${String(i + 1).padStart(2, "0")}` as const);
 
+/**
+ * The mock "default" identity: what the mock face provider sees in unmarked images, e.g. the
+ * Chromium fake-camera frame of the e2e consent selfie. Use these as that user's training photos.
+ */
+export const DEFAULT_IDENTITY_SELFIES = Array.from(
+  { length: 12 },
+  (_, i) => `default-${String(i + 1).padStart(2, "0")}` as const,
+);
+
 const ALICE = { identity: "alice", age: 29, faces: 1, nsfw: false, blurry: false, publicFigure: false } as const;
 
 /** Expected marker of every selfie fixture (`tests/fixtures/selfies/<name>.jpg`). */
 export const SELFIE_MARKERS: Record<string, Marker> = {
   ...Object.fromEntries(ALICE_SELFIES.map((n) => [n, { ...ALICE }])),
+  ...Object.fromEntries(DEFAULT_IDENTITY_SELFIES.map((n) => [n, { ...ALICE, identity: "default" }])),
   "bob-01": { ...ALICE, identity: "bob", age: 34 },
   "teen-01": { ...ALICE, age: 15 },
   "group-01": { ...ALICE, faces: 2 },
