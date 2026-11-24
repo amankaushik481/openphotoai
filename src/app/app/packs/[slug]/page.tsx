@@ -1,0 +1,43 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ChevronLeftIcon } from "lucide-react";
+
+import { PackStudio } from "@/components/create/pack-studio";
+import { toPackDetail } from "@/app/api/packs/pack-detail";
+import { loadDraftAllowance, loadModelModes } from "@/app/app/create/data";
+import { requireUserPage } from "@/server/auth/session";
+import { getPack } from "@/server/packs/registry";
+
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const pack = await getPack((await params).slug);
+  return { title: pack ? `${pack.name} pack` : "Pack not found" };
+}
+
+export default async function PackPage({ params }: Props) {
+  const { slug } = await params;
+  const user = await requireUserPage(`/app/packs/${slug}`);
+  const pack = await getPack(slug);
+  if (!pack) notFound();
+  const [modelModes, drafts] = await Promise.all([loadModelModes(user.id), loadDraftAllowance(user)]);
+
+  return (
+    <>
+      <Link
+        href="/app/packs"
+        className="-ml-1 mb-4 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+      >
+        <ChevronLeftIcon aria-hidden="true" className="size-4" />
+        All packs
+      </Link>
+      <PackStudio
+        pack={toPackDetail(pack)}
+        modelModes={modelModes}
+        drafts={{ limit: drafts.limit, remaining: drafts.remaining }}
+        plan={user.plan}
+      />
+    </>
+  );
+}

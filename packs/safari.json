@@ -5,30 +5,14 @@
   "description": "A once-in-a-lifetime safari: open-top game drives, acacia sunsets, waterhole lodges, giraffes and elephants at a respectful distance, a balloon over the Masai Mara, tented camps, bush dinners and Kilimanjaro on the horizon. Linen, khaki and warm golden light.",
   "category": "travel",
   "emoji": "🦒",
-  "tags": [
-    "safari",
-    "africa",
-    "kenya",
-    "tanzania",
-    "wildlife",
-    "travel",
-    "savanna",
-    "adventure"
-  ],
-  "colors": [
-    "#a16207",
-    "#fde68a"
-  ],
+  "tags": ["safari", "africa", "kenya", "tanzania", "wildlife", "travel", "savanna", "adventure"],
+  "colors": ["#a16207", "#fde68a"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos, animals touching people, pith helmet",
   "featured": false,
   "isNew": false,
   "sortOrder": 230,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Game drive",

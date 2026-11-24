@@ -37,7 +37,9 @@ export function PricingTeaser() {
                 {plan.popular && <Badge variant="brand">Most popular</Badge>}
               </div>
               <p className="mt-4 flex items-baseline gap-1">
-                <span className="font-display text-5xl leading-none tracking-tight">{formatUsd(plan.monthlyPriceCents)}</span>
+                <span className="font-display text-5xl leading-none tracking-tight">
+                  {formatUsd(plan.monthlyPriceCents)}
+                </span>
                 <span className="text-sm text-muted-foreground">/ month</span>
               </p>
               <p className="mt-2 text-sm font-medium">
@@ -58,8 +60,8 @@ export function PricingTeaser() {
           <div>
             <h3 className="font-semibold">Pay as you go</h3>
             <p className="text-sm text-muted-foreground">
-              One-time credit packs from {formatUsd(cheapestPack.priceCents)} ({cheapestPack.name}). No subscription, and
-              the credits never expire.
+              One-time credit packs from {formatUsd(cheapestPack.priceCents)} ({cheapestPack.name}). No subscription,
+              and the credits never expire.
             </p>
           </div>
         </div>

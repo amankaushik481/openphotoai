@@ -5,30 +5,14 @@
   "description": "A month of content in one batch: outfit-of-the-day street shots, sunny brunches, hotel balconies, flower markets, rooftop golden hour, pastel walls, matcha cafés and nights out. Feed-ready 4:5 frames plus vertical 9:16 shots for stories and reels covers.",
   "category": "lifestyle",
   "emoji": "📱",
-  "tags": [
-    "influencer",
-    "instagram",
-    "content creator",
-    "lifestyle",
-    "stories",
-    "feed",
-    "ootd",
-    "aesthetic"
-  ],
-  "colors": [
-    "#c026d3",
-    "#fb7185"
-  ],
+  "tags": ["influencer", "instagram", "content creator", "lifestyle", "stories", "feed", "ootd", "aesthetic"],
+  "colors": ["#c026d3", "#fb7185"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos, readable text, phone screen interface, heavy beauty filter",
   "featured": false,
   "isNew": false,
   "sortOrder": 140,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Outfit of the day",

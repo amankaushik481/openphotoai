@@ -10,8 +10,7 @@ export type InlineToken =
   | { type: "code"; text: string }
   | { type: "link"; text: string; href: string };
 
-const TOKEN =
-  /\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
+const TOKEN = /\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
 
 /** Split `text` into plain, bold, code and link tokens. */
 export function parseInline(text: string): InlineToken[] {

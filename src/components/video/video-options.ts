@@ -2,7 +2,13 @@
  * Pure options + helpers for photo-to-video and talking videos. No React and no server imports, so the
  * UI and the job handlers (src/server/jobs/handlers/{video,talking-video}.ts) share one source of truth.
  */
-import { creditCost, estimateSpeechSeconds, SPEECH_WORDS_PER_SEC } from "@/config/credits";
+import {
+  creditCost,
+  DEFAULT_MOTION_PROMPT,
+  estimateSpeechSeconds,
+  MAX_TALKING_SECONDS,
+  MAX_TALKING_WORDS,
+} from "@/config/credits";
 import type { CreateJobRequest, VOICES } from "@/types/domain";
 
 export type Voice = (typeof VOICES)[number];
@@ -10,12 +16,7 @@ export type VideoDuration = 5 | 10;
 export type VideoJobRequest = Extract<CreateJobRequest, { type: "video" }>;
 export type TalkingVideoJobRequest = Extract<CreateJobRequest, { type: "talking_video" }>;
 
-/** Motion prompt used when the user leaves it blank. */
-export const DEFAULT_MOTION_PROMPT = "subtle natural motion, gentle camera push-in, realistic";
-/** Longest talking video we make, in estimated seconds of speech. */
-export const MAX_TALKING_SECONDS = 60;
-/** Word budget that fits in MAX_TALKING_SECONDS at the estimator's speaking rate. */
-export const MAX_TALKING_WORDS = Math.floor(MAX_TALKING_SECONDS * SPEECH_WORDS_PER_SEC);
+export { DEFAULT_MOTION_PROMPT, MAX_TALKING_SECONDS, MAX_TALKING_WORDS };
 /** Mirrors the request schema limits in src/types/domain.ts. */
 export const MAX_MOTION_PROMPT_CHARS = 800;
 export const MAX_SCRIPT_CHARS = 600;
@@ -88,18 +89,27 @@ export function scriptStats(script: string): ScriptStats {
   };
 }
 
-function segments(prompt: string): string[] {
-  return prompt
+function segments(text: string): string[] {
+  return text
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
-const norm = (s: string) => s.trim().toLowerCase();
+/** Index of the run of segments equal to `phrase`'s segments (case-insensitive), or -1. */
+function findPhrase(parts: string[], phrase: string): number {
+  const want = segments(phrase).map((s) => s.toLowerCase());
+  if (want.length === 0) return -1;
+  const have = parts.map((s) => s.toLowerCase());
+  for (let i = 0; i + want.length <= have.length; i++) {
+    if (want.every((w, j) => have[i + j] === w)) return i;
+  }
+  return -1;
+}
 
-/** True when `phrase` is one of the comma-separated parts of `prompt`. */
+/** True when `phrase` appears as whole comma-separated part(s) of `prompt`. */
 export function hasPresetPhrase(prompt: string, phrase: string): boolean {
-  return segments(prompt).some((s) => norm(s) === norm(phrase));
+  return findPhrase(segments(prompt), phrase) !== -1;
 }
 
 /**
@@ -108,10 +118,12 @@ export function hasPresetPhrase(prompt: string, phrase: string): boolean {
  */
 export function togglePresetPhrase(prompt: string, phrase: string, maxLength = MAX_MOTION_PROMPT_CHARS): string {
   const parts = segments(prompt);
-  if (parts.some((s) => norm(s) === norm(phrase))) {
-    return parts.filter((s) => norm(s) !== norm(phrase)).join(", ");
+  const at = findPhrase(parts, phrase);
+  if (at !== -1) {
+    parts.splice(at, segments(phrase).length);
+    return parts.join(", ");
   }
-  const next = [...parts, phrase.trim()].join(", ");
+  const next = [...parts, ...segments(phrase)].join(", ");
   return next.length > maxLength ? prompt : next;
 }
 

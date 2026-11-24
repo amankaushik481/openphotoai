@@ -5,30 +5,14 @@
   "description": "The analog look, without naming a single brand: warm color-negative portraits, tungsten cinema film with red halation, point-and-shoot flash, expired-film light leaks, pushed black and white, slide-film blues and diner booths. Native 2:3 frames that feel found in a shoebox.",
   "category": "creative",
   "emoji": "🎞️",
-  "tags": [
-    "35mm",
-    "film",
-    "analog",
-    "grain",
-    "vintage",
-    "film photography",
-    "candid",
-    "nostalgic"
-  ],
-  "colors": [
-    "#b45309",
-    "#fef3c7"
-  ],
+  "tags": ["35mm", "film", "analog", "grain", "vintage", "film photography", "candid", "nostalgic"],
+  "colors": ["#b45309", "#fef3c7"],
   "defaultAspectRatio": "2:3",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, digital sharpness, hdr, oversharpened, smooth digital noise, brand names",
   "featured": false,
   "isNew": false,
   "sortOrder": 260,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Warm color negative",

@@ -15,20 +15,13 @@
     "aesthetic",
     "fashion"
   ],
-  "colors": [
-    "#a8a29e",
-    "#f5f5f4"
-  ],
+  "colors": ["#a8a29e", "#f5f5f4"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, monograms, flashy jewelry, bright saturated colors, clutter",
   "featured": false,
   "isNew": true,
   "sortOrder": 130,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Limestone apartment",

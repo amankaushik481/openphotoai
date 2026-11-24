@@ -5,30 +5,14 @@
   "description": "Winter-sports photos with real mountain light: sunny slopes, carving turns, chairlifts, gondolas, powder days, mountain-hut terraces, timber chalets at blue hour and a retro 80s ski suit for fun. Goggles stay up so your face is always visible.",
   "category": "travel",
   "emoji": "⛷️",
-  "tags": [
-    "ski",
-    "snowboard",
-    "winter",
-    "mountains",
-    "apres ski",
-    "chalet",
-    "snow",
-    "alpine"
-  ],
-  "colors": [
-    "#1d4ed8",
-    "#e0f2fe"
-  ],
+  "tags": ["ski", "snowboard", "winter", "mountains", "apres ski", "chalet", "snow", "alpine"],
+  "colors": ["#1d4ed8", "#e0f2fe"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, goggles covering eyes, face hidden, fake-looking snow",
   "featured": false,
   "isNew": false,
   "sortOrder": 530,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Sunny slope",

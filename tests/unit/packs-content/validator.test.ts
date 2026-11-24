@@ -1,4 +1,5 @@
 /** Unit tests for scripts/validate-packs.ts (the `pnpm packs:validate` checks). */
+import { existsSync } from "node:fs";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -32,7 +33,7 @@ function makePack(overrides: Record<string, unknown> = {}) {
   };
 }
 
-const errorsOf = (issues: { level: string; message: string }[]) => issues.filter((i) => i.level === "error");
+const errorsOf = <T extends { level: string }>(issues: T[]): T[] => issues.filter((i) => i.level === "error");
 
 describe("checkPromptTemplate", () => {
   it("accepts a well-formed prompt", () => {
@@ -45,7 +46,9 @@ describe("checkPromptTemplate", () => {
   });
 
   it("rejects unknown placeholders and stray braces", () => {
-    expect(errorsOf(checkPromptTemplate(`${GOOD_PROMPT}, {name} smiling`))[0]?.message).toMatch(/unknown placeholder \{name\}/);
+    expect(errorsOf(checkPromptTemplate(`${GOOD_PROMPT}, {name} smiling`))[0]?.message).toMatch(
+      /unknown placeholder \{name\}/,
+    );
     expect(errorsOf(checkPromptTemplate(`${GOOD_PROMPT}, {subject`)).length).toBeGreaterThan(0);
   });
 
@@ -106,7 +109,10 @@ describe("validatePack", () => {
 
   it("checks promptMan/promptWoman overrides, metadata and duplicates", () => {
     const prompts = makePack().prompts;
-    prompts[0] = { ...prompts[0]!, promptMan: "portrait of a man in a navy suit, soft window light, 85mm lens, crisp detail" } as never;
+    prompts[0] = {
+      ...prompts[0]!,
+      promptMan: "portrait of a man in a navy suit, soft window light, 85mm lens, crisp detail",
+    } as never;
     prompts[1] = { ...prompts[1]!, title: "Shot 1" };
     const { issues } = validatePack(
       "test-pack.json",
@@ -121,7 +127,10 @@ describe("validatePack", () => {
   });
 
   it("does not scan negative prompts for banned terms", () => {
-    const { issues } = validatePack("test-pack.json", makePack({ negativePrompt: "nudity, weapons, blood, watermark" }));
+    const { issues } = validatePack(
+      "test-pack.json",
+      makePack({ negativePrompt: "nudity, weapons, blood, watermark" }),
+    );
     expect(errorsOf(issues)).toEqual([]);
   });
 
@@ -152,10 +161,24 @@ describe("validatePacksDir", () => {
     await writeFile(path.join(dir, "copy.json"), JSON.stringify(makePack()));
     const report = await validatePacksDir({ dir, classifier: null });
     expect(report.files).toBe(3);
-    expect(report.packs.map((p) => p.pack.slug)).toEqual(["test-pack"]);
-    const messages = errorsOf(report.issues).map((i) => `${i.where} ${i.message}`);
-    expect(messages.some((m) => m.includes("invalid JSON"))).toBe(true);
+    expect(report.packs.map((p) => p.file)).toEqual(["test-pack.json"]);
+    const messages = errorsOf(report.issues).map((i) => `${i.file} ${i.where} ${i.message}`);
+    expect(messages.some((m) => m.startsWith("broken.json") && m.includes("invalid JSON"))).toBe(true);
     expect(messages.some((m) => m.includes('"test-pack" must match the file name "copy"'))).toBe(true);
+    expect(messages.some((m) => m.startsWith("copy.json slug duplicate slug") && m.includes("test-pack.json"))).toBe(
+      true,
+    );
+    expect(messages.some((m) => m.startsWith("test-pack.json"))).toBe(false);
+  });
+
+  it("lists only error-free packs as valid", async () => {
+    await writeFile(path.join(dir, "test-pack.json"), JSON.stringify(makePack()));
+    await writeFile(
+      path.join(dir, "bad-pack.json"),
+      JSON.stringify(makePack({ slug: "bad-pack", name: "Sexy shots" })),
+    );
+    const report = await validatePacksDir({ dir, classifier: null });
+    expect(report.packs.map((p) => p.file)).toEqual(["test-pack.json"]);
   });
 
   it("reports an empty or missing directory", async () => {
@@ -167,8 +190,10 @@ describe("validatePacksDir", () => {
 
 describe("loadSafetyClassifier", () => {
   it("loads classifyText from the safety module when present", async () => {
+    if (!existsSync(path.join(process.cwd(), "src", "server", "safety", "text-filter.ts"))) return;
     const classifier = await loadSafetyClassifier();
-    if (!classifier) return; // safety module not built yet
+    expect(classifier).not.toBeNull();
+    if (!classifier) return;
     expect(classifier("a warm portrait in a sunlit café").allowed).toBe(true);
     expect(classifier("a nude portrait").allowed).toBe(false);
   });

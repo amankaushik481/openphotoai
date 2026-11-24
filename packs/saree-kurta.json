@@ -5,30 +5,14 @@
   "description": "Celebrate South Asian heritage dress: Banarasi and Kanjeevaram silk sarees, lehengas and anarkalis, kurtas, sherwanis and bandhgalas, photographed in palace courtyards, the pink city, lake terraces, river ghats, haveli doorways, Mughal gardens and temple steps. Draping and details styled with care.",
   "category": "fashion",
   "emoji": "🥻",
-  "tags": [
-    "saree",
-    "kurta",
-    "lehenga",
-    "sherwani",
-    "indian wear",
-    "south asian",
-    "ethnic wear",
-    "traditional"
-  ],
-  "colors": [
-    "#9d174d",
-    "#f59e0b"
-  ],
+  "tags": ["saree", "kurta", "lehenga", "sherwani", "indian wear", "south asian", "ethnic wear", "traditional"],
+  "colors": ["#9d174d", "#f59e0b"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
   "featured": false,
   "isNew": false,
   "sortOrder": 610,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Palace courtyard",

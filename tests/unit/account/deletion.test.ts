@@ -20,6 +20,7 @@ vi.mock("@/server/models/service", async () => {
       await database
         .delete(identityModels)
         .where(andOp(eqOp(identityModels.id, modelId), eqOp(identityModels.userId, userId)));
+      return { providerDeleted: true, storageObjectsDeleted: 0 };
     }),
   };
 });
@@ -273,7 +274,7 @@ describe("confirmAccountDeletion — real deletion", () => {
         lock: { status: "done" },
         jobs: { status: "done", counts: { canceled: 1, failed: 0 } },
         subscriptions: { status: "done", counts: { canceled: 1, failed: 0 } },
-        models: { status: "done", counts: { deleted: 2 } },
+        models: { status: "done", counts: { deleted: 2, providerFailures: 0 } },
         records: { status: "done", counts: { users: 1 } },
         storage: { status: "done", counts: { objects: 5 } },
       },
@@ -340,6 +341,20 @@ describe("confirmAccountDeletion — real deletion", () => {
     expect(request!.report).toMatchObject({
       steps: { subscriptions: { status: "done", counts: { canceled: 0, failed: 1 } } },
       warnings: [expect.stringContaining("stripe: network down")],
+    });
+  });
+
+  it("reports weights the AI provider refused to delete as a warning", async () => {
+    vi.mocked(deleteModelCompletely).mockResolvedValueOnce({
+      providerDeleted: false,
+      providerError: "replicate: 500",
+      storageObjectsDeleted: 2,
+    });
+    await expect(confirm()).resolves.toEqual({ status: "completed" });
+    const [request] = await requestRows(seeded.user.id);
+    expect(request!.report).toMatchObject({
+      steps: { models: { status: "done", counts: { deleted: 2, providerFailures: 1 } } },
+      warnings: [expect.stringContaining("replicate: 500")],
     });
   });
 

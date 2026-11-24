@@ -5,30 +5,14 @@
   "description": "University and postgraduate commencement photos: campus lawns, cap tosses, library steps, stoles and honor cords, sunflower bouquets, the walk across the stage, a celebratory pop of bubbly and doctoral regalia. Bright, proud and frame-worthy.",
   "category": "events",
   "emoji": "🎓",
-  "tags": [
-    "graduation",
-    "commencement",
-    "cap and gown",
-    "university",
-    "grad photos",
-    "diploma",
-    "masters",
-    "phd"
-  ],
-  "colors": [
-    "#1e3a8a",
-    "#facc15"
-  ],
+  "tags": ["graduation", "commencement", "cap and gown", "university", "grad photos", "diploma", "masters", "phd"],
+  "colors": ["#1e3a8a", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text on banners, readable diploma text",
   "featured": false,
   "isNew": false,
   "sortOrder": 410,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Campus lawn",

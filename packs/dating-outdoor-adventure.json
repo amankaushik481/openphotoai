@@ -5,30 +5,14 @@
   "description": "Show the outdoorsy side of your dating profile: summits, kayaks, campfires, canyons and trail runs. Active, sunlit and full of life, with your face clearly visible in every shot so matches can see who they're going on that hike with.",
   "category": "dating",
   "emoji": "🏕️",
-  "tags": [
-    "dating",
-    "outdoors",
-    "adventure",
-    "hiking",
-    "camping",
-    "kayak",
-    "nature",
-    "active"
-  ],
-  "colors": [
-    "#15803d",
-    "#facc15"
-  ],
+  "tags": ["dating", "outdoors", "adventure", "hiking", "camping", "kayak", "nature", "active"],
+  "colors": ["#15803d", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, face covered, back to camera, tiny figure in landscape",
   "featured": false,
   "isNew": false,
   "sortOrder": 300,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Summit celebration",
@@ -40,7 +24,7 @@
     },
     {
       "title": "Campfire evening",
-      "prompt": "warm portrait of {subject} sitting by a crackling campfire at dusk, wearing a flannel shirt and holding an enamel mug, firelight glowing on the face, tents and pines silhouetted behind, 35mm lens, cozy adventurous mood, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "warm portrait of {subject} sitting by a crackling campfire at dusk, wearing a flannel shirt and holding an enamel mug, firelight glowing on {possessive} face, tents and pines silhouetted behind, 35mm lens, cozy adventurous mood, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Trail running",

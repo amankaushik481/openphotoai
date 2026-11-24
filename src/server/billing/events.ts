@@ -337,9 +337,12 @@ async function upsertPaidSubscription(
 async function onSubscriptionCheckout(ctx: Ctx, e: EventOf<"checkout.completed">): Promise<Outcome> {
   const buyer = await resolveUser(ctx.tx, { userId: e.userId });
   if (!buyer) return { note: `user ${e.userId} not found (deleted account?)` };
-  await saveCustomer(ctx, buyer.id, e.customerId);
-  if (!e.subscriptionId || !e.planId || !e.interval) return { note: "subscription details missing; awaiting subscription events" };
+  if (!e.subscriptionId || !e.planId || !e.interval) {
+    await saveCustomer(ctx, buyer.id, e.customerId);
+    return { note: "subscription details missing; awaiting subscription events" };
+  }
 
+  // Lock order everywhere: subscription row before user row (concurrent deliveries can't deadlock).
   await upsertPaidSubscription(ctx, {
     userId: buyer.id,
     subscriptionId: e.subscriptionId,
@@ -348,6 +351,7 @@ async function onSubscriptionCheckout(ctx: Ctx, e: EventOf<"checkout.completed">
     interval: e.interval,
     createdAt: e.createdAt,
   });
+  await saveCustomer(ctx, buyer.id, e.customerId);
   await recomputeUserPlan(ctx, buyer.id);
 
   // Switching plans = a new subscription; end the previous one so the user isn't billed twice.

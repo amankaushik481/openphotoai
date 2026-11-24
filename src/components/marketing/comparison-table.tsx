@@ -41,9 +41,7 @@ export function ComparisonTable() {
       />
       <div className="mt-12 overflow-hidden rounded-2xl border bg-card shadow-xs">
         <table className="w-full border-collapse text-left text-sm">
-          <caption className="sr-only">
-            {APP.name} compared with typical AI photo apps
-          </caption>
+          <caption className="sr-only">{APP.name} compared with typical AI photo apps</caption>
           <thead>
             <tr className="border-b bg-muted/50">
               <th scope="col" className="w-[34%] px-4 py-3.5 font-medium text-muted-foreground sm:px-6">

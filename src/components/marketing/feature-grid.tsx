@@ -125,13 +125,18 @@ export function FeatureGrid({ packCount, packNames }: { packCount: number; packN
             {SCORES.map((s) => (
               <li key={s.score} className="flex flex-col gap-1.5">
                 <div
-                  className={cn("grain relative aspect-[4/5] overflow-hidden rounded-lg", s.refunded && "opacity-45 grayscale")}
+                  className={cn(
+                    "grain relative aspect-[4/5] overflow-hidden rounded-lg",
+                    s.refunded && "opacity-45 grayscale",
+                  )}
                   style={{ backgroundImage: `linear-gradient(150deg, ${s.colors[0]}, ${s.colors[1]})` }}
                 >
                   <PortraitArt hair={s.hair} light={s.score % 2 ? 40 : 120} />
                 </div>
                 <span className="flex flex-col text-[11px] leading-tight">
-                  <span className={cn("font-mono tabular-nums", s.refunded ? "line-through" : "font-medium text-success")}>
+                  <span
+                    className={cn("font-mono tabular-nums", s.refunded ? "line-through" : "font-medium text-success")}
+                  >
                     {s.score}% likeness
                   </span>
                   <span className="text-muted-foreground">{s.refunded ? "Hidden · refunded" : "Kept"}</span>
@@ -141,7 +146,11 @@ export function FeatureGrid({ packCount, packNames }: { packCount: number; packN
           </ul>
         </li>
         <li className="flex flex-col rounded-2xl border bg-card p-6 shadow-xs sm:col-span-2">
-          <FeatureHeader icon={LayersIcon} title={`${packCount} photo packs`} cost={`from ${formatCreditCost(CREDIT_COSTS.generateStandard)} / photo`} />
+          <FeatureHeader
+            icon={LayersIcon}
+            title={`${packCount} photo packs`}
+            cost={`from ${formatCreditCost(CREDIT_COSTS.generateStandard)} / photo`}
+          />
           <p className="mt-2 text-sm text-muted-foreground">
             Curated shoots for LinkedIn, dating, travel, editorial and more, written by people who care about light.
             Packs are open JSON files: add your own in minutes.

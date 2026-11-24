@@ -228,7 +228,7 @@ export async function analyzeTrainingPhoto(input: AnalyzeTrainingPhotoInput): Pr
   const hasError = ordered.some((i) => i.severity === "error");
   return {
     status: hasError ? "rejected" : "accepted",
-    quality: { score: qualityScore(metrics, ordered), issues: ordered },
+    quality: { score: qualityScore(metrics, ordered), issues: ordered, metrics },
     face: safety.face,
     faceMatchScore: safety.faceMatchScore,
     ageEstimate: safety.ageEstimate,

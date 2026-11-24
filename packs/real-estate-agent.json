@@ -5,30 +5,14 @@
   "description": "Everything an agent needs for listings, yard signs, business cards and social posts: welcoming portraits in front of homes, staged kitchens and city condos, key-handover moments and a clean studio headshot. Warm, bright and approachable, so clients feel they already know you.",
   "category": "professional",
   "emoji": "🏡",
-  "tags": [
-    "real estate",
-    "realtor",
-    "agent",
-    "property",
-    "headshot",
-    "marketing",
-    "listing",
-    "broker"
-  ],
-  "colors": [
-    "#0369a1",
-    "#facc15"
-  ],
+  "tags": ["real estate", "realtor", "agent", "property", "headshot", "marketing", "listing", "broker"],
+  "colors": ["#0369a1", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable signs, brand logos, cluttered room",
   "featured": false,
   "isNew": false,
   "sortOrder": 480,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Front walkway",

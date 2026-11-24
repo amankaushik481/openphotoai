@@ -12,6 +12,7 @@ import { useT } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 import type { JobDTO, MediaDTO } from "@/types/domain";
 import { actionAvailability, enhanceCost, enhanceRequest, type EnhanceAction } from "./enhance-ui";
+import { useEnhanceJob } from "./use-enhance-job";
 
 export interface EnhanceQuickActionsProps {
   media: MediaDTO;
@@ -23,27 +24,22 @@ interface QuickAction {
   action: EnhanceAction;
   label: string;
   done: string;
-  icon: React.ReactNode;
+  Icon: typeof ImageUpscaleIcon;
 }
 
 const QUICK_ACTIONS: readonly QuickAction[] = [
-  { action: "upscale", label: "Upscale 2×", done: "Upscaled 2×", icon: <ImageUpscaleIcon aria-hidden="true" /> },
-  { action: "face_restore", label: "Restore face", done: "Face restored", icon: <ScanFaceIcon aria-hidden="true" /> },
-  {
-    action: "remove_background",
-    label: "Remove background",
-    done: "Background removed",
-    icon: <EraserIcon aria-hidden="true" />,
-  },
+  { action: "upscale", label: "Upscale 2×", done: "Upscaled 2×", Icon: ImageUpscaleIcon },
+  { action: "face_restore", label: "Restore face", done: "Face restored", Icon: ScanFaceIcon },
+  { action: "remove_background", label: "Remove background", done: "Background removed", Icon: EraserIcon },
 ];
 
-/** Compact one-click enhancements for the gallery viewer (upscale 2×, restore face, remove bg). */
+/** Compact one-click enhancements for the gallery viewer: upscale 2×, restore face, remove background. */
 export function EnhanceQuickActions({ media, onJobCreated, className }: EnhanceQuickActionsProps) {
   return (
     <div role="group" aria-label="Quick enhancements" className={cn("flex items-center gap-1", className)}>
-      {QUICK_ACTIONS.map((a) => (
+      {QUICK_ACTIONS.map((spec) => (
         // Keyed by photo so a running job's spinner doesn't follow the viewer to the next photo.
-        <QuickActionButton key={`${media.id}:${a.action}`} media={media} spec={a} onJobCreated={onJobCreated} />
+        <QuickActionButton key={`${media.id}:${spec.action}`} media={media} spec={spec} onJobCreated={onJobCreated} />
       ))}
     </div>
   );
@@ -62,47 +58,9 @@ function QuickActionButton({
   const router = useRouter();
   const availability = actionAvailability(media, spec.action);
   const cost = enhanceCost(spec.action);
-  const costLabel = cost === 1 ? "1 credit" : `${cost} credits`;
+  const label = `${spec.label} (${cost === 1 ? "1 credit" : `${cost} credits`})`;
 
-  const { busy, run } = useEnhanceJobWithToasts(spec, onJobCreated, {
-    open: (id) => router.push(`/app/gallery/${id}`),
-    billing: () => router.push("/app/billing"),
-    jobError: (job) => friendlyJobError(job, t),
-  });
-
-  const label = `${spec.label} (${costLabel})`;
-  const tooltip = availability.reason ?? label;
-  const button = (
-    <Button
-      type="button"
-      size="icon-sm"
-      variant="ghost"
-      aria-label={busy ? `${spec.label}: working…` : label}
-      aria-busy={busy || undefined}
-      disabled={!availability.available || busy}
-      onClick={() => void run(enhanceRequest(spec.action, media.id))}
-    >
-      {busy ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : spec.icon}
-    </Button>
-  );
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        {/* Disabled buttons get no pointer/focus events: a focusable wrapper keeps the reason reachable. */}
-        {availability.available ? button : <span tabIndex={0} aria-label={`${spec.label}: ${tooltip}`}>{button}</span>}
-      </TooltipTrigger>
-      <TooltipContent>{tooltip}</TooltipContent>
-    </Tooltip>
-  );
-}
-
-function useEnhanceJobWithToasts(
-  spec: QuickAction,
-  onJobCreated: ((job: JobDTO) => void) | undefined,
-  nav: { open: (mediaId: string) => void; billing: () => void; jobError: (job: JobDTO) => string | null },
-) {
-  return useEnhanceJob({
+  const { busy, run } = useEnhanceJob({
     onJobCreated: (job) => {
       toast(`${spec.label} started`, { description: "We'll let you know when it's ready." });
       onJobCreated?.(job);
@@ -110,15 +68,42 @@ function useEnhanceJobWithToasts(
     onTerminal: (job) => {
       const output = job.media[0];
       if (job.status === "succeeded" && output) {
-        toast.success(spec.done, { action: { label: "Open", onClick: () => nav.open(output.id) } });
+        toast.success(spec.done, {
+          action: { label: "Open", onClick: () => router.push(`/app/gallery/${output.id}`) },
+        });
       } else {
-        toast.error(`${spec.label} didn't work`, { description: nav.jobError(job) ?? undefined });
+        toast.error(`${spec.label} didn't work`, { description: friendlyJobError(job, t) ?? undefined });
       }
     },
     onError: (error) =>
-      toast.error(error.message, error.buyCredits ? { action: { label: "Buy credits", onClick: nav.billing } } : undefined),
+      toast.error(
+        error.message,
+        error.buyCredits ? { action: { label: "Buy credits", onClick: () => router.push("/app/billing") } } : undefined,
+      ),
   });
-}
 
-// Imported last to keep the hook wrapper above readable; plain ESM import hoisting applies.
-import { useEnhanceJob } from "./use-enhance-job";
+  // aria-disabled (not `disabled`) keeps the button focusable/hoverable so the tooltip can explain why.
+  const blocked = !availability.available || busy;
+  const tooltip = availability.reason ?? (busy ? `${spec.label}: working…` : label);
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label={availability.reason ? `${spec.label}: ${availability.reason}` : tooltip}
+          aria-disabled={blocked || undefined}
+          aria-busy={busy || undefined}
+          className={cn(!availability.available && "cursor-not-allowed opacity-50")}
+          onClick={() => {
+            if (!blocked) void run(enhanceRequest(spec.action, media.id));
+          }}
+        >
+          {busy ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <spec.Icon aria-hidden="true" />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+  );
+}

@@ -5,30 +5,14 @@
   "description": "Portraits for chefs, bakers, food creators and passionate home cooks: chef's whites in a gleaming kitchen, flambé flames, precise plating, farmers markets, fresh pasta, wood-fired sourdough, pastry work and a clean chef headshot for your restaurant site.",
   "category": "professional",
   "emoji": "🧑‍🍳",
-  "tags": [
-    "chef",
-    "cooking",
-    "kitchen",
-    "restaurant",
-    "foodie",
-    "culinary",
-    "baker",
-    "food"
-  ],
-  "colors": [
-    "#b45309",
-    "#fef3c7"
-  ],
+  "tags": ["chef", "cooking", "kitchen", "restaurant", "foodie", "culinary", "baker", "food"],
+  "colors": ["#b45309", "#fef3c7"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, dirty kitchen, burnt food, logos, deformed utensils",
   "featured": false,
   "isNew": false,
   "sortOrder": 370,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Chef's whites",

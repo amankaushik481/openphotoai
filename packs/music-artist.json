@@ -5,30 +5,14 @@
   "description": "Press and promo photos for musicians, singers and DJs: spotlit stages, club gigs, vocal booths, mixing consoles, grand pianos, DJ booths, backstage calm, record shops, street busking, jazz clubs, festival main stages and a square album-cover frame.",
   "category": "creative",
   "emoji": "🎸",
-  "tags": [
-    "music",
-    "musician",
-    "artist",
-    "band",
-    "concert",
-    "recording studio",
-    "album cover",
-    "press photo"
-  ],
-  "colors": [
-    "#be123c",
-    "#1e1b4b"
-  ],
+  "tags": ["music", "musician", "artist", "band", "concert", "recording studio", "album cover", "press photo"],
+  "colors": ["#be123c", "#1e1b4b"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, readable text, deformed instrument, extra guitar strings, mangled fingers on instrument",
   "featured": false,
   "isNew": false,
   "sortOrder": 350,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Spotlight vocals",

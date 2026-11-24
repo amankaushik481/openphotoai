@@ -32,6 +32,10 @@ interface SelfieSpec {
   faces?: number;
   blur?: number;
   brightness?: number;
+  /** Luma noise σ (default 4.5). */
+  noise?: number;
+  /** JPEG quality (default 80). */
+  quality?: number;
   pose?: PoseBucket;
 }
 
@@ -44,7 +48,7 @@ const SELFIES: SelfieSpec[] = [
   { name: "teen-01", marker: { identity: "alice", age: 15 } },
   { name: "group-01", marker: { ...ALICE, faces: 2 }, faces: 2 },
   { name: "blurry-01", marker: { ...ALICE, blurry: true }, blur: 14 },
-  { name: "dark-01", marker: ALICE, brightness: 0.16 },
+  { name: "dark-01", marker: ALICE, brightness: 0.2, noise: 8, quality: 75 },
   { name: "nsfw-01", marker: { ...ALICE, nsfw: true } },
   { name: "celebrity-01", marker: { identity: "oscar", age: 45, publicFigure: true } },
 ];
@@ -54,7 +58,8 @@ const face = createMockFaceProvider();
 async function main() {
   await mkdir(path.join(ROOT, "selfies"), { recursive: true });
   const hashes: string[] = [];
-  for (const spec of SELFIES) {
+  const only = process.env.ONLY; // e.g. ONLY=dark-01 to iterate on one non-pose fixture
+  for (const spec of SELFIES.filter((s) => !only || s.name === only)) {
     const { bytes, seed, pose } = await findSelfie(spec, hashes);
     const out = path.join(ROOT, "selfies", `${spec.name}.jpg`);
     await writeFile(out, bytes);
@@ -76,7 +81,7 @@ async function main() {
 
 /** Try seeds until the selfie meets its pose target, size budget, sharpness and distinctness. */
 async function findSelfie(spec: SelfieSpec, acceptedHashes: string[]) {
-  for (let attempt = 0; attempt < 2000; attempt++) {
+  for (let attempt = 0; attempt < (spec.pose ? 2000 : 100); attempt++) {
     const seed = hash32(`${spec.name}:${attempt}`);
     if (spec.pose && !(await previewMatches(spec, seed, acceptedHashes))) continue;
     const bytes = await renderSelfie(spec, seed);
@@ -156,9 +161,9 @@ async function renderSelfie(spec: SelfieSpec, seed: number): Promise<Uint8Array>
   // Darken before adding noise so the dark fixture is still sharp (only exposure is wrong).
   if (spec.brightness) svgImage = svgImage.linear(spec.brightness, 0);
   let raw = await svgImage.raw().toBuffer();
-  addLumaNoise(raw, 4.5, rand);
+  addLumaNoise(raw, spec.noise ?? 4.5, rand);
   if (spec.blur) raw = await sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } }).blur(spec.blur).raw().toBuffer();
-  return finish(sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } }), spec.marker);
+  return finish(sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } }), spec.marker, spec.quality);
 }
 
 function selfieSvg(rand: () => number, faces: number): string {
@@ -271,9 +276,9 @@ async function renderMask(): Promise<Uint8Array> {
 }
 
 /** Stamp the marker and encode (mozjpeg keeps the noisy selfies under the size budget). */
-async function finish(img: sharp.Sharp, marker: Partial<Marker>): Promise<Uint8Array> {
+async function finish(img: sharp.Sharp, marker: Partial<Marker>, quality = 80): Promise<Uint8Array> {
   const marked = await encodeMarker(img, marker);
-  return new Uint8Array(await marked.jpeg({ quality: 80, mozjpeg: true }).toBuffer());
+  return new Uint8Array(await marked.jpeg({ quality, mozjpeg: true }).toBuffer());
 }
 
 /* ───────────── pixel helpers + checks ───────────── */

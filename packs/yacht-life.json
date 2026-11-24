@@ -5,30 +5,14 @@
   "description": "The luxury-vacation set: teak yacht decks at sunset, glamorous Mediterranean harbors, champagne toasts, a private jet cabin, Amalfi villa terraces, classic wooden speedboats and candlelit dinners on deck. Elegant linen and resort wear with no logos.",
   "category": "travel",
   "emoji": "🛥️",
-  "tags": [
-    "yacht",
-    "luxury",
-    "vacation",
-    "riviera",
-    "boat",
-    "resort",
-    "summer",
-    "lifestyle"
-  ],
-  "colors": [
-    "#0c4a6e",
-    "#fcd34d"
-  ],
+  "tags": ["yacht", "luxury", "vacation", "riviera", "boat", "resort", "summer", "lifestyle"],
+  "colors": ["#0c4a6e", "#fcd34d"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, brand names, crowded deck",
   "featured": false,
   "isNew": false,
   "sortOrder": 280,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Deck at sunset",
@@ -42,7 +26,7 @@
     },
     {
       "title": "Bow cruising",
-      "prompt": "photo of {subject} seated on the cushioned bow of a yacht cruising turquoise water, wearing a striped linen shirt, wind in the hair, laughing, bright sun and sea spray, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} seated on the cushioned bow of a yacht cruising turquoise water, wearing a striped linen shirt, wind in {possessive} hair, laughing, bright sun and sea spray, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Champagne toast",
@@ -58,7 +42,7 @@
     },
     {
       "title": "Wooden speedboat",
-      "prompt": "action photo of {subject} at the helm of a classic varnished wooden speedboat on an alpine lake, wearing a polo shirt with sunglasses pushed up, wind in the hair, big smile, bright sun, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "action photo of {subject} at the helm of a classic varnished wooden speedboat on an alpine lake, wearing a polo shirt with sunglasses pushed up, wind in {possessive} hair, big smile, bright sun, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Beach club cabana",

@@ -7,9 +7,13 @@ import { APP } from "@/config/app";
 export function FinalCta({
   title = "Meet your AI photographer.",
   lead = "Free drafts, honest credits, and photos that look like you. Or run the whole thing on your own server.",
+  primaryHref = "/login",
+  primaryLabel = "Create your photos",
 }: {
   title?: string;
   lead?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
 }) {
   return (
     <section aria-labelledby="cta-title" className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
@@ -24,10 +28,10 @@ export function FinalCta({
         <p className="mx-auto mt-4 max-w-xl text-base text-pretty text-white/90 sm:text-lg">{lead}</p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/login"
+            href={primaryHref}
             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white px-6 text-base font-semibold text-neutral-950 shadow-sm transition hover:bg-white/90 focus-visible:ring-[3px] focus-visible:ring-white/60 focus-visible:outline-none sm:w-auto"
           >
-            Create your photos
+            {primaryLabel}
             <ArrowRightIcon aria-hidden="true" className="size-4" />
           </Link>
           <a

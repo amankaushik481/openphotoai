@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as listJobsRoute } from "@/app/api/admin/jobs/route";
 import { POST as refundRoute } from "@/app/api/admin/jobs/[id]/refund/route";
@@ -15,7 +16,14 @@ import { db } from "@/db";
 import { creditLedger, user } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { debitForJob } from "@/server/credits/ledger";
-import { callRoute, createTestDb, createTestJob, createTestUser, sessionMock } from "../../helpers/factories";
+import {
+  callRoute,
+  createTestDb,
+  createTestJob,
+  createTestUser,
+  sessionMock,
+  type CallRouteOptions,
+} from "../../helpers/factories";
 import { createModerationEvent, createReport } from "./fixtures";
 
 vi.mock("@/server/auth/session", () => sessionMock);
@@ -31,21 +39,22 @@ beforeEach(async () => {
   member = await createTestUser({ credits: 10, email: "member@example.com" });
 });
 
-type Handler = Parameters<typeof callRoute>[0];
-const p = (id: string) => ({ id });
+type Params = { id: string };
+type Handler = (req: NextRequest, ctx: { params: Promise<Params> }) => Promise<Response>;
+const p = (id: string): Params => ({ id });
 
-const endpoints: { name: string; handler: Handler; opts: () => Parameters<typeof callRoute>[1] }[] = [
+const endpoints: { name: string; handler: Handler; opts: () => CallRouteOptions<Params> }[] = [
   { name: "GET stats", handler: statsRoute, opts: () => ({ url: "/api/admin/stats" }) },
   { name: "GET users", handler: usersRoute, opts: () => ({ url: "/api/admin/users?q=a" }) },
-  { name: "GET user", handler: userDetailRoute as Handler, opts: () => ({ url: "/", params: p(member.id) }) },
-  { name: "POST credits", handler: creditsRoute as Handler, opts: () => ({ body: { delta: 5, note: "x" }, params: p(member.id) }) },
-  { name: "POST suspend", handler: suspendRoute as Handler, opts: () => ({ body: { reason: "spam" }, params: p(member.id) }) },
-  { name: "POST unsuspend", handler: unsuspendRoute as Handler, opts: () => ({ method: "POST", params: p(member.id) }) },
+  { name: "GET user", handler: userDetailRoute, opts: () => ({ url: "/", params: p(member.id) }) },
+  { name: "POST credits", handler: creditsRoute, opts: () => ({ body: { delta: 5, note: "x" }, params: p(member.id) }) },
+  { name: "POST suspend", handler: suspendRoute, opts: () => ({ body: { reason: "spam" }, params: p(member.id) }) },
+  { name: "POST unsuspend", handler: unsuspendRoute, opts: () => ({ method: "POST", params: p(member.id) }) },
   { name: "GET jobs", handler: listJobsRoute, opts: () => ({ url: "/api/admin/jobs" }) },
-  { name: "POST refund", handler: refundRoute as Handler, opts: () => ({ method: "POST", params: p("job_x") }) },
+  { name: "POST refund", handler: refundRoute, opts: () => ({ method: "POST", params: p("job_x") }) },
   { name: "GET moderation", handler: moderationRoute, opts: () => ({ url: "/api/admin/moderation" }) },
-  { name: "POST resolve", handler: resolveRoute as Handler, opts: () => ({ body: { action: "dismiss" }, params: p("rpt_x") }) },
-  { name: "POST review", handler: reviewEventRoute as Handler, opts: () => ({ method: "POST", params: p("mev_x") }) },
+  { name: "POST resolve", handler: resolveRoute, opts: () => ({ body: { action: "dismiss" }, params: p("rpt_x") }) },
+  { name: "POST review", handler: reviewEventRoute, opts: () => ({ method: "POST", params: p("mev_x") }) },
 ];
 
 describe("admin routes: access control", () => {
@@ -76,7 +85,7 @@ describe("admin routes: actions", () => {
   beforeEach(() => sessionMock.setUser(admin));
 
   it("POST /users/:id/credits writes an admin_adjust ledger entry with the admin and note", async () => {
-    const res = await callRoute(creditsRoute as Handler, {
+    const res = await callRoute(creditsRoute, {
       body: { delta: 15, note: "Support goodwill" },
       params: p(member.id),
       headers: { "Idempotency-Key": "adj-1" },
@@ -89,7 +98,7 @@ describe("admin routes: actions", () => {
     expect(entries[0]).toMatchObject({ delta: 15, reason: "admin_adjust", note: "Support goodwill", createdBy: admin.id, balanceAfter: 25 });
 
     // Retrying with the same Idempotency-Key does not double-apply.
-    const retry = await callRoute(creditsRoute as Handler, {
+    const retry = await callRoute(creditsRoute, {
       body: { delta: 15, note: "Support goodwill" },
       params: p(member.id),
       headers: { "Idempotency-Key": "adj-1" },
@@ -98,26 +107,26 @@ describe("admin routes: actions", () => {
   });
 
   it("POST /users/:id/credits validates the body and never overdraws", async () => {
-    const zero = await callRoute(creditsRoute as Handler, { body: { delta: 0, note: "x" }, params: p(member.id) });
+    const zero = await callRoute(creditsRoute, { body: { delta: 0, note: "x" }, params: p(member.id) });
     expect(zero.status).toBe(400);
-    const noNote = await callRoute(creditsRoute as Handler, { body: { delta: 3, note: " " }, params: p(member.id) });
+    const noNote = await callRoute(creditsRoute, { body: { delta: 3, note: " " }, params: p(member.id) });
     expect(noNote.status).toBe(400);
-    const tooMuch = await callRoute(creditsRoute as Handler, { body: { delta: -50, note: "clawback" }, params: p(member.id) });
+    const tooMuch = await callRoute(creditsRoute, { body: { delta: -50, note: "clawback" }, params: p(member.id) });
     expect(tooMuch.status).toBe(402);
-    const missing = await callRoute(creditsRoute as Handler, { body: { delta: 1, note: "x" }, params: p("usr_missing") });
+    const missing = await callRoute(creditsRoute, { body: { delta: 1, note: "x" }, params: p("usr_missing") });
     expect(missing.status).toBe(404);
   });
 
   it("suspend + unsuspend round trip; cannot suspend yourself", async () => {
-    const self = await callRoute(suspendRoute as Handler, { body: { reason: "test" }, params: p(admin.id) });
+    const self = await callRoute(suspendRoute, { body: { reason: "test" }, params: p(admin.id) });
     expect(self.status).toBe(403);
 
-    const res = await callRoute(suspendRoute as Handler, { body: { reason: "Spam accounts" }, params: p(member.id) });
+    const res = await callRoute(suspendRoute, { body: { reason: "Spam accounts" }, params: p(member.id) });
     expect(res.status).toBe(200);
     expect(res.json).toMatchObject({ suspended: true });
     expect((await db.select().from(user).where(eq(user.id, member.id)))[0]!.banned).toBe(true);
 
-    const un = await callRoute(unsuspendRoute as Handler, { method: "POST", params: p(member.id) });
+    const un = await callRoute(unsuspendRoute, { method: "POST", params: p(member.id) });
     expect(un.json).toEqual({ unsuspended: true });
   });
 
@@ -125,7 +134,7 @@ describe("admin routes: actions", () => {
     const list = await callRoute(usersRoute, { url: "/api/admin/users?q=member@" });
     expect(list.status).toBe(200);
     expect(list.json.users.map((u: { id: string }) => u.id)).toEqual([member.id]);
-    const detail = await callRoute(userDetailRoute as Handler, { url: "/", params: p(member.id) });
+    const detail = await callRoute(userDetailRoute, { url: "/", params: p(member.id) });
     expect(detail.json.user.email).toBe("member@example.com");
     expect(typeof detail.json.user.createdAt).toBe("string");
   });
@@ -138,10 +147,10 @@ describe("admin routes: actions", () => {
   it("POST /jobs/:id/refund accepts an empty body", async () => {
     const job = await createTestJob(member.id, { status: "failed", creditsCharged: 4 });
     await debitForJob({ userId: member.id, jobId: job.id, amount: 4 });
-    const res = await callRoute(refundRoute as Handler, { method: "POST", params: p(job.id) });
+    const res = await callRoute(refundRoute, { method: "POST", params: p(job.id) });
     expect(res.status).toBe(200);
     expect(res.json).toEqual({ refunded: 4, creditsRefunded: 4 });
-    const again = await callRoute(refundRoute as Handler, { body: { note: "again" }, params: p(job.id) });
+    const again = await callRoute(refundRoute, { body: { note: "again" }, params: p(job.id) });
     expect(again.status).toBe(409);
     expect((await callRoute(listJobsRoute, { url: "/api/admin/jobs?status=bogus" })).status).toBe(400);
   });
@@ -153,13 +162,13 @@ describe("admin routes: actions", () => {
     expect(queue.json.reports).toHaveLength(1);
     expect(queue.json.events).toHaveLength(1);
 
-    const bad = await callRoute(resolveRoute as Handler, { body: { action: "ban" }, params: p(report.id) });
+    const bad = await callRoute(resolveRoute, { body: { action: "ban" }, params: p(report.id) });
     expect(bad.status).toBe(400);
-    const ok = await callRoute(resolveRoute as Handler, { body: { action: "dismiss", note: "dupe" }, params: p(report.id) });
+    const ok = await callRoute(resolveRoute, { body: { action: "dismiss", note: "dupe" }, params: p(report.id) });
     expect(ok.status).toBe(200);
     expect(ok.json.report.status).toBe("dismissed");
 
-    const reviewed = await callRoute(reviewEventRoute as Handler, { method: "POST", params: p(event.id) });
+    const reviewed = await callRoute(reviewEventRoute, { method: "POST", params: p(event.id) });
     expect(reviewed.json).toEqual({ event: { id: event.id, reviewed: true } });
   });
 });

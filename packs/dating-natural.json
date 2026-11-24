@@ -5,30 +5,14 @@
   "description": "Dating-app photos that look like a friend took them on a great day, not like a studio shoot. Candid laughs, hobbies, sunny parks, bookshops, home cooking and a candlelit wine bar. Varied scenes, genuine smiles and honest skin texture, because the best profile photo is still you.",
   "category": "dating",
   "emoji": "💘",
-  "tags": [
-    "dating",
-    "dating profile",
-    "tinder",
-    "hinge",
-    "bumble",
-    "candid",
-    "natural",
-    "approachable"
-  ],
-  "colors": [
-    "#e11d48",
-    "#fb923c"
-  ],
+  "tags": ["dating", "dating profile", "tinder", "hinge", "bumble", "candid", "natural", "approachable"],
+  "colors": ["#e11d48", "#fb923c"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, glossy retouch, heavy makeup, overly posed, studio backdrop, group photo",
   "featured": true,
   "isNew": false,
   "sortOrder": 30,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Farmers market laugh",

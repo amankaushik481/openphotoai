@@ -5,30 +5,14 @@
   "description": "Hanbok portraits in the places they belong: Seoul's palace gates, Bukchon's hanok lanes, lotus-pond pavilions, cherry blossoms, autumn temple maples, snowy courtyards, a tea ceremony and a lantern festival, plus a modern hanbok-inspired street look. Accurate jeogori, chima and baji silhouettes.",
   "category": "fashion",
   "emoji": "🇰🇷",
-  "tags": [
-    "hanbok",
-    "korean",
-    "traditional dress",
-    "seoul",
-    "palace",
-    "hanok",
-    "heritage",
-    "cultural"
-  ],
-  "colors": [
-    "#db2777",
-    "#60a5fa"
-  ],
+  "tags": ["hanbok", "korean", "traditional dress", "seoul", "palace", "hanok", "heritage", "cultural"],
+  "colors": ["#db2777", "#60a5fa"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
   "featured": false,
   "isNew": false,
   "sortOrder": 620,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Palace gate",

@@ -5,30 +5,14 @@
   "description": "Personal-brand photos for portfolios and studio sites: moodboard walls, architecture models, painting and ceramics studios, ateliers, workshops and bold colored backdrops. Expressive, crafted and still professional enough for client pitches.",
   "category": "professional",
   "emoji": "🎨",
-  "tags": [
-    "creative",
-    "designer",
-    "architect",
-    "artist",
-    "portfolio",
-    "studio",
-    "personal brand",
-    "maker"
-  ],
-  "colors": [
-    "#db2777",
-    "#f59e0b"
-  ],
+  "tags": ["creative", "designer", "architect", "artist", "portfolio", "studio", "personal brand", "maker"],
+  "colors": ["#db2777", "#f59e0b"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, brand logos, messy clutter",
   "featured": false,
   "isNew": false,
   "sortOrder": 520,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Moodboard wall",

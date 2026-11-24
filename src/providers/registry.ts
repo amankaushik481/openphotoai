@@ -31,7 +31,7 @@ import { createStripePaymentProvider } from "./payment/stripe";
 import { createLocalFaceProvider } from "./safety/local-face";
 import { createLocalModerationProvider } from "./safety/local-moderation";
 import { createOpenAIModerationProvider } from "./safety/openai-moderation";
-import { createRekognitionFaceProvider } from "./safety/rekognition";
+import { createRekognitionCelebrityDetector, createRekognitionFaceProvider } from "./safety/rekognition";
 
 export interface ProviderOverrides {
   image?: ImageProvider;
@@ -109,14 +109,33 @@ export function getModerationProvider(): ModerationProvider {
       case "mock":
         return createMockModerationProvider();
       case "local":
-        return createLocalModerationProvider();
+        return withCelebrityDetection(createLocalModerationProvider());
       case "openai":
-        return createOpenAIModerationProvider({ apiKey: required(env.OPENAI_API_KEY, "OPENAI_API_KEY") });
+        return withCelebrityDetection(createOpenAIModerationProvider({ apiKey: required(env.OPENAI_API_KEY, "OPENAI_API_KEY") }));
       default:
         throw new Error(`Unknown moderation provider: ${String(name satisfies never)}`);
     }
   });
 }
+/**
+ * The local and OpenAI moderation backends cannot recognize public figures. When AWS credentials
+ * are configured, add Rekognition RecognizeCelebrities as `detectPublicFigure`.
+ */
+function withCelebrityDetection(provider: ModerationProvider): ModerationProvider {
+  if (provider.detectPublicFigure || !env.AWS_REGION || !env.AWS_ACCESS_KEY_ID || !env.AWS_SECRET_ACCESS_KEY) return provider;
+  const detectPublicFigure = createRekognitionCelebrityDetector({
+    region: env.AWS_REGION,
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+  });
+  return {
+    name: provider.name,
+    checkText: (text) => provider.checkText(text),
+    checkImage: (bytes) => provider.checkImage(bytes),
+    detectPublicFigure,
+  };
+}
+
 export function getFaceProvider(): FaceProvider {
   if (overrides?.face) return overrides.face;
   const name = env.faceProvider;

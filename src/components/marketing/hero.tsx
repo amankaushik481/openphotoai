@@ -23,7 +23,15 @@ const FRAMES: Frame[] = [
   { label: "Golden hour", colors: ["#c2410c", "#fbbf24"], hair: "long", tilt: 4, light: 124, score: 95 },
   { label: "Paris", colors: ["#9d174d", "#f472b6"], hair: "bun", tilt: -2, light: 46, score: 93 },
   { label: "Old money", colors: ["#14532d", "#a8a29e"], hair: "short", tilt: 2, light: 118, score: 96 },
-  { label: "Neon night", colors: ["#6d28d9", "#06b6d4"], hair: "curly", tilt: -6, light: 30, score: 64, refunded: true },
+  {
+    label: "Neon night",
+    colors: ["#6d28d9", "#06b6d4"],
+    hair: "curly",
+    tilt: -6,
+    light: 30,
+    score: 64,
+    refunded: true,
+  },
   { label: "Studio B&W", colors: ["#1c1917", "#78716c"], hair: "long", tilt: 1, light: 112, score: 94 },
 ];
 
@@ -46,14 +54,17 @@ export function Hero() {
             <GithubIcon className="size-3.5" />
             Open source · MIT · self-hostable
           </a>
-          <h1 id="hero-title" className="font-display text-[3.25rem] leading-[0.98] tracking-tight sm:text-7xl lg:text-[5.25rem]">
+          <h1
+            id="hero-title"
+            className="font-display text-[3.25rem] leading-[0.98] tracking-tight sm:text-7xl lg:text-[5.25rem]"
+          >
             Your AI photographer.
             <br />
             <span className="text-brand-gradient pr-1 italic">Open source.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base text-pretty text-muted-foreground sm:text-lg">
-            Take a live selfie, add a few photos, and get studio-quality headshots, dating photos, travel shots and videos
-            that actually look like you. Shots that miss on likeness are refunded automatically.
+            Take a live selfie, add a few photos, and get studio-quality headshots, dating photos, travel shots and
+            videos that actually look like you. Shots that miss on likeness are refunded automatically.
           </p>
           <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
@@ -70,8 +81,8 @@ export function Hero() {
             </Button>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
-            Free drafts <span aria-hidden="true">·</span> No subscription needed{" "}
-            <span aria-hidden="true">·</span> Pack credits never expire
+            Free drafts <span aria-hidden="true">·</span> No subscription needed <span aria-hidden="true">·</span> Pack
+            credits never expire
           </p>
         </div>
 
@@ -89,7 +100,9 @@ export function Hero() {
                 <li key={frame.label}>
                   <div
                     className="grain relative aspect-[4/5] overflow-hidden rounded-lg ring-1 ring-black/5"
-                    style={{ backgroundImage: `linear-gradient(150deg, ${frame.colors[0]} 0%, ${frame.colors[1]} 100%)` }}
+                    style={{
+                      backgroundImage: `linear-gradient(150deg, ${frame.colors[0]} 0%, ${frame.colors[1]} 100%)`,
+                    }}
                   >
                     <PortraitArt hair={frame.hair} tilt={frame.tilt} light={frame.light} />
                     <span className="absolute top-1.5 left-1.5 font-mono text-[10px] text-white/85">

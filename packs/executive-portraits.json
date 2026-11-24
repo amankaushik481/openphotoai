@@ -5,30 +5,14 @@
   "description": "Leadership portraits for annual reports, board pages, investor decks and press. Dark tailoring, corner offices, marble lobbies and skyline terraces, lit like a magazine business profile: composed, credible and unmistakably you.",
   "category": "professional",
   "emoji": "🏛️",
-  "tags": [
-    "executive",
-    "ceo",
-    "leadership",
-    "corporate",
-    "boardroom",
-    "annual report",
-    "headshot",
-    "suit"
-  ],
-  "colors": [
-    "#111827",
-    "#b45309"
-  ],
+  "tags": ["executive", "ceo", "leadership", "corporate", "boardroom", "annual report", "headshot", "suit"],
+  "colors": ["#111827", "#b45309"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, casual clothes, messy background, cheesy stock photo, oversaturated",
   "featured": true,
   "isNew": false,
   "sortOrder": 50,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Head of the table",
@@ -38,7 +22,7 @@
     },
     {
       "title": "Corner office window",
-      "prompt": "waist-up portrait of {subject} beside the window of a high-rise corner office, wearing a charcoal suit, turning from the view toward the camera with a subtle assured smile, late-afternoon light raking across the face, city far below in soft focus, 85mm f/2, cinematic corporate look, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "waist-up portrait of {subject} beside the window of a high-rise corner office, wearing a charcoal suit, turning from the view toward the camera with a subtle assured smile, late-afternoon light raking across {possessive} face, city far below in soft focus, 85mm f/2, cinematic corporate look, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Arms crossed studio",

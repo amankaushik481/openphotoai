@@ -5,30 +5,14 @@
   "description": "Portraits celebrating Ghanaian kente and West African style: handwoven kente drapes and gowns, graduation stoles, festival durbars, modern Accra streets, the weaver's loom, engagement celebrations, Ankara wax prints and regal studio portraits that show every woven thread.",
   "category": "fashion",
   "emoji": "🇬🇭",
-  "tags": [
-    "kente",
-    "ghana",
-    "west african",
-    "african fashion",
-    "heritage",
-    "ankara",
-    "cultural",
-    "traditional"
-  ],
-  "colors": [
-    "#ca8a04",
-    "#15803d"
-  ],
+  "tags": ["kente", "ghana", "west african", "african fashion", "heritage", "ankara", "cultural", "traditional"],
+  "colors": ["#ca8a04", "#15803d"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
   "featured": false,
   "isNew": true,
   "sortOrder": 640,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Terracotta studio",

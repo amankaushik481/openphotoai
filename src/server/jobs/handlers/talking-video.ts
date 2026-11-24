@@ -5,7 +5,7 @@
  * estimated speech. Completion uses the engine's default video ingestion.
  */
 import { and, eq } from "drizzle-orm";
-import { MAX_TALKING_SECONDS, MAX_TALKING_WORDS } from "@/components/video/video-options";
+import { MAX_TALKING_SECONDS, MAX_TALKING_WORDS } from "@/config/credits";
 import { estimateSpeechSeconds } from "@/config/credits";
 import { db } from "@/db";
 import { jobs, media } from "@/db/schema";

@@ -3,7 +3,7 @@
  * Completion uses the engine's default ingestion (ingestVideos: output safety check, first-frame
  * thumbnail, duration probe); `plan.sourceMediaId` becomes the video's `parentMediaId`.
  */
-import { DEFAULT_MOTION_PROMPT } from "@/components/video/video-options";
+import { DEFAULT_MOTION_PROMPT } from "@/config/credits";
 import type { MediaRow } from "@/db/types";
 import { getVideoProvider } from "@/providers/registry";
 import { errors } from "@/server/http";

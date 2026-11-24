@@ -5,30 +5,14 @@
   "description": "Your Paris trip in one shoot: the Eiffel Tower from Trocadéro and the Champ de Mars, café terraces, Montmartre steps, Haussmann balconies, the Seine bookstalls, rainy cobblestones and a river cruise at blue hour. Trench coats, Breton stripes and soft European light.",
   "category": "travel",
   "emoji": "🗼",
-  "tags": [
-    "paris",
-    "france",
-    "travel",
-    "eiffel tower",
-    "europe",
-    "cafe",
-    "city break",
-    "romantic"
-  ],
-  "colors": [
-    "#1e40af",
-    "#f9a8d4"
-  ],
+  "tags": ["paris", "france", "travel", "eiffel tower", "europe", "cafe", "city break", "romantic"],
+  "colors": ["#1e40af", "#f9a8d4"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": true,
   "isNew": false,
   "sortOrder": 70,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Trocadéro morning",
@@ -74,7 +58,7 @@
     },
     {
       "title": "Blue hour cruise",
-      "prompt": "photo of {subject} on the deck of a river boat on the Seine at blue hour, wearing a smart jacket, wind in the hair, glowing bridges and riverside lamps behind, warm smile, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} on the deck of a river boat on the Seine at blue hour, wearing a smart jacket, wind in {possessive} hair, glowing bridges and riverside lamps behind, warm smile, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Champ de Mars picnic",

@@ -5,30 +5,14 @@
   "description": "The festival of colors in full joy: bursts of gulal, color-streaked white kurtas, dhol rhythms, rooftop celebrations, gujiya and thandai and that blissful after-Holi grin. Bright spring sunlight and colors frozen mid-air.",
   "category": "seasonal",
   "emoji": "🌈",
-  "tags": [
-    "holi",
-    "festival of colors",
-    "indian",
-    "spring",
-    "colors",
-    "festive",
-    "celebration",
-    "gulal"
-  ],
-  "colors": [
-    "#db2777",
-    "#22c55e"
-  ],
+  "tags": ["holi", "festival of colors", "indian", "spring", "colors", "festive", "celebration", "gulal"],
+  "colors": ["#db2777", "#22c55e"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, muddy colors, face fully covered, readable text",
   "featured": false,
   "isNew": false,
   "sortOrder": 460,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Color cloud",

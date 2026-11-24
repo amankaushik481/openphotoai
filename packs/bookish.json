@@ -5,30 +5,14 @@
   "description": "For readers, writers and dark-academia lovers: grand old libraries with rolling ladders, antique bookshops, candlelit studies, rainy window seats, park-bench paperbacks, book clubs and green banker's lamps. Warm, literary and quietly photogenic.",
   "category": "lifestyle",
   "emoji": "📚",
-  "tags": [
-    "bookish",
-    "library",
-    "reading",
-    "dark academia",
-    "books",
-    "bookstore",
-    "literary",
-    "cozy"
-  ],
-  "colors": [
-    "#78350f",
-    "#d6d3d1"
-  ],
+  "tags": ["bookish", "library", "reading", "dark academia", "books", "bookstore", "literary", "cozy"],
+  "colors": ["#78350f", "#d6d3d1"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable book titles, readable text, cluttered mess",
   "featured": false,
   "isNew": false,
   "sortOrder": 390,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Grand library",

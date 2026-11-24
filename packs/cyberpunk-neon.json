@@ -5,30 +5,14 @@
   "description": "Step into a futuristic megacity: neon alleys in the rain, holographic night markets, rooftop helipads with flying traffic, noodle stalls, server rooms and synthwave highways. Techwear, glowing trims and magenta-cyan light, shot like a sci-fi film.",
   "category": "creative",
   "emoji": "🌃",
-  "tags": [
-    "cyberpunk",
-    "neon",
-    "sci-fi",
-    "futuristic",
-    "night city",
-    "synthwave",
-    "techwear",
-    "rain"
-  ],
-  "colors": [
-    "#d946ef",
-    "#06b6d4"
-  ],
+  "tags": ["cyberpunk", "neon", "sci-fi", "futuristic", "night city", "synthwave", "techwear", "rain"],
+  "colors": ["#d946ef", "#06b6d4"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, brand logos, video game render",
   "featured": false,
   "isNew": true,
   "sortOrder": 580,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Neon alley rain",
@@ -40,11 +24,11 @@
     },
     {
       "title": "Helipad skyline",
-      "prompt": "portrait of {subject} on a rooftop helipad above a vast neon skyline with flying vehicles streaking past, wearing a long tech trench coat, wind in the hair, purple haze, 24mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "portrait of {subject} on a rooftop helipad above a vast neon skyline with flying vehicles streaking past, wearing a long tech trench coat, wind in {possessive} hair, purple haze, 24mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Noodle stall",
-      "prompt": "photo of {subject} eating noodles at a tiny street stall under a glowing neon canopy in the rain, wearing a reflective rain jacket, warm light on the face, cyberpunk night atmosphere, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} eating noodles at a tiny street stall under a glowing neon canopy in the rain, wearing a reflective rain jacket, warm light on {possessive} face, cyberpunk night atmosphere, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Circuit-line close-up",

@@ -72,7 +72,7 @@ export function VideoStudio({ initialSource, initialTab, sourceMissing = false }
           source={source}
           onChoose={openPicker}
           missing={sourceMissing && !source}
-          className="lg:sticky lg:top-6"
+          className="lg:sticky lg:top-22"
         />
 
         <div className="flex min-w-0 flex-col gap-6">
@@ -96,7 +96,7 @@ export function VideoStudio({ initialSource, initialTab, sourceMissing = false }
           </Tabs>
 
           {jobs.length > 0 && (
-            <section ref={resultsRef} aria-labelledby="video-results" className="flex scroll-mt-6 flex-col gap-3">
+            <section ref={resultsRef} aria-labelledby="video-results" className="flex scroll-mt-20 flex-col gap-3">
               <h2 id="video-results" className="text-lg font-semibold">
                 Your videos
               </h2>

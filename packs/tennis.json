@@ -5,30 +5,14 @@
   "description": "Match-day tennis photos: serve tosses, clay-court slides, two-handed backhands, grass-court whites, courtside breaks, club lounges and a playful 1970s retro look. Crisp sports-photography light and no logos.",
   "category": "fitness",
   "emoji": "🎾",
-  "tags": [
-    "tennis",
-    "sport",
-    "tennis whites",
-    "clay court",
-    "country club",
-    "racket",
-    "athletic",
-    "preppy"
-  ],
-  "colors": [
-    "#65a30d",
-    "#fef08a"
-  ],
+  "tags": ["tennis", "sport", "tennis whites", "clay court", "country club", "racket", "athletic", "preppy"],
+  "colors": ["#65a30d", "#fef08a"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, deformed racket, extra rackets, extra balls in hands",
   "featured": false,
   "isNew": false,
   "sortOrder": 550,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Serve toss",

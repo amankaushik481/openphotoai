@@ -5,30 +5,14 @@
   "description": "The charm of a shaken instant print: square frames, built-in flash, creamy highlights, faded color casts and the occasional light leak. House parties, beach days, birthday candles, snow days and campfires, perfect for a nostalgic grid or a profile picture.",
   "category": "creative",
   "emoji": "📷",
-  "tags": [
-    "instant film",
-    "instant camera",
-    "square",
-    "retro",
-    "snapshot",
-    "flash",
-    "nostalgic",
-    "aesthetic"
-  ],
-  "colors": [
-    "#f472b6",
-    "#fde68a"
-  ],
+  "tags": ["instant film", "instant camera", "square", "retro", "snapshot", "flash", "nostalgic", "aesthetic"],
+  "colors": ["#f472b6", "#fde68a"],
   "defaultAspectRatio": "1:1",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand names, text on the border, digital sharpness, hdr",
   "featured": false,
   "isNew": true,
   "sortOrder": 570,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "House party",
@@ -68,7 +52,7 @@
     },
     {
       "title": "Rooftop sunset",
-      "prompt": "square instant film photo of {subject} on a rooftop at sunset, warm orange glow, wind in the hair, faded colors with a slight magenta cast, soft vignette, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "square instant film photo of {subject} on a rooftop at sunset, warm orange glow, wind in {possessive} hair, faded colors with a slight magenta cast, soft vignette, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Campfire night",

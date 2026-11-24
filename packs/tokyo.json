@@ -5,30 +5,14 @@
   "description": "Tokyo from dawn to midnight: the Shibuya scramble, lantern-lit alleys, cherry blossom canals, Asakusa's temple gate, tiny ramen counters, Harajuku side streets, late-night corner stores and a day trip to Mount Fuji. Cinematic neon and soft spring pastels.",
   "category": "travel",
   "emoji": "🗾",
-  "tags": [
-    "tokyo",
-    "japan",
-    "travel",
-    "neon",
-    "cherry blossom",
-    "shibuya",
-    "asia",
-    "city"
-  ],
-  "colors": [
-    "#be123c",
-    "#7c3aed"
-  ],
+  "tags": ["tokyo", "japan", "travel", "neon", "cherry blossom", "shibuya", "asia", "city"],
+  "colors": ["#be123c", "#7c3aed"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": false,
   "isNew": false,
   "sortOrder": 170,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Shibuya scramble",

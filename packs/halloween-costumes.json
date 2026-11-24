@@ -5,30 +5,14 @@
   "description": "Twelve-plus costume ideas without buying a single costume: gothic vampire, storybook witch, scarecrow, astronaut, wizard, pirate captain, mad scientist, haunted Victorian, classic monster, jazz-age detective, woodland fairy-tale and old-west cowboy. Spooky fun, never gruesome, with your face always visible.",
   "category": "seasonal",
   "emoji": "🎃",
-  "tags": [
-    "halloween",
-    "costume",
-    "spooky",
-    "october",
-    "pumpkin",
-    "costume party",
-    "witch",
-    "vampire"
-  ],
-  "colors": [
-    "#ea580c",
-    "#581c87"
-  ],
+  "tags": ["halloween", "costume", "spooky", "october", "pumpkin", "costume party", "witch", "vampire"],
+  "colors": ["#ea580c", "#581c87"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, gore, blood, mask covering face, cheap plastic costume, revealing costume, weapons",
   "featured": false,
   "isNew": false,
   "sortOrder": 470,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Gothic vampire",

@@ -5,30 +5,14 @@
   "description": "Portfolio-grade fashion stories: oversized tailoring, color blocking, wind-machine movement, gel-lit blinds, desert couture, chunky knit campaigns, hard flash on black and a sweeping monochrome suit. Strong poses and art-directed light for a model or creative portfolio.",
   "category": "fashion",
   "emoji": "✨",
-  "tags": [
-    "editorial",
-    "fashion",
-    "high fashion",
-    "studio",
-    "model",
-    "portfolio",
-    "bold lighting",
-    "couture"
-  ],
-  "colors": [
-    "#9333ea",
-    "#f472b6"
-  ],
+  "tags": ["editorial", "fashion", "high fashion", "studio", "model", "portfolio", "bold lighting", "couture"],
+  "colors": ["#9333ea", "#f472b6"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, brand names, cheap costume, stiff stock pose",
   "featured": false,
   "isNew": false,
   "sortOrder": 250,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Oversized tailoring",
@@ -54,7 +38,7 @@
     },
     {
       "title": "Blind-striped gels",
-      "prompt": "fashion portrait of {subject} in a white shirt lit with red and blue gels through a venetian blind, striped shadows across the face, cool gaze, 85mm lens, bold editorial, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "fashion portrait of {subject} in a white shirt lit with red and blue gels through a venetian blind, striped shadows across {possessive} face, cool gaze, 85mm lens, bold editorial, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Desert couture",

@@ -5,30 +5,14 @@
   "description": "Street-style shots with real city grit: crosswalks, murals, skate parks, subway platforms, rooftops and parking-garage flash. Oversized layers, cargo pants, techwear and clean sneakers, all logo-free so the fit and the attitude do the talking.",
   "category": "fashion",
   "emoji": "👟",
-  "tags": [
-    "streetwear",
-    "street style",
-    "urban",
-    "sneakers",
-    "techwear",
-    "city",
-    "fashion",
-    "skate"
-  ],
-  "colors": [
-    "#18181b",
-    "#84cc16"
-  ],
+  "tags": ["streetwear", "street style", "urban", "sneakers", "techwear", "city", "fashion", "skate"],
+  "colors": ["#18181b", "#84cc16"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos, readable graffiti, readable signs",
   "featured": false,
   "isNew": false,
   "sortOrder": 160,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Crosswalk stride",

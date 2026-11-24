@@ -19,7 +19,12 @@ interface CostLabel {
 }
 
 const LABELS: Record<CreditCostKey, CostLabel> = {
-  train: { label: "Trained identity model", unit: "per model", group: "identity", note: "Instant models are free to create" },
+  train: {
+    label: "Trained identity model",
+    unit: "per model",
+    group: "identity",
+    note: "Instant models are free to create",
+  },
   generateDraft: { label: "Draft preview", unit: "per image", group: "photos", note: "Daily cap applies" },
   generateStandard: { label: "Standard photo", unit: "per image", group: "photos" },
   generateHigh: { label: "High-quality photo", unit: "per image", group: "photos" },
@@ -90,7 +95,11 @@ export function providerCostExamples(): ProviderCostExample[] {
   const fal = MODELS.fal;
   return [
     { label: "Standard photo", credits: CREDIT_COSTS.generateStandard, providerUsd: fal.generate.costUsd },
-    { label: "Instant-model photo", credits: CREDIT_COSTS.generateStandard * INSTANT_MODE_MULTIPLIER, providerUsd: fal.editMulti.costUsd },
+    {
+      label: "Instant-model photo",
+      credits: CREDIT_COSTS.generateStandard * INSTANT_MODE_MULTIPLIER,
+      providerUsd: fal.editMulti.costUsd,
+    },
     { label: "Trained model", credits: CREDIT_COSTS.train, providerUsd: fal.train.costUsd },
     { label: "5 s video", credits: CREDIT_COSTS.video5s, providerUsd: fal.imageToVideo.costUsd },
   ];

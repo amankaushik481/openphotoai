@@ -86,8 +86,7 @@ describe("mock webhooks", () => {
     await expect(webhook(body, new Headers({ [MOCK_PAYMENT_SIGNATURE_HEADER]: "0".repeat(64) }))).rejects.toThrow(/signature/);
     const tampered = body.replace('"x"', '"y"');
     await expect(webhook(tampered, new Headers({ [MOCK_PAYMENT_SIGNATURE_HEADER]: signMockPayload(body) }))).rejects.toThrow(/signature/);
-    const err = await webhook(body, new Headers()).catch((e: PaymentWebhookError) => e);
-    expect(err.retryable).toBe(false);
+    await expect(webhook(body, new Headers())).rejects.toMatchObject({ retryable: false });
   });
 
   it("rejects signed bodies that are not valid payment events", async () => {

@@ -5,30 +5,14 @@
   "description": "Energetic fitness photos for coaches, athletes and anyone proud of their training: barbell lifts, sunrise runs, yoga, boxing, cycling, climbing, pilates and city athleisure. Dramatic gym light and real motion, always in proper training clothes with no logos.",
   "category": "fitness",
   "emoji": "💪",
-  "tags": [
-    "fitness",
-    "gym",
-    "athleisure",
-    "workout",
-    "running",
-    "yoga",
-    "wellness",
-    "sport"
-  ],
-  "colors": [
-    "#dc2626",
-    "#f97316"
-  ],
+  "tags": ["fitness", "gym", "athleisure", "workout", "running", "yoga", "wellness", "sport"],
+  "colors": ["#dc2626", "#f97316"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, exaggerated muscles, oiled skin, distorted body proportions",
   "featured": false,
   "isNew": false,
   "sortOrder": 240,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Barbell focus",

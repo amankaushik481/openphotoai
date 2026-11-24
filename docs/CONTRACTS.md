@@ -149,6 +149,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/teams/:id/invites` | U | `{ email }` |
 | POST | `/api/teams/invites/:token/accept` | U | join |
 | DELETE | `/api/teams/:id/members/:memberId` | U | remove |
+| PATCH | `/api/teams/:id/members/:memberId` | U | `{ role }` (owner only) |
 | GET/POST | `/api/teams/:id/brand-kits` | U | list / create |
 | PATCH/DELETE | `/api/brand-kits/:id` | U | update / delete |
 | POST | `/api/teams/:id/credits/transfer` | U | `{ memberUserId, amount }` (owner → member) |

@@ -5,30 +5,14 @@
   "description": "Vacation photos that are all about the place and the mood: shoreline walks, cabanas, boardwalks, seaside cafés, beach bonfires, hammocks, tide pools and overwater villas. Breezy linen shirts, sundresses and resort wear only, perfect to share with family and colleagues alike.",
   "category": "travel",
   "emoji": "🏖️",
-  "tags": [
-    "beach",
-    "resort",
-    "vacation",
-    "summer",
-    "tropical",
-    "linen",
-    "seaside",
-    "sunset"
-  ],
-  "colors": [
-    "#06b6d4",
-    "#fde68a"
-  ],
+  "tags": ["beach", "resort", "vacation", "summer", "tropical", "linen", "seaside", "sunset"],
+  "colors": ["#06b6d4", "#fde68a"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, crowded beach, brand logos, harsh midday glare",
   "featured": false,
   "isNew": false,
   "sortOrder": 290,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Shoreline walk",
@@ -50,7 +34,7 @@
     },
     {
       "title": "Beach bonfire",
-      "prompt": "photo of {subject} sitting by a beach bonfire at dusk wrapped in a chunky knit cardigan, warm firelight on the face, waves and twilight sky behind, gentle smile, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} sitting by a beach bonfire at dusk wrapped in a chunky knit cardigan, warm firelight on {possessive} face, waves and twilight sky behind, gentle smile, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Palm hammock",
@@ -58,7 +42,7 @@
     },
     {
       "title": "Sunset glow",
-      "prompt": "portrait of {subject} on the beach at sunset, wearing a white linen shirt, warm golden light on the face, the sea glowing behind, serene smile, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "portrait of {subject} on the beach at sunset, wearing a white linen shirt, warm golden light on {possessive} face, the sea glowing behind, serene smile, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Tide pools",

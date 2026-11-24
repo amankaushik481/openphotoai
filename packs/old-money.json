@@ -5,36 +5,20 @@
   "description": "The understated heritage aesthetic everyone is pinning: grass tennis clubs, Riviera terraces, classic sailboats, stable yards, garden parties and black-tie staircases. Cable knits, navy blazers, linen and tweed, with no logos in sight and the soft film tones of an old family album.",
   "category": "fashion",
   "emoji": "🐎",
-  "tags": [
-    "old money",
-    "preppy",
-    "heritage",
-    "country club",
-    "equestrian",
-    "riviera",
-    "classic",
-    "aesthetic"
-  ],
-  "colors": [
-    "#14532d",
-    "#d6c7a1"
-  ],
+  "tags": ["old money", "preppy", "heritage", "country club", "equestrian", "riviera", "classic", "aesthetic"],
+  "colors": ["#14532d", "#d6c7a1"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, flashy jewelry, neon colors, streetwear",
   "featured": true,
   "isNew": false,
   "sortOrder": 60,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Tennis club whites",
-      "prompt": "portrait of {subject} at a historic grass tennis club, wearing classic tennis whites with a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptMan": "portrait of {subject} at a historic grass tennis club, wearing a white piqué polo, pleated white shorts and a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptWoman": "portrait of {subject} at a historic grass tennis club, wearing a white pleated tennis dress with a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "portrait of {subject} at a historic grass tennis club, wearing classic tennis whites with a cable-knit sweater draped over {possessive} shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a historic grass tennis club, wearing a white piqué polo, pleated white shorts and a cable-knit sweater draped over {possessive} shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a historic grass tennis club, wearing a white pleated tennis dress with a cable-knit sweater draped over {possessive} shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Country estate",
@@ -44,11 +28,11 @@
       "title": "Riviera terrace",
       "prompt": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a linen shirt and tailored trousers, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
       "promptMan": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a cream linen shirt and tailored navy trousers, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptWoman": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a white linen sundress and a silk scarf in the hair, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+      "promptWoman": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a white linen sundress and a silk scarf in {possessive} hair, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Classic sailboat",
-      "prompt": "photo of {subject} at the helm of a classic wooden sailboat, wearing a striped Breton top under a navy cable-knit sweater, wind in the hair, sparkling sea, bright late-morning light, 35mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} at the helm of a classic wooden sailboat, wearing a striped Breton top under a navy cable-knit sweater, wind in {possessive} hair, sparkling sea, bright late-morning light, 35mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Stable yard",

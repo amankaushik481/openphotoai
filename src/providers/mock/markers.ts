@@ -181,6 +181,13 @@ export async function decodeMarker(bytes: Uint8Array): Promise<Marker | null> {
     const [presence, identityCell, ageCell, facesCell, flagsCell] = cells;
     const isMagenta = presence.mean.every((v, c) => Math.abs(v - MAGENTA[c]) <= MARKER_TOLERANCE);
     if (!isMagenta || Math.max(...presence.std) > 30) return null;
+    // Structural checks against look-alikes (e.g. a flat magenta image): the age cell is grey,
+    // the face cell has only green, the flag cell only blue.
+    const [ar, ag, ab] = ageCell.mean;
+    const isGrey = Math.max(ar, ag, ab) - Math.min(ar, ag, ab) <= MARKER_TOLERANCE;
+    const onlyGreen = facesCell.mean[0] <= MARKER_TOLERANCE && facesCell.mean[2] <= MARKER_TOLERANCE;
+    const onlyBlue = flagsCell.mean[0] <= MARKER_TOLERANCE && flagsCell.mean[1] <= MARKER_TOLERANCE;
+    if (!isGrey || !onlyGreen || !onlyBlue) return null;
 
     const flags = Math.round(flagsCell.mean[2] / FLAG_STEP) & 7;
     return {

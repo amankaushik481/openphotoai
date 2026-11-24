@@ -1,0 +1,64 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { TriangleAlertIcon } from "lucide-react";
+import { MockCheckoutCard, type MockCheckoutItemView } from "@/components/billing";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { env } from "@/lib/env";
+import { requireUserPage } from "@/server/auth/session";
+import { loadMockCheckout } from "@/server/billing";
+import { AppError } from "@/server/http";
+
+export const metadata: Metadata = {
+  title: "Test checkout",
+  robots: { index: false, follow: false },
+};
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+/** Test-mode stand-in for Stripe Checkout (PAYMENT_PROVIDER=mock only). */
+export default async function MockCheckoutPage({ searchParams }: { searchParams: SearchParams }) {
+  if (env.paymentProvider !== "mock") notFound();
+  const { session } = await searchParams;
+  const checkoutId = typeof session === "string" ? session : "";
+  const user = await requireUserPage(`/billing/mock-checkout?session=${encodeURIComponent(checkoutId)}`);
+
+  let view: MockCheckoutItemView | null = null;
+  let problem = "This checkout link is missing its session.";
+  if (checkoutId) {
+    try {
+      const { item } = loadMockCheckout(user.id, checkoutId);
+      view = {
+        name: item.name,
+        description: item.description,
+        priceCents: item.priceCents,
+        credits: item.credits,
+        interval: item.item.type === "plan" ? item.item.interval : undefined,
+      };
+    } catch (err) {
+      problem = err instanceof AppError ? err.message : "This checkout link is invalid.";
+    }
+  }
+
+  return (
+    <main id="main" className="flex min-h-dvh items-center justify-center bg-muted/30 px-4 py-10">
+      {view ? (
+        <MockCheckoutCard checkoutId={checkoutId} item={view} email={user.email} />
+      ) : (
+        <div className="flex w-full max-w-md flex-col gap-4">
+          <Alert variant="destructive">
+            <TriangleAlertIcon aria-hidden="true" />
+            <AlertTitle>
+              <h1>Checkout unavailable</h1>
+            </AlertTitle>
+            <AlertDescription>{problem}</AlertDescription>
+          </Alert>
+          <Button asChild variant="outline">
+            <Link href="/app/billing">Back to billing</Link>
+          </Button>
+        </div>
+      )}
+    </main>
+  );
+}

@@ -5,30 +5,14 @@
   "description": "Be the cover story of an imaginary business, music, travel, fashion, tech, sports, wellness or food magazine. Every frame is composed with empty headroom for a masthead you add yourself; no real magazine names, logos or text are generated.",
   "category": "creative",
   "emoji": "📰",
-  "tags": [
-    "magazine cover",
-    "cover star",
-    "editorial",
-    "fashion",
-    "portrait",
-    "studio",
-    "glamour",
-    "press"
-  ],
-  "colors": [
-    "#b91c1c",
-    "#fbbf24"
-  ],
+  "tags": ["magazine cover", "cover star", "editorial", "fashion", "portrait", "studio", "glamour", "press"],
+  "colors": ["#b91c1c", "#fbbf24"],
   "defaultAspectRatio": "3:4",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letters, masthead text, headlines, barcode, magazine logo, captions",
   "featured": false,
   "isNew": false,
   "sortOrder": 270,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Ivory studio cover",

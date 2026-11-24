@@ -50,14 +50,14 @@ export function EnhancePanel({ media, onJobCreated, className }: EnhancePanelPro
   return (
     <section aria-label="Enhance photo" className={cn("@container flex flex-col gap-4", className)}>
       {isVideo ? (
-        <Alert>
+        <Alert role="note">
           <VideoOffIcon aria-hidden="true" />
           <AlertTitle>Photos only</AlertTitle>
           <AlertDescription>{VIDEO_NOT_SUPPORTED_MESSAGE}</AlertDescription>
         </Alert>
       ) : (
         media.isDraft && (
-          <Alert variant="warning">
+          <Alert variant="warning" role="note">
             <TriangleAlertIcon aria-hidden="true" />
             <AlertTitle>Draft preview</AlertTitle>
             <AlertDescription>{DRAFT_SOURCE_WARNING}</AlertDescription>
@@ -102,6 +102,9 @@ function UpscaleCard({ media, onJobCreated }: { media: MediaDTO; onJobCreated?: 
   const isVideo = media.kind !== "image";
   const allowed = upscaleScalesFor(media);
   const preview = upscalePreview(media, scale);
+  // Explain a factor that is off for this photo (e.g. 4× would exceed the maximum size).
+  const offScale = allowed.length > 0 ? UPSCALE_SCALES.find((s) => !allowed.includes(s)) : undefined;
+  const offReason = offScale ? actionAvailability(media, "upscale", offScale).reason : null;
 
   return (
     <ActionCard
@@ -145,6 +148,7 @@ function UpscaleCard({ media, onJobCreated }: { media: MediaDTO; onJobCreated?: 
           `Result: ${scale}× the original width and height.`
         )}
       </p>
+      {offReason && <p className="text-xs text-muted-foreground">{offReason}</p>}
     </ActionCard>
   );
 }

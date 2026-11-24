@@ -73,13 +73,61 @@ export const BANNED_LISTS: readonly BannedList[] = [
     scope: "everywhere",
     level: "error",
     terms: [
-      "sexy", "sexual", "sexualized", "seductive", "seductively", "sensual", "sultry", "provocative", "erotic",
-      "lingerie", "underwear", "panties", "thong", "bra", "braless", "negligee", "corset", "bikini", "swimsuit",
-      "swimwear", "bathing suit", "shirtless", "topless", "bare chest", "bare-chested", "bare skin", "boudoir",
-      "nude", "nudity", "naked", "nsfw", "cleavage", "see-through", "skin-tight", "low-cut", "plunging neckline",
-      "miniskirt", "crop top", "cropped top", "revealing outfit", "revealing clothing", "revealing clothes",
-      "revealing costume", "revealing dress", "pin-up", "playboy", "onlyfans", "fetish", "stripper", "striptease",
-      "intimate", "bedroom eyes", "busty", "voluptuous", "thirst trap",
+      "sexy",
+      "sexual",
+      "sexualized",
+      "seductive",
+      "seductively",
+      "sensual",
+      "sultry",
+      "provocative",
+      "erotic",
+      "lingerie",
+      "underwear",
+      "panties",
+      "thong",
+      "bra",
+      "braless",
+      "negligee",
+      "corset",
+      "bikini",
+      "swimsuit",
+      "swimwear",
+      "bathing suit",
+      "shirtless",
+      "topless",
+      "bare chest",
+      "bare-chested",
+      "bare skin",
+      "boudoir",
+      "nude",
+      "nudity",
+      "naked",
+      "nsfw",
+      "cleavage",
+      "see-through",
+      "skin-tight",
+      "low-cut",
+      "plunging neckline",
+      "miniskirt",
+      "crop top",
+      "cropped top",
+      "revealing outfit",
+      "revealing clothing",
+      "revealing clothes",
+      "revealing costume",
+      "revealing dress",
+      "pin-up",
+      "playboy",
+      "onlyfans",
+      "fetish",
+      "stripper",
+      "striptease",
+      "intimate",
+      "bedroom eyes",
+      "busty",
+      "voluptuous",
+      "thirst trap",
     ],
   },
   {
@@ -87,10 +135,42 @@ export const BANNED_LISTS: readonly BannedList[] = [
     scope: "everywhere",
     level: "error",
     terms: [
-      "kid", "kids", "child", "children", "childhood", "childlike", "teen", "teens", "teenage", "teenager",
-      "preteen", "tween", "baby", "babies", "toddler", "infant", "newborn", "minor", "minors", "underage",
-      "schoolgirl", "schoolboy", "school uniform", "high school", "middle school", "elementary school", "prom",
-      "girl", "girls", "boy", "boys", "daughter", "son", "loli", "youngster", "juvenile",
+      "kid",
+      "kids",
+      "child",
+      "children",
+      "childhood",
+      "childlike",
+      "teen",
+      "teens",
+      "teenage",
+      "teenager",
+      "preteen",
+      "tween",
+      "baby",
+      "babies",
+      "toddler",
+      "infant",
+      "newborn",
+      "minor",
+      "minors",
+      "underage",
+      "schoolgirl",
+      "schoolboy",
+      "school uniform",
+      "high school",
+      "middle school",
+      "elementary school",
+      "prom",
+      "girl",
+      "girls",
+      "boy",
+      "boys",
+      "daughter",
+      "son",
+      "loli",
+      "youngster",
+      "juvenile",
     ],
   },
   {
@@ -98,25 +178,78 @@ export const BANNED_LISTS: readonly BannedList[] = [
     scope: "everywhere",
     level: "error",
     terms: [
-      "gun", "guns", "rifle", "pistol", "firearm", "shotgun", "revolver", "weapon", "weapons", "sword", "swords",
-      "knife", "knives", "dagger", "blade", "blades", "katana", "axe", "spear", "crossbow", "bullet", "bullets",
-      "ammo", "ammunition", "grenade", "bomb", "explosive", "blood", "bloody", "gore", "gory", "corpse", "kill",
-      "killing", "murder", "wound", "wounded",
+      "gun",
+      "guns",
+      "rifle",
+      "pistol",
+      "firearm",
+      "shotgun",
+      "revolver",
+      "weapon",
+      "weapons",
+      "sword",
+      "swords",
+      "knife",
+      "knives",
+      "dagger",
+      "blade",
+      "blades",
+      "katana",
+      "axe",
+      "spear",
+      "crossbow",
+      "bullet",
+      "bullets",
+      "ammo",
+      "ammunition",
+      "grenade",
+      "bomb",
+      "explosive",
+      "blood",
+      "bloody",
+      "gore",
+      "gory",
+      "corpse",
+      "kill",
+      "killing",
+      "murder",
+      "wound",
+      "wounded",
     ],
   },
   {
     category: "drugs",
     scope: "everywhere",
     level: "error",
-    terms: ["cigarette", "cigarettes", "cigar", "cigars", "smoking", "vape", "vaping", "drugs", "cocaine", "marijuana", "weed"],
+    terms: [
+      "cigarette",
+      "cigarettes",
+      "cigar",
+      "cigars",
+      "smoking",
+      "vape",
+      "vaping",
+      "drugs",
+      "cocaine",
+      "marijuana",
+      "weed",
+    ],
   },
   {
     category: "real_people",
     scope: "everywhere",
     level: "error",
     terms: [
-      "celebrity", "celebrities", "famous", "lookalike", "look-alike", "doppelganger", "in the style of",
-      "wes anderson", "kubrick", "tarantino",
+      "celebrity",
+      "celebrities",
+      "famous",
+      "lookalike",
+      "look-alike",
+      "doppelganger",
+      "in the style of",
+      "wes anderson",
+      "kubrick",
+      "tarantino",
     ],
   },
   {
@@ -125,27 +258,127 @@ export const BANNED_LISTS: readonly BannedList[] = [
     level: "error",
     terms: [
       // magazines
-      "vogue", "gq", "forbes", "techcrunch", "harper's bazaar", "vanity fair", "esquire", "cosmopolitan",
-      "rolling stone", "time magazine", "elle",
+      "vogue",
+      "gq",
+      "forbes",
+      "techcrunch",
+      "harper's bazaar",
+      "vanity fair",
+      "esquire",
+      "cosmopolitan",
+      "rolling stone",
+      "time magazine",
+      "elle",
       // fashion, luxury, sportswear
-      "gucci", "prada", "chanel", "louis vuitton", "hermes", "dior", "balenciaga", "burberry", "ralph lauren",
-      "versace", "fendi", "rolex", "cartier", "tiffany", "nike", "adidas", "lululemon", "ray-ban", "oakley",
-      "moncler", "canada goose", "levi's",
+      "gucci",
+      "prada",
+      "chanel",
+      "louis vuitton",
+      "hermes",
+      "dior",
+      "balenciaga",
+      "burberry",
+      "ralph lauren",
+      "versace",
+      "fendi",
+      "rolex",
+      "cartier",
+      "tiffany",
+      "nike",
+      "adidas",
+      "lululemon",
+      "ray-ban",
+      "oakley",
+      "moncler",
+      "canada goose",
+      "levi's",
       // cars
-      "ferrari", "lamborghini", "porsche", "rolls-royce", "bentley", "tesla", "mercedes", "bmw", "audi", "jeep",
+      "ferrari",
+      "lamborghini",
+      "porsche",
+      "rolls-royce",
+      "bentley",
+      "tesla",
+      "mercedes",
+      "bmw",
+      "audi",
+      "jeep",
       // cameras and film stocks
-      "polaroid", "kodak", "portra", "ektachrome", "kodachrome", "fujifilm", "leica", "hasselblad", "nikon",
-      "cinestill", "ilford", "lomography", "gopro",
+      "polaroid",
+      "kodak",
+      "portra",
+      "ektachrome",
+      "kodachrome",
+      "fujifilm",
+      "leica",
+      "hasselblad",
+      "nikon",
+      "cinestill",
+      "ilford",
+      "lomography",
+      "gopro",
       // characters, franchises, films, events
-      "batman", "superman", "spider-man", "spiderman", "iron man", "captain america", "wonder woman", "avengers",
-      "marvel comics", "dc comics", "star wars", "jedi", "sith", "darth vader", "harry potter", "hogwarts",
-      "gandalf", "hobbit", "middle-earth", "lord of the rings", "game of thrones", "mickey mouse", "disney",
-      "pixar", "pokemon", "pikachu", "barbie", "lego", "minecraft", "fortnite", "super mario", "zelda",
-      "hello kitty", "blade runner", "the matrix", "james bond", "deadpool", "x-men", "ghostbusters",
-      "met gala", "oscars", "academy awards", "wimbledon", "olympics", "olympic", "super bowl", "coachella",
-      "burning man", "ted talk", "hollywood",
+      "batman",
+      "superman",
+      "spider-man",
+      "spiderman",
+      "iron man",
+      "captain america",
+      "wonder woman",
+      "avengers",
+      "marvel comics",
+      "dc comics",
+      "star wars",
+      "jedi",
+      "sith",
+      "darth vader",
+      "harry potter",
+      "hogwarts",
+      "gandalf",
+      "hobbit",
+      "middle-earth",
+      "lord of the rings",
+      "game of thrones",
+      "mickey mouse",
+      "disney",
+      "pixar",
+      "pokemon",
+      "pikachu",
+      "barbie",
+      "lego",
+      "minecraft",
+      "fortnite",
+      "super mario",
+      "zelda",
+      "hello kitty",
+      "blade runner",
+      "the matrix",
+      "james bond",
+      "deadpool",
+      "x-men",
+      "ghostbusters",
+      "met gala",
+      "oscars",
+      "academy awards",
+      "wimbledon",
+      "olympics",
+      "olympic",
+      "super bowl",
+      "coachella",
+      "burning man",
+      "ted talk",
+      "hollywood",
       // consumer tech and food brands
-      "iphone", "ipad", "macbook", "samsung", "playstation", "xbox", "nintendo", "starbucks", "coca-cola", "pepsi",
+      "iphone",
+      "ipad",
+      "macbook",
+      "samsung",
+      "playstation",
+      "xbox",
+      "nintendo",
+      "starbucks",
+      "coca-cola",
+      "pepsi",
       "red bull",
     ],
   },
@@ -154,8 +387,19 @@ export const BANNED_LISTS: readonly BannedList[] = [
     scope: "prompts",
     level: "warning",
     terms: [
-      "instagram", "tiktok", "youtube", "linkedin", "tinder", "snapchat", "facebook", "twitter", "twitch",
-      "netflix", "spotify", "discord", "pinterest",
+      "instagram",
+      "tiktok",
+      "youtube",
+      "linkedin",
+      "tinder",
+      "snapchat",
+      "facebook",
+      "twitter",
+      "twitch",
+      "netflix",
+      "spotify",
+      "discord",
+      "pinterest",
     ],
   },
 ];
@@ -183,7 +427,13 @@ function termRegExp(term: string): RegExp {
 }
 
 const COMPILED_BANNED = BANNED_LISTS.flatMap((list) =>
-  list.terms.map((term) => ({ term, re: termRegExp(term), category: list.category, scope: list.scope, level: list.level })),
+  list.terms.map((term) => ({
+    term,
+    re: termRegExp(term),
+    category: list.category,
+    scope: list.scope,
+    level: list.level,
+  })),
 );
 
 export interface BannedHit {
@@ -335,18 +585,25 @@ export function validatePack(
   const pack = parsed.data;
 
   const expectedSlug = path.basename(file, ".json");
-  if (pack.slug !== expectedSlug) add("error", "slug", `slug "${pack.slug}" must match the file name "${expectedSlug}"`);
+  if (pack.slug !== expectedSlug)
+    add("error", "slug", `slug "${pack.slug}" must match the file name "${expectedSlug}"`);
 
   if (pack.prompts.length < RECOMMENDED_MIN_PROMPTS) {
-    add("warning", "prompts", `${pack.prompts.length} prompts; aim for ${RECOMMENDED_MIN_PROMPTS}–16 so batches stay varied`);
+    add(
+      "warning",
+      "prompts",
+      `${pack.prompts.length} prompts; aim for ${RECOMMENDED_MIN_PROMPTS}–16 so batches stay varied`,
+    );
   }
   if (pack.colors) {
     pack.colors.forEach((c, i) => {
       if (!HEX_COLOR.test(c)) add("error", `colors[${i}]`, `"${c}" is not a hex color like #1d4ed8`);
     });
   }
-  if (pack.cover && !pack.cover.startsWith("/")) add("warning", "cover", "cover should be a path under /public, e.g. /packs/<slug>.jpg");
-  if (new Set(pack.tags.map((t) => t.toLowerCase())).size !== pack.tags.length) add("warning", "tags", "duplicate tags");
+  if (pack.cover && !pack.cover.startsWith("/"))
+    add("warning", "cover", "cover should be a path under /public, e.g. /packs/<slug>.jpg");
+  if (new Set(pack.tags.map((t) => t.toLowerCase())).size !== pack.tags.length)
+    add("warning", "tags", "duplicate tags");
   if (pack.tags.some((t) => t !== t.toLowerCase())) add("warning", "tags", "tags should be lowercase");
 
   // Metadata: shown publicly, never expanded.
@@ -359,9 +616,11 @@ export function validatePack(
   ];
   for (const [where, text] of metadata) {
     if (HAS_PLACEHOLDER.test(text)) add("error", where, "placeholders are only expanded inside prompts");
-    for (const hit of findBannedTerms(text, "metadata")) add(hit.level, where, `banned term "${hit.term}" (${hit.category})`);
+    for (const hit of findBannedTerms(text, "metadata"))
+      add(hit.level, where, `banned term "${hit.term}" (${hit.category})`);
     const verdict = classifier?.(text);
-    if (verdict && !verdict.allowed) add("error", where, `blocked by the safety text filter (${verdict.reasons.join(", ")})`);
+    if (verdict && !verdict.allowed)
+      add("error", where, `blocked by the safety text filter (${verdict.reasons.join(", ")})`);
   }
 
   if (pack.negativePrompt && HAS_PLACEHOLDER.test(pack.negativePrompt)) {
@@ -385,15 +644,19 @@ export function validatePack(
       if (text === undefined) continue;
       const where = `${label} › ${field}`;
       for (const issue of checkPromptTemplate(text)) add(issue.level, where, issue.message);
-      for (const hit of findBannedTerms(text, "prompt")) add(hit.level, where, `banned term "${hit.term}" (${hit.category})`);
+      for (const hit of findBannedTerms(text, "prompt"))
+        add(hit.level, where, `banned term "${hit.term}" (${hit.category})`);
       const verdict = classifier?.(sampleExpand(text));
-      if (verdict && !verdict.allowed) add("error", where, `blocked by the safety text filter (${verdict.reasons.join(", ")})`);
+      if (verdict && !verdict.allowed)
+        add("error", where, `blocked by the safety text filter (${verdict.reasons.join(", ")})`);
       const key = text.trim().toLowerCase();
       if (seenPrompts.has(key)) add("error", where, "duplicate prompt text in this pack");
       seenPrompts.add(key);
     }
-    if (p.promptMan && !pack.subjects.includes("man")) add("warning", `${label} › promptMan`, 'unused: pack subjects exclude "man"');
-    if (p.promptWoman && !pack.subjects.includes("woman")) add("warning", `${label} › promptWoman`, 'unused: pack subjects exclude "woman"');
+    if (p.promptMan && !pack.subjects.includes("man"))
+      add("warning", `${label} › promptMan`, 'unused: pack subjects exclude "man"');
+    if (p.promptWoman && !pack.subjects.includes("woman"))
+      add("warning", `${label} › promptWoman`, 'unused: pack subjects exclude "woman"');
     if (p.negativePrompt && HAS_PLACEHOLDER.test(p.negativePrompt)) {
       add("error", `${label} › negativePrompt`, "negative prompts are not expanded; remove placeholders");
     }
@@ -425,7 +688,7 @@ export async function validatePacksDir(options: ValidateOptions = {}): Promise<V
   }
   if (files.length === 0) issues.push({ level: "error", file: dir, where: "", message: "no pack files found" });
 
-  const slugs = new Map<string, string>();
+  const parsed: (ValidatedPack & { hasErrors: boolean })[] = [];
   for (const file of files) {
     let raw: unknown;
     try {
@@ -436,15 +699,27 @@ export async function validatePacksDir(options: ValidateOptions = {}): Promise<V
     }
     const result = validatePack(file, raw, classifier);
     issues.push(...result.issues);
-    if (!result.pack) continue;
-    const other = slugs.get(result.pack.slug);
-    if (other) {
-      issues.push({ level: "error", file, where: "slug", message: `duplicate slug "${result.pack.slug}" (also in ${other})` });
-      continue;
-    }
-    slugs.set(result.pack.slug, file);
-    packs.push({ file, pack: result.pack });
+    if (result.pack)
+      parsed.push({ file, pack: result.pack, hasErrors: result.issues.some((i) => i.level === "error") });
   }
+
+  // Slugs must be unique across files (the registry would silently skip the later duplicate).
+  const bySlug = new Map<string, string[]>();
+  for (const p of parsed) bySlug.set(p.pack.slug, [...(bySlug.get(p.pack.slug) ?? []), p.file]);
+  for (const p of parsed) {
+    const others = (bySlug.get(p.pack.slug) ?? []).filter((f) => f !== p.file);
+    // The file named after the slug owns it; only the impostors are reported.
+    if (others.length === 0 || path.basename(p.file, ".json") === p.pack.slug) continue;
+    issues.push({
+      level: "error",
+      file: p.file,
+      where: "slug",
+      message: `duplicate slug "${p.pack.slug}" (also in ${others.join(", ")})`,
+    });
+    p.hasErrors = true;
+  }
+
+  for (const p of parsed) if (!p.hasErrors) packs.push({ file: p.file, pack: p.pack });
   return { packs, issues, files: files.length, classifierUsed: classifier !== null };
 }
 
@@ -453,7 +728,11 @@ export async function validatePacksDir(options: ValidateOptions = {}): Promise<V
 function parseArgs(argv: string[]): { dir?: string; strict: boolean; quiet: boolean } {
   const dirIdx = argv.indexOf("--dir");
   const dir = dirIdx >= 0 ? argv[dirIdx + 1] : undefined;
-  return { dir: dir ? path.resolve(dir) : undefined, strict: argv.includes("--strict"), quiet: argv.includes("--quiet") };
+  return {
+    dir: dir ? path.resolve(dir) : undefined,
+    strict: argv.includes("--strict"),
+    quiet: argv.includes("--quiet"),
+  };
 }
 
 function printIssues(issues: PackIssue[], quiet: boolean): void {
@@ -497,18 +776,28 @@ async function main(): Promise<void> {
   console.log(
     `\n${formatTable([
       ["files", "valid packs", "prompts", "featured", "errors", "warnings"],
-      [String(report.files), String(report.packs.length), String(promptCount), String(featured), String(errors.length), String(warnings.length)],
+      [
+        String(report.files),
+        String(report.packs.length),
+        String(promptCount),
+        String(featured),
+        String(errors.length),
+        String(warnings.length),
+      ],
     ])}`,
   );
 
   if (errors.length > 0 || (args.strict && warnings.length > 0)) {
-    log.error(`pack validation failed${args.strict && errors.length === 0 ? " (--strict: warnings count as errors)" : ""}`);
+    log.error(
+      `pack validation failed${args.strict && errors.length === 0 ? " (--strict: warnings count as errors)" : ""}`,
+    );
     process.exit(1);
   }
   log.ok(`${report.packs.length} packs valid`);
 }
 
-const isEntrypoint = process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+const isEntrypoint =
+  process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
 if (isEntrypoint) {
   main().catch((err: unknown) => {
     log.error(errorMessage(err));

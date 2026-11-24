@@ -5,30 +5,14 @@
   "description": "Island-of-the-gods travel photos: Ubud's rice terraces, a jungle swing, temple gates (with the sarong and sash temples ask visitors to wear), waterfalls, villa breakfasts, palm-lined scooter rides, yoga shalas and Uluwatu sunsets. Lush greens and soft tropical light.",
   "category": "travel",
   "emoji": "🌴",
-  "tags": [
-    "bali",
-    "indonesia",
-    "travel",
-    "tropical",
-    "ubud",
-    "rice terraces",
-    "island",
-    "wellness"
-  ],
-  "colors": [
-    "#059669",
-    "#fde68a"
-  ],
+  "tags": ["bali", "indonesia", "travel", "tropical", "ubud", "rice terraces", "island", "wellness"],
+  "colors": ["#059669", "#fde68a"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": false,
   "isNew": false,
   "sortOrder": 200,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Rice terraces",
@@ -64,7 +48,7 @@
     },
     {
       "title": "Uluwatu cliffs",
-      "prompt": "portrait of {subject} on the clifftop at Uluwatu at sunset with the ocean far below, wearing a light linen shirt, wind in the hair, warm golden light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "portrait of {subject} on the clifftop at Uluwatu at sunset with the ocean far below, wearing a light linen shirt, wind in {possessive} hair, warm golden light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Morning market",

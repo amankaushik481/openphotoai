@@ -5,30 +5,14 @@
   "description": "Become an original superhero, not anyone else's: custom suits with no emblems or trademarked looks, rooftop vigils, hero landings, flight above the clouds, energy and ice powers, a high-tech headquarters and a 60s retro hero. Your face always stays visible, with no masks.",
   "category": "creative",
   "emoji": "🦸",
-  "tags": [
-    "superhero",
-    "hero",
-    "comic",
-    "cape",
-    "cinematic",
-    "cosplay",
-    "action",
-    "original character"
-  ],
-  "colors": [
-    "#1d4ed8",
-    "#dc2626"
-  ],
+  "tags": ["superhero", "hero", "comic", "cape", "cinematic", "cosplay", "action", "original character"],
+  "colors": ["#1d4ed8", "#dc2626"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, emblems, chest symbol, mask covering face, weapons, cartoon, plastic costume",
   "featured": false,
   "isNew": false,
   "sortOrder": 600,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Rooftop vigil",

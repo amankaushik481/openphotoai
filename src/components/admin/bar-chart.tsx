@@ -33,11 +33,11 @@ const GAP = 2;
 const MAX_BAR = 24;
 const RADIUS = 4;
 
-/** Column from `yBase` to `yEnd` with only the data end (yEnd) rounded. */
-function columnPath(x: number, w: number, yBase: number, yEnd: number): string {
+/** Column from `yBase` to `yEnd`; only the data end (yEnd) is rounded, and only when `rounded`. */
+function columnPath(x: number, w: number, yBase: number, yEnd: number, rounded = true): string {
   const h = Math.abs(yBase - yEnd);
   if (h < 0.5) return "";
-  const r = Math.min(RADIUS, w / 2, h);
+  const r = rounded ? Math.min(RADIUS, w / 2, h) : 0;
   const dir = yEnd < yBase ? 1 : -1; // 1 = grows upward
   const yr = yEnd + dir * r;
   return [
@@ -99,23 +99,18 @@ export function BarChart({ id, title, data, format, valueLabel = "Total", partLa
         )}
       </figcaption>
 
-      <div className="flex min-w-0 gap-2">
-        <div aria-hidden="true" className="flex shrink-0 flex-col justify-between py-0.5 text-right text-[11px] text-muted-foreground tabular-nums">
+      <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-1">
+        <div aria-hidden="true" className="flex flex-col justify-between text-right text-[11px] leading-none text-muted-foreground tabular-nums">
           <span>{format(top)}</span>
-          {bottom < 0 ? <span>{format(bottom)}</span> : <span>{format(0)}</span>}
+          <span>{format(bottom)}</span>
         </div>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          role="img"
-          aria-labelledby={summaryId}
-          className="h-auto w-full min-w-0 overflow-visible"
-        >
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={summaryId} className="h-auto w-full min-w-0">
           <line x1={0} x2={W} y1={PAD_TOP} y2={PAD_TOP} className="stroke-border" strokeWidth={1} vectorEffect="non-scaling-stroke" />
           {data.map((d, i) => {
             const x = i * slot + (slot - barW) / 2;
             const part = Math.min(Math.max(d.part ?? 0, 0), Math.max(d.value, 0));
             const partTop = scale(part);
-            // Upper segment starts 2 units above the part (surface gap) when both exist.
+            // The upper segment starts 2 units above the part (surface gap) when both exist.
             const restBase = part > 0 ? partTop - GAP : base;
             const restPath = d.value > part ? columnPath(x, barW, restBase, Math.min(scale(d.value), restBase)) : "";
             const label =
@@ -128,7 +123,9 @@ export function BarChart({ id, title, data, format, valueLabel = "Total", partLa
                   <path d={columnPath(x, barW, base, scale(d.value))} className="fill-chart-3 group-hover:opacity-75" />
                 ) : (
                   <>
-                    {part > 0 && <path d={columnPath(x, barW, base, partTop)} className="fill-destructive group-hover:opacity-75" />}
+                    {part > 0 && (
+                      <path d={columnPath(x, barW, base, partTop, !restPath)} className="fill-destructive group-hover:opacity-75" />
+                    )}
                     {restPath && <path d={restPath} className="fill-chart-3 group-hover:opacity-75" />}
                   </>
                 )}
@@ -137,14 +134,13 @@ export function BarChart({ id, title, data, format, valueLabel = "Total", partLa
           })}
           <line x1={0} x2={W} y1={base} y2={base} className="stroke-muted-foreground/50" strokeWidth={1} vectorEffect="non-scaling-stroke" />
         </svg>
+        {data.length > 0 && (
+          <div aria-hidden="true" className="col-start-2 flex justify-between text-[11px] text-muted-foreground">
+            <span>{formatDayKey(data[0]!.date)}</span>
+            <span>{formatDayKey(data[data.length - 1]!.date)}</span>
+          </div>
+        )}
       </div>
-
-      {data.length > 0 && (
-        <div aria-hidden="true" className="flex justify-between pl-10 text-[11px] text-muted-foreground">
-          <span>{formatDayKey(data[0]!.date)}</span>
-          <span>{formatDayKey(data[data.length - 1]!.date)}</span>
-        </div>
-      )}
 
       <p id={summaryId} className="text-xs text-muted-foreground">
         {summary}

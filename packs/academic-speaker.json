@@ -5,30 +5,14 @@
   "description": "For professors, researchers, authors and keynote speakers: lecture halls, book-lined offices, labs, conference stages and green rooms. Use them for faculty pages, book jackets, event programs and speaker one-sheets.",
   "category": "professional",
   "emoji": "🧑‍🏫",
-  "tags": [
-    "academic",
-    "professor",
-    "keynote",
-    "speaker",
-    "author",
-    "researcher",
-    "conference",
-    "faculty"
-  ],
-  "colors": [
-    "#7c2d12",
-    "#fbbf24"
-  ],
+  "tags": ["academic", "professor", "keynote", "speaker", "author", "researcher", "conference", "faculty"],
+  "colors": ["#7c2d12", "#fbbf24"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, readable slides, cluttered stage",
   "featured": false,
   "isNew": false,
   "sortOrder": 510,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Keynote spotlight",

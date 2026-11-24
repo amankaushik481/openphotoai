@@ -5,30 +5,14 @@
   "description": "Credible, caring photos for practice websites, hospital directories, telehealth profiles and conference bios. White coats and scrubs in clinics, corridors, labs and consultation rooms, lit softly so you look calm, competent and approachable.",
   "category": "professional",
   "emoji": "🩺",
-  "tags": [
-    "doctor",
-    "medical",
-    "healthcare",
-    "nurse",
-    "clinic",
-    "hospital",
-    "physician",
-    "dentist"
-  ],
-  "colors": [
-    "#0891b2",
-    "#a7f3d0"
-  ],
+  "tags": ["doctor", "medical", "healthcare", "nurse", "clinic", "hospital", "physician", "dentist"],
+  "colors": ["#0891b2", "#a7f3d0"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, medical gore, injury, messy hospital, harsh green light",
   "featured": false,
   "isNew": false,
   "sortOrder": 490,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "White coat studio",

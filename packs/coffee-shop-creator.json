@@ -5,30 +5,14 @@
   "description": "For freelancers, writers and creators who live in cafés: laptop corner tables, journaling, filming at the table, pour-over rituals, video calls, sketching, photo editing and rainy-day focus sessions. Warm, productive and relatable.",
   "category": "lifestyle",
   "emoji": "💻",
-  "tags": [
-    "coffee shop",
-    "creator",
-    "remote work",
-    "laptop",
-    "freelancer",
-    "cafe",
-    "productivity",
-    "writer"
-  ],
-  "colors": [
-    "#57534e",
-    "#fbbf24"
-  ],
+  "tags": ["coffee shop", "creator", "remote work", "laptop", "freelancer", "cafe", "productivity", "writer"],
+  "colors": ["#57534e", "#fbbf24"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos on cups or laptops, readable screen text",
   "featured": false,
   "isNew": false,
   "sortOrder": 330,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Laptop corner table",

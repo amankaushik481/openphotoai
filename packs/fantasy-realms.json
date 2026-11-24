@@ -5,30 +5,14 @@
   "description": "Epic fantasy portraits with real costume craft: engraved plate armor, stone throne rooms, enchanted forests, a sorcerer's tower, a dragon on the horizon, moonlit groves, a frozen kingdom and a roaring tavern. Shot like a big-budget fantasy film, all costume craft and atmosphere.",
   "category": "creative",
   "emoji": "🏰",
-  "tags": [
-    "fantasy",
-    "knight",
-    "medieval",
-    "castle",
-    "royalty",
-    "enchanted forest",
-    "cosplay",
-    "epic"
-  ],
-  "colors": [
-    "#4c1d95",
-    "#facc15"
-  ],
+  "tags": ["fantasy", "knight", "medieval", "castle", "royalty", "enchanted forest", "cosplay", "epic"],
+  "colors": ["#4c1d95", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, sword, weapons, cheap plastic costume, video game render",
   "featured": false,
-  "isNew": true,
+  "isNew": false,
   "sortOrder": 590,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Knight in plate armor",
@@ -70,7 +54,7 @@
     },
     {
       "title": "Frozen kingdom",
-      "prompt": "fantasy portrait of {subject} in a frozen kingdom of ice spires, wearing a white fur cloak with silver armor accents, frost in the hair, piercing calm gaze, cold blue light, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "fantasy portrait of {subject} in a frozen kingdom of ice spires, wearing a white fur cloak with silver armor accents, frost in {possessive} hair, piercing calm gaze, cold blue light, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Tavern hearth",

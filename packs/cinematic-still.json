@@ -5,30 +5,14 @@
   "description": "Twelve original movie scenes with you in the lead: neo-noir rain, a late-night diner, a desert road movie, a period ballroom, a space station, a heist, a 70s thriller and a stormy lighthouse. Widescreen frames, anamorphic flares and film grades that look like a still from the trailer.",
   "category": "creative",
   "emoji": "🎬",
-  "tags": [
-    "cinematic",
-    "movie still",
-    "film",
-    "widescreen",
-    "anamorphic",
-    "storytelling",
-    "neo noir",
-    "drama"
-  ],
-  "colors": [
-    "#0f766e",
-    "#f97316"
-  ],
+  "tags": ["cinematic", "movie still", "film", "widescreen", "anamorphic", "storytelling", "neo noir", "drama"],
+  "colors": ["#0f766e", "#f97316"],
   "defaultAspectRatio": "16:9",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letterbox bars, subtitles, captions, behind the scenes crew, cartoonish",
   "featured": true,
   "isNew": false,
   "sortOrder": 90,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Neo-noir alley",
@@ -40,7 +24,7 @@
     },
     {
       "title": "Desert highway",
-      "prompt": "cinematic film still of {subject} leaning against a dusty vintage car on an empty desert highway at golden hour, wearing a denim jacket, wind in the hair, sweeping wide landscape, warm sun flare, road-movie mood, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "cinematic film still of {subject} leaning against a dusty vintage car on an empty desert highway at golden hour, wearing a denim jacket, wind in {possessive} hair, sweeping wide landscape, warm sun flare, road-movie mood, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Train compartment",
@@ -74,7 +58,7 @@
     },
     {
       "title": "Tunnel drive",
-      "prompt": "cinematic film still of {subject} driving through a tunnel at night, face lit by passing orange tunnel lights, wearing a leather jacket, determined expression, motion streaks, shot from the passenger seat, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "cinematic film still of {subject} driving through a tunnel at night, {possessive} face lit by passing orange tunnel lights, wearing a leather jacket, determined expression, motion streaks, shot from the passenger seat, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Lighthouse storm",

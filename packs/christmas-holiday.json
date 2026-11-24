@@ -5,30 +5,14 @@
   "description": "Everything for your holiday card and December posts: the decorated tree, fireside cocoa, a snowy porch with a wreath, Christmas markets, festive sweaters, gift wrapping, cookie baking, candlelit dinners and ice skating under the lights. Warm, twinkly and genuinely cozy.",
   "category": "seasonal",
   "emoji": "🎄",
-  "tags": [
-    "christmas",
-    "holiday",
-    "holiday card",
-    "winter",
-    "festive",
-    "cozy",
-    "xmas",
-    "december"
-  ],
-  "colors": [
-    "#b91c1c",
-    "#15803d"
-  ],
+  "tags": ["christmas", "holiday", "holiday card", "winter", "festive", "cozy", "xmas", "december"],
+  "colors": ["#b91c1c", "#15803d"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, fake-looking snow, plastic tree, readable text, cluttered room",
   "featured": true,
   "isNew": false,
   "sortOrder": 80,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Tree glow",

@@ -5,30 +5,14 @@
   "description": "Landscape-rich portraits for nature lovers: old-growth forest trails, waterfalls, sunrise summits, alpine lakes, autumn foliage, coastal cliffs, wildflower meadows, desert arches and rainforest ferns. Practical outdoor gear and big, beautiful scenery.",
   "category": "lifestyle",
   "emoji": "🥾",
-  "tags": [
-    "hiking",
-    "nature",
-    "forest",
-    "mountains",
-    "outdoors",
-    "waterfall",
-    "trail",
-    "wilderness"
-  ],
-  "colors": [
-    "#166534",
-    "#86efac"
-  ],
+  "tags": ["hiking", "nature", "forest", "mountains", "outdoors", "waterfall", "trail", "wilderness"],
+  "colors": ["#166534", "#86efac"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, back to camera, tiny figure, oversaturated landscape",
   "featured": false,
   "isNew": false,
   "sortOrder": 310,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Old-growth trail",

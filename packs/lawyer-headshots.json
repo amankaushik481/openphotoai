@@ -5,30 +5,14 @@
   "description": "Portraits that say trustworthy counsel: law libraries, courthouse steps, conference rooms and classic studio headshots. Dark tailoring and calm, confident expressions for firm websites, directory listings and speaker bios, plus a warmer, approachable option for family and community practices.",
   "category": "professional",
   "emoji": "⚖️",
-  "tags": [
-    "lawyer",
-    "attorney",
-    "legal",
-    "law firm",
-    "headshot",
-    "counsel",
-    "professional",
-    "corporate"
-  ],
-  "colors": [
-    "#1e3a8a",
-    "#94a3b8"
-  ],
+  "tags": ["lawyer", "attorney", "legal", "law firm", "headshot", "counsel", "professional", "corporate"],
+  "colors": ["#1e3a8a", "#94a3b8"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, judge robe, gavel, casual clothes, cluttered desk",
   "featured": false,
   "isNew": false,
   "sortOrder": 500,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Law library",

@@ -5,30 +5,14 @@
   "description": "Everything a video creator or podcaster needs: on-mic studio shots, interview sets, creator desks and vlogs, plus big-expression thumbnail frames on bold solid backgrounds with clean empty space for your title. Widescreen 16:9 throughout.",
   "category": "creative",
   "emoji": "🎙️",
-  "tags": [
-    "podcast",
-    "youtube",
-    "thumbnail",
-    "creator",
-    "video",
-    "studio",
-    "streamer",
-    "channel art"
-  ],
-  "colors": [
-    "#7c3aed",
-    "#22d3ee"
-  ],
+  "tags": ["podcast", "youtube", "thumbnail", "creator", "video", "studio", "streamer", "channel art"],
+  "colors": ["#7c3aed", "#22d3ee"],
   "defaultAspectRatio": "16:9",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letters, title text, arrows, emoji graphics, logos, cluttered background",
   "featured": false,
   "isNew": true,
   "sortOrder": 340,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "On the mic",

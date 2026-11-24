@@ -5,36 +5,20 @@
   "description": "Celebrate the festival of lights: glowing diyas, rangoli at the doorstep, marigold torans, sparklers on the rooftop, mithai platters, puja thalis and fireworks over the city. Silk sarees, lehengas, kurtas and bandhgalas styled with care and warm, golden candlelight.",
   "category": "seasonal",
   "emoji": "🪔",
-  "tags": [
-    "diwali",
-    "deepavali",
-    "festival of lights",
-    "indian",
-    "festive",
-    "diya",
-    "rangoli",
-    "celebration"
-  ],
-  "colors": [
-    "#ea580c",
-    "#facc15"
-  ],
+  "tags": ["diwali", "deepavali", "festival of lights", "indian", "festive", "diya", "rangoli", "celebration"],
+  "colors": ["#ea580c", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, garish colors, readable text",
   "featured": false,
   "isNew": false,
   "sortOrder": 430,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Diya glow",
-      "prompt": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing festive embroidered traditional attire, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptMan": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing an embroidered silk kurta in deep maroon, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptWoman": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing a rich silk saree in magenta and gold with jhumka earrings, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing festive embroidered traditional attire, warm candlelight glowing on {possessive} face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing an embroidered silk kurta in deep maroon, warm candlelight glowing on {possessive} face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing a rich silk saree in magenta and gold with jhumka earrings, warm candlelight glowing on {possessive} face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Rangoli at the door",

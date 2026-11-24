@@ -5,30 +5,14 @@
   "description": "Approachable professional photos for team pages, LinkedIn, résumés and company blogs. Open-collar shirts, knitwear and soft blazers in bright offices, cafés and coworking spaces, with candid moments that feel like a real day at work instead of a stiff studio session.",
   "category": "professional",
   "emoji": "👔",
-  "tags": [
-    "business casual",
-    "linkedin",
-    "office",
-    "smart casual",
-    "headshot",
-    "team page",
-    "resume",
-    "coworking"
-  ],
-  "colors": [
-    "#0f766e",
-    "#5eead4"
-  ],
+  "tags": ["business casual", "linkedin", "office", "smart casual", "headshot", "team page", "resume", "coworking"],
+  "colors": ["#0f766e", "#5eead4"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, stiff pose, tuxedo, heavy makeup, harsh flash",
   "featured": false,
   "isNew": false,
   "sortOrder": 40,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Bright office desk",

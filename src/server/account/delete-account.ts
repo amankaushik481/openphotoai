@@ -47,16 +47,6 @@ import {
 
 export const DELETION_BAN_REASON = "Account deletion in progress";
 
-/**
- * The models workstream was asked for an optional `{ notify }` flag so account deletion doesn't send
- * one "model deleted" email per model; until it exists the extra argument is simply ignored.
- */
-const deleteModel = deleteModelCompletely as (
-  userId: string,
-  modelId: string,
-  opts?: { notify?: boolean },
-) => Promise<void>;
-
 interface StepContext {
   userId: string;
   /** Lowercased account email (from the user row, or the deletion request once the row is gone). */
@@ -175,18 +165,29 @@ async function cancelSubscriptions({ userId, report }: StepContext): Promise<Ste
   return { canceled, failed: subs.length - canceled };
 }
 
-/** Provider-side weights + storage + rows for every identity model. Blocking: a retry resumes it. */
-async function deleteModels({ userId }: StepContext): Promise<StepCounts> {
+/**
+ * Provider-side weights + storage + rows for every identity model. A model that couldn't be deleted
+ * blocks (a retry resumes); weights the AI provider refused to delete are reported as a warning
+ * (deleteModelCompletely continues past them and the row is gone, so there's nothing to retry).
+ */
+async function deleteModels({ userId, report }: StepContext): Promise<StepCounts> {
   const models = await db
     .select({ id: identityModels.id })
     .from(identityModels)
     .where(eq(identityModels.userId, userId));
   const failures: string[] = [];
   let deleted = 0;
+  let providerFailures = 0;
   for (const model of models) {
     try {
-      await deleteModel(userId, model.id, { notify: false });
+      const result = await deleteModelCompletely(userId, model.id, { notify: false });
       deleted++;
+      if (!result.providerDeleted) {
+        providerFailures++;
+        const message = `model ${model.id}: provider-side weights not deleted (${result.providerError ?? "unknown error"})`;
+        console.error(`[account] deleting ${userId}: ${message}`);
+        addWarning(report, message);
+      }
     } catch (err) {
       // Already deleted (e.g. by an earlier, interrupted run): nothing left to do.
       if (err instanceof AppError && err.code === "not_found") {
@@ -199,7 +200,7 @@ async function deleteModels({ userId }: StepContext): Promise<StepCounts> {
   if (failures.length > 0) {
     throw new Error(`couldn't delete ${failures.length} identity model(s) — ${failures.join("; ")}`);
   }
-  return { deleted };
+  return { deleted, providerFailures };
 }
 
 /** `position(needle in haystack) > 0` (no LIKE wildcards to escape). */

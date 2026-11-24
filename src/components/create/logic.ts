@@ -362,17 +362,20 @@ export function batchProgress(
 }
 
 /**
- * Announce batch progress at ~10% steps (and on completion) so screen readers aren't flooded by
- * every poll. Returns null when nothing new is worth announcing.
+ * Live-region text for batch progress, bucketed to ~10% steps: the text (and so the announcement)
+ * only changes at each step and on completion, so screen readers aren't flooded by every poll.
  */
-export function batchAnnouncement(prevDone: number, next: BatchProgress, terminal: boolean): string | null {
+export function batchAnnouncement(p: BatchProgress, terminal: boolean): string {
   if (terminal) {
-    const failed = next.failed > 0 ? ` ${next.failed} failed and ${next.refunded} ${plural(next.refunded, "credit was", "credits were")} refunded.` : "";
-    return `Batch finished: ${next.photos} ${plural(next.photos, "photo")} ready.${failed}`;
+    const failed =
+      p.failed > 0
+        ? ` ${p.failed} failed and ${p.refunded} ${plural(p.refunded, "credit was", "credits were")} refunded.`
+        : "";
+    return `Batch finished: ${p.photos} ${plural(p.photos, "photo")} ready.${failed}`;
   }
-  const step = Math.max(1, Math.ceil(next.total / 10));
-  if (Math.floor(next.done / step) <= Math.floor(prevDone / step)) return null;
-  return `${next.done} of ${next.total} done.`;
+  const step = Math.max(1, Math.ceil(p.total / 10));
+  const bucket = Math.min(p.done, Math.floor(p.done / step) * step);
+  return `${bucket} of ${p.total} done.`;
 }
 
 /** `attachment; filename="x.zip"` (or RFC 5987 `filename*=`) -> "x.zip"; falls back when absent/unsafe. */

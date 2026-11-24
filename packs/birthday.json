@@ -5,34 +5,18 @@
   "description": "Celebrate another trip around the sun: birthday candles, confetti showers, balloon garlands, rooftop dinners, picnics, disco balls, champagne sprays, surprise parties and a milestone bouquet. Fun, flattering and ready for the birthday post.",
   "category": "events",
   "emoji": "🎂",
-  "tags": [
-    "birthday",
-    "celebration",
-    "party",
-    "cake",
-    "confetti",
-    "balloons",
-    "milestone",
-    "friends"
-  ],
-  "colors": [
-    "#ec4899",
-    "#a855f7"
-  ],
+  "tags": ["birthday", "celebration", "party", "cake", "confetti", "balloons", "milestone", "friends"],
+  "colors": ["#ec4899", "#a855f7"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, numbers on balloons, letters on banners",
   "featured": false,
   "isNew": false,
   "sortOrder": 420,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Birthday candles",
-      "prompt": "photo of {subject} smiling over the glowing candles of a frosted birthday cake, warm candlelight on the face, cozy room with fairy lights, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} smiling over the glowing candles of a frosted birthday cake, warm candlelight on {possessive} face, cozy room with fairy lights, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Confetti shower",

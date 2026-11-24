@@ -11,6 +11,10 @@ export const RATE_LIMITS = {
   uploadsPerMinute: { limit: 60, windowSec: 60 },
   promptHelperPerMinute: { limit: 20, windowSec: 60 },
   trainingsPerDay: { limit: 5, windowSec: 86_400 },
+  /** Team + multi-person invite emails per user. */
+  invitesPerHour: { limit: 30, windowSec: 3600 },
+  /** Account deletion confirmations per IP. */
+  accountDeleteConfirmPerHourPerIp: { limit: 10, windowSec: 3600 },
   /** Public endpoints, keyed by IP. */
   reportsPerHourPerIp: { limit: 20, windowSec: 3600 },
   magicLinkPerHourPerIp: { limit: 10, windowSec: 3600 },

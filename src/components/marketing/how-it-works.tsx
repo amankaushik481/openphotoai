@@ -44,19 +44,19 @@ export function HowItWorks() {
           className="pointer-events-none absolute top-11 right-[16%] left-[16%] hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
         />
         <ol className="relative grid gap-5 md:grid-cols-3">
-        {STEPS.map(({ icon: Icon, title, body, meta }, i) => (
-          <li key={title} className="relative flex flex-col rounded-2xl border bg-card p-6 shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-display text-5xl leading-none text-brand-gradient">{i + 1}</span>
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-soft-foreground">
-                <Icon aria-hidden="true" className="size-5" />
-              </span>
-            </div>
-            <h3 className="mt-6 text-lg font-semibold">{title}</h3>
-            <p className="mt-2 flex-1 text-sm text-muted-foreground">{body}</p>
-            <p className="mt-5 font-mono text-xs tracking-wide text-muted-foreground uppercase">{meta}</p>
-          </li>
-        ))}
+          {STEPS.map(({ icon: Icon, title, body, meta }, i) => (
+            <li key={title} className="relative flex flex-col rounded-2xl border bg-card p-6 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-display text-5xl leading-none text-brand-gradient">{i + 1}</span>
+                <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-soft-foreground">
+                  <Icon aria-hidden="true" className="size-5" />
+                </span>
+              </div>
+              <h3 className="mt-6 text-lg font-semibold">{title}</h3>
+              <p className="mt-2 flex-1 text-sm text-muted-foreground">{body}</p>
+              <p className="mt-5 font-mono text-xs tracking-wide text-muted-foreground uppercase">{meta}</p>
+            </li>
+          ))}
         </ol>
       </div>
     </MarketingSection>

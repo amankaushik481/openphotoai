@@ -5,36 +5,20 @@
   "description": "Eid al-Fitr and Eid al-Adha portraits: brass lanterns, mosque courtyards in morning light, festive tables of dates and sweets, the crescent moon at dusk, evening bazaars, gift giving and garden gatherings. Elegant, modest festive attire styled with respect.",
   "category": "seasonal",
   "emoji": "🌙",
-  "tags": [
-    "eid",
-    "eid al fitr",
-    "eid al adha",
-    "eid mubarak",
-    "festive",
-    "modest fashion",
-    "celebration",
-    "ramadan"
-  ],
-  "colors": [
-    "#065f46",
-    "#fcd34d"
-  ],
+  "tags": ["eid", "eid al fitr", "eid al adha", "eid mubarak", "festive", "modest fashion", "celebration", "ramadan"],
+  "colors": ["#065f46", "#fcd34d"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, readable text, revealing clothing",
   "featured": false,
   "isNew": false,
   "sortOrder": 450,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Brass lantern",
       "prompt": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing elegant embroidered festive attire, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
       "promptMan": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing an ivory embroidered kurta with a matching waistcoat, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
-      "promptWoman": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing an embroidered emerald kaftan dress with a silk scarf draped over the shoulders, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+      "promptWoman": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing an embroidered emerald kaftan dress with a silk scarf draped over {possessive} shoulders, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Mosque courtyard",

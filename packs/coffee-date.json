@@ -5,30 +5,14 @@
   "description": "The low-key first-date look: window seats, latte art, sidewalk terraces, bakeries and rainy-day cafés. Cozy knits, soft light and relaxed smiles that feel like you're sitting across the table, which is exactly where a match wants to be.",
   "category": "dating",
   "emoji": "☕",
-  "tags": [
-    "dating",
-    "coffee",
-    "cafe",
-    "first date",
-    "cozy",
-    "casual",
-    "latte",
-    "approachable"
-  ],
-  "colors": [
-    "#78350f",
-    "#fcd34d"
-  ],
+  "tags": ["dating", "coffee", "cafe", "first date", "cozy", "casual", "latte", "approachable"],
+  "colors": ["#78350f", "#fcd34d"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos on cups, readable menus, harsh flash",
   "featured": false,
   "isNew": false,
   "sortOrder": 150,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Window seat latte",

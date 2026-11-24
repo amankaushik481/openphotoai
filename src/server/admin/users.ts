@@ -4,7 +4,6 @@ import { db, type Database, type Tx } from "@/db";
 import {
   creditLedger,
   identityModels,
-  jobs,
   media,
   moderationEvents,
   payments,

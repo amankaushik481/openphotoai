@@ -44,6 +44,13 @@ export const INSTANT_MODE_MULTIPLIER = 2;
 /** Words per second used to estimate talking-video duration from a script. */
 export const SPEECH_WORDS_PER_SEC = 2.5;
 
+/** Motion prompt used for photo-to-video when the user leaves it blank. */
+export const DEFAULT_MOTION_PROMPT = "subtle natural motion, gentle camera push-in, realistic";
+/** Longest talking video we make, in estimated seconds of speech. */
+export const MAX_TALKING_SECONDS = 60;
+/** Word budget that fits in MAX_TALKING_SECONDS at the estimator's speaking rate. */
+export const MAX_TALKING_WORDS = Math.floor(MAX_TALKING_SECONDS * SPEECH_WORDS_PER_SEC);
+
 export function estimateSpeechSeconds(script: string): number {
   const words = script.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / SPEECH_WORDS_PER_SEC));

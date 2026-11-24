@@ -5,30 +5,14 @@
   "description": "The photos journalists ask for when your startup makes the news. Magazine-feature portraits in loft offices, workshops and launch stages, plus clean press-kit shots with room to crop. Smart casual founder style, honest light and no cheesy stock-photo poses.",
   "category": "professional",
   "emoji": "🚀",
-  "tags": [
-    "founder",
-    "startup",
-    "press kit",
-    "entrepreneur",
-    "editorial",
-    "tech",
-    "about page",
-    "media"
-  ],
-  "colors": [
-    "#4f46e5",
-    "#f97316"
-  ],
+  "tags": ["founder", "startup", "press kit", "entrepreneur", "editorial", "tech", "about page", "media"],
+  "colors": ["#4f46e5", "#f97316"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, cheesy stock photo, thumbs up, fake handshake, oversaturated",
   "featured": false,
   "isNew": false,
   "sortOrder": 100,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Loft feature story",

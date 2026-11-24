@@ -5,30 +5,14 @@
   "description": "The Greek island classic: Oia's blue domes, whitewashed stairs with bougainvillea, cliffside breakfasts, windmills, Ammoudi Bay tavernas, a sailboat across the caldera and candlelit terraces after dark. Breezy linen and dazzling Aegean light.",
   "category": "travel",
   "emoji": "🇬🇷",
-  "tags": [
-    "santorini",
-    "greece",
-    "oia",
-    "travel",
-    "island",
-    "mediterranean",
-    "sunset",
-    "summer"
-  ],
-  "colors": [
-    "#2563eb",
-    "#e0f2fe"
-  ],
+  "tags": ["santorini", "greece", "oia", "travel", "island", "mediterranean", "sunset", "summer"],
+  "colors": ["#2563eb", "#e0f2fe"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": false,
   "isNew": false,
   "sortOrder": 190,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Oia blue domes",
@@ -38,7 +22,7 @@
     },
     {
       "title": "Caldera sunset",
-      "prompt": "portrait of {subject} at a cliffside viewpoint during sunset over the caldera, wearing a light linen outfit, warm golden light on the face, sailboats far below, peaceful smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "portrait of {subject} at a cliffside viewpoint during sunset over the caldera, wearing a light linen outfit, warm golden light on {possessive} face, sailboats far below, peaceful smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Bougainvillea stairs",
@@ -58,7 +42,7 @@
     },
     {
       "title": "Caldera sail",
-      "prompt": "photo of {subject} on the deck of a traditional wooden sailboat cruising the caldera, sunglasses pushed up, wearing a linen shirt, wind in the hair, deep blue sea, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} on the deck of a traditional wooden sailboat cruising the caldera, sunglasses pushed up, wearing a linen shirt, wind in {possessive} hair, deep blue sea, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Cliff winery",

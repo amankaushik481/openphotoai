@@ -71,9 +71,24 @@ describe("pack catalogue", () => {
     for (const c of PACK_CATEGORIES.filter((c) => c !== "family")) expect(categories, c).toContain(c);
     const slugs = new Set(packs.map((p) => p.pack.slug));
     for (const slug of [
-      "business-casual", "executive-portraits", "dating-natural", "old-money", "quiet-luxury", "paris", "tokyo",
-      "fitness-athleisure", "black-and-white", "diwali", "christmas-holiday", "halloween-costumes", "wedding-guest",
-      "graduation", "cinematic-still", "magazine-cover", "with-my-dog", "beach-resort",
+      "business-casual",
+      "executive-portraits",
+      "dating-natural",
+      "old-money",
+      "quiet-luxury",
+      "paris",
+      "tokyo",
+      "fitness-athleisure",
+      "black-and-white",
+      "diwali",
+      "christmas-holiday",
+      "halloween-costumes",
+      "wedding-guest",
+      "graduation",
+      "cinematic-still",
+      "magazine-cover",
+      "with-my-dog",
+      "beach-resort",
     ]) {
       expect(slugs, slug).toContain(slug);
     }
@@ -149,14 +164,20 @@ describe("content rules", () => {
   it("prompts contain no banned terms (sexual, minors, violence, trademarks, real people)", () => {
     for (const { label, text } of promptVariants) {
       const hits = findBannedTerms(text, "prompt").filter((h) => h.level === "error");
-      expect(hits.map((h) => `${h.term} (${h.category})`), label).toEqual([]);
+      expect(
+        hits.map((h) => `${h.term} (${h.category})`),
+        label,
+      ).toEqual([]);
     }
   });
 
   it("names, taglines, descriptions, tags and titles contain no banned terms", () => {
     for (const { label, text } of metadataTexts) {
       const hits = findBannedTerms(text, "metadata").filter((h) => h.level === "error");
-      expect(hits.map((h) => `${h.term} (${h.category})`), label).toEqual([]);
+      expect(
+        hits.map((h) => `${h.term} (${h.category})`),
+        label,
+      ).toEqual([]);
     }
   });
 

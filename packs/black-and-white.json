@@ -5,30 +5,14 @@
   "description": "Fine-art monochrome portraits in every classic style: Rembrandt and butterfly light, high-key white, low-key chiaroscuro, window light, rainy street candids, film-noir hat shadows and wind-blown beach frames. Rich tonal range and honest grain, the kind of portrait that never dates.",
   "category": "creative",
   "emoji": "🖤",
-  "tags": [
-    "black and white",
-    "monochrome",
-    "fine art",
-    "portrait",
-    "film grain",
-    "classic",
-    "studio",
-    "timeless"
-  ],
-  "colors": [
-    "#0a0a0a",
-    "#a3a3a3"
-  ],
+  "tags": ["black and white", "monochrome", "fine art", "portrait", "film grain", "classic", "studio", "timeless"],
+  "colors": ["#0a0a0a", "#a3a3a3"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, color, colorful, sepia tint, crushed blacks, muddy grays",
   "featured": false,
   "isNew": false,
   "sortOrder": 110,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Rembrandt classic",
@@ -44,7 +28,7 @@
     },
     {
       "title": "Window light",
-      "prompt": "black and white portrait of {subject} seated beside a tall window, soft directional daylight falling across the face, wearing a knit sweater, wistful gaze toward the window, film grain, 50mm lens, quiet documentary mood, monochrome, natural skin texture, photorealistic"
+      "prompt": "black and white portrait of {subject} seated beside a tall window, soft directional daylight falling across {possessive} face, wearing a knit sweater, wistful gaze toward the window, film grain, 50mm lens, quiet documentary mood, monochrome, natural skin texture, photorealistic"
     },
     {
       "title": "Profile rim light",
@@ -68,7 +52,7 @@
     },
     {
       "title": "Hat shadow noir",
-      "prompt": "black and white portrait of {subject} wearing a wide-brim felt hat that casts a shadow line across the face, eyes catching the light, dramatic film noir mood, 85mm lens, monochrome, natural skin texture, photorealistic"
+      "prompt": "black and white portrait of {subject} wearing a wide-brim felt hat that casts a shadow line across {possessive} face, eyes catching the light, dramatic film noir mood, 85mm lens, monochrome, natural skin texture, photorealistic"
     },
     {
       "title": "Painted canvas stool",

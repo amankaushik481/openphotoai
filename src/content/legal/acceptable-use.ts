@@ -109,8 +109,14 @@ export const ACCEPTABLE_USE_TEMPLATE: LegalDocument = {
           head: ["Step", "Target time"],
           rows: [
             ["Acknowledge your report", "Within {{takedownAckHours}} hours"],
-            ["Remove intimate or sexual imagery, content involving minors, and impersonation of a real person", "Within {{takedownUrgentHours}} hours of a valid report (sooner where we can)"],
-            ["Resolve other reports (other policy or rights complaints)", "Within {{takedownStandardDays}} business days"],
+            [
+              "Remove intimate or sexual imagery, content involving minors, and impersonation of a real person",
+              "Within {{takedownUrgentHours}} hours of a valid report (sooner where we can)",
+            ],
+            [
+              "Resolve other reports (other policy or rights complaints)",
+              "Within {{takedownStandardDays}} business days",
+            ],
             ["Tell you the outcome", "When the report is resolved, where it is safe and lawful"],
           ],
         },

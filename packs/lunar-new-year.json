@@ -15,20 +15,13 @@
     "celebration",
     "new year"
   ],
-  "colors": [
-    "#dc2626",
-    "#fbbf24"
-  ],
+  "colors": ["#dc2626", "#fbbf24"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable characters, text, costume-like outfit, stereotyped styling",
   "featured": false,
   "isNew": false,
   "sortOrder": 440,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Lantern street",

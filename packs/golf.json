@@ -5,30 +5,14 @@
   "description": "Golf photos from first tee to 19th hole: fairway swings, putting greens, bunker shots, seaside links, desert courses and clubhouse terraces. Classic golf attire, soft morning mist and golden evening light, no logos anywhere.",
   "category": "fitness",
   "emoji": "⛳",
-  "tags": [
-    "golf",
-    "country club",
-    "sport",
-    "fairway",
-    "preppy",
-    "clubhouse",
-    "links",
-    "outdoors"
-  ],
-  "colors": [
-    "#15803d",
-    "#ecfccb"
-  ],
+  "tags": ["golf", "country club", "sport", "fairway", "preppy", "clubhouse", "links", "outdoors"],
+  "colors": ["#15803d", "#ecfccb"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, bent golf club, extra golf clubs in hands",
   "featured": false,
   "isNew": false,
   "sortOrder": 540,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Fairway swing",

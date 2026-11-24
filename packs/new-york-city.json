@@ -5,30 +5,14 @@
   "description": "Main-character energy in NYC: the Manhattan Bridge from DUMBO, the Brooklyn Bridge promenade, yellow cabs, Central Park in fall, West Village stoops, the subway, the High Line, a Beaux-Arts terminal and snowy holiday avenues.",
   "category": "travel",
   "emoji": "🗽",
-  "tags": [
-    "new york",
-    "nyc",
-    "manhattan",
-    "brooklyn",
-    "travel",
-    "city",
-    "usa",
-    "street style"
-  ],
-  "colors": [
-    "#0f172a",
-    "#facc15"
-  ],
+  "tags": ["new york", "nyc", "manhattan", "brooklyn", "travel", "city", "usa", "street style"],
+  "colors": ["#0f172a", "#facc15"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos, billboards",
   "featured": false,
   "isNew": false,
   "sortOrder": 180,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "DUMBO bridge view",

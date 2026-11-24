@@ -5,30 +5,14 @@
   "description": "Alpine postcards starring you: the Matterhorn from the trail, Lauterbrunnen's waterfall valley, panoramic trains, geranium-filled chalet balconies, turquoise lakes, cable cars, fondue nights and snowy villages at blue hour. Summer and winter in one pack.",
   "category": "travel",
   "emoji": "🏔️",
-  "tags": [
-    "switzerland",
-    "swiss alps",
-    "mountains",
-    "travel",
-    "zermatt",
-    "lake",
-    "alpine",
-    "hiking"
-  ],
-  "colors": [
-    "#0284c7",
-    "#e0f2fe"
-  ],
+  "tags": ["switzerland", "swiss alps", "mountains", "travel", "zermatt", "lake", "alpine", "hiking"],
+  "colors": ["#0284c7", "#e0f2fe"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": false,
   "isNew": false,
   "sortOrder": 220,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Matterhorn trail",

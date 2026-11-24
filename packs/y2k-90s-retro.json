@@ -5,30 +5,14 @@
   "description": "A nostalgia trip through the late 90s and early 2000s: disposable-camera flash, mall food courts, video rental shelves, roller rinks, arcades, grunge garages and glossy chrome studios. Tinted sunglasses, velour, windbreakers and flannel, finished with authentic film grain.",
   "category": "fashion",
   "emoji": "📼",
-  "tags": [
-    "y2k",
-    "90s",
-    "retro",
-    "nostalgia",
-    "vintage",
-    "disposable camera",
-    "flash",
-    "aesthetic"
-  ],
-  "colors": [
-    "#c026d3",
-    "#22d3ee"
-  ],
+  "tags": ["y2k", "90s", "retro", "nostalgia", "vintage", "disposable camera", "flash", "aesthetic"],
+  "colors": ["#c026d3", "#22d3ee"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, modern smartphone, brand logos, readable text, date stamp",
   "featured": false,
   "isNew": false,
   "sortOrder": 560,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "House party flash",

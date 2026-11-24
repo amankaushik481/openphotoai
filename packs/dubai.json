@@ -5,30 +5,14 @@
   "description": "Desert and skyline in one trip: golden dunes at sunset, rooftop views, a marina yacht cruise, spice souks, the wind towers of Al Fahidi, a lantern-lit desert camp, abra boats on the creek and dancing fountains at night. Elegant, modest-friendly styling throughout.",
   "category": "travel",
   "emoji": "🐪",
-  "tags": [
-    "dubai",
-    "uae",
-    "desert",
-    "travel",
-    "luxury",
-    "skyline",
-    "marina",
-    "middle east"
-  ],
-  "colors": [
-    "#c2410c",
-    "#fde047"
-  ],
+  "tags": ["dubai", "uae", "desert", "travel", "luxury", "skyline", "marina", "middle east"],
+  "colors": ["#c2410c", "#fde047"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
   "featured": false,
   "isNew": false,
   "sortOrder": 210,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Desert dunes",
@@ -58,7 +42,7 @@
     },
     {
       "title": "Abra on the creek",
-      "prompt": "photo of {subject} on a traditional wooden abra boat crossing the creek, wearing a light shirt, wind in the hair, warm smile, the old town and minarets behind, soft afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+      "prompt": "photo of {subject} on a traditional wooden abra boat crossing the creek, wearing a light shirt, wind in {possessive} hair, warm smile, the old town and minarets behind, soft afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
     },
     {
       "title": "Hotel atrium",

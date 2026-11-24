@@ -5,30 +5,14 @@
   "description": "Photos with a four-legged best friend: park walks, couch cuddles, beach runs, mountain hikes, café patios, games of fetch, autumn leaves, road trips and snow days, featuring a range of friendly breeds. Perfect for dating profiles, pet accounts and holiday cards.",
   "category": "family",
   "emoji": "🐶",
-  "tags": [
-    "dog",
-    "pet",
-    "dog lover",
-    "puppy",
-    "pet portrait",
-    "walks",
-    "companion",
-    "family"
-  ],
-  "colors": [
-    "#a16207",
-    "#bbf7d0"
-  ],
+  "tags": ["dog", "pet", "dog lover", "puppy", "pet portrait", "walks", "companion", "family"],
+  "colors": ["#a16207", "#bbf7d0"],
   "defaultAspectRatio": "4:5",
   "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, deformed dog, extra legs, extra paws, merged animal and human, distorted animal face",
   "featured": false,
   "isNew": false,
   "sortOrder": 380,
-  "subjects": [
-    "man",
-    "woman",
-    "person"
-  ],
+  "subjects": ["man", "woman", "person"],
   "prompts": [
     {
       "title": "Park walk",
