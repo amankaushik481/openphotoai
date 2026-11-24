@@ -23,7 +23,11 @@ export function redactDatabaseUrl(url: string): string {
 
 /** Short human label, e.g. "Postgres localhost:5432/openshoot" or "PGlite (in memory)". */
 export function describeDatabase(target: DatabaseTarget): string {
-  if (target.kind === "pglite") return target.memory ? "PGlite (in memory)" : `PGlite (${path.relative(process.cwd(), target.dataDir) || "."})`;
+  if (target.kind === "pglite") {
+    if (target.memory) return "PGlite (in memory)";
+    const relative = path.relative(process.cwd(), target.dataDir);
+    return `PGlite (${relative && !relative.startsWith("..") ? relative : target.dataDir})`;
+  }
   try {
     const u = new URL(target.url);
     return `Postgres ${u.hostname}${u.port ? `:${u.port}` : ""}${u.pathname}`;

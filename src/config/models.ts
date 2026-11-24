@@ -31,6 +31,8 @@ export interface ModelSpec {
   notes: string;
   /** Alternatives worth A/B testing (see docs/MODELS.md). */
   alt?: readonly string[];
+  /** Structured extra parameters (e.g. the OpenRouter model slug for the fal LLM router). */
+  params?: Readonly<Record<string, string | number | boolean>>;
 }
 
 // Snapshot 2026-11-24 — see docs/MODELS.md for sources, parameters and UNVERIFIED notes.
@@ -67,7 +69,8 @@ export const MODELS = {
     tryOn: { id: "fal-ai/fashn/tryon/v1.6", costUsd: 0.075, unit: "generation",
       notes: "model_image, garment_image, category 'auto', mode 'balanced' -> images[0].url", alt: ["google/virtual-try-on"] },
     llm: { id: "openrouter/router", costUsd: 0.0005, unit: "prompt-helper call (~600 tokens)",
-      notes: "input.model = 'google/gemini-3.1-flash-lite'; fal.run; output = data.output", alt: ["openrouter/router/vision"] },
+      notes: "input.model = 'google/gemini-3.1-flash-lite'; fal.run; output = data.output", alt: ["openrouter/router/vision"],
+      params: { model: "google/gemini-3.1-flash-lite" } },
     nsfw: { id: "fal-ai/x-ailab/nsfw", costUsd: 0.001, unit: "image",
       notes: "image_urls (<=10) -> has_nsfw_concepts[]", alt: ["fal-ai/imageutils/nsfw"] },
   },

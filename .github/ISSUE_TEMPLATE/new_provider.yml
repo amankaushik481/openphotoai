@@ -1,0 +1,50 @@
+name: New provider
+description: Propose support for a new AI, safety, payment, email or storage provider.
+labels: ["provider"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Providers implement the interfaces in [`src/providers/types.ts`](../blob/main/src/providers/types.ts) and are
+        selected in [`src/providers/registry.ts`](../blob/main/src/providers/registry.ts) from environment variables
+        ([`src/lib/env.ts`](../blob/main/src/lib/env.ts)).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Provider type
+      options:
+        - AI (image / training / video)
+        - Safety (face matching / moderation)
+        - Payments
+        - Email
+        - Storage
+    validations:
+      required: true
+  - type: input
+    id: provider
+    attributes:
+      label: Provider and docs link
+      placeholder: e.g. Example AI — https://docs.example.com/api
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this provider?
+      description: Quality, price, regions, self-hostability, features the current providers lack…
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: Capabilities and pricing
+      description: |
+        Which operations it supports (generate, train LoRA, edit, upscale, video…), webhook support,
+        and approximate cost per operation.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: The provider allows its built-in safety checker to stay enabled, and OpenShoot's own safety checks still run on every input and output.
+          required: true

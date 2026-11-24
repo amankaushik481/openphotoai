@@ -1,0 +1,84 @@
+{
+  "slug": "dubai",
+  "name": "Dubai",
+  "tagline": "Golden dunes, glittering skylines and old-town souks.",
+  "description": "Desert and skyline in one trip: golden dunes at sunset, rooftop views, a marina yacht cruise, spice souks, the wind towers of Al Fahidi, a lantern-lit desert camp, abra boats on the creek and dancing fountains at night. Elegant, modest-friendly styling throughout.",
+  "category": "travel",
+  "emoji": "🐪",
+  "tags": [
+    "dubai",
+    "uae",
+    "desert",
+    "travel",
+    "luxury",
+    "skyline",
+    "marina",
+    "middle east"
+  ],
+  "colors": [
+    "#c2410c",
+    "#fde047"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 210,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Desert dunes",
+      "prompt": "travel portrait of {subject} on rolling golden desert dunes at sunset, wearing loose flowing linen, wind lifting the fabric, warm golden light, calm confident smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "travel portrait of {subject} on rolling golden desert dunes at sunset, wearing a loose white linen shirt and light trousers, wind lifting the fabric, warm golden light, calm confident smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "travel portrait of {subject} on rolling golden desert dunes at sunset, wearing a flowing long-sleeve linen maxi dress, wind lifting the fabric, warm golden light, calm confident smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Skyline rooftop",
+      "prompt": "portrait of {subject} on a high rooftop terrace at dusk with a glittering futuristic skyscraper skyline behind, wearing a smart evening outfit, confident smile, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Marina cruise",
+      "prompt": "photo of {subject} on the deck of a white yacht cruising the marina among glass towers, wearing a linen shirt with sunglasses pushed up, relaxed smile, bright afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Spice souk",
+      "prompt": "candid photo of {subject} in a traditional spice souk with sacks of colorful spices and hanging lanterns, wearing a modest light linen outfit, curious smile, warm dappled light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Al Fahidi lanes",
+      "prompt": "photo of {subject} walking through the sand-colored lanes and wind towers of the Al Fahidi historic district, wearing a modest linen outfit, peaceful expression, soft golden light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert camp",
+      "prompt": "photo of {subject} at a desert camp at night seated on cushions under lanterns, sipping Arabic coffee from a small cup, wearing a modest elegant outfit, warm firelight, starry sky, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Abra on the creek",
+      "prompt": "photo of {subject} on a traditional wooden abra boat crossing the creek, wearing a light shirt, wind in the hair, warm smile, the old town and minarets behind, soft afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hotel atrium",
+      "prompt": "portrait of {subject} in an opulent hotel atrium with gold accents and a soaring ceiling, wearing an elegant outfit, poised smile, warm ambient light, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gulf terrace",
+      "prompt": "photo of {subject} on a resort terrace overlooking the Arabian Gulf at golden hour, wearing an elegant linen resort outfit, relaxed smile, palm trees and calm water, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Camel at golden hour",
+      "prompt": "photo of {subject} beside a resting camel in the desert at golden hour, wearing a light linen outfit with a scarf against the sun, warm smile, long shadows on the sand, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dune drive",
+      "prompt": "candid photo of {subject} in the passenger seat of an off-road vehicle on a desert safari, laughing as sand sprays behind, sunglasses pushed up, bright afternoon light, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fountain night",
+      "prompt": "portrait of {subject} at night on a waterfront promenade with dancing fountains and glittering skyscrapers behind, wearing a smart evening outfit, warm smile, glowing reflections, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

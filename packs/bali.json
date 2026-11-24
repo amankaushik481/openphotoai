@@ -1,0 +1,82 @@
+{
+  "slug": "bali",
+  "name": "Bali",
+  "tagline": "Rice terraces, jungle swings and temple gates.",
+  "description": "Island-of-the-gods travel photos: Ubud's rice terraces, a jungle swing, temple gates (with the sarong and sash temples ask visitors to wear), waterfalls, villa breakfasts, palm-lined scooter rides, yoga shalas and Uluwatu sunsets. Lush greens and soft tropical light.",
+  "category": "travel",
+  "emoji": "🌴",
+  "tags": [
+    "bali",
+    "indonesia",
+    "travel",
+    "tropical",
+    "ubud",
+    "rice terraces",
+    "island",
+    "wellness"
+  ],
+  "colors": [
+    "#059669",
+    "#fde68a"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 200,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Rice terraces",
+      "prompt": "travel portrait of {subject} walking along the edge of lush green rice terraces in Ubud, wearing a loose linen shirt and a woven hat, bright happy smile, soft morning mist and sunlight, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Jungle swing",
+      "prompt": "photo of {subject} on a rope swing over a lush jungle valley, wearing flowing light clothing, joyful laugh with the face clearly visible, palm trees and mist below, bright morning light, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Temple gates",
+      "prompt": "photo of {subject} standing respectfully between the ornate split gates of a Balinese temple with a volcano in the distance, wearing a traditional sarong and sash as visitors do at temples, calm expression, clear morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Jungle café",
+      "prompt": "photo of {subject} at a jungle-view café in Ubud with a colorful smoothie bowl, wearing a light cotton shirt, relaxed smile, soft green light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tropical waterfall",
+      "prompt": "photo of {subject} standing on rocks near a towering tropical waterfall surrounded by ferns, wearing a light linen shirt and rolled trousers, awed smile, misty soft light, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Villa breakfast",
+      "prompt": "photo of {subject} on the terrace of a private villa with a tropical breakfast spread, wearing a relaxed linen outfit, laughing, palm trees and morning sunlight, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Scooter palm road",
+      "prompt": "photo of {subject} riding a scooter down a palm-lined country road, wearing an open-face helmet and a light shirt, big smile, warm afternoon light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Yoga shala",
+      "prompt": "photo of {subject} seated cross-legged in an open-air bamboo yoga shala overlooking the jungle, wearing comfortable loose linen, serene expression, soft morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Uluwatu cliffs",
+      "prompt": "portrait of {subject} on the clifftop at Uluwatu at sunset with the ocean far below, wearing a light linen shirt, wind in the hair, warm golden light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Morning market",
+      "prompt": "candid photo of {subject} at a bustling Balinese morning market with baskets of flowers and woven palm-leaf offerings, wearing a simple cotton shirt, curious respectful smile, soft morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach club sunset",
+      "prompt": "photo of {subject} at a beach club lounge at sunset holding a fresh coconut, wearing a relaxed linen resort outfit, laughing, palm silhouettes and an orange sky, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bamboo house",
+      "prompt": "portrait of {subject} inside a sculptural bamboo house with soft filtered light, wearing natural linen, relaxed smile, warm earthy tones, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

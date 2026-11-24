@@ -214,7 +214,7 @@ export const generateJobInput = z
     /** Optional style/composition reference image (uploads.id with purpose "reference"). */
     referenceUploadId: id.optional(),
     quality: z.enum(QUALITY_LEVELS).default("standard"),
-    numImages: z.number().int().min(1).max(8).default(4),
+    numImages: z.number().int().min(1).max(4).default(4),
     aspectRatio: aspectRatioSchema.default("4:5"),
     seed: z.number().int().min(0).max(2_147_483_647).optional(),
     /** Re-render a draft at full quality (same prompt + seed). */

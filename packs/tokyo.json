@@ -1,0 +1,88 @@
+{
+  "slug": "tokyo",
+  "name": "Tokyo",
+  "tagline": "Neon nights, cherry blossoms and ramen counters.",
+  "description": "Tokyo from dawn to midnight: the Shibuya scramble, lantern-lit alleys, cherry blossom canals, Asakusa's temple gate, tiny ramen counters, Harajuku side streets, late-night corner stores and a day trip to Mount Fuji. Cinematic neon and soft spring pastels.",
+  "category": "travel",
+  "emoji": "🗾",
+  "tags": [
+    "tokyo",
+    "japan",
+    "travel",
+    "neon",
+    "cherry blossom",
+    "shibuya",
+    "asia",
+    "city"
+  ],
+  "colors": [
+    "#be123c",
+    "#7c3aed"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 170,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Shibuya scramble",
+      "prompt": "photo of {subject} standing still in the middle of the Shibuya scramble crossing at night as crowds blur past, wearing a dark overcoat, calm confident expression, glowing screens and neon without readable text, long-exposure motion blur, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern alley",
+      "prompt": "photo of {subject} in a narrow Shinjuku alley lined with tiny izakaya and red paper lanterns, wearing a bomber jacket, warm smile, steam rising from the grills, glowing lanterns, 35mm lens, cinematic night, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cherry blossom canal",
+      "prompt": "portrait of {subject} beside a canal lined with cherry trees in full bloom, petals drifting, wearing a light spring jacket, soft spring daylight, gentle smile, 85mm lens, pastel tones, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} beside a canal lined with cherry trees in full bloom, petals drifting, wearing a light beige spring jacket over a white tee, soft spring daylight, gentle smile, 85mm lens, pastel tones, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} beside a canal lined with cherry trees in full bloom, petals drifting, wearing a soft pink cardigan over a white blouse, soft spring daylight, gentle smile, 85mm lens, pastel tones, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Asakusa temple gate",
+      "prompt": "photo of {subject} at Senso-ji temple in Asakusa with the giant red lantern and vermilion gate softly blurred behind, wearing a casual jacket, calm respectful smile, soft morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ramen counter",
+      "prompt": "candid photo of {subject} at a tiny wooden ramen counter with a steaming bowl in front and chopsticks in hand, laughing, warm tungsten light, the chef softly blurred behind the counter, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Harajuku side street",
+      "prompt": "street style photo of {subject} on a colorful Harajuku side street, wearing a playful layered outfit with a pastel oversized jacket, fun expression, bright daylight, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tokyo Tower dusk",
+      "prompt": "photo of {subject} on a rooftop at dusk with the red and white Tokyo Tower glowing in the distance, wearing a smart dark jacket, serene smile, city lights twinkling, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Train window",
+      "prompt": "candid photo of {subject} seated by the window of a clean commuter train, soft city light passing outside, wearing a minimalist jacket with headphones around the neck, contemplative smile, 35mm lens, cinematic travel mood, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Corner store night",
+      "prompt": "night photo of {subject} outside a brightly lit corner convenience store holding a can of iced coffee, wearing a hoodie, playful grin, fluorescent glow, 28mm lens, Tokyo night snapshot, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mount Fuji day trip",
+      "prompt": "travel portrait of {subject} on the shore of Lake Kawaguchi with snow-capped Mount Fuji behind and autumn maples framing the view, wearing a warm puffer jacket, joyful smile, crisp clear morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vintage shopping",
+      "prompt": "candid photo of {subject} browsing racks in a vintage clothing shop in Shimokitazawa, holding up a retro jacket, wearing a striped long-sleeve tee, laughing, warm shop lights, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden veranda",
+      "prompt": "portrait of {subject} sitting on a wooden veranda overlooking a raked-gravel garden with moss and maples, wearing a simple linen shirt, peaceful expression, soft diffused light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy neon",
+      "prompt": "photo of {subject} holding a clear umbrella on a rainy Tokyo street at night, colorful neon reflections in the puddles, wearing a long dark coat, calm smile, 50mm lens, cinematic, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

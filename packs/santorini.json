@@ -1,0 +1,84 @@
+{
+  "slug": "santorini",
+  "name": "Santorini",
+  "tagline": "Blue domes, white stairs and caldera sunsets.",
+  "description": "The Greek island classic: Oia's blue domes, whitewashed stairs with bougainvillea, cliffside breakfasts, windmills, Ammoudi Bay tavernas, a sailboat across the caldera and candlelit terraces after dark. Breezy linen and dazzling Aegean light.",
+  "category": "travel",
+  "emoji": "🇬🇷",
+  "tags": [
+    "santorini",
+    "greece",
+    "oia",
+    "travel",
+    "island",
+    "mediterranean",
+    "sunset",
+    "summer"
+  ],
+  "colors": [
+    "#2563eb",
+    "#e0f2fe"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 190,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Oia blue domes",
+      "prompt": "travel portrait of {subject} on a whitewashed terrace in Oia with blue-domed churches and the Aegean Sea behind, wearing a white linen shirt, bright joyful smile, crisp Mediterranean light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "travel portrait of {subject} on a whitewashed terrace in Oia with blue-domed churches and the Aegean Sea behind, wearing a white linen shirt and light chinos, bright joyful smile, crisp Mediterranean light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "travel portrait of {subject} on a whitewashed terrace in Oia with blue-domed churches and the Aegean Sea behind, wearing a flowing cobalt blue maxi dress, bright joyful smile, crisp Mediterranean light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Caldera sunset",
+      "prompt": "portrait of {subject} at a cliffside viewpoint during sunset over the caldera, wearing a light linen outfit, warm golden light on the face, sailboats far below, peaceful smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bougainvillea stairs",
+      "prompt": "photo of {subject} walking down narrow whitewashed stairs draped in bright pink bougainvillea, wearing a straw hat and a linen shirt, glancing back with a smile, bright sun softened by white walls, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cliffside breakfast",
+      "prompt": "photo of {subject} at a cliffside breakfast table with fresh fruit and Greek yogurt, the caldera behind, wearing a relaxed white shirt, laughing, morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Windmills",
+      "prompt": "photo of {subject} near the traditional white windmills of Oia at golden hour, wearing a breezy linen outfit, hair in the wind, warm smile, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ammoudi Bay taverna",
+      "prompt": "photo of {subject} at a seaside taverna table in Ammoudi Bay with colorful fishing boats bobbing in clear water, wearing a light shirt, relaxed smile, bright afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Caldera sail",
+      "prompt": "photo of {subject} on the deck of a traditional wooden sailboat cruising the caldera, sunglasses pushed up, wearing a linen shirt, wind in the hair, deep blue sea, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cliff winery",
+      "prompt": "photo of {subject} at a cliffside winery terrace holding a glass of white wine, wearing an elegant linen outfit, sunset glow over the sea, warm smile, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Blue door",
+      "prompt": "portrait of {subject} leaning beside a bright blue wooden door set in a whitewashed wall, wearing an all-white outfit, relaxed pose, crisp sunlight with soft bounce, 50mm lens, minimal composition, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fira cliff path",
+      "prompt": "photo of {subject} strolling the cliff path in Fira with whitewashed hotels cascading down to the sea, wearing a straw hat and linen trousers, happy expression, soft late afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Black sand beach",
+      "prompt": "photo of {subject} on a black volcanic sand beach with dramatic cliffs, wearing a loose linen shirt and rolled trousers, walking at the water's edge, bright morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Candlelit terrace",
+      "prompt": "portrait of {subject} on a candlelit terrace at night overlooking the twinkling lights of the caldera, wearing a smart linen outfit, warm smile, soft candle glow, 50mm lens at f/1.4, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

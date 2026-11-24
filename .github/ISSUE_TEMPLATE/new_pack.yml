@@ -1,0 +1,39 @@
+name: New photo pack
+description: Propose a new photo pack (a themed set of prompts, e.g. "Ski trip" or "Corporate headshots").
+labels: ["pack"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Packs are JSON files in [`packs/`](../tree/main/packs) validated by [`src/types/pack.ts`](../blob/main/src/types/pack.ts).
+        The fastest way to get a pack merged is a pull request: copy an existing pack, edit it and run `pnpm packs:validate`.
+  - type: input
+    id: name
+    attributes:
+      label: Pack name
+      placeholder: e.g. Golden hour beach
+    validations:
+      required: true
+  - type: textarea
+    id: concept
+    attributes:
+      label: Concept and target users
+      description: What is the pack for (dating, LinkedIn, travel, gifts…)? Who would use it?
+    validations:
+      required: true
+  - type: textarea
+    id: prompts
+    attributes:
+      label: Example prompts / shot list
+      description: A few shots the pack should contain (outfits, locations, lighting, framing).
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Content rules
+      options:
+        - label: No nudity or sexual content, no minors, no real public figures, no brands or trademarks.
+          required: true
+        - label: Any example images are AI-generated with my own model or are licensed for this use.
+          required: true

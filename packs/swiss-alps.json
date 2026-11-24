@@ -1,0 +1,82 @@
+{
+  "slug": "swiss-alps",
+  "name": "Swiss Alps",
+  "tagline": "Matterhorn views, chalets and turquoise lakes.",
+  "description": "Alpine postcards starring you: the Matterhorn from the trail, Lauterbrunnen's waterfall valley, panoramic trains, geranium-filled chalet balconies, turquoise lakes, cable cars, fondue nights and snowy villages at blue hour. Summer and winter in one pack.",
+  "category": "travel",
+  "emoji": "🏔️",
+  "tags": [
+    "switzerland",
+    "swiss alps",
+    "mountains",
+    "travel",
+    "zermatt",
+    "lake",
+    "alpine",
+    "hiking"
+  ],
+  "colors": [
+    "#0284c7",
+    "#e0f2fe"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 220,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Matterhorn trail",
+      "prompt": "travel portrait of {subject} on an alpine trail with the pyramid-shaped Matterhorn behind, wearing a light down jacket, bright smile, crisp clear morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lauterbrunnen valley",
+      "prompt": "photo of {subject} in the Lauterbrunnen valley with a tall waterfall pouring off sheer cliffs and wooden chalets on green meadows, wearing a casual outdoor jacket, joyful expression, soft daylight, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Panoramic train",
+      "prompt": "candid photo of {subject} seated in a panoramic mountain train with huge windows showing snowy peaks, wearing a cozy sweater, turning from the view to smile at the camera, bright soft light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Chalet balcony",
+      "prompt": "photo of {subject} on a wooden chalet balcony with red geraniums, holding a mug of coffee, wearing a knit sweater, snowy peaks behind, warm morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Turquoise lake",
+      "prompt": "photo of {subject} sitting on a rock at the edge of a turquoise alpine lake ringed by cliffs and pines, wearing a hiking jacket, peaceful smile, bright midday light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cable car",
+      "prompt": "candid photo of {subject} inside a cable car gondola rising above a snowy valley, wearing a ski jacket, excited smile, bright reflections off the snow, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fondue night",
+      "prompt": "photo of {subject} at a cozy wooden mountain restaurant sharing cheese fondue, wearing a warm wool sweater, laughing, candlelight and lantern glow, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wildflower meadow",
+      "prompt": "portrait of {subject} in a summer alpine meadow full of wildflowers with grazing cows in the distance, wearing a linen shirt, relaxed smile, golden afternoon light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy village",
+      "prompt": "photo of {subject} walking through a snowy alpine village at dusk with glowing chalet windows, wearing a long puffer coat and a knit beanie, joyful expression, soft blue-hour light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lucerne promenade",
+      "prompt": "photo of {subject} on the lakeside promenade in Lucerne with the wooden covered bridge and mountains behind, wearing a trench coat, warm smile, soft morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Above the clouds",
+      "prompt": "photo of {subject} on a high mountain viewing platform above a sea of clouds, wearing a down jacket, arms resting on the railing, awed smile, brilliant sun and blue sky, 24mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mountain hut",
+      "prompt": "photo of {subject} outside a stone mountain hut with trekking poles and a backpack, wearing a technical jacket and drinking from a tin cup, satisfied smile, golden late light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

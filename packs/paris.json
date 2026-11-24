@@ -1,0 +1,94 @@
+{
+  "slug": "paris",
+  "name": "Paris",
+  "tagline": "Café terraces, Seine bridges and that Eiffel Tower photo.",
+  "description": "Your Paris trip in one shoot: the Eiffel Tower from Trocadéro and the Champ de Mars, café terraces, Montmartre steps, Haussmann balconies, the Seine bookstalls, rainy cobblestones and a river cruise at blue hour. Trench coats, Breton stripes and soft European light.",
+  "category": "travel",
+  "emoji": "🗼",
+  "tags": [
+    "paris",
+    "france",
+    "travel",
+    "eiffel tower",
+    "europe",
+    "cafe",
+    "city break",
+    "romantic"
+  ],
+  "colors": [
+    "#1e40af",
+    "#f9a8d4"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 70,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Trocadéro morning",
+      "prompt": "travel portrait of {subject} on the Trocadéro esplanade in early morning with the Eiffel Tower in daylight behind, wearing a beige trench coat, relaxed happy smile, soft pastel morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "travel portrait of {subject} on the Trocadéro esplanade in early morning with the Eiffel Tower in daylight behind, wearing a beige trench coat over a navy sweater, relaxed happy smile, soft pastel morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "travel portrait of {subject} on the Trocadéro esplanade in early morning with the Eiffel Tower in daylight behind, wearing a beige trench coat over a striped top with a silk scarf, relaxed happy smile, soft pastel morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Café terrace",
+      "prompt": "photo of {subject} at a classic Parisian café terrace with rattan chairs and a small round marble table, croissant and café crème in front, wearing a navy sweater, laughing, morning sun on cream stone facades, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seine bridge",
+      "prompt": "photo of {subject} leaning on the stone parapet of a bridge over the Seine at golden hour, wearing a light wool coat, river boats and grey zinc rooftops behind, warm smile, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Montmartre steps",
+      "prompt": "photo of {subject} walking up the steep stone steps of Montmartre lined with iron railings and old street lamps, wearing a striped Breton top and a light jacket, glancing back with a grin, soft afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Haussmann balcony",
+      "prompt": "photo of {subject} on the wrought-iron balcony of a Haussmann apartment overlooking zinc rooftops, holding a cup of coffee, wearing a white linen shirt, peaceful morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Luxembourg Gardens",
+      "prompt": "portrait of {subject} sitting on a green metal chair in the Luxembourg Gardens beside the fountain basin, wearing a light knit sweater, relaxed smile, manicured chestnut trees, soft afternoon light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seine bookstalls",
+      "prompt": "candid photo of {subject} browsing the green riverside bookstalls along the Seine and holding a vintage book, wearing a camel coat, curious smile, the cathedral towers of Notre-Dame softly blurred in the distance, soft overcast light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy evening",
+      "prompt": "photo of {subject} holding a clear umbrella on a rain-slicked Parisian street at dusk, warm café lights reflecting on the cobblestones, wearing a dark trench coat, gentle smile, cinematic mood, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Boulangerie",
+      "prompt": "candid photo of {subject} stepping out of a charming boulangerie with a paper bag of baguettes, wearing a casual jacket, bright happy expression, pastel storefront, morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Louvre courtyard",
+      "prompt": "portrait of {subject} in the classical stone courtyard of the Louvre palace, wearing a tailored coat, calm elegant pose, grand carved facades and arches behind, soft overcast light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Blue hour cruise",
+      "prompt": "photo of {subject} on the deck of a river boat on the Seine at blue hour, wearing a smart jacket, wind in the hair, glowing bridges and riverside lamps behind, warm smile, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Champ de Mars picnic",
+      "prompt": "photo of {subject} on a picnic blanket on the Champ de Mars lawn with wine, cheese and a baguette, the Eiffel Tower in afternoon daylight behind, wearing a linen shirt, laughing, warm late-afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on a picnic blanket on the Champ de Mars lawn with wine, cheese and a baguette, the Eiffel Tower in afternoon daylight behind, wearing a white linen shirt and chinos, laughing, warm late-afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on a picnic blanket on the Champ de Mars lawn with wine, cheese and a baguette, the Eiffel Tower in afternoon daylight behind, wearing a red floral wrap dress, laughing, warm late-afternoon light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Le Marais lane",
+      "prompt": "street style photo of {subject} walking a cobbled lane in Le Marais past boutique storefronts, wearing a black leather jacket over a striped top, confident relaxed expression, soft daylight, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pont Alexandre III",
+      "prompt": "portrait of {subject} on the Pont Alexandre III bridge with gilded statues and ornate lamp posts, wearing an elegant navy coat, calm smile, soft morning light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

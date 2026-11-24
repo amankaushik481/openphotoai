@@ -1,0 +1,82 @@
+{
+  "slug": "safari",
+  "name": "Safari",
+  "tagline": "Savanna sunsets, lodge decks and wildlife at a respectful distance.",
+  "description": "A once-in-a-lifetime safari: open-top game drives, acacia sunsets, waterhole lodges, giraffes and elephants at a respectful distance, a balloon over the Masai Mara, tented camps, bush dinners and Kilimanjaro on the horizon. Linen, khaki and warm golden light.",
+  "category": "travel",
+  "emoji": "🦒",
+  "tags": [
+    "safari",
+    "africa",
+    "kenya",
+    "tanzania",
+    "wildlife",
+    "travel",
+    "savanna",
+    "adventure"
+  ],
+  "colors": [
+    "#a16207",
+    "#fde68a"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos, animals touching people, pith helmet",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 230,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Game drive",
+      "prompt": "travel photo of {subject} standing up in an open-top safari vehicle on the savanna, wearing a khaki linen shirt and a wide-brim hat, holding binoculars, excited smile, golden morning light, acacia trees behind, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Acacia sunset",
+      "prompt": "portrait of {subject} on the savanna at sunset with a flat-topped acacia tree silhouetted against an orange sky, wearing a neutral linen shirt, warm rim light, peaceful smile, 85mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Waterhole lodge",
+      "prompt": "photo of {subject} on the wooden deck of a safari lodge overlooking a waterhole where elephants drink in the distance, wearing a light safari shirt and holding a coffee, relaxed smile, soft morning light, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Giraffes passing",
+      "prompt": "photo of {subject} in a safari vehicle as a group of giraffes walks past in the distance, wearing an olive utility shirt, amazed expression, warm afternoon light, 50mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Balloon sunrise",
+      "prompt": "photo of {subject} in a hot air balloon basket floating over the Masai Mara at sunrise, wearing a light jacket, beaming smile, herds of wildebeest far below, 24mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tented camp",
+      "prompt": "portrait of {subject} at the entrance of a canvas tent at a safari camp, wearing a linen shirt and chinos, lanterns glowing, warm dusk light, relaxed smile, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bush dinner",
+      "prompt": "photo of {subject} at a bush dinner table set under the stars with lanterns and a campfire, wearing a smart linen outfit, laughing, warm firelight, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Elephant crossing",
+      "prompt": "photo of {subject} in a safari vehicle watching a herd of elephants cross a dusty plain far away, wearing a khaki shirt with binoculars lowered, joyful expression, golden dust in the light, 70-200mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Kilimanjaro view",
+      "prompt": "travel portrait of {subject} on the plains of Amboseli with snow-capped Mount Kilimanjaro rising behind, wearing a neutral safari shirt and hat, warm smile, clear morning light, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sundowner",
+      "prompt": "photo of {subject} at a sundowner stop on a rocky outcrop with a drink in hand, wearing a linen shirt, the savanna glowing below at sunset, 50mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wildlife photographer",
+      "prompt": "photo of {subject} photographing wildlife with a telephoto camera from a safari vehicle, wearing a sage green shirt and a bucket hat, focused smile, soft golden light, 50mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Red dunes",
+      "prompt": "portrait of {subject} on the crest of a towering red sand dune in Namibia at sunrise, wearing a light linen shirt and a hat, dramatic shadows and curves, 35mm lens, wildlife kept at a respectful distance, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

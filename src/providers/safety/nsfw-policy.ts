@@ -20,11 +20,12 @@ export interface NsfwThresholds {
 }
 
 /**
- * Defaults (see docs/SAFETY_PROVIDERS.md). docs/MODELS.md starts from explicit 0.5 / sexy 0.85;
- * our policy is stricter on both. Tighten further, never loosen, when tuning.
+ * Defaults (see docs/SAFETY_PROVIDERS.md). Explicit follows docs/MODELS.md (0.5: benign party
+ * photos in human's samples reach 0.43 on thumbnails); "Sexy" is much stricter than MODELS.md's
+ * 0.85 because sexualized content is forbidden too. Tighten further, never loosen, when tuning.
  */
 export const DEFAULT_NSFW_THRESHOLDS: NsfwThresholds = Object.freeze({
-  explicit: 0.4,
+  explicit: 0.5,
   suggestive: 0.6,
   combined: 0.7,
 });

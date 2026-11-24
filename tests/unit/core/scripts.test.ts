@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { eq } from "drizzle-orm";
@@ -8,6 +8,7 @@ import { user } from "@/db/schema";
 import { getEnv, resetEnvCache } from "@/lib/env";
 import { inspectEnv } from "../../../scripts/lib/check-env";
 import { describeDatabase, parseDatabaseUrl, redactDatabaseUrl } from "../../../scripts/lib/database";
+import { loadDotEnv } from "../../../scripts/lib/env";
 import { runMigrations } from "../../../scripts/lib/migrate";
 import { seedAdminUser, validatePacks } from "../../../scripts/lib/seed";
 import { createTestDb, createTestUser } from "../../helpers/db";
@@ -45,6 +46,24 @@ describe("database url helpers", () => {
     expect(() => parseDatabaseUrl("mysql://x")).toThrow(/Unsupported DATABASE_URL/);
     expect(redactDatabaseUrl("postgres://u:secret@db:5432/app")).toBe("postgres://u:***@db:5432/app");
     expect(describeDatabase(parseDatabaseUrl("postgres://u:secret@db:5432/app"))).toBe("Postgres db:5432/app");
+  });
+});
+
+describe("loadDotEnv", () => {
+  it("loads .env without overriding real environment variables", () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "openshoot-env-"));
+    tmpDirs.push(dir);
+    expect(loadDotEnv(dir)).toBeNull();
+    writeFileSync(path.join(dir, ".env"), "OPENSHOOT_TEST_A=from-file\nOPENSHOOT_TEST_B=from-file\n");
+    vi.stubEnv("OPENSHOOT_TEST_B", "from-env");
+    try {
+      expect(loadDotEnv(dir)).toBe(path.join(dir, ".env"));
+      expect(process.env.OPENSHOOT_TEST_A).toBe("from-file");
+      expect(process.env.OPENSHOOT_TEST_B).toBe("from-env");
+    } finally {
+      vi.unstubAllEnvs();
+      delete process.env.OPENSHOOT_TEST_A;
+    }
   });
 });
 

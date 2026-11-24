@@ -1,0 +1,84 @@
+{
+  "slug": "new-york-city",
+  "name": "New York City",
+  "tagline": "Brooklyn bridges, brownstones and yellow cabs.",
+  "description": "Main-character energy in NYC: the Manhattan Bridge from DUMBO, the Brooklyn Bridge promenade, yellow cabs, Central Park in fall, West Village stoops, the subway, the High Line, a Beaux-Arts terminal and snowy holiday avenues.",
+  "category": "travel",
+  "emoji": "🗽",
+  "tags": [
+    "new york",
+    "nyc",
+    "manhattan",
+    "brooklyn",
+    "travel",
+    "city",
+    "usa",
+    "street style"
+  ],
+  "colors": [
+    "#0f172a",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, tourist crowds blocking subject, readable signs, brand logos, billboards",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 180,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "DUMBO bridge view",
+      "prompt": "photo of {subject} on a cobblestone street in DUMBO with the Manhattan Bridge framed between brick warehouses, wearing a camel coat, confident smile, soft morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on a cobblestone street in DUMBO with the Manhattan Bridge framed between brick warehouses, wearing a camel overcoat over a grey hoodie, confident smile, soft morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on a cobblestone street in DUMBO with the Manhattan Bridge framed between brick warehouses, wearing a camel coat over a black turtleneck, confident smile, soft morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Brooklyn Bridge walk",
+      "prompt": "photo of {subject} walking the wooden promenade of the Brooklyn Bridge with suspension cables and the skyline behind, wearing a denim jacket, mid-stride laugh, golden morning light, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hailing a cab",
+      "prompt": "photo of {subject} hailing a yellow taxi on a busy Manhattan avenue, wearing a long wool coat, energetic smile, steam rising from the street, overcast light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Central Park in fall",
+      "prompt": "portrait of {subject} on an ornate cast-iron bridge in Central Park surrounded by autumn foliage, wearing a cozy sweater and scarf, warm smile, soft afternoon light, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop skyline",
+      "prompt": "portrait of {subject} at a Manhattan rooftop bar at sunset with midtown skyscrapers glowing behind, wearing a smart jacket and holding a drink, relaxed confident smile, warm golden light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Brownstone stoop",
+      "prompt": "photo of {subject} sitting on the stoop of a West Village brownstone with fire escapes and leafy trees, wearing a casual knit and jeans with a coffee in hand, relaxed smile, soft morning light, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Subway ride",
+      "prompt": "candid photo of {subject} riding a New York subway car holding the pole, wearing a bomber jacket with headphones around the neck, slight smile, fluorescent light, motion through the windows, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Grand terminal",
+      "prompt": "photo of {subject} standing on the marble floor of a grand Beaux-Arts train terminal concourse with soft light beams and a celestial ceiling, wearing a trench coat, commuters blurred around, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "High Line stroll",
+      "prompt": "photo of {subject} strolling the elevated High Line park among wildflowers and Chelsea buildings, wearing a light jacket, relaxed smile, golden hour, 85mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Washington Square",
+      "prompt": "photo of {subject} in Washington Square Park with the marble arch and fountain behind, wearing a vintage leather jacket, street musicians softly blurred, sunny afternoon, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Holiday snow",
+      "prompt": "photo of {subject} on a snowy Manhattan avenue during the holidays with twinkling lights in the trees, wearing a wool coat and knit scarf, catching snowflakes, joyful expression, 50mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Coffee cart rush",
+      "prompt": "candid photo of {subject} buying coffee from a silver street coffee cart on a Manhattan corner, wearing a smart blazer, the morning rush blurred around, warm sunlight between skyscrapers, 35mm lens, travel photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

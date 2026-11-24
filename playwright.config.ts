@@ -29,9 +29,7 @@ export default defineConfig({
   workers: isCI ? 2 : undefined,
   timeout: 30_000,
   expect: { timeout: 10_000 },
-  reporter: isCI
-    ? [["github"], ["list"], ["html", { open: "never" }]]
-    : [["list"], ["html", { open: "never" }]],
+  reporter: isCI ? [["github"], ["list"], ["html", { open: "never" }]] : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
     // Traces are off by default (also forced by `pnpm test:e2e`); enable with `--trace on`.

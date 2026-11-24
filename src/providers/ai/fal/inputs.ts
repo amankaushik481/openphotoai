@@ -364,12 +364,13 @@ export function buildAvatarInput(imageUrl: string, audioUrl: string): KlingVideo
 /* ───────────── Prompt helper (LLM) ───────────── */
 
 /**
- * The OpenRouter model slug is configured in MODELS.fal.llm.notes ("input.model = '<slug>'"), the single
- * place model ids live. Returns null if the notes no longer carry it (the caller then uses the template).
+ * The OpenRouter model slug lives in MODELS.fal.llm.params.model (the single place model ids live).
+ * Returns null if it is not configured (the caller then uses the template fallback).
  */
 export function llmModelSlug(): string | null {
-  const m = /input\.model\s*=\s*'([^']+)'/.exec(MODELS.fal.llm.notes);
-  return m?.[1] ?? null;
+  const spec: { params?: Readonly<Record<string, string | number | boolean>> } = MODELS.fal.llm;
+  const model = spec.params?.model;
+  return typeof model === "string" && model ? model : null;
 }
 
 export function buildLlmInput(model: string, input: PromptHelperInput): routerInput {
