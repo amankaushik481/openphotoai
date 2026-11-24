@@ -1,0 +1,84 @@
+{
+  "slug": "editorial-fashion",
+  "name": "Editorial Fashion",
+  "tagline": "High-fashion looks with bold light and real attitude.",
+  "description": "Portfolio-grade fashion stories: oversized tailoring, color blocking, wind-machine movement, gel-lit blinds, desert couture, chunky knit campaigns, hard flash on black and a sweeping monochrome suit. Strong poses and art-directed light for a model or creative portfolio.",
+  "category": "fashion",
+  "emoji": "✨",
+  "tags": [
+    "editorial",
+    "fashion",
+    "high fashion",
+    "studio",
+    "model",
+    "portfolio",
+    "bold lighting",
+    "couture"
+  ],
+  "colors": [
+    "#9333ea",
+    "#f472b6"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, brand names, cheap costume, stiff stock pose",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 250,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Oversized tailoring",
+      "prompt": "high-fashion editorial portrait of {subject} in an oversized sand-colored double-breasted suit, angular confident pose, seamless pale grey backdrop, crisp hard key light with a sharp shadow, 85mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Color block",
+      "prompt": "fashion editorial of {subject} in a vivid cobalt monochrome outfit against a saturated orange backdrop, bold color blocking, sculptural pose, flat graphic light, 70mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wind machine",
+      "prompt": "fashion portrait of {subject} wearing a long flowing silk coat billowing in the wind of a studio fan, dynamic movement, glowing backlight in a dark studio, 85mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "fashion portrait of {subject} wearing a long flowing silk trench coat over a black suit billowing in the wind of a studio fan, dynamic movement, glowing backlight in a dark studio, 85mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "fashion portrait of {subject} wearing a long flowing silk gown billowing in the wind of a studio fan, dynamic movement, glowing backlight in a dark studio, 85mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop silhouette",
+      "prompt": "editorial portrait of {subject} on a concrete rooftop at dusk, wearing a structured leather trench coat, strong silhouette against a pastel sky, intense gaze, 35mm lens, avant-garde fashion story, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gilded mirror room",
+      "prompt": "editorial portrait of {subject} reflected in a large antique mirror in an empty gilded room, wearing a velvet suit, enigmatic expression, soft window light, 50mm lens, moody fashion story, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Blind-striped gels",
+      "prompt": "fashion portrait of {subject} in a white shirt lit with red and blue gels through a venetian blind, striped shadows across the face, cool gaze, 85mm lens, bold editorial, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert couture",
+      "prompt": "fashion editorial of {subject} standing in vast white desert dunes, wearing a sculptural cream couture ensemble with fabric caught by the wind, harsh sun and deep shadows, 35mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Knitwear campaign",
+      "prompt": "fashion campaign portrait of {subject} in chunky oversized knitwear and wide trousers, seated on a minimalist plinth with a relaxed slouch, soft large window light, muted palette, 50mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Flash on black",
+      "prompt": "editorial portrait of {subject} against pure black with a hard direct flash, wearing a metallic silver jacket, glossy highlights, fierce expression, 35mm lens, nightlife fashion story, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome stride",
+      "prompt": "black and white fashion editorial of {subject} in a sharply tailored black suit, mid-stride across a grand empty hall with motion in the jacket, dramatic window light, 35mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dried flower installation",
+      "prompt": "fashion portrait of {subject} surrounded by an installation of hanging dried flowers, wearing a cream silk shirt, soft dreamy expression, warm diffused light, 85mm lens, romantic editorial, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Graphic shadow beauty",
+      "prompt": "close fashion portrait of {subject} in a high-neck black top, a graphic diagonal shadow falling across one eye, glossy studio light, composed intense gaze, 100mm lens, fashion editorial photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

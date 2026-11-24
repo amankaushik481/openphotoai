@@ -138,7 +138,7 @@ export function mapFaceDetail(detail: RkFaceDetail, box: Box): Omit<DetectedFace
   const age = detail.AgeRange?.Low;
   return {
     box,
-    confidence: clamp01((detail.Confidence ?? 0) / 100),
+    confidence: Math.round(clamp01((detail.Confidence ?? 0) / 100) * 10_000) / 10_000,
     age: typeof age === "number" ? age : undefined,
     yaw: detail.Pose?.Yaw,
     pitch: detail.Pose?.Pitch,

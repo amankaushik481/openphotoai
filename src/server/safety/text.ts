@@ -6,6 +6,8 @@ import { canonicalCategory, textBlockedMessage } from "./policy";
 import { moderateText, type Classification } from "./providers";
 import { classifyTexts } from "./text-filter";
 
+const MAX_LOGGED_MATCHES = 20;
+
 /**
  * Check user-provided text (prompts, edit instructions, scripts). Throws
  * AppError("content_blocked") with a human message when blocked, after recording an event.
@@ -15,7 +17,9 @@ export async function assertTextAllowed(texts: string[], ctx: SafetyContext): Pr
   if (items.length === 0) return;
 
   const rules = classifyTexts(items);
-  if (!rules.allowed) return block(ctx, items, rules.categories, { source: "rules", matches: rules.matches });
+  if (!rules.allowed) {
+    return block(ctx, items, rules.categories, { source: "rules", matches: rules.matches.slice(0, MAX_LOGGED_MATCHES) });
+  }
 
   let results: Classification[];
   try {

@@ -1,0 +1,84 @@
+{
+  "slug": "film-35mm",
+  "name": "35mm Film",
+  "tagline": "Grain, halation and honest color from classic analog stocks.",
+  "description": "The analog look, without naming a single brand: warm color-negative portraits, tungsten cinema film with red halation, point-and-shoot flash, expired-film light leaks, pushed black and white, slide-film blues and diner booths. Native 2:3 frames that feel found in a shoebox.",
+  "category": "creative",
+  "emoji": "🎞️",
+  "tags": [
+    "35mm",
+    "film",
+    "analog",
+    "grain",
+    "vintage",
+    "film photography",
+    "candid",
+    "nostalgic"
+  ],
+  "colors": [
+    "#b45309",
+    "#fef3c7"
+  ],
+  "defaultAspectRatio": "2:3",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, digital sharpness, hdr, oversharpened, smooth digital noise, brand names",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 260,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Warm color negative",
+      "prompt": "35mm film portrait of {subject} in soft afternoon light on a quiet street, wearing a corduroy jacket, gentle smile, warm color-negative tones with fine grain and slightly lifted blacks, 50mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tungsten halation",
+      "prompt": "night street photo of {subject} under neon signs and streetlights, shot on tungsten-balanced cinema film with red halation glowing around the lights, wearing a dark coat, cinematic grain, 35mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Point-and-shoot flash",
+      "prompt": "on-camera flash snapshot of {subject} at a dinner party, laughing with a glass in hand, slightly harsh flash with deep falloff, warm film color shift, visible grain, candid 35mm point-and-shoot look, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Expired film field",
+      "prompt": "portrait of {subject} at golden hour in a field of tall grass, wearing a loose cotton shirt, dreamy faded colors and light leaks from expired film, soft focus edges, 50mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pushed black and white",
+      "prompt": "black and white 35mm photo of {subject} on a train platform, wearing a long coat, film pushed two stops with chunky grain and strong contrast, documentary feel, 35mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Roadside diner",
+      "prompt": "35mm film photo of {subject} in a red vinyl booth at a roadside diner holding a milkshake, wearing a denim jacket, warm tungsten light, faded color and grain, 35mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Slide film seaside",
+      "prompt": "35mm slide film photo of {subject} by the sea, wearing a striped shirt, saturated blues and deep contrast of color reversal film, bright sun, 50mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "3:2"
+    },
+    {
+      "title": "Apartment windowsill",
+      "prompt": "35mm film portrait of {subject} sitting on a windowsill in a sunlit apartment, wearing an oversized sweater, quiet smile, soft pastel tones of portrait film, fine grain, 50mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Shot from the hip",
+      "prompt": "candid 35mm street photo of {subject} crossing a sunlit plaza, wearing a light jacket, shot from the hip with natural motion, warm grain and vignetting, 28mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Summer concert",
+      "prompt": "35mm film photo of {subject} at an outdoor summer concert at dusk with colored stage lights behind, dancing and laughing, motion blur and grain, 35mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vintage car window",
+      "prompt": "35mm film portrait of {subject} in the driver's seat of a vintage car, arm resting on the open window, sunglasses pushed up, warm afternoon light, nostalgic film color, 50mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "3:2"
+    },
+    {
+      "title": "Autumn park",
+      "prompt": "35mm film portrait of {subject} in a park with falling autumn leaves, wearing a wool coat and scarf, soft overcast light, muted earthy film palette, fine grain, 85mm lens, authentic analog film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

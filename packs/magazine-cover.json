@@ -1,0 +1,84 @@
+{
+  "slug": "magazine-cover",
+  "name": "Magazine Cover",
+  "tagline": "Cover-star portraits with room for your own masthead.",
+  "description": "Be the cover story of an imaginary business, music, travel, fashion, tech, sports, wellness or food magazine. Every frame is composed with empty headroom for a masthead you add yourself; no real magazine names, logos or text are generated.",
+  "category": "creative",
+  "emoji": "📰",
+  "tags": [
+    "magazine cover",
+    "cover star",
+    "editorial",
+    "fashion",
+    "portrait",
+    "studio",
+    "glamour",
+    "press"
+  ],
+  "colors": [
+    "#b91c1c",
+    "#fbbf24"
+  ],
+  "defaultAspectRatio": "3:4",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letters, masthead text, headlines, barcode, magazine logo, captions",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 270,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Ivory studio cover",
+      "prompt": "magazine cover-style portrait of {subject}, waist-up, looking straight into the lens with a confident smile, wearing a tailored black blazer, clean seamless warm ivory backdrop, polished beauty lighting, generous empty space above the head for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "magazine cover-style portrait of {subject}, waist-up, looking straight into the lens with a confident smile, wearing a tailored black tuxedo jacket over a white shirt, clean seamless warm ivory backdrop, polished beauty lighting, generous empty space above the head for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "magazine cover-style portrait of {subject}, waist-up, looking straight into the lens with a confident smile, wearing a tailored black blazer dress and statement earrings, clean seamless warm ivory backdrop, polished beauty lighting, generous empty space above the head for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Business cover",
+      "prompt": "business magazine cover-style portrait of {subject} with arms crossed, wearing a sharp navy suit, bold red backdrop, crisp studio lighting, confident leader expression, empty headroom for a masthead, 70mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Music cover",
+      "prompt": "music magazine cover-style portrait of {subject} in a leather jacket against a deep teal backdrop, hard light with a dramatic shadow, cool intense gaze, empty space at the top, 50mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Travel cover",
+      "prompt": "travel magazine cover-style portrait of {subject} in a straw hat on a cliffside terrace above a turquoise sea, bright joyful smile, empty sky at the top for a masthead, 35mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fashion color cover",
+      "prompt": "fashion magazine cover-style portrait of {subject} in a sculptural magenta outfit against a cobalt blue backdrop, striking pose, glossy high-fashion lighting, headroom for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tech cover",
+      "prompt": "technology magazine cover-style portrait of {subject} in a minimal black t-shirt, gradient backdrop from deep blue to purple, cool rim light, thoughtful visionary expression, empty upper third, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sports cover",
+      "prompt": "sports magazine cover-style portrait of {subject} in athletic training gear with a towel over one shoulder, dramatic gym lighting, determined gaze, empty headroom, 70mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wellness cover",
+      "prompt": "wellness magazine cover-style portrait of {subject} in a soft linen outfit against a sage green backdrop, serene radiant smile, soft daylight-style lighting, empty space at the top, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Food cover",
+      "prompt": "food magazine cover-style portrait of {subject} in a chef's apron holding a bowl of fresh pasta, bright kitchen softly blurred behind, warm smile, headroom for a masthead, 50mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sixties cover",
+      "prompt": "1960s magazine cover-style portrait of {subject} with retro styling against a pastel yellow backdrop, playful head tilt, soft vintage color, empty space for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monochrome cover",
+      "prompt": "black and white magazine cover-style portrait of {subject}, tight head-and-shoulders crop, dramatic side light, iconic direct gaze, headroom for a masthead, 105mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Golden field cover",
+      "prompt": "lifestyle magazine cover-style portrait of {subject} in a golden field at sunset, wearing a cream knit sweater, warm glowing smile, soft backlight, empty sky above for a masthead, 85mm lens, cover-ready composition with no text, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

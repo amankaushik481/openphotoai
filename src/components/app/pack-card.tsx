@@ -59,7 +59,7 @@ export function PackCard({ pack, href, priority = false, className }: PackCardPr
             {pack.featured && <Badge className="bg-background/90 text-foreground">{t("packs.featured")}</Badge>}
           </div>
         )}
-        <span className="absolute right-2 bottom-2 rounded-full bg-black/45 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+        <span className="absolute right-2 bottom-2 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
           {t("packs.styles", { count: pack.promptCount })}
         </span>
       </div>

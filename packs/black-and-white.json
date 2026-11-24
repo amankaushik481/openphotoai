@@ -1,0 +1,86 @@
+{
+  "slug": "black-and-white",
+  "name": "Black & White Portraits",
+  "tagline": "Timeless monochrome with deep shadows and real grain.",
+  "description": "Fine-art monochrome portraits in every classic style: Rembrandt and butterfly light, high-key white, low-key chiaroscuro, window light, rainy street candids, film-noir hat shadows and wind-blown beach frames. Rich tonal range and honest grain, the kind of portrait that never dates.",
+  "category": "creative",
+  "emoji": "🖤",
+  "tags": [
+    "black and white",
+    "monochrome",
+    "fine art",
+    "portrait",
+    "film grain",
+    "classic",
+    "studio",
+    "timeless"
+  ],
+  "colors": [
+    "#0a0a0a",
+    "#a3a3a3"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, color, colorful, sepia tint, crushed blacks, muddy grays",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 110,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Rembrandt classic",
+      "prompt": "black and white portrait of {subject} with classic Rembrandt lighting, a small triangle of light on the shadow-side cheek, dark backdrop, wearing a dark crew-neck sweater, calm direct gaze, rich tonal range, fine film grain, 85mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "High-key white",
+      "prompt": "high-key black and white portrait of {subject} on a bright white background, wearing a white shirt, soft wraparound light, joyful open smile, delicate gray tones, clean minimalist fine-art look, 85mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Low-key chiaroscuro",
+      "prompt": "low-key black and white portrait of {subject} emerging from deep shadow, a single hard light from the side carving the features, contemplative expression, inky blacks, 105mm lens, gallery fine-art print, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Window light",
+      "prompt": "black and white portrait of {subject} seated beside a tall window, soft directional daylight falling across the face, wearing a knit sweater, wistful gaze toward the window, film grain, 50mm lens, quiet documentary mood, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Profile rim light",
+      "prompt": "black and white profile portrait of {subject} against a softly lit gray backdrop, rim light tracing the jawline and nose, looking into the distance, elegant minimal composition, 85mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Rainy street",
+      "prompt": "black and white street portrait of {subject} on a rainy city sidewalk, wearing a dark coat with the collar up, glancing toward the camera, reflections on wet pavement, high-contrast grain, 35mm lens, classic street photography, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Mid-laugh candid",
+      "prompt": "black and white candid of {subject} caught mid-laugh with the head tilted back slightly, wearing a white t-shirt, soft overcast light, real emotion, coarse film grain, 50mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Leather and brick",
+      "prompt": "black and white portrait of {subject} in a worn leather jacket leaning against a brick wall, cool confident gaze, hard midday light and deep shadow, gritty 1960s film look, 35mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Eyes close-up",
+      "prompt": "tight black and white close-up portrait of {subject}, eyes sharply in focus, soft beauty light, every natural skin detail visible, quiet intensity, 100mm macro lens, fine-art detail, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Hat shadow noir",
+      "prompt": "black and white portrait of {subject} wearing a wide-brim felt hat that casts a shadow line across the face, eyes catching the light, dramatic film noir mood, 85mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Painted canvas stool",
+      "prompt": "black and white studio portrait of {subject} seated on a wooden stool against a painted canvas backdrop, wearing a white shirt and dark trousers, relaxed forward lean with forearms on the knees, thoughtful look, soft north light, medium-format feel, 80mm lens, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Butterfly light",
+      "prompt": "black and white portrait of {subject} in a black turtleneck against a black background, only the face lit by butterfly lighting from above, poised serene expression, 105mm lens, timeless portrait, monochrome, natural skin texture, photorealistic"
+    },
+    {
+      "title": "Windy beach",
+      "prompt": "black and white portrait of {subject} on a windy beach, wearing an oversized linen shirt, hair blown by the wind, soft overcast light, silvery sea behind, film grain, 50mm lens, monochrome, natural skin texture, photorealistic"
+    }
+  ]
+}

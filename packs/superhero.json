@@ -1,0 +1,82 @@
+{
+  "slug": "superhero",
+  "name": "Superhero",
+  "tagline": "Your own original hero, cinematic and emblem-free.",
+  "description": "Become an original superhero, not anyone else's: custom suits with no emblems or trademarked looks, rooftop vigils, hero landings, flight above the clouds, energy and ice powers, a high-tech headquarters and a 60s retro hero. Face always visible, no masks and no weapons.",
+  "category": "creative",
+  "emoji": "🦸",
+  "tags": [
+    "superhero",
+    "hero",
+    "comic",
+    "cape",
+    "cinematic",
+    "cosplay",
+    "action",
+    "original character"
+  ],
+  "colors": [
+    "#1d4ed8",
+    "#dc2626"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, emblems, chest symbol, mask covering face, weapons, cartoon, plastic costume",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 600,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Rooftop vigil",
+      "prompt": "cinematic portrait of {subject} as an original superhero on a skyscraper rooftop at dusk, wearing a sleek midnight-blue armored suit with silver accents, cape billowing, city lights below, heroic confident expression, 35mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hero landing",
+      "prompt": "cinematic action still of {subject} in an original crimson and charcoal hero suit, rising from a crouch on a city street as dust swirls, determined gaze, dramatic backlight, 24mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Above the clouds",
+      "prompt": "cinematic photo of {subject} as an original superhero flying above the clouds at sunrise, wearing an emerald and gold suit, arms forward, wind-swept hair, golden light, 35mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Secret identity",
+      "prompt": "moody portrait of {subject} in a dim apartment pulling on the gloves of an original hero suit, a casual jacket over the suit, thoughtful expression, city neon through the window, 50mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Energy powers",
+      "prompt": "cinematic portrait of {subject} as an original hero with soft blue energy swirling around the forearms, wearing a white and teal suit, focused calm expression, dark stormy background, 85mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Comic cover pose",
+      "prompt": "dynamic low-angle portrait of {subject} as an original superhero with fists on hips, wearing a bold purple and gold suit with a flowing cape, dramatic sky, comic-cover energy rendered as a real photo, 24mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Headquarters",
+      "prompt": "portrait of {subject} in a high-tech hero headquarters with holographic screens of abstract data, wearing an original matte black suit with orange lights, strategic focused expression, cool blue light, 35mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rain-soaked ledge",
+      "prompt": "cinematic still of {subject} as an original hero kneeling on a rooftop ledge in a rain-soaked city at night, wearing a dark green armored suit, rain streaks and neon reflections, 50mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunrise watch",
+      "prompt": "portrait of {subject} as an original superhero seated on the edge of a bridge tower at sunrise with the cape draped, wearing a silver and navy suit, peaceful tired smile, warm light, 35mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lightning storm",
+      "prompt": "cinematic portrait of {subject} as an original hero standing in a storm with lightning forking behind, wearing a black and electric-yellow suit, hair lifting with static, fierce expression, 35mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sixties retro hero",
+      "prompt": "1960s-style photo of {subject} as an original retro superhero in a bright primary-color suit with a short cape, heroic smile, saturated vintage color, painted city studio backdrop, 50mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ice powers",
+      "prompt": "cinematic portrait of {subject} as an original hero conjuring swirling frost in a snowy plaza, wearing a pale blue suit, calm powerful expression, cold blue light, 85mm lens, original costume design, cinematic film still, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "slug": "instant-film",
+  "name": "Instant Film",
+  "tagline": "Square instant-camera snapshots with soft flash and dreamy color.",
+  "description": "The charm of a shaken instant print: square frames, built-in flash, creamy highlights, faded color casts and the occasional light leak. House parties, beach days, birthday candles, snow days and campfires, perfect for a nostalgic grid or a profile picture.",
+  "category": "creative",
+  "emoji": "📷",
+  "tags": [
+    "instant film",
+    "instant camera",
+    "square",
+    "retro",
+    "snapshot",
+    "flash",
+    "nostalgic",
+    "aesthetic"
+  ],
+  "colors": [
+    "#f472b6",
+    "#fde68a"
+  ],
+  "defaultAspectRatio": "1:1",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand names, text on the border, digital sharpness, hdr",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 570,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "House party",
+      "prompt": "square instant film snapshot of {subject} at a cozy house party, laughing, direct built-in flash with soft falloff, slightly washed creamy colors, gentle vignette, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach day",
+      "prompt": "square instant film photo of {subject} on a sunny beach, wearing a linen shirt with sunglasses on the head, squinting smile, faded cyan sky and warm tones, soft focus, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert roadside",
+      "prompt": "square instant film photo of {subject} beside an old station wagon at a desert roadside stop, wearing a denim jacket, candid grin, sun-bleached colors, a soft light leak, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Birthday candles",
+      "prompt": "square instant film snapshot of {subject} blowing out candles on a birthday cake in a dark room, warm candlelight mixed with flash, joyful expression, soft creamy colors, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Small club gig",
+      "prompt": "square instant film photo of {subject} at a small club gig with colored stage lights behind, wearing a plain black tee, smiling, flash glare and grain, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Café window",
+      "prompt": "square instant film photo of {subject} at a café window table with a coffee, wearing a striped sweater, soft daylight, pastel washed tones, gentle blur, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snow day",
+      "prompt": "square instant film snapshot of {subject} on a snowy street wearing a red knit beanie and scarf, rosy cheeks, cool blue-tinted colors, soft flash, joyful smile, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wildflower field",
+      "prompt": "square instant film photo of {subject} in a field of wildflowers holding a small bouquet, soft overexposed highlights, dreamy faded greens and pinks, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Kitchen dance",
+      "prompt": "square instant film snapshot of {subject} dancing in a kitchen at night mid-spin, slight motion blur, direct flash and warm practical light, playful energy, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop sunset",
+      "prompt": "square instant film photo of {subject} on a rooftop at sunset, warm orange glow, wind in the hair, faded colors with a slight magenta cast, soft vignette, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Campfire night",
+      "prompt": "square instant film snapshot of {subject} wrapped in a blanket by a campfire at night, firelight and flash glow, cozy smile, deep shadows and grain, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Flash close-up",
+      "prompt": "square instant film close-up of {subject} grinning at the camera, direct flash, creamy highlights and soft falloff, slightly cool shadows, classic instant snapshot, authentic instant film texture, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

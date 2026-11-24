@@ -1,0 +1,82 @@
+{
+  "slug": "cyberpunk-neon",
+  "name": "Cyberpunk Neon",
+  "tagline": "Rain-slick streets, holograms and electric color.",
+  "description": "Step into a futuristic megacity: neon alleys in the rain, holographic night markets, rooftop helipads with flying traffic, noodle stalls, server rooms and synthwave highways. Techwear, glowing trims and magenta-cyan light, shot like a sci-fi film.",
+  "category": "creative",
+  "emoji": "🌃",
+  "tags": [
+    "cyberpunk",
+    "neon",
+    "sci-fi",
+    "futuristic",
+    "night city",
+    "synthwave",
+    "techwear",
+    "rain"
+  ],
+  "colors": [
+    "#d946ef",
+    "#06b6d4"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, brand logos, video game render",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 580,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Neon alley rain",
+      "prompt": "cyberpunk portrait of {subject} in a rain-soaked alley of a futuristic megacity at night, magenta and cyan neon signs with unreadable glyphs, wearing a glossy black techwear jacket with glowing trim, rain droplets and cinematic reflections, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Holographic market",
+      "prompt": "photo of {subject} walking through a crowded night market with floating holographic displays and steam, wearing a hooded jacket with LED piping, curious expression, vivid neon bokeh, 50mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Helipad skyline",
+      "prompt": "portrait of {subject} on a rooftop helipad above a vast neon skyline with flying vehicles streaking past, wearing a long tech trench coat, wind in the hair, purple haze, 24mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Noodle stall",
+      "prompt": "photo of {subject} eating noodles at a tiny street stall under a glowing neon canopy in the rain, wearing a reflective rain jacket, warm light on the face, cyberpunk night atmosphere, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Circuit-line close-up",
+      "prompt": "close portrait of {subject} with subtle glowing circuit-line makeup along the cheekbone and a sleek futuristic earpiece, cyan rim light and magenta fill, intense gaze, shallow depth of field, 85mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Future subway",
+      "prompt": "photo of {subject} seated in a futuristic subway car with glowing holographic route maps, wearing a high-collar techwear coat, contemplative expression, cold blue light, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Synthwave highway",
+      "prompt": "portrait of {subject} leaning on a sleek retro-futuristic car on a neon grid highway at sunset, wearing a mirrored jacket, pink and purple gradient sky, synthwave aesthetic, 50mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Server room",
+      "prompt": "portrait of {subject} in a dark server room lit by rows of blinking blue lights and green monitor glow, wearing a hooded techwear jacket, focused expression, cinematic cyberpunk mood, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "LED umbrella",
+      "prompt": "portrait of {subject} holding a transparent umbrella with a glowing LED shaft in neon rain, wearing a sleek black coat, serene expression, pink and teal reflections, 85mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Arcade district",
+      "prompt": "photo of {subject} in a neon arcade district with towering screens of abstract color, wearing a bomber jacket with reflective panels, grinning, vibrant crowded night, 24mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Neon motorcycle",
+      "prompt": "photo of {subject} sitting on a futuristic motorcycle with glowing wheel rims in a wet neon street, wearing a riding jacket with a helmet under one arm, confident stare, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Megacity window",
+      "prompt": "portrait of {subject} by a huge apartment window overlooking a sprawling neon megacity in the rain, wearing an oversized knit with tech accents, reflective mood, cool blue interior light, 35mm lens, cinematic sci-fi photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

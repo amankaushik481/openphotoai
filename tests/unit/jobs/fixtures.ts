@@ -93,9 +93,9 @@ export function overrideMockAI(patch: Partial<MockAIProvider> = {}): MockAIProvi
 }
 
 /** A small valid PNG (solid colour). */
-export async function pngBytes(width = 64, height = 64): Promise<Uint8Array> {
+export async function pngBytes(width = 64, height = 64): Promise<Uint8Array<ArrayBuffer>> {
   const buf = await sharp({ create: { width, height, channels: 3, background: { r: 120, g: 140, b: 160 } } })
     .png()
     .toBuffer();
-  return new Uint8Array(buf);
+  return Uint8Array.from(buf);
 }

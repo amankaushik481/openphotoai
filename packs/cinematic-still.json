@@ -1,0 +1,88 @@
+{
+  "slug": "cinematic-still",
+  "name": "Cinematic Film Still",
+  "tagline": "You as the lead in a widescreen movie frame.",
+  "description": "Twelve original movie scenes with you in the lead: neo-noir rain, a late-night diner, a desert road movie, a period ballroom, a space station, a heist, a 70s thriller and a stormy lighthouse. Widescreen frames, anamorphic flares and film grades that look like a still from the trailer.",
+  "category": "creative",
+  "emoji": "🎬",
+  "tags": [
+    "cinematic",
+    "movie still",
+    "film",
+    "widescreen",
+    "anamorphic",
+    "storytelling",
+    "neo noir",
+    "drama"
+  ],
+  "colors": [
+    "#0f766e",
+    "#f97316"
+  ],
+  "defaultAspectRatio": "16:9",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letterbox bars, subtitles, captions, behind the scenes crew, cartoonish",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 90,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Neo-noir alley",
+      "prompt": "cinematic film still of {subject} under a flickering streetlight in a rain-soaked alley at night, wearing a long dark coat, neon reflections in puddles, teal and orange grade, anamorphic lens flare, shallow depth of field, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Late-night diner",
+      "prompt": "cinematic film still of {subject} alone in a late-night diner booth by the window with a coffee cup, wearing a worn leather jacket, fluorescent light and pink neon from outside, contemplative mood, 40mm anamorphic, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert highway",
+      "prompt": "cinematic film still of {subject} leaning against a dusty vintage car on an empty desert highway at golden hour, wearing a denim jacket, wind in the hair, sweeping wide landscape, warm sun flare, road-movie mood, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Train compartment",
+      "prompt": "cinematic film still of {subject} in a vintage train compartment gazing out the window as the countryside blurs by, wearing a tweed coat, soft window light, period drama color grade, 50mm lens, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pastel symmetry",
+      "prompt": "cinematic film still of {subject} standing perfectly centered in a symmetrical pastel hotel lobby, wearing a mustard corduroy suit, deadpan expression, flat frontal composition, soft even light, whimsical palette, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Space station",
+      "prompt": "cinematic sci-fi film still of {subject} in a sleek white space station corridor, wearing a utilitarian flight suit, looking out a round window at Earth, cool blue light, epic scale, anamorphic flare, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Period ballroom",
+      "prompt": "cinematic film still of {subject} in a candlelit 19th-century ballroom, in elegant period evening wear, mid-turn glancing toward the camera, warm candle glow and soft haze, lush period drama grade, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "cinematic film still of {subject} in a candlelit 19th-century ballroom, in a period tailcoat and silk cravat, mid-turn glancing toward the camera, warm candle glow and soft haze, lush period drama grade, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "cinematic film still of {subject} in a candlelit 19th-century ballroom, in an empire-waist silk period gown, mid-turn glancing toward the camera, warm candle glow and soft haze, lush period drama grade, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "The heist plan",
+      "prompt": "cinematic film still of {subject} leaning over a table covered in blueprints under a single hanging lamp, wearing a dark turtleneck, focused clever expression, hazy low-key light, thriller grade, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop dawn",
+      "prompt": "cinematic film still of {subject} on a rooftop at dawn overlooking a sleeping city, wearing a hooded jacket, soft pink and blue light, introspective mood, anamorphic bokeh, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seventies thriller",
+      "prompt": "cinematic film still of {subject} in a wood-paneled 1970s office beside a rotary phone, wearing a wide-collar shirt and corduroy blazer, tense expression, warm tungsten light, grainy 70s thriller look, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tunnel drive",
+      "prompt": "cinematic film still of {subject} driving through a tunnel at night, face lit by passing orange tunnel lights, wearing a leather jacket, determined expression, motion streaks, shot from the passenger seat, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lighthouse storm",
+      "prompt": "cinematic film still of {subject} on a windswept cliff beside a lighthouse as a storm rolls in, wearing a heavy wool coat, hair whipping in the wind, dramatic grey-blue grade, epic wide frame, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Indie kitchen morning",
+      "prompt": "cinematic film still of {subject} in a sunlit kitchen in the morning, leaning against the counter with a mug, wearing a soft sweater, quiet indie-film mood, warm natural light, 35mm lens, cinematic movie still, film grain, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

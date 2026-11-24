@@ -146,10 +146,14 @@ export function compileTerms(terms: readonly string[]): CompiledTerms {
   };
 }
 
+/** Longest match text kept (repeated letters can make a match arbitrarily long). */
+const MAX_MATCH_CHARS = 40;
+
 /** Every distinct match of the compiled terms across all variants. */
 export function findTerms(variants: TextVariants, compiled: CompiledTerms): string[] {
   const found = new Set<string>();
-  for (const v of variants.bounded) for (const m of v.matchAll(compiled.bounded)) found.add(m[0].trim());
-  for (const run of variants.runs) for (const m of run.matchAll(compiled.unbounded)) found.add(m[0]);
+  const add = (m: string) => found.add(m.trim().slice(0, MAX_MATCH_CHARS));
+  for (const v of variants.bounded) for (const m of v.matchAll(compiled.bounded)) add(m[0]);
+  for (const run of variants.runs) for (const m of run.matchAll(compiled.unbounded)) add(m[0]);
   return [...found];
 }

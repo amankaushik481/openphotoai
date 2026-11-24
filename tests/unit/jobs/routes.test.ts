@@ -239,7 +239,7 @@ describe("uploads", () => {
     expect(row!.mimeType).toBe("image/png");
 
     const sharp = (await import("sharp")).default;
-    const jpeg = new Uint8Array(await sharp(png).jpeg().toBuffer());
+    const jpeg = Uint8Array.from(await sharp(png).jpeg().toBuffer());
     const bad = await callRoute(uploadRoute, { url: "/api/uploads", body: form(new Blob([jpeg], { type: "image/jpeg" }), "mask", "m.jpg") });
     expect(bad.status).toBe(400);
   });

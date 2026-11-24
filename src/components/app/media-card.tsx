@@ -153,7 +153,7 @@ export function MediaCard({
           aria-label={media.isFavorite ? t("media.unfavorite") : t("media.favorite")}
           onClick={() => onToggleFavorite(media, !media.isFavorite)}
           className={cn(
-            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm transition-opacity outline-none hover:bg-black/55 focus-visible:ring-[3px] focus-visible:ring-white/70",
+            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-opacity outline-none hover:bg-black/55 focus-visible:ring-[3px] focus-visible:ring-white/70",
             !media.isFavorite &&
               "pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100",
           )}

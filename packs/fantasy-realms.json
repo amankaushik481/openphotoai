@@ -1,0 +1,84 @@
+{
+  "slug": "fantasy-realms",
+  "name": "Fantasy Realms",
+  "tagline": "Knights, castles and enchanted forests, cinematic and real.",
+  "description": "Epic fantasy portraits with real costume craft: engraved plate armor, stone throne rooms, enchanted forests, a sorcerer's tower, a dragon on the horizon, moonlit groves, a frozen kingdom and a roaring tavern. Shot like a big-budget fantasy film, no weapons needed.",
+  "category": "creative",
+  "emoji": "🏰",
+  "tags": [
+    "fantasy",
+    "knight",
+    "medieval",
+    "castle",
+    "royalty",
+    "enchanted forest",
+    "cosplay",
+    "epic"
+  ],
+  "colors": [
+    "#4c1d95",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, sword, weapons, cheap plastic costume, video game render",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 590,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Knight in plate armor",
+      "prompt": "epic fantasy portrait of {subject} as a knight in ornate engraved steel plate armor with a flowing crimson cape, standing in a misty castle courtyard with a plumed helmet under one arm, noble determined expression, golden light, 50mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Stone throne",
+      "prompt": "fantasy portrait of {subject} seated on a carved stone throne in a vast candlelit hall, wearing a fur-trimmed velvet royal mantle and a gold crown, regal calm expression, banners and stained glass behind, warm torchlight, 35mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Enchanted forest",
+      "prompt": "fantasy portrait of {subject} in an enchanted forest with glowing mushrooms and drifting fireflies, wearing a hooded green ranger cloak, wonder-struck expression, ethereal shafts of light, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sorcerer's tower",
+      "prompt": "fantasy portrait of {subject} as a sorcerer in a tower study filled with ancient books and glowing potion bottles, wearing deep blue embroidered robes and holding a glowing crystal orb, mysterious expression, candle and magic light, 50mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dragon horizon",
+      "prompt": "epic fantasy photo of {subject} on a windswept cliff in a leather and fur traveler's cloak, a distant dragon silhouette soaring over misty mountains, hair blowing, awe-struck expression, dramatic sky, 35mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Moonlit grove",
+      "prompt": "fantasy portrait of {subject} wearing a delicate silver circlet and flowing pale robes beside a moonlit lake in an ancient grove, serene expression, soft silver moonlight and mist, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "White horse at dawn",
+      "prompt": "fantasy photo of {subject} in polished armor riding a white horse across a misty meadow at dawn with a banner fluttering, heroic expression, golden backlight, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Royal banquet",
+      "prompt": "fantasy portrait of {subject} at a royal banquet in a great hall, wearing rich medieval feast attire, raising a goblet, warm candlelight and festive tapestries, 50mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "fantasy portrait of {subject} at a royal banquet in a great hall, wearing an embroidered doublet and a velvet cloak, raising a goblet, warm candlelight and festive tapestries, 50mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "fantasy portrait of {subject} at a royal banquet in a great hall, wearing an embroidered medieval gown with a jeweled circlet, raising a goblet, warm candlelight and festive tapestries, 50mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Castle battlements",
+      "prompt": "fantasy portrait of {subject} on castle battlements at sunset, wearing a chainmail shirt under a heraldic surcoat, looking out over a vast kingdom, warm wind, epic composition, 35mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Frozen kingdom",
+      "prompt": "fantasy portrait of {subject} in a frozen kingdom of ice spires, wearing a white fur cloak with silver armor accents, frost in the hair, piercing calm gaze, cold blue light, 85mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tavern hearth",
+      "prompt": "fantasy photo of {subject} in a cozy medieval tavern by a roaring hearth, wearing a rugged leather jerkin and raising a wooden tankard, laughing, warm firelight, 35mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern market",
+      "prompt": "fantasy photo of {subject} browsing a bustling medieval market with lanterns, spices and glowing trinkets, wearing a travel-worn hooded cloak, curious smile, warm dusk light, 35mm lens, cinematic fantasy film still, detailed practical costume, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}
