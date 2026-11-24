@@ -15,21 +15,19 @@ export async function assertTextAllowed(texts: string[], ctx: SafetyContext): Pr
   if (items.length === 0) return;
 
   const rules = classifyTexts(items);
-  if (!rules.allowed) {
-    await block(ctx, items, rules.categories, { source: "rules", matches: rules.matches });
-  }
+  if (!rules.allowed) return block(ctx, items, rules.categories, { source: "rules", matches: rules.matches });
 
   let results: Classification[];
   try {
     results = await Promise.all(items.map((t) => moderateText(t)));
   } catch (err) {
-    await block(ctx, items, ["moderation_error"], { source: "provider", error: errorMessage(err) });
+    return block(ctx, items, ["moderation_error"], { source: "provider", error: errorMessage(err) });
   }
   const flagged = results.filter((r) => r.blocked);
   if (flagged.length > 0) {
-    await block(ctx, items, [...new Set(flagged.flatMap((r) => r.categories))], {
+    return block(ctx, items, [...new Set(flagged.flatMap((r) => r.categories))], {
       source: "provider",
-      provider: flagged[0]!.providerName,
+      provider: flagged[0].providerName,
       reasons: flagged.map((r) => r.result.reason).filter(Boolean),
       scores: flagged.map((r) => r.result.scores ?? {}),
     });
