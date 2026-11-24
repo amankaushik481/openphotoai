@@ -41,7 +41,7 @@ export default function PricingPage() {
           { name: "Pricing", path: "/pricing" },
         ])}
       />
-      <section aria-labelledby="pricing-title" className="grain relative overflow-hidden">
+      <section aria-labelledby="pricing-title" className="relative isolate overflow-x-clip">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -top-56 left-1/2 -z-10 h-[30rem] w-[56rem] -translate-x-1/2 rounded-full bg-brand-gradient opacity-[0.12] blur-3xl dark:opacity-20"
