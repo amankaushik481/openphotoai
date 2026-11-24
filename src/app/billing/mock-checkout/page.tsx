@@ -21,7 +21,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function MockCheckoutPage({ searchParams }: { searchParams: SearchParams }) {
   // Await request data first so this page is always rendered per request (never prerendered).
   const { session } = await searchParams;
-  if (env.paymentProvider !== "mock") notFound();
+  if (!env.mockCheckoutEnabled) notFound();
   const checkoutId = typeof session === "string" ? session : "";
   const user = await requireUserPage(`/billing/mock-checkout?session=${encodeURIComponent(checkoutId)}`);
 

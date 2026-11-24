@@ -30,16 +30,20 @@
   --accent-foreground: oklch(0.165 0.008 55);
   --destructive: oklch(0.555 0.215 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.52 0.12 155);
-  --warning: oklch(0.55 0.12 65);
+  /* success/warning text ≥ 5:1 on their own 10% tint (badges); white glyphs on them ≥ 6:1. */
+  --success: oklch(0.48 0.12 155);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.5 0.12 65);
+  --warning-foreground: oklch(0.99 0 0);
   --brand-soft: oklch(0.93 0.03 300);
   --brand-soft-foreground: oklch(0.42 0.2 300);
   --border: oklch(0.905 0.006 80);
   --input: oklch(0.64 0.008 75);
   --ring: oklch(0.52 0.235 300);
 
-  /* Brand gradient stops. Background stops keep white text ≥ AA; text stops are per theme. */
-  --brand-coral: oklch(0.6 0.195 34);
+  /* Brand gradient stops. Background stops keep white text ≥ AA (coral 4.9, magenta 5.1, violet 6.2);
+     text stops are per theme. */
+  --brand-coral: oklch(0.57 0.195 34);
   --brand-magenta: oklch(0.565 0.215 355);
   --brand-violet: oklch(0.52 0.235 297);
   --brand-text-coral: oklch(0.58 0.2 33);
@@ -85,7 +89,9 @@
   --destructive: oklch(0.66 0.2 25);
   --destructive-foreground: oklch(0.165 0.008 55);
   --success: oklch(0.75 0.15 155);
+  --success-foreground: oklch(0.165 0.008 55);
   --warning: oklch(0.8 0.14 80);
+  --warning-foreground: oklch(0.165 0.008 55);
   --brand-soft: oklch(0.27 0.06 300);
   --brand-soft-foreground: oklch(0.85 0.09 305);
   --border: oklch(0.27 0.008 55);
@@ -131,7 +137,9 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-brand-soft: var(--brand-soft);
   --color-brand-soft-foreground: var(--brand-soft-foreground);
   --color-brand-coral: var(--brand-coral);
@@ -212,9 +220,9 @@
   }
 }
 
-/* Frosted surface for sticky bars / floating panels. */
+/* Frosted surface for sticky bars / floating panels. 90% keeps muted labels ≥ 5:1 over any photo. */
 @utility glass {
-  background-color: color-mix(in oklab, var(--background) 78%, transparent);
+  background-color: color-mix(in oklab, var(--background) 90%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   backdrop-filter: blur(16px) saturate(1.4);
 }
@@ -224,13 +232,57 @@
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
+/* Horizontal padding that clears the notch / rounded corners in landscape (viewport-fit=cover). */
+@utility px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+@utility pl-safe {
+  padding-left: env(safe-area-inset-left);
+}
+
+/* Sheets/dialogs: never taller than the visible viewport, minus the notch. */
+@utility max-h-safe-screen {
+  max-height: calc(100dvh - env(safe-area-inset-top));
+}
+
+/*
+ * Fixed bottom chrome on phones. `--bottom-nav-h` is the bottom tab bar (incl. home-indicator inset),
+ * `--bottom-action-h` a sticky action bar stacked on it. Defaults are rem-based fallbacks; the bars
+ * measure themselves at runtime (see `useBottomChromeHeight`) so text scaling can't cause overlap.
+ */
+:root {
+  --bottom-nav-h: 0px;
+  --bottom-action-h: 0px;
+}
+@media (width < 48rem) {
+  :root:has([data-bottom-nav]) {
+    --bottom-nav-h: calc(3.75rem + max(0.5rem, env(safe-area-inset-bottom)));
+  }
+  :root:has([data-sticky-action-bar]) {
+    --bottom-action-h: 4.25rem;
+  }
+}
+
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
+  }
+  /*
+   * One focus indicator for every control: a solid 2px outline in `--ring` (≥ 5:1 on background, card,
+   * muted, accent and sidebar surfaces in both themes). Components that draw an equivalent solid
+   * indicator opt out with `outline-hidden`; inset contexts (clipped tiles) set `--focus-offset`.
+   */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: var(--focus-offset, 2px);
   }
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
+    /* Keep focused/anchored elements clear of the sticky top bar and the fixed bottom chrome. */
+    scroll-padding-top: 5rem;
+    scroll-padding-bottom: calc(var(--bottom-nav-h) + var(--bottom-action-h) + 1rem);
   }
   body {
     @apply bg-background text-foreground;
@@ -240,9 +292,22 @@
   h2,
   h3 {
     text-wrap: balance;
+    overflow-wrap: anywhere;
   }
   ::selection {
     background-color: color-mix(in oklab, var(--primary) 28%, transparent);
+  }
+}
+
+/*
+ * Windows High Contrast / forced colors drops box-shadow rings and author colours, so guarantee a
+ * system-coloured outline on every keyboard-focused element. Unlayered on purpose: it must win over
+ * `outline-none`/`outline-hidden` utilities.
+ */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: var(--focus-offset, 2px);
   }
 }
 

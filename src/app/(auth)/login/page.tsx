@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
       callbackURL={next}
       errorCallbackURL={loginPathFor(next)}
       googleEnabled={isGoogleAuthEnabled()}
-      devMailbox={env.emailProvider === "mock"}
+      devMailbox={env.devMailboxEnabled}
       initialError={authErrorMessage(firstParam(params.error))}
     />
   );

@@ -117,11 +117,8 @@ function createAuth() {
       magicLink({
         expiresIn: MAGIC_LINK_TTL_SEC,
         storeToken: "hashed",
-        // Mock email explicitly chosen (not a production fallback for a missing RESEND_API_KEY).
-        rateLimit:
-          env.emailProvider === "mock" && (!env.isProd || env.MOCK_PROVIDERS || env.EMAIL_PROVIDER === "mock")
-            ? DEV_MAILBOX_MAGIC_LINK_RATE_LIMIT
-            : undefined,
+        // Only while links go to the dev mailbox (never a production fallback for a missing RESEND_API_KEY).
+        rateLimit: env.devMailboxEnabled ? DEV_MAILBOX_MAGIC_LINK_RATE_LIMIT : undefined,
         sendMagicLink: async ({ email, url }, ctx) => {
           await enforceMagicLinkRateLimit(requestHeaders(ctx));
           const { sendEmail } = await import("@/server/email"); // lazy: keeps provider SDKs off the auth path

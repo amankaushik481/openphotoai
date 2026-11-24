@@ -4,11 +4,13 @@ import { ArrowLeftIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/layout/admin-nav";
+import { DemoModeBanner } from "@/components/layout/demo-mode-banner";
 import { Logo } from "@/components/layout/logo";
 import { SkipLink } from "@/components/layout/skip-link";
 import { UserMenu } from "@/components/layout/user-menu";
 import { APP } from "@/config/app";
 import { t } from "@/i18n";
+import { env } from "@/lib/env";
 import { requireAdminPage } from "@/server/auth/session";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
   return (
     <div className="flex min-h-dvh flex-col">
       <SkipLink />
+      <DemoModeBanner mocked={env.demoBanner ? env.mockedProviders : null} />
       <header className="glass sticky top-0 z-30 border-b border-border/70">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
           <Logo href="/admin" showName={false} />

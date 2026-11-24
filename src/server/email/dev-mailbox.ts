@@ -14,13 +14,13 @@ import { extractLinks } from "./links";
 
 /**
  * True only while the mock email provider is active. In production the mailbox additionally
- * requires an explicit mock choice (MOCK_PROVIDERS=true or EMAIL_PROVIDER=mock): a deployment that
- * merely forgot RESEND_API_KEY falls back to mock delivery but must never expose sign-in links.
+ * requires an all-mock deployment (mock AI, payments and email: a demo) and an explicit mock
+ * choice (MOCK_PROVIDERS=true or EMAIL_PROVIDER=mock): a deployment that merely forgot
+ * RESEND_API_KEY, or that runs real AI/payments, must never expose sign-in links.
+ * The rule lives in src/lib/env.ts (`devMailboxEnabled`).
  */
 export function isDevMailboxEnabled(): boolean {
-  if (env.emailProvider !== "mock") return false;
-  if (env.isProd && !env.MOCK_PROVIDERS && env.EMAIL_PROVIDER !== "mock") return false;
-  return true;
+  return env.devMailboxEnabled;
 }
 
 function assertEnabled(): void {

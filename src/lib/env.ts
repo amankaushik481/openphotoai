@@ -6,6 +6,13 @@
  *
  * SAFETY INVARIANT: when a real AI provider is configured, the face + moderation
  * providers can never be "mock". This is enforced here and cannot be overridden.
+ *
+ * PRODUCTION INVARIANTS (not overridable):
+ *   • BETTER_AUTH_SECRET is ≥ 32 characters and not a published placeholder (it signs sessions).
+ *   • No real/mock mixing: a real AI_PROVIDER requires real payments AND real email. Otherwise mock
+ *     checkout would hand out free credits spent on the real AI account, and the public dev mailbox
+ *     would expose live sign-in links. An all-mock production deployment (zero-key demo / Docker)
+ *     is allowed; the UI then shows a "Demo mode" banner.
  */
 import { z } from "zod";
 
@@ -28,6 +35,33 @@ const intWithDefault = (def: number) =>
     .pipe(z.number().int());
 
 const DEV_SECRET = "dev-insecure-secret-change-me-dev-insecure-secret";
+
+/** Minimum BETTER_AUTH_SECRET length in production. */
+export const MIN_AUTH_SECRET_LENGTH = 32;
+
+/**
+ * Secrets that were ever published (in this repo's docs, compose file or code) or are obvious
+ * placeholders. Keep in sync with docker/auth-secret.mjs (a unit test checks both agree).
+ */
+const KNOWN_PLACEHOLDER_SECRETS = new Set([DEV_SECRET, "INSECURE-docker-compose-dev-secret-set-BETTER_AUTH_SECRET"]);
+const PLACEHOLDER_SECRET_PATTERN = /insecure|change[-_ ]?me|replace[-_ ]?me|placeholder|your[-_ ]?secret|^(.)\1+$/i;
+
+/**
+ * Why a BETTER_AUTH_SECRET is unsafe for production, or null when it is acceptable.
+ * Rejects short values, published/placeholder values and single-character repeats.
+ */
+export function weakAuthSecretReason(secret: string | undefined): string | null {
+  if (!secret) return "it is not set";
+  if (KNOWN_PLACEHOLDER_SECRETS.has(secret) || PLACEHOLDER_SECRET_PATTERN.test(secret)) {
+    return "it is a published placeholder value";
+  }
+  if (secret.length < MIN_AUTH_SECRET_LENGTH) return `it is shorter than ${MIN_AUTH_SECRET_LENGTH} characters`;
+  if (new Set(secret).size < 8) return "it has too little variety (fewer than 8 distinct characters)";
+  return null;
+}
+
+/** Reverse-proxy hops are capped: more than this is a misconfiguration. */
+const MAX_TRUSTED_PROXY_HOPS = 10;
 
 const schema = z
   .object({
@@ -98,6 +132,21 @@ const schema = z
     WATERMARK_FREE_TIER: bool(true),
     /** Enables /api/demo/login and the "Try the demo" button (requires mock AI + mock payments). */
     DEMO_MODE: bool(false),
+
+    /**
+     * Number of reverse proxies in front of the app that append the client address to
+     * X-Forwarded-For (nginx `$proxy_add_x_forwarded_for`, Caddy, Traefik, a load balancer…).
+     * The client IP is the Nth entry from the RIGHT, so entries a client adds itself are ignored.
+     * 0 = no trusted proxy: forwarded headers are ignored and the client IP is unknown.
+     * Default: 1 on Vercel (detected via VERCEL), otherwise 0. See clientIp() in src/server/http.ts.
+     */
+    TRUSTED_PROXY_HOPS: z
+      .string()
+      .optional()
+      .transform((v) => (v && v.trim() !== "" ? Number(v.trim()) : undefined))
+      .pipe(z.number().int().min(0).max(MAX_TRUSTED_PROXY_HOPS).optional()),
+    /** Set by Vercel ("1") on its build and runtime; only used to default TRUSTED_PROXY_HOPS. */
+    VERCEL: optionalStr,
   })
   .transform((e) => {
     const mock = e.MOCK_PROVIDERS;
@@ -109,6 +158,14 @@ const schema = z
     const appUrl = e.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
     const webhookBase = (e.WEBHOOK_BASE_URL ?? appUrl).replace(/\/$/, "");
     const webhooksEnabled = !/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:|\/|$)/.test(webhookBase);
+    const isProd = e.NODE_ENV === "production";
+    /** User-visible providers running as mocks (drives the production "Demo mode" banner). */
+    const mockedProviders = [
+      ...(aiProvider === "mock" ? (["ai"] as const) : []),
+      ...(paymentProvider === "mock" ? (["payments"] as const) : []),
+      ...(emailProvider === "mock" ? (["email"] as const) : []),
+    ];
+    const allMock = mockedProviders.length === 3;
     return {
       ...e,
       NEXT_PUBLIC_APP_URL: appUrl,
@@ -120,8 +177,21 @@ const schema = z
       webhookBase,
       webhooksEnabled,
       authSecret: e.BETTER_AUTH_SECRET ?? DEV_SECRET,
-      isProd: e.NODE_ENV === "production",
+      isProd,
       isTest: e.NODE_ENV === "test",
+      mockedProviders,
+      /** Production running (partly) on mock providers: show the "Demo mode" banner. */
+      demoBanner: isProd && mockedProviders.length > 0,
+      /**
+       * Public dev mailbox (/dev/emails, /api/dev/emails/latest): it shows live sign-in links, so in
+       * production it needs an all-mock deployment AND an explicit mock-email choice (a deployment
+       * that merely forgot RESEND_API_KEY never exposes links).
+       */
+      devMailboxEnabled:
+        emailProvider === "mock" && (!isProd || (allMock && (mock || e.EMAIL_PROVIDER === "mock"))),
+      /** Free mock checkout (/billing/mock-checkout, /api/billing/mock/*): in production only with mock AI. */
+      mockCheckoutEnabled: paymentProvider === "mock" && (!isProd || aiProvider === "mock"),
+      trustedProxyHops: e.TRUSTED_PROXY_HOPS ?? (e.VERCEL ? 1 : 0),
     };
   })
   .superRefine((e, ctx) => {
@@ -148,8 +218,30 @@ const schema = z
       ctx.addIssue({ code: "custom", message: "MODERATION_PROVIDER=openai requires OPENAI_API_KEY" });
     // `next build` runs with NODE_ENV=production but has no runtime secrets (e.g. Docker build stage).
     const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
-    if (e.isProd && !e.BETTER_AUTH_SECRET && !isBuildPhase)
-      ctx.addIssue({ code: "custom", message: "BETTER_AUTH_SECRET is required in production" });
+    if (e.isProd && !isBuildPhase) {
+      // Anyone who knows the secret can forge session cookies for any user (admins included).
+      const weak = weakAuthSecretReason(e.BETTER_AUTH_SECRET);
+      if (weak)
+        ctx.addIssue({
+          code: "custom",
+          path: ["BETTER_AUTH_SECRET"],
+          message: `BETTER_AUTH_SECRET is unsafe for production: ${weak}. Generate one with \`openssl rand -base64 32\` (${MIN_AUTH_SECRET_LENGTH}+ random characters).`,
+        });
+      // No real/mock mixing: real AI spend must be paid for, and sign-in links must never be public.
+      if (e.aiProvider !== "mock" && (e.paymentProvider === "mock" || e.emailProvider === "mock")) {
+        const mocked = [
+          ...(e.paymentProvider === "mock" ? ["PAYMENT_PROVIDER (use stripe)"] : []),
+          ...(e.emailProvider === "mock" ? ["EMAIL_PROVIDER (use resend + RESEND_API_KEY)"] : []),
+        ];
+        ctx.addIssue({
+          code: "custom",
+          message:
+            `AI_PROVIDER=${e.aiProvider} in production requires real payments and email, but ${mocked.join(" and ")} ` +
+            `${mocked.length > 1 ? "are" : "is"} mock. Set MOCK_PROVIDERS=false (it is for local/demo use only) ` +
+            "and configure the real providers, or run everything on mock providers for a demo.",
+        });
+      }
+    }
     if (e.DEMO_MODE && (e.aiProvider !== "mock" || e.paymentProvider !== "mock"))
       ctx.addIssue({ code: "custom", message: "DEMO_MODE requires mock AI and mock payment providers" });
   });

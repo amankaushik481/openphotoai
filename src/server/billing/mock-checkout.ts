@@ -22,8 +22,12 @@ import { resolveCheckoutItem, type ResolvedCheckoutItem } from "./catalog";
 import { applyPaymentEvent, ENTITLED_STATUSES } from "./events";
 import { assertNotSubscribedTo } from "./service";
 
+/**
+ * 404 unless free mock checkout is allowed: mock payments, and in production also mock AI (no
+ * real AI spend can be bought for free). See `mockCheckoutEnabled` in src/lib/env.ts.
+ */
 export function assertMockPayments(): void {
-  if (env.paymentProvider !== "mock") throw errors.notFound();
+  if (!env.mockCheckoutEnabled) throw errors.notFound();
 }
 
 /** Decode a checkout id and check it belongs to `userId`. */
