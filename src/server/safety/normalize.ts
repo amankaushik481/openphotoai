@@ -121,11 +121,21 @@ export function termPattern(term: string): string {
   const norm = words(leetify(normalizeText(term)));
   return norm
     .split(" ")
-    .map((word) => {
-      const isNumber = /^[0-9]+$/.test(word);
-      return Array.from(word, (ch) => (isNumber ? ch : ch === "l" ? "[li]+" : `${ch}+`)).join("");
-    })
+    .map((word) => (/^[0-9]+$/.test(word) ? word : letterRuns(word)))
     .join("\\s*");
+}
+
+/**
+ * "xxx" → "x{3,}", "teen" → "t+e{2,}n+". Runs of the same letter become ONE quantifier: adjacent
+ * "x+x+x+" would backtrack polynomially on adversarial input like "xxxx…xa" (ReDoS).
+ */
+function letterRuns(word: string): string {
+  const out: string[] = [];
+  for (const run of word.match(/(.)\1*/g) ?? []) {
+    const cls = run[0] === "l" ? "[li]" : run[0]!;
+    out.push(run.length === 1 ? `${cls}+` : `${cls}{${run.length},}`);
+  }
+  return out.join("");
 }
 
 export interface CompiledTerms {

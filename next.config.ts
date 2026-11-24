@@ -1,5 +1,16 @@
 import type { NextConfig } from "next";
 
+/** Runtime closure of the key-less safety stack (human + tfjs wasm + nsfwjs). */
+function safetyModelFiles(root: string): string[] {
+  return [
+    `${root}/@tensorflow/tfjs-core/{package.json,dist/tf-core.node.js}`,
+    `${root}/@tensorflow/tfjs-converter/{package.json,dist/tf-converter.node.js}`,
+    `${root}/@tensorflow/tfjs-backend-wasm/{package.json,dist/tf-backend-wasm.node.js,dist/*.wasm}`,
+    `${root}/@vladmandic/human/{package.json,dist/human.node-wasm.js,models/blazeface.*,models/facemesh.*,models/faceres.*}`,
+    `${root}/nsfwjs/{package.json,dist/models/package.json,dist/models/mobilenet_v2_mid/*}`,
+  ];
+}
+
 const nextConfig: NextConfig = {
   // We use classic dynamic/static rendering (no Cache Components): most of the app is
   // per-user and dynamic; the marketing pages are statically rendered. See docs/DECISIONS.md.
@@ -29,6 +40,9 @@ const nextConfig: NextConfig = {
       // ffmpeg binary used to sample video frames for moderation + thumbnails.
       "./node_modules/ffmpeg-static/ffmpeg",
       "./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg",
+      // Local safety models are loaded by computed paths (see docs/SAFETY_PROVIDERS.md §6).
+      ...safetyModelFiles("./node_modules"),
+      ...safetyModelFiles("./node_modules/.pnpm/node_modules"),
     ],
   },
   images: {

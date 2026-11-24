@@ -84,7 +84,7 @@ async function findSelfie(spec: SelfieSpec, acceptedHashes: string[]) {
     const marker = await decodeMarker(bytes);
     if (!marker) throw new Error(`${spec.name}: marker did not decode`);
 
-    if (!spec.blur && !spec.brightness && (await metrics(bytes)).sharpness < MIN_SHARPNESS) continue;
+    if (!spec.blur && (await metrics(bytes)).sharpness < MIN_SHARPNESS * (spec.brightness ? 0.5 : 1)) continue;
     let pose: { yaw: number; pitch: number } | undefined;
     if (spec.pose) {
       pose = await stablePose(bytes, spec.pose);
@@ -152,12 +152,12 @@ const HAIR = ["#2b1b12", "#3b2416", "#111111", "#6b4423", "#a5753f", "#1f1a17"];
 async function renderSelfie(spec: SelfieSpec, seed: number): Promise<Uint8Array> {
   const rand = mulberry32(seed);
   const svg = selfieSvg(rand, spec.faces ?? 1);
-  let raw = await sharp(Buffer.from(svg)).removeAlpha().raw().toBuffer();
+  let svgImage = sharp(Buffer.from(svg)).removeAlpha();
+  // Darken before adding noise so the dark fixture is still sharp (only exposure is wrong).
+  if (spec.brightness) svgImage = svgImage.linear(spec.brightness, 0);
+  let raw = await svgImage.raw().toBuffer();
   addLumaNoise(raw, 4.5, rand);
-  let img = sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } });
-  if (spec.blur) img = img.blur(spec.blur);
-  if (spec.brightness) img = img.linear(spec.brightness, 0);
-  raw = await img.raw().toBuffer();
+  if (spec.blur) raw = await sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } }).blur(spec.blur).raw().toBuffer();
   return finish(sharp(raw, { raw: { width: SELFIE_W, height: SELFIE_H, channels: 3 } }), spec.marker);
 }
 

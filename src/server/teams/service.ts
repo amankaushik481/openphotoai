@@ -9,8 +9,6 @@ import { canManage, getTeamForMember, getTeamForOwner, normalizeEmail } from "./
 import { toBrandKitDTO, toTeamMemberDTO, toTeamSummaryDTO } from "./dto";
 import type { TeamDetailDTO, TeamSummaryDTO } from "./types";
 
-export { getTeamForMember } from "./access";
-
 function cleanName(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) throw errors.validation("Give your team a name.");
