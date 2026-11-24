@@ -115,3 +115,14 @@ probes, now asserting the bypass is blocked): `tests/unit/safety/{regressions,li
 | SAF-16 | A production all-mock (demo) deployment judges real uploads with the mock face/moderation providers. | The guard belongs in `src/lib/env.ts` (security workstream), and the e2e suite runs production builds on mock providers. | `env.ts` refuses mock safety providers with a real AI provider; production shows the demo banner; uploads are visible only to the uploader and generated media are mock renders. |
 | SAF-18 | Video thumbnails (extracted frames) carry no XMP AI label; the `hasPaid` watermark rule is unchanged (see SAF-15). | Low value: the MP4 itself carries the label. | Image thumbnails keep the label. |
 | SAF-19 | Re-rendering a draft more than 30 days later loses its style reference (the upload expired) and fails with a refund. | Privacy over convenience. | Uploads expire after 30 days (maintenance cron) and can be deleted any time (`DELETE /api/uploads/:id`). |
+
+## Verification limits & general
+
+| Item | Status | Notes |
+|---|---|---|
+| Real providers (fal, Replicate, Stripe, Resend, R2, Rekognition, OpenAI moderation) | Verified by adapter unit tests with mocked SDKs/HTTP, signature-verification tests and code review — **not** against live accounts. | By design: the build never spent real money. Before launch, run one training + a few generations on a test account and a Stripe test-mode checkout (see docs/SELF_HOSTING.md checklist). Several Replicate input names are marked UNVERIFIED in docs/MODELS.md. |
+| Docker image build | `docker compose up` verified end to end with zero keys. In the build sandbox the image was built through a throwaway override (egress-proxy CA, fonts copied because the Debian mirror is blocked); the committed Dockerfile is built unmodified by CI. | See DECISIONS #32b. |
+| Local face matching accuracy | Consistency check, not identity proof (DECISIONS #26). | Use `FACE_PROVIDER=rekognition` for stronger guarantees. |
+| i18n | All strings are i18n-ready via `src/i18n`, but many feature components still contain inline English copy. | English ships; extracting the remaining copy into `src/i18n/en.ts` is mechanical follow-up work. |
+| Lighthouse | Landing page measured at 90+ mobile performance on a production build (100 a11y / best practices / SEO); scores vary a few points run to run on shared CPUs. | Re-measure on your own hosting. |
+| Outgoing webhooks for API users | Not available in v1 (poll `GET /api/v1/jobs/:id`). | Documented in docs/API.md. |

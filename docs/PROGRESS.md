@@ -59,12 +59,21 @@ Live status of the autonomous build. Updated after every wave.
 ## Wave 4 — hardening (independent reviewers, report-only, then fixes)
 | Lens | Status |
 |---|---|
-| Security (authz, IDOR, webhooks, uploads, CSRF) | ✅ reviewed → 🔧 fixing |
-| Safety bypass red-team | ✅ reviewed → 🔧 fixing |
-| Payments + credits edge cases | ✅ reviewed → 🔧 fixing |
-| Performance (Lighthouse readiness, N+1, bundles) | ✅ reviewed → 🔧 fixing |
-| Accessibility + mobile UI | ✅ reviewed → 🔧 fixing |
-| Docs accuracy | ⏳ after docs are written |
+| Security (authz, IDOR, webhooks, uploads, CSRF) | ✅ reviewed → ✅ fixed (deferred items in KNOWN_ISSUES.md) |
+| Safety bypass red-team | ✅ reviewed → ✅ fixed (deferred items in KNOWN_ISSUES.md) |
+| Payments + credits edge cases | ✅ reviewed → ✅ fixed (deferred items in KNOWN_ISSUES.md) |
+| Performance (Lighthouse readiness, N+1, bundles) | ✅ reviewed → ✅ fixed (deferred items in KNOWN_ISSUES.md) |
+| Accessibility + mobile UI | ✅ reviewed → ✅ fixed (deferred items in KNOWN_ISSUES.md) |
+| Docs accuracy | ✅ reviewed + fixed (~50 corrections) |
 
 ## Wave 5 — ship
-_Pending._
+| Item | Status |
+|---|---|
+| README, SELF_HOSTING, ADDING_PROVIDERS, ARCHITECTURE, docs index | ✅ |
+| Demo mode (one-click demo account, 24 h cleanup) | ✅ |
+| Screenshots (docs/screenshots) | ✅ |
+| E2E re-run after hardening (9/9 specs × 3 runs) | ✅ |
+| Real-Postgres deadlock found + fixed (concurrent paid jobs) | ✅ |
+| Lighthouse mobile ≥ 90 on landing | 🔧 tuning (measured 89–95 before tuning) |
+| Docker compose re-verification after hardening | ⏳ |
+| Push to GitHub | ⛔ blocked: session token has no write access to the repo (HTTP 403) |
