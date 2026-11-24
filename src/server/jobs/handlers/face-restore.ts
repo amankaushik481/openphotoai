@@ -1,4 +1,21 @@
-// Owner: see docs/PROGRESS.md. Replace this stub with the real handler.
-import { notImplementedHandler } from "./types";
+/**
+ * Face restore handler: sharpens and repairs facial detail of one of the user's photos (one output).
+ * Shared enhancement plumbing (authorization, source linking, ingestion) lives in ./upscale.
+ */
+import { getImageProvider } from "@/providers/registry";
+import { defineHandler } from "./types";
+import { completeEnhancement, enhanceSourceUrl, planEnhancement } from "./upscale";
 
-export default notImplementedHandler("face_restore");
+export default defineHandler({
+  type: "face_restore",
+
+  async plan({ user, input }) {
+    return (await planEnhancement(user, input.sourceMediaId, "face_restore")).plan;
+  },
+
+  async submit({ plan, submitOpts }) {
+    return getImageProvider().submitFaceRestore({ imageUrl: await enhanceSourceUrl(plan) }, submitOpts);
+  },
+
+  complete: completeEnhancement,
+});
