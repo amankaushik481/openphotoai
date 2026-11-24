@@ -18,12 +18,12 @@ Live status of the autonomous build. Updated after every wave.
 | platform-core (db scripts, test harness, rate limit, credits ledger) | agent W1-core | ✅ done | |
 | auth (Better Auth, magic link, Google, sessions, API-key auth, login) | agent W1-auth | ✅ done | |
 | storage + image processing | agent W1-storage | ✅ done | |
-| mock providers + registry | agent W1-providers | 🔄 running | |
+| mock providers + registry | agent W1-providers | ✅ done | |
 | design system + layouts + shared components | agent W1-ui | ✅ done | |
 | job engine + media ingestion + generate handler + jobs API + webhooks/cron/worker | agent W1-engine | ✅ done | |
 | infra (Docker, compose, CI, .env.example, setup scripts) | agent W1-infra | ✅ done | |
 
-| safety policy (text filter, consent, age, multi-person, output checks) | agent W1-safety | 🔄 running | |
+| safety policy (text filter, consent, age, multi-person, output checks) | agent W1-safety | ✅ done | |
 | email (React Email templates, Resend + mock, dev mailbox, maintenance cron) | agent W1-email | ✅ done | |
 
 ## Wave 2 — features
@@ -31,22 +31,30 @@ Live status of the autonomous build. Updated after every wave.
 |---|---|---|---|
 | fal.ai adapter (default real provider) | agent W2-fal | ✅ done | 115 tests |
 | Replicate adapter | agent W2-replicate | ✅ done | 68 tests |
-| local safety ML providers (human, nsfwjs, Rekognition, OpenAI moderation) | agent W2-safety-ml | 🔄 running | started early |
-| 44+ photo packs + validator + docs | agent W2-packs | 🔄 running | started early |
-| models (upload, quality checker, consent, training, deletion) | agent W2-models | 🔄 running | |
-| generation UI (create, drafts, prompt helper, batch) | agent W2-create | 🔄 running | |
-| edit / inpaint / pose copy | agent W2-edit | 🔄 running | |
-| upscale / restore / remove bg | agent W2-enhance | 🔄 running | |
-| video + talking video | agent W2-video | 🔄 running | |
-| try-on | agent W2-tryon | 🔄 running | |
-| multi-person (invites + together photos) | agent W2-together | 🔄 running | |
-| gallery + sharing + reports | agent W2-gallery | 🔄 running | |
-| billing (Stripe + mock checkout) | agent W2-billing | 🔄 running | |
-| admin dashboard | agent W2-admin | 🔄 running | |
-| public API + OpenAPI | agent W2-api | 🔄 running | |
-| landing / pricing / FAQ / legal / packs pages | agent W2-marketing | 🔄 running | |
-| teams + brand kits | agent W2-teams | 🔄 running | |
-| account settings + real deletion + export | agent W2-account | 🔄 running | |
+| local safety ML providers (human, nsfwjs, Rekognition, OpenAI moderation) | agent W2-safety-ml | ✅ done | started early |
+| 44+ photo packs + validator + docs | agent W2-packs | ✅ done | started early |
+| models (upload, quality checker, consent, training, deletion) | agent W2-models | ✅ done | |
+| generation UI (create, drafts, prompt helper, batch) | agent W2-create | ✅ done | |
+| edit / inpaint / pose copy | agent W2-edit | ✅ done | |
+| upscale / restore / remove bg | agent W2-enhance | ✅ done | |
+| video + talking video | agent W2-video | ✅ done | |
+| try-on | agent W2-tryon | ✅ done | |
+| multi-person (invites + together photos) | agent W2-together | ✅ done | |
+| gallery + sharing + reports | agent W2-gallery | ✅ done | |
+| billing (Stripe + mock checkout) | agent W2-billing | ✅ done | |
+| admin dashboard | agent W2-admin | ✅ done | |
+| public API + OpenAPI | agent W2-api | ✅ done | |
+| landing / pricing / FAQ / legal / packs pages | agent W2-marketing | ✅ done | |
+| teams + brand kits | agent W2-teams | ✅ done | |
+| account settings + real deletion + export | agent W2-account | ✅ done | |
 
-## Wave 3 — integration · Wave 4 — hardening · Wave 5 — ship
+## Wave 3 — integration
+| Item | Owner | Status |
+|---|---|---|
+| Integration follow-ups (docs/agents/INTEGRATION_TODO.md) | agent W3-integration-fixes | 🔄 running |
+| Production build + standalone trace check | orchestrator | ⏳ |
+| Playwright full journey + safety e2e on mocks | e2e agent | ⏳ |
+| docker compose up | orchestrator | ⏳ |
+
+## Wave 4 — hardening · Wave 5 — ship
 _Pending._

@@ -92,16 +92,16 @@ export function parseFfmpegMetadata(stderr: string): Record<string, string> {
   if (start < 0) return tags;
   let last: string | null = null;
   for (const line of lines.slice(start + 1)) {
-    const m = /^\s{4}(\S[^:]*?)\s*:\s?(.*)$/.exec(line);
-    if (!m) break;
-    const key = m[1]!.trim().toLowerCase();
-    if (key === "" && last) {
-      tags[last] += `\n${m[2]}`;
+    // Continuation lines of a multi-line value are printed as "<spaces>: value".
+    const cont = /^\s{5,}:\s?(.*)$/.exec(line);
+    if (cont && last) {
+      tags[last] += `\n${cont[1]}`;
       continue;
     }
-    // Continuation lines are printed as "<spaces>: value".
-    tags[key] = m[2]!;
-    last = key;
+    const m = /^\s{4}(\S[^:]*?)\s*:\s?(.*)$/.exec(line);
+    if (!m) break;
+    last = m[1]!.trim().toLowerCase();
+    tags[last] = m[2]!;
   }
   return tags;
 }
