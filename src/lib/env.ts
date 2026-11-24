@@ -146,7 +146,9 @@ const schema = z
       ctx.addIssue({ code: "custom", message: "FACE_PROVIDER=rekognition requires AWS_REGION/AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY" });
     if (e.moderationProvider === "openai" && !e.OPENAI_API_KEY)
       ctx.addIssue({ code: "custom", message: "MODERATION_PROVIDER=openai requires OPENAI_API_KEY" });
-    if (e.isProd && !e.BETTER_AUTH_SECRET)
+    // `next build` runs with NODE_ENV=production but has no runtime secrets (e.g. Docker build stage).
+    const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+    if (e.isProd && !e.BETTER_AUTH_SECRET && !isBuildPhase)
       ctx.addIssue({ code: "custom", message: "BETTER_AUTH_SECRET is required in production" });
     if (e.DEMO_MODE && (e.aiProvider !== "mock" || e.paymentProvider !== "mock"))
       ctx.addIssue({ code: "custom", message: "DEMO_MODE requires mock AI and mock payment providers" });

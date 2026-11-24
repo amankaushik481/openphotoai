@@ -3,7 +3,7 @@
 import * as React from "react";
 import useSWR, { type SWRConfiguration } from "swr";
 import { ApiClientError, api, fetcher } from "@/lib/api-client";
-import type { BatchDTO, BatchStatus, JobDTO } from "@/types/domain";
+import type { BatchDTO, JobDTO } from "@/types/domain";
 import {
   JOB_POLL_INTERVAL_MS,
   allJobsTerminal,

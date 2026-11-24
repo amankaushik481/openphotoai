@@ -19,8 +19,9 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /** Test-mode stand-in for Stripe Checkout (PAYMENT_PROVIDER=mock only). */
 export default async function MockCheckoutPage({ searchParams }: { searchParams: SearchParams }) {
-  if (env.paymentProvider !== "mock") notFound();
+  // Await request data first so this page is always rendered per request (never prerendered).
   const { session } = await searchParams;
+  if (env.paymentProvider !== "mock") notFound();
   const checkoutId = typeof session === "string" ? session : "";
   const user = await requireUserPage(`/billing/mock-checkout?session=${encodeURIComponent(checkoutId)}`);
 

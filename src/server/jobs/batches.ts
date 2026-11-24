@@ -7,7 +7,7 @@ import { db, type Database, type Tx } from "@/db";
 import { batches } from "@/db/schema";
 import type { BatchRow } from "@/db/types";
 import { errors } from "@/server/http";
-import type { BatchDTO, BatchStatus, JobStatus } from "@/types/domain";
+import type { BatchDTO, JobStatus } from "@/types/domain";
 
 export type { BatchDTO } from "@/types/domain";
 
