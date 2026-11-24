@@ -8,7 +8,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getEnv, resetEnvCache, weakAuthSecretReason } from "@/lib/env";
-// @ts-expect-error -- plain ESM script shipped in the Docker image (no type declarations)
 import { isPlaceholderSecret, persistedSecret, resolveAuthSecret } from "../../../docker/auth-secret.mjs";
 
 const STRONG = "k3Jx9-Qw7_ZpL2mN8vB4cR6tY1uH5sD0aF7gE3iO";

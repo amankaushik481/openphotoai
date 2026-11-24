@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { identityModels, modelShares, trainingPhotos } from "@/db/schema";
 import type { IdentityModelRow } from "@/db/types";
 import { errors } from "@/server/http";
-import { toModelDTO } from "@/server/models/service";
+import { toModelDTOs } from "@/server/models/service";
 import type { IdentityModelDTO } from "@/types/domain";
 import type { PartnerModelDTO } from "./types";
 
@@ -14,7 +14,7 @@ export async function listOwnModels(userId: string): Promise<IdentityModelDTO[]>
     .from(identityModels)
     .where(and(eq(identityModels.userId, userId), isNull(identityModels.deletedAt)))
     .orderBy(desc(identityModels.createdAt));
-  return Promise.all(rows.map((m) => toModelDTO(m, userId)));
+  return toModelDTOs(rows, userId);
 }
 
 /**
@@ -42,9 +42,12 @@ export async function listPartnerModels(userId: string, now: Date = new Date()):
   // One entry per model (the same model can be shared through several accepted invites).
   const byModel = new Map<string, (typeof rows)[number]>();
   for (const r of rows) if (r.model.userId !== userId && !byModel.has(r.model.id)) byModel.set(r.model.id, r);
-  return Promise.all(
-    [...byModel.values()].map(async (r) => ({ ...(await toModelDTO(r.model, userId)), shareId: r.shareId })),
+  const shares = [...byModel.values()];
+  const dtos = await toModelDTOs(
+    shares.map((r) => r.model),
+    userId,
   );
+  return dtos.map((dto, i) => ({ ...dto, shareId: shares[i]!.shareId }));
 }
 
 /**

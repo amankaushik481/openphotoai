@@ -98,6 +98,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               <Link href="/dev/emails" target="_blank" rel="noopener">
                 <Inbox aria-hidden />
                 Open dev mailbox
+                <span className="sr-only">(opens in a new tab)</span>
               </Link>
             </Button>
           )}

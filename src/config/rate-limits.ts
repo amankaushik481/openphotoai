@@ -15,6 +15,8 @@ export const RATE_LIMITS = {
   downloadsPerHour: { limit: 30, windowSec: 3600 },
   /** Checkout / portal session creation per user. */
   billingPerMinute: { limit: 10, windowSec: 60 },
+  /** Team credit transfers per owner. */
+  creditTransfersPerHour: { limit: 60, windowSec: 3600 },
   /** Team + multi-person invite emails per user. */
   invitesPerHour: { limit: 30, windowSec: 3600 },
   /** Account deletion confirmations per IP. */

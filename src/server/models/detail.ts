@@ -3,7 +3,7 @@ import type { IdentityModelRow } from "@/db/types";
 import { getViewableModel, listModelsForUser } from "./crud";
 import { listTrainingPhotos, toTrainingPhotoDTO } from "./photos";
 import { computeReadiness, computeReadinessByMode } from "./readiness";
-import { identityModeOf, toModelView, type IdentityMode } from "./service";
+import { identityModeOf, toModelDTOs, toModelView, type IdentityMode } from "./service";
 import type { ModelDetailResponse, ModelView } from "./types";
 
 /** Model + photos + readiness for a model `model` the viewer may see (photos hidden when shared). */
@@ -30,5 +30,5 @@ export async function getModelDetail(userId: string, modelId: string, mode?: Ide
 
 export async function listModelViews(userId: string): Promise<ModelView[]> {
   const rows = await listModelsForUser(userId);
-  return Promise.all(rows.map((row) => toModelView(row, userId)));
+  return toModelDTOs(rows, userId);
 }

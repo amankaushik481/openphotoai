@@ -47,7 +47,12 @@ export function MediaCard({
 }: MediaCardProps) {
   const t = useT();
   const aspectRatio = media.width && media.height ? `${media.width} / ${media.height}` : "4 / 5";
-  const alt = media.prompt ? media.prompt.slice(0, 140) : media.kind === "video" ? t("media.video") : t("media.openImage");
+  // Untitled items get their date so a grid of them isn't a list of identical names (UTC: same on
+  // server and client, no hydration mismatch).
+  const day = new Intl.DateTimeFormat(t.locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(media.createdAt));
+  const alt = media.prompt
+    ? media.prompt.slice(0, 140)
+    : `${media.kind === "video" ? t("media.video") : t("media.openImage")}, ${day}`;
 
   const image = (
     // eslint-disable-next-line @next/next/no-img-element -- private signed URLs must bypass the image optimizer

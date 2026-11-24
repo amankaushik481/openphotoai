@@ -28,6 +28,7 @@ export function InlineText({ text }: { text: string }) {
               return (
                 <a key={i} href={token.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
                   {token.text}
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               );
             }

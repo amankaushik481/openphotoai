@@ -33,10 +33,9 @@ function stream(total: number) {
 
 const chunkedRequest = (url: string, total: number, headers: Record<string, string> = {}) => {
   const { body, state } = stream(total);
-  // No Content-Length: like `Transfer-Encoding: chunked`.
-  const req = new NextRequest(`http://localhost:3000${url}`, { method: "POST", body, headers, duplex: "half" } as RequestInit & {
-    duplex: "half";
-  });
+  // No Content-Length: like `Transfer-Encoding: chunked`. (`duplex` is required for stream bodies.)
+  const init = { method: "POST", body, headers, duplex: "half" };
+  const req = new NextRequest(`http://localhost:3000${url}`, init as unknown as ConstructorParameters<typeof NextRequest>[1]);
   return { req, state };
 };
 
@@ -107,12 +106,13 @@ describe("CSRF: cookie-authenticated writes", () => {
   });
 
   it("refuses cross-site and same-site (sibling origin) requests", async () => {
-    for (const headers of [
+    const cases: Record<string, string>[] = [
       { "sec-fetch-site": "cross-site" },
       { "sec-fetch-site": "same-site", origin: "http://localhost:9000" },
       { origin: "https://evil.example" },
       { origin: "null" },
-    ]) {
+    ];
+    for (const headers of cases) {
       const res = await callRoute(write, { method: "POST", url: "/api/share", body: "{}", headers });
       expect(res.status, JSON.stringify(headers)).toBe(403);
     }

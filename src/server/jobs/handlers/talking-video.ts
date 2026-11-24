@@ -6,22 +6,16 @@
  * The provider also refuses TTS audio longer than the paid duration (`maxAudioSeconds`) before
  * starting the per-second avatar step. Completion uses the engine's default video ingestion.
  */
-import { and, eq } from "drizzle-orm";
 import { MAX_TALKING_SECONDS, MAX_TALKING_WORDS } from "@/config/credits";
 import { estimateSpeechSeconds, maxTalkingAudioSeconds } from "@/config/credits";
-import { db } from "@/db";
 import { AudioTooLongError } from "@/providers/ai/shared/errors";
-import { jobs, media } from "@/db/schema";
-import type { MediaRow } from "@/db/types";
 import { getVideoProvider } from "@/providers/registry";
 import { errors } from "@/server/http";
 import { providerInputUrl } from "@/server/media/service";
 import type { VOICES } from "@/types/domain";
 import { defineHandler } from "./types";
+import { assertSoloSource } from "../lineage";
 import { getVideoSourcePhoto } from "./video";
-
-/** How far up the edit chain (edit of an edit of ...) we look for a Together photo. */
-const MAX_LINEAGE_HOPS = 8;
 
 /** Persisted on jobs.output.plan (JSON). `prompt` (= the script) becomes the media prompt. */
 export type TalkingVideoPlanData = {
@@ -44,32 +38,7 @@ export function assertScriptLength(script: string): number {
   return seconds;
 }
 
-/**
- * Talking videos put words in someone's mouth, so they are only made from photos of the user alone.
- * The other person in a Together photo consented to photos, not to speaking. Checks the source and
- * the photos it was edited from.
- */
-async function assertSoloSource(userId: string, source: MediaRow): Promise<void> {
-  let current: { jobId: string | null; parentMediaId: string | null } | undefined = source;
-  for (let hop = 0; current && hop < MAX_LINEAGE_HOPS; hop++) {
-    if (current.jobId) {
-      const [job] = await db
-        .select({ type: jobs.type })
-        .from(jobs)
-        .where(and(eq(jobs.id, current.jobId), eq(jobs.userId, userId)))
-        .limit(1);
-      if (job?.type === "multi_person") {
-        throw errors.validation("Talking videos can only be made from photos of you alone, not Together photos.");
-      }
-    }
-    if (!current.parentMediaId) return;
-    [current] = await db
-      .select({ jobId: media.jobId, parentMediaId: media.parentMediaId })
-      .from(media)
-      .where(and(eq(media.id, current.parentMediaId), eq(media.userId, userId)))
-      .limit(1);
-  }
-}
+export { assertSoloSource } from "../lineage";
 
 export default defineHandler({
   type: "talking_video",

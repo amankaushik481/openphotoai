@@ -274,16 +274,13 @@ describe("lifecycle (mock provider)", () => {
     expect(await getBalance(u.id)).toBe(18);
   });
 
-  it("face restore: a low-likeness result is refunded but never hidden", async () => {
+  it("face restore: a low-likeness result is refunded and discarded, never delivered (PAY-7)", async () => {
     safetyState.likeness = [0.2];
     const src = await storeSource(u.id);
     const job = await createJob(u, restore(src.id));
     const done = await syncJob(job.id);
-    expect(done.status).toBe("succeeded");
-    expect(done.creditsRefunded).toBe(1);
-    const [out] = await outputsOf(job.id);
-    expect(out).toMatchObject({ parentMediaId: src.id, hidden: false });
-    expect(out!.scores?.likeness).toBe(0.2);
+    expect(done).toMatchObject({ status: "failed", errorCode: "low_likeness", creditsRefunded: 1 });
+    expect(await outputsOf(job.id)).toHaveLength(0);
     expect(await getBalance(u.id)).toBe(20);
   });
 

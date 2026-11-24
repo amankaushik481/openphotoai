@@ -1,5 +1,5 @@
 import { getOwnedMediaMany } from "@/server/gallery/media";
-import { createMediaZipStream, readDownloadIds, zipFileName } from "@/server/gallery/zip";
+import { assertZipSize, createMediaZipStream, readDownloadIds, zipFileName } from "@/server/gallery/zip";
 import { route } from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
 
@@ -12,6 +12,7 @@ export const POST = route({ auth: "user" }, async ({ req, user }) => {
   const ids = await readDownloadIds(req);
   await rateLimit("downloadsPerHour", `user:${user.id}`);
   const rows = await getOwnedMediaMany(user.id, ids);
+  assertZipSize(rows);
   return new Response(createMediaZipStream(rows), {
     headers: {
       "Content-Type": "application/zip",

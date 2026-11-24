@@ -54,6 +54,7 @@ export function Hero() {
           >
             <GithubIcon className="size-3.5" />
             Open source · MIT · self-hostable
+            <span className="sr-only">(opens in a new tab)</span>
           </a>
           <h1
             id="hero-title"
@@ -80,6 +81,7 @@ export function Hero() {
               <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer">
                 <GithubIcon className="size-4" />
                 Self-host it
+                <span className="sr-only">(opens in a new tab)</span>
               </a>
             </Button>
           </div>

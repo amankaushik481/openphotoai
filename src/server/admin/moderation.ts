@@ -1,5 +1,5 @@
 /** Moderation queue: open abuse reports + unreviewed safety events, and the actions on them. */
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db, type Database, type Tx } from "@/db";
 import { media, moderationEvents, reports, shareLinks, user } from "@/db/schema";
@@ -138,24 +138,43 @@ export async function listModerationQueue(): Promise<{ reports: QueueReport[]; e
 
 /* ───────────────────────────── media removal ───────────────────────────── */
 
+/** Most derived media (edits, upscales, videos... of the removed one) a takedown cascades to. */
+const MAX_TAKEDOWN_DESCENDANTS = 500;
+const MAX_TAKEDOWN_DEPTH = 16;
+
 /**
- * Takedown, database part (inside the caller's transaction): mark the media removed and revoke
- * every share link pointing at it. Returns the storage keys to delete once the transaction commits.
+ * Takedown, database part (inside the caller's transaction): mark the media removed, together with
+ * everything derived from it (edits, upscales, videos made from it, recursively through
+ * `parentMediaId`), and revoke every share link pointing at any of them. Returns the storage keys
+ * to delete once the transaction commits.
  */
 export async function removeMediaTx(tx: Database | Tx, mediaId: string): Promise<{ keys: string[]; shareLinksRevoked: number }> {
-  const [row] = await tx
-    .select({ storageKey: media.storageKey, thumbKey: media.thumbKey, removedAt: media.removedAt })
+  const [root] = await tx.select({ id: media.id }).from(media).where(eq(media.id, mediaId)).limit(1);
+  if (!root) throw errors.notFound("Media");
+  // Breadth-first through parentMediaId (bounded: derivation chains are short).
+  const ids = [mediaId];
+  let frontier = [mediaId];
+  for (let depth = 0; frontier.length > 0 && depth < MAX_TAKEDOWN_DEPTH && ids.length < MAX_TAKEDOWN_DESCENDANTS; depth++) {
+    const children = await tx
+      .select({ id: media.id })
+      .from(media)
+      .where(inArray(media.parentMediaId, frontier))
+      .limit(MAX_TAKEDOWN_DESCENDANTS);
+    frontier = children.map((c) => c.id).filter((id) => !ids.includes(id));
+    ids.push(...frontier);
+  }
+
+  const rows = await tx
+    .select({ storageKey: media.storageKey, thumbKey: media.thumbKey })
     .from(media)
-    .where(eq(media.id, mediaId))
-    .limit(1);
-  if (!row) throw errors.notFound("Media");
-  if (!row.removedAt) await tx.update(media).set({ removedAt: new Date() }).where(eq(media.id, mediaId));
+    .where(inArray(media.id, ids));
+  await tx.update(media).set({ removedAt: new Date() }).where(and(inArray(media.id, ids), isNull(media.removedAt)));
   const revoked = await tx
     .update(shareLinks)
     .set({ revokedAt: new Date() })
-    .where(and(eq(shareLinks.mediaId, mediaId), isNull(shareLinks.revokedAt)))
+    .where(and(inArray(shareLinks.mediaId, ids), isNull(shareLinks.revokedAt)))
     .returning({ id: shareLinks.id });
-  return { keys: [row.storageKey, ...(row.thumbKey ? [row.thumbKey] : [])], shareLinksRevoked: revoked.length };
+  return { keys: rows.flatMap((r) => [r.storageKey, ...(r.thumbKey ? [r.thumbKey] : [])]), shareLinksRevoked: revoked.length };
 }
 
 /** Delete storage objects; a failure is logged (the media row already says "removed"). */

@@ -3,10 +3,23 @@ import { notFound } from "next/navigation";
 
 import { parseGalleryFilters } from "@/components/gallery/gallery-filters";
 import { MediaViewer } from "@/components/gallery/media-viewer";
-import { requireUserPage } from "@/server/auth/session";
+import { getCurrentUser, requireUserPage } from "@/server/auth/session";
 import { loadViewerData } from "@/server/gallery/viewer";
+import { getOwnedMedia } from "@/server/media/service";
 
-export const metadata: Metadata = { title: "Photo" };
+/**
+ * A distinct title per item ("Photo 3F9A · 12 Mar 2026") so Next's route announcer tells screen-reader
+ * users that prev/next (arrow keys) moved to another item; a static "Photo" is never re-announced, and
+ * photos from one batch share a date, hence the short reference.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ mediaId: string }> }): Promise<Metadata> {
+  const { mediaId } = await params;
+  const user = await getCurrentUser();
+  const row = user ? await getOwnedMedia(user.id, mediaId).catch(() => null) : null;
+  if (!row) return { title: "Photo" };
+  const day = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(row.createdAt);
+  return { title: `${row.kind === "video" ? "Video" : "Photo"} ${row.id.slice(-4).toUpperCase()} · ${day}` };
+}
 
 type SearchParams = Record<string, string | string[] | undefined>;
 

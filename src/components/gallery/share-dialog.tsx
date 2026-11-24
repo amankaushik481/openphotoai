@@ -100,19 +100,22 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
                       readOnly
                       value={share.url}
                       aria-label="Share link"
+                      // Rows repeat the same names: the description says which link this is.
+                      aria-describedby={`share-${share.id}-desc`}
                       onFocus={(e) => e.currentTarget.select()}
                       className="font-mono text-xs"
                     />
                     <CopyButton value={share.url} toastMessage="Link copied" />
                   </div>
                   <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                    <span>{describe(share, t.locale)}</span>
+                    <span id={`share-${share.id}-desc`}>{describe(share, t.locale)}</span>
                     <ConfirmDialog
                       trigger={
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
+                          aria-describedby={`share-${share.id}-desc`}
                           className="text-destructive hover:text-destructive"
                         >
                           Revoke

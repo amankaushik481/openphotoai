@@ -261,6 +261,14 @@
   }
 }
 
+/* Per-element focus-outline offset (negative = inset). Not inherited, so a container's inset doesn't
+   leak into the controls inside it. */
+@property --focus-offset {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 2px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring;

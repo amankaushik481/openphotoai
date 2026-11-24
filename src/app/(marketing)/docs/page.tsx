@@ -131,6 +131,7 @@ export default function DocsPage() {
             >
               <GithubIcon className="size-4" />
               Source on GitHub
+              <span className="sr-only">(opens in a new tab)</span>
             </a>
             <Link
               href="/docs/api"
@@ -201,7 +202,12 @@ pnpm dev`}</Pre>
                 Every variable is validated at startup (<Code>pnpm check-env</Code> prints the result) and documented in{" "}
                 <Code>.env.example</Code>. The ones that matter for production:
               </p>
-              <div className="mt-5 overflow-x-auto rounded-xl border">
+              <div
+                tabIndex={0}
+                role="region"
+                aria-label="Production environment variables"
+                className="mt-5 overflow-x-auto rounded-xl border [--focus-offset:-2px]"
+              >
                 <table className="w-full min-w-[36rem] border-collapse text-left text-sm">
                   <caption className="sr-only">Production environment variables</caption>
                   <thead>

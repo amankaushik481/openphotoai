@@ -23,6 +23,7 @@ export function MarketingHeader() {
               <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
                 <GithubIcon className="size-4" />
                 {t(link.labelKey)}
+                <span className="sr-only">(opens in a new tab)</span>
               </a>
             ) : (
               <Link key={link.href} href={link.href} className={linkClass}>

@@ -101,6 +101,8 @@ export function ImageDropzone<T = unknown>({
   const [items, setItems] = React.useState<UploadItem<T>[]>([]);
   const [dragDepth, setDragDepth] = React.useState(0);
   const [announcement, setAnnouncement] = React.useState("");
+  /** Visible counterpart of the "too many files" announcement (extra files are dropped). */
+  const [limitNotice, setLimitNotice] = React.useState<string | null>(null);
 
   const files = React.useRef(new Map<string, File>());
   const queue = React.useRef<string[]>([]);
@@ -209,7 +211,10 @@ export function ImageDropzone<T = unknown>({
         const room = Math.max(0, maxFiles - used);
         if (list.length > room) {
           setAnnouncement(t("upload.tooMany", { count: maxFiles }));
+          setLimitNotice(t("upload.tooMany", { count: maxFiles }));
           list = list.slice(0, room);
+        } else {
+          setLimitNotice(null);
         }
       }
 
@@ -343,6 +348,13 @@ export function ImageDropzone<T = unknown>({
         </ul>
       )}
 
+      {limitNotice && (
+        <p className="flex items-start gap-2 text-sm text-muted-foreground">
+          <TriangleAlertIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+          {limitNotice}
+        </p>
+      )}
+
       <p className="sr-only" aria-live="polite" role="status">
         {announcement}
       </p>
@@ -420,7 +432,11 @@ function UploadTile<T>({
           aria-label={`${item.name}: ${item.status === "preparing" ? t("upload.preparing") : t("upload.uploading")}`}
         />
       )}
-      <p className="truncate text-xs text-muted-foreground" title={item.name}>
+      {/* Errors wrap in full (a one-line truncate hid the reason in narrow tiles). */}
+      <p
+        className={cn("text-xs text-muted-foreground", item.status === "error" ? "break-words" : "truncate")}
+        title={item.status === "error" ? `${item.name}: ${item.error}` : item.name}
+      >
         {item.status === "error" ? <span className="text-destructive">{item.error}</span> : item.name}
       </p>
     </li>

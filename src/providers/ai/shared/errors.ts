@@ -54,3 +54,14 @@ export class WebhookVerificationError extends Error {
     this.name = "WebhookVerificationError";
   }
 }
+
+/**
+ * The provider has no way to delete a trained model's files (e.g. fal storage). `message` is safe to
+ * show to the model's owner: it says what happens to the provider's copy instead.
+ */
+export class ProviderDeletionUnsupportedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProviderDeletionUnsupportedError";
+  }
+}

@@ -3,7 +3,7 @@ import { createTestDb, createTestUser } from "../../helpers/db";
 import type { UserRow } from "@/db/types";
 import type { DetectedFace } from "@/providers/types";
 import { AppError } from "@/server/http";
-import { extractVideoFrames } from "@/server/images/process";
+import { extractSampleFrames } from "@/server/images/video";
 import {
   analyzeTrainingPhotoSafety,
   assertReferenceImageAllowed,
@@ -15,7 +15,7 @@ import {
 import { brokenFace, brokenModeration, eventsOf, identityEmbedding, markedImage, providers, useMockProviders } from "./fixtures";
 
 vi.mock("@/providers/registry", async () => (await import("./fixtures")).registryMock);
-vi.mock("@/server/images/process", () => ({ extractVideoFrames: vi.fn() }));
+vi.mock("@/server/images/video", () => ({ extractSampleFrames: vi.fn() }));
 
 let user: UserRow;
 const ctx = () => ({ userId: user.id, jobId: "job_x", modelId: "mdl_x" });
@@ -28,7 +28,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   user = await createTestUser();
   useMockProviders();
-  vi.mocked(extractVideoFrames).mockReset();
+  vi.mocked(extractSampleFrames).mockReset();
 });
 
 async function rejection(p: Promise<unknown>): Promise<AppError> {
@@ -83,11 +83,11 @@ describe("checkOutputImage", () => {
 });
 
 describe("checkOutputVideo", () => {
-  it("samples 4 frames and allows a clean video", async () => {
+  it("samples the whole clip (>= 1 fps, capped) and allows a clean video", async () => {
     const frame = await markedImage();
-    vi.mocked(extractVideoFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [frame, frame, frame, frame] });
+    vi.mocked(extractSampleFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [frame, frame, frame, frame] });
     const snap = await checkOutputVideo(new Uint8Array([1, 2, 3]), ctx());
-    expect(extractVideoFrames).toHaveBeenCalledWith(expect.any(Uint8Array), 4);
+    expect(extractSampleFrames).toHaveBeenCalledWith(expect.any(Uint8Array), { fps: 1, maxFrames: 32 });
     expect(snap.allowed).toBe(true);
     expect(await eventsOf(user.id)).toHaveLength(0);
   });
@@ -95,24 +95,25 @@ describe("checkOutputVideo", () => {
   it("blocks the video when any sampled frame is blocked", async () => {
     const clean = await markedImage();
     const nsfw = await markedImage({ nsfw: true });
-    vi.mocked(extractVideoFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [clean, clean, nsfw, clean] });
+    vi.mocked(extractSampleFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [clean, clean, nsfw, clean] });
     const snap = await checkOutputVideo(new Uint8Array([1]), ctx());
     expect(snap).toMatchObject({ allowed: false, categories: ["sexual"] });
     const [event] = await eventsOf(user.id, "output_blocked");
-    expect(event!.details).toMatchObject({ media: "video", blockedFrames: [2], framesChecked: 4 });
+    // Sampling stops at the first blocked frame.
+    expect(event!.details).toMatchObject({ media: "video", blockedFrames: [2], framesChecked: 3 });
   });
 
   it("fails closed when frames can't be extracted", async () => {
-    vi.mocked(extractVideoFrames).mockRejectedValue(new Error("ffmpeg missing"));
+    vi.mocked(extractSampleFrames).mockRejectedValue(new Error("ffmpeg missing"));
     expect(await checkOutputVideo(new Uint8Array([1]), ctx())).toMatchObject({ allowed: false, categories: ["moderation_error"] });
-    vi.mocked(extractVideoFrames).mockResolvedValue({ durationSec: 0, width: 0, height: 0, frames: [] });
+    vi.mocked(extractSampleFrames).mockResolvedValue({ durationSec: 0, width: 0, height: 0, frames: [] });
     expect((await checkOutputVideo(new Uint8Array([1]), ctx())).allowed).toBe(false);
     expect(await eventsOf(user.id, "output_blocked")).toHaveLength(2);
   });
 
   it("fails closed when the classifier throws on a frame", async () => {
     const frame = await markedImage();
-    vi.mocked(extractVideoFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [frame] });
+    vi.mocked(extractSampleFrames).mockResolvedValue({ durationSec: 3, width: 256, height: 256, frames: [frame, frame] });
     providers.moderation = brokenModeration();
     expect((await checkOutputVideo(new Uint8Array([1]), ctx())).allowed).toBe(false);
   });
@@ -120,10 +121,10 @@ describe("checkOutputVideo", () => {
 
 describe("assertReferenceImageAllowed", () => {
   it("allows a clean adult reference and returns the face summary", async () => {
-    const result = await assertReferenceImageAllowed(await markedImage({ age: 18 }), { ...ctx(), purpose: "reference" });
+    const result = await assertReferenceImageAllowed(await markedImage({ age: 25 }), { ...ctx(), purpose: "reference" });
     expect(result.moderation.allowed).toBe(true);
     expect(result.face.count).toBe(1);
-    expect(result.face.primary?.age).toBe(18);
+    expect(result.face.primary?.age).toBe(25);
     expect(result.face.primary).not.toHaveProperty("embedding");
   });
 

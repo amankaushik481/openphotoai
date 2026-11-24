@@ -74,7 +74,8 @@ export function InviteFriendCard({ id, onInvited }: InviteFriendCardProps) {
               id="together-invite-email"
               type="email"
               inputMode="email"
-              autoComplete="email"
+              // Someone else's address: don't let the browser prefill the user's own (WCAG 1.3.5).
+              autoComplete="off"
               required
               maxLength={254}
               value={email}

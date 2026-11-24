@@ -266,11 +266,12 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
                   </li>
                 ))}
               </ol>
-              <p role="status" aria-live="polite" className="sr-only">
-                {session.announcement}
-              </p>
             </section>
           )}
+          {/* Always mounted (outside the conditional section) so the first "started" message is announced. */}
+          <p role="status" aria-live="polite" className="sr-only">
+            {session.announcement}
+          </p>
           <ShotList pack={pack} />
         </div>
       </div>

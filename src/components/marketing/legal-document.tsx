@@ -57,7 +57,13 @@ function Block({ block }: { block: LegalBlock }) {
       );
     case "table":
       return (
-        <div className="overflow-x-auto rounded-xl border">
+        // Focusable, named scroller so Safari keyboard users can scroll the wide table.
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={`Table: ${block.head.join(", ")}`}
+          className="overflow-x-auto rounded-xl border [--focus-offset:-2px]"
+        >
           <table className="w-full min-w-[32rem] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
@@ -91,8 +97,7 @@ function Block({ block }: { block: LegalBlock }) {
   }
 }
 
-const navLink =
-  "block rounded-md px-3 py-1.5 text-sm transition-colors";
+const navLink = "block rounded-md px-3 py-1.5 text-sm transition-colors";
 
 export function LegalDocumentView({ doc, lastUpdated }: { doc: LegalDocument; lastUpdated: string }) {
   return (
@@ -149,6 +154,22 @@ export function LegalDocumentView({ doc, lastUpdated }: { doc: LegalDocument; la
               Last updated <time dateTime={lastUpdated}>{formatDate(lastUpdated)}</time> · Operated by {APP.legalEntity}
             </p>
           </header>
+
+          {/* Phones/tablets: the sidebar table of contents is hidden, so offer a collapsible one here. */}
+          <details className="mt-6 rounded-xl border bg-card lg:hidden">
+            <summary className="cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold">On this page</summary>
+            <nav aria-label="On this page" className="px-1 pb-3">
+              <ol className="flex flex-col gap-0.5">
+                {doc.sections.map((s) => (
+                  <li key={s.id}>
+                    <a href={`#${s.id}`} className={cn(navLink, "text-muted-foreground hover:text-foreground")}>
+                      {s.heading}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          </details>
 
           <section aria-labelledby="summary-title" className="mt-8 rounded-2xl border bg-card p-6 shadow-xs">
             <h2 id="summary-title" className="text-sm font-semibold tracking-wider uppercase">

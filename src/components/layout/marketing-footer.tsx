@@ -43,6 +43,7 @@ export function MarketingFooter() {
           <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-1.5`}>
             <GithubIcon className="size-4" />
             {t("nav.github")}
+            <span className="sr-only">(opens in a new tab)</span>
           </a>
           <span className="text-sm text-muted-foreground">{t("app.openSource")}</span>
           <a href={`mailto:${APP.supportEmail}`} className={linkClass}>

@@ -12,12 +12,13 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { jobs, media } from "@/db/schema";
-import type { IdentityModelRow, MediaRow } from "@/db/types";
+import type { IdentityModelRow, JobRow, MediaRow } from "@/db/types";
 import type { IdentityRef } from "@/providers/types";
 import { getImageProvider } from "@/providers/registry";
 import { AppError, errors } from "@/server/http";
 import { getOwnedMedia, providerInputUrl } from "@/server/media/service";
 import { getOwnedModel, identityModeOf, identityRefFor } from "@/server/models/service";
+import { assertModelsUsable } from "@/server/safety";
 import type { EDIT_KINDS } from "@/types/domain";
 import { assembledTexts } from "../assembled-text";
 import { defineHandler } from "./types";
@@ -74,24 +75,40 @@ export async function usableSourceModel(userId: string, modelId: string | null):
 const MAX_LINEAGE_DEPTH = 8;
 
 /**
- * True when the photo descends from a together (multi_person) photo: walks `parentMediaId` back through
- * derived jobs (edits, upscales, try-ons...) until an origin job (generate / pose copy / together).
+ * The partner models of the together (multi_person) photo this photo descends from, or null when it
+ * doesn't descend from one: walks `parentMediaId` back through derived jobs (edits, upscales,
+ * try-ons...) until an origin job (generate / pose copy / together).
  */
-async function isGroupPhoto(userId: string, source: MediaRow): Promise<boolean> {
+async function groupPhotoSharedModels(userId: string, source: MediaRow): Promise<string[] | null> {
   let mediaId: string | null = source.id;
   for (let depth = 0; mediaId && depth < MAX_LINEAGE_DEPTH; depth++) {
-    const [row]: { parentMediaId: string | null; jobType: string | null }[] = await db
-      .select({ parentMediaId: media.parentMediaId, jobType: jobs.type })
+    const [row]: { parentMediaId: string | null; jobType: string | null; output: JobRow["output"] | null }[] = await db
+      .select({ parentMediaId: media.parentMediaId, jobType: jobs.type, output: jobs.output })
       .from(media)
       .leftJoin(jobs, and(eq(jobs.id, media.jobId), eq(jobs.userId, userId)))
       .where(and(eq(media.id, mediaId), eq(media.userId, userId)))
       .limit(1);
-    if (!row) return false;
-    if (row.jobType === "multi_person") return true;
-    if (row.jobType === "generate" || row.jobType === "pose_copy") return false;
+    if (!row) return null;
+    if (row.jobType === "multi_person") {
+      const shared = (row.output?.plan as { sharedModelIds?: unknown } | undefined)?.sharedModelIds;
+      return Array.isArray(shared) ? shared.filter((id): id is string => typeof id === "string") : [];
+    }
+    if (row.jobType === "generate" || row.jobType === "pose_copy") return null;
     mediaId = row.parentMediaId;
   }
-  return false;
+  return null;
+}
+
+/**
+ * A together photo shows someone else, who consented through a model share: editing it (or dressing
+ * it in a garment) is only allowed while that share is still accepted and unexpired and the partner's
+ * model still exists (SAF-12). Throws AppError("forbidden") otherwise. Returns whether it's a group photo.
+ */
+export async function assertGroupConsentActive(userId: string, source: MediaRow): Promise<boolean> {
+  const shared = await groupPhotoSharedModels(userId, source);
+  if (shared === null) return false;
+  if (shared.length > 0) await assertModelsUsable(userId, shared);
+  return true;
 }
 
 export interface EditSourceContext {
@@ -104,7 +121,7 @@ export interface EditSourceContext {
 }
 
 export async function editSourceContext(userId: string, source: MediaRow): Promise<EditSourceContext> {
-  const [model, group] = await Promise.all([usableSourceModel(userId, source.modelId), isGroupPhoto(userId, source)]);
+  const [model, group] = await Promise.all([usableSourceModel(userId, source.modelId), assertGroupConsentActive(userId, source)]);
   const who = group ? "the people in the photo" : model ? `the ${model.subject}` : "the person";
   return { model, group, who };
 }

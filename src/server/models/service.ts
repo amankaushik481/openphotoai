@@ -5,6 +5,7 @@ import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { identityModels, jobs, trainingPhotos, user as userTable } from "@/db/schema";
 import type { IdentityModelRow } from "@/db/types";
+import { ProviderDeletionUnsupportedError } from "@/providers/ai/shared/errors";
 import { getAIProvider } from "@/providers/registry";
 import type { AsyncAIProvider, IdentityRef, TrainingProvider } from "@/providers/types";
 import { errors } from "@/server/http";
@@ -12,6 +13,7 @@ import { providerInputUrl } from "@/server/media/service";
 import { getStorage, signedUrl, storageKeys } from "@/server/storage";
 import type { IdentityModelDTO } from "@/types/domain";
 import type { IdentityMode, ModelView } from "./types";
+import { storedWeightsUrl } from "./weights";
 
 /** Reference photos sent with instant-mode (reference-based) identities. */
 export const INSTANT_REFERENCE_PHOTOS = 4;
@@ -62,7 +64,8 @@ export async function identityRefFor(model: IdentityModelRow, opts?: { reference
   }
 
   return {
-    modelRef: instant ? "" : model.providerModelRef!,
+    // Our stored copy of the weights when there is one (SAF-7), else the provider's reference.
+    modelRef: instant ? "" : ((await storedWeightsUrl(model)) ?? model.providerModelRef!),
     triggerWord: model.triggerWord,
     subject: model.subject,
     ...(referenceImageUrls ? { referenceImageUrls } : {}),
@@ -70,38 +73,57 @@ export async function identityRefFor(model: IdentityModelRow, opts?: { reference
 }
 
 export async function toModelDTO(model: IdentityModelRow, viewerUserId: string): Promise<IdentityModelDTO> {
-  const shared = model.userId !== viewerUserId;
-  const [counts, owner, coverUrl] = await Promise.all([
+  const [dto] = await toModelDTOs([model], viewerUserId);
+  return dto!;
+}
+
+/** DTOs for many models with one photo-count query and one owner-name query (no per-model N+1). */
+export async function toModelDTOs(models: IdentityModelRow[], viewerUserId: string): Promise<IdentityModelDTO[]> {
+  if (!models.length) return [];
+  const sharedOwnerIds = [...new Set(models.filter((m) => m.userId !== viewerUserId).map((m) => m.userId))];
+  const [counts, owners, coverUrls] = await Promise.all([
     db
       .select({
+        modelId: trainingPhotos.modelId,
+        userId: trainingPhotos.userId,
         total: sql<number>`count(*)::int`,
         accepted: sql<number>`count(*) filter (where ${trainingPhotos.status} = 'accepted')::int`,
       })
       .from(trainingPhotos)
-      .where(and(eq(trainingPhotos.modelId, model.id), eq(trainingPhotos.userId, model.userId))),
-    shared
-      ? db.select({ name: userTable.name }).from(userTable).where(eq(userTable.id, model.userId)).limit(1)
+      .where(inArray(trainingPhotos.modelId, models.map((m) => m.id)))
+      .groupBy(trainingPhotos.modelId, trainingPhotos.userId),
+    sharedOwnerIds.length
+      ? db.select({ id: userTable.id, name: userTable.name }).from(userTable).where(inArray(userTable.id, sharedOwnerIds))
       : Promise.resolve([]),
     // A shared model is shown without the owner's photos: the cover is their training-photo thumbnail.
-    model.coverMediaKey && !shared ? signedUrl(model.coverMediaKey) : Promise.resolve(null),
+    Promise.all(
+      models.map((m) => (m.coverMediaKey && m.userId === viewerUserId ? signedUrl(m.coverMediaKey) : Promise.resolve(null))),
+    ),
   ]);
-  return {
-    id: model.id,
-    name: model.name,
-    subject: model.subject,
-    status: model.status,
-    triggerWord: model.triggerWord,
-    coverUrl,
-    photoCount: Number(counts[0]?.total ?? 0),
-    acceptedPhotoCount: Number(counts[0]?.accepted ?? 0),
-    mode: identityModeOf(model),
-    consentVerified: model.consentVerifiedAt !== null,
-    trainingJobId: shared ? null : model.trainingJobId,
-    shared,
-    ...(shared ? { ownerName: owner[0]?.name ?? null } : {}),
-    createdAt: model.createdAt.toISOString(),
-    trainedAt: model.trainedAt?.toISOString() ?? null,
-  };
+  // Only the model owner's photos count (photos are always written with the model's userId).
+  const countsOf = new Map(counts.map((c) => [`${c.modelId}\u0000${c.userId}`, c]));
+  const ownerName = new Map(owners.map((o) => [o.id, o.name]));
+  return models.map((model, i) => {
+    const shared = model.userId !== viewerUserId;
+    const c = countsOf.get(`${model.id}\u0000${model.userId}`);
+    return {
+      id: model.id,
+      name: model.name,
+      subject: model.subject,
+      status: model.status,
+      triggerWord: model.triggerWord,
+      coverUrl: coverUrls[i] ?? null,
+      photoCount: Number(c?.total ?? 0),
+      acceptedPhotoCount: Number(c?.accepted ?? 0),
+      mode: identityModeOf(model),
+      consentVerified: model.consentVerifiedAt !== null,
+      trainingJobId: shared ? null : model.trainingJobId,
+      shared,
+      ...(shared ? { ownerName: ownerName.get(model.userId) ?? null } : {}),
+      createdAt: model.createdAt.toISOString(),
+      trainedAt: model.trainedAt?.toISOString() ?? null,
+    };
+  });
 }
 
 /** Alias of toModelDTO (kept for the /api/models routes; the DTO now carries `mode`). */
@@ -126,10 +148,13 @@ function canDeleteModels(provider: AsyncAIProvider): provider is AsyncAIProvider
 }
 
 /**
- * Real deletion: running training canceled, provider-side weights deleted (a failure is logged and
- * reported, never blocks the rest), every stored object under the model prefix (consent selfie,
- * training photos, zips) removed, then the row (cascades photos, consent records, shares; jobs and
- * media keep their rows with modelId = null). Sends a confirmation email.
+ * Real deletion: running training canceled, provider-side weights deleted (a failure, or a provider
+ * that can't delete files such as fal, is logged and reported as `providerDeleted: false` with the
+ * reason, never blocks the rest), every stored object under the model prefix (consent selfie,
+ * training photos, zips, our copy of the trained weights) removed, the weights reference scrubbed
+ * from the model's jobs, then the row (cascades photos, consent records, shares; jobs and media keep
+ * their rows with modelId = null). Sends a confirmation email that states what happened to the
+ * provider's copy.
  * Throws not_found for unknown / foreign models; a storage failure throws and leaves the model in
  * status "deleting" so the request can be retried.
  */
@@ -159,6 +184,8 @@ export async function deleteModelCompletely(
 
   let providerDeleted = true;
   let providerError: string | undefined;
+  /** Owner-facing explanation (only for errors whose message is written for users). */
+  let providerNote: string | undefined;
   if (model.provider && model.providerModelRef) {
     try {
       const provider = getAIProvider(model.provider);
@@ -167,11 +194,18 @@ export async function deleteModelCompletely(
     } catch (err) {
       providerDeleted = false;
       providerError = (err instanceof Error ? err.message : String(err)).slice(0, 500);
+      if (err instanceof ProviderDeletionUnsupportedError) providerNote = providerError;
       console.error(`[models] provider-side deletion failed for ${model.id} (${model.provider}): ${providerError}`);
     }
   }
 
+  // Includes our copy of the trained weights (metadata.weights, see ./weights.ts).
   const storageObjectsDeleted = await getStorage().deletePrefix(storageKeys.modelPrefix(userId, model.id));
+  // Jobs outlive the model (modelId → null): drop the weights reference from their output.
+  await db
+    .update(jobs)
+    .set({ output: sql`${jobs.output} - 'modelRef'` })
+    .where(and(eq(jobs.userId, userId), eq(jobs.modelId, model.id), sql`${jobs.output} ? 'modelRef'`));
   await db.delete(identityModels).where(owned);
 
   if (opts.notify ?? true) {
@@ -179,7 +213,14 @@ export async function deleteModelCompletely(
     if (owner?.email) {
       // Lazy: email templates are heavy and most importers of this module never send mail.
       const { sendEmailSafe } = await import("@/server/email");
-      await sendEmailSafe("model_deleted", owner.email, { modelName: model.name }, { userId });
+      // The email must not claim the provider's copy is gone when it isn't (SAF-7).
+      const providerCopy = !model.providerModelRef ? "none" : providerDeleted ? "deleted" : "not_deleted";
+      await sendEmailSafe(
+        "model_deleted",
+        owner.email,
+        { modelName: model.name, providerCopy, ...(providerNote ? { providerNote } : {}) },
+        { userId },
+      );
     }
   }
   return { providerDeleted, ...(providerError ? { providerError } : {}), storageObjectsDeleted };

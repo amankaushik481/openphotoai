@@ -22,7 +22,13 @@ export interface EmailTemplates {
   receipt: { name: string; description: string; amount: string; credits: number; url: string };
   deletion_confirm_request: { url: string; expiresInHours: number };
   deletion_completed: { summary: string };
-  model_deleted: { modelName: string };
+  model_deleted: {
+    modelName: string;
+    /** What happened to the AI provider's copy of the trained weights (omitted = nothing to say). */
+    providerCopy?: "none" | "deleted" | "not_deleted";
+    /** Why the provider's copy wasn't deleted (e.g. "expires automatically within 24 hours"). */
+    providerNote?: string;
+  };
   multi_person_invite: { inviterName: string; message?: string | null; url: string };
   team_invite: { inviterName: string; teamName: string; url: string };
   account_suspended: { reason: string };

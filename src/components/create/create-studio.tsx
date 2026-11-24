@@ -91,7 +91,8 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
   const identityMode = resolveIdentityMode(model ?? (modelId ? { id: modelId } : null), modelModes);
   const cost = generateCost({ quality, numImages, mode: identityMode });
   const selectedPack = packs.find((p) => p.slug === packId);
-  const draftBlocked = quality === "draft" && draftsLeft <= 0;
+  // The daily allowance counts draft images, so a 4-draft request needs 4 left.
+  const draftBlocked = quality === "draft" && draftsLeft < numImages;
 
   const submitLabel = submitting
     ? "Starting…"
@@ -122,7 +123,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
     setError(null);
     try {
       await session.submit(built.body, jobTitle({ mode, prompt, pack: selectedPack, quality }));
-      if (quality === "draft") spendDraft();
+      if (quality === "draft") spendDraft(numImages);
       scrollToResults(resultsRef.current);
     } catch (err) {
       const friendly = describeApiError(err, { draft: quality === "draft", nextPath: NEXT_PATH });

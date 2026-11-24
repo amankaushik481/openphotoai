@@ -464,3 +464,27 @@ If you change `src/db/schema.ts` yourself, create a migration with `pnpm db:gene
 | Uploads fail with 413 | Raise the reverse proxy's body size limit. On Vercel, API clients must keep uploads under 4.5 MB (the web app resizes before uploading). |
 | Everyone was signed out after a restart (Docker) | The `app-data` volume holding the generated secret was removed. Set `BETTER_AUTH_SECRET` explicitly. |
 | Users must redo their consent selfie | `FACE_PROVIDER` changed: embeddings from different face models aren't comparable, so they never match (by design). |
+
+## Demo mode
+
+`DEMO_MODE=true` turns a deployment into a public, one-click demo. It only starts with mock AI and mock payments
+(`MOCK_PROVIDERS=true`, or `AI_PROVIDER=mock` + `PAYMENT_PROVIDER=mock`), so nobody can spend real provider money
+through it. With it on:
+
+- The landing page hero and `/login` show **Try the live demo**. Each click (`POST /api/demo/login`) creates a fresh
+  account `demo+<random>@demo.invalid` named "Demo user" with 300 credits (ledger reason `admin_adjust`, note
+  `demo`), a ready Instant identity model built from synthetic selfies rendered by the mock provider (they still go
+  through the consent, photo-quality and safety checks; the consent record says `captureMethod: "demo-seed"`), and
+  starts one 6-image LinkedIn Headshots batch. The visitor is signed in (a normal Better Auth session) and lands on
+  that batch, which fills in within seconds.
+- Demo accounts see a dismissible "You're in a demo — data is deleted after 24h" banner in the app.
+- Maintenance (`/api/cron/maintenance` or the Docker `worker`) deletes demo accounts older than 24 hours with the
+  regular account deletion (models, storage, rows), up to 25 per run. It keeps doing so after you turn demo mode
+  off, so no demo data is left behind. `.invalid` is a reserved domain, so a real account can never match.
+- Abuse limits: 5 demo accounts per IP per hour and 120 per hour for the whole deployment
+  (`demoLoginsPerHourPerIp`, `demoLoginsPerHour` in `src/config/rate-limits.ts`). Set `TRUSTED_PROXY_HOPS` behind a
+  reverse proxy, or every visitor shares one IP bucket. Cross-site POSTs are refused.
+- With `DEMO_MODE` off, `/api/demo/login` answers 404 and no demo button is shown. The landing page is static, so
+  its button asks `GET /api/demo/login` at runtime (cached for 5 minutes) whether to appear.
+
+Size the storage volume for it: every demo account stores a few MB (selfies plus the first batch) for a day.

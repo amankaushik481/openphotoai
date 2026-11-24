@@ -49,19 +49,24 @@ export async function expirePendingDeletionRequests(now: Date): Promise<number> 
   return rows.length;
 }
 
+/**
+ * Rows affected by a write without RETURNING (postgres-js: `count`, PGlite: `affectedRows`). Prunes can
+ * delete 10^5+ rows; returning every key only to count them would load them all into memory.
+ */
+function affectedRows(result: unknown): number {
+  const r = (result ?? {}) as { count?: unknown; affectedRows?: unknown; rowCount?: unknown };
+  const n = r.count ?? r.affectedRows ?? r.rowCount;
+  return typeof n === "number" ? n : 0;
+}
+
 export async function pruneRateLimitWindows(now: Date): Promise<number> {
   const cutoff = new Date(now.getTime() - RATE_LIMIT_RETENTION_DAYS * DAY_MS);
-  const rows = await db
-    .delete(rateLimits)
-    .where(lt(rateLimits.windowStart, cutoff))
-    .returning({ key: rateLimits.key });
-  return rows.length;
+  return affectedRows(await db.delete(rateLimits).where(lt(rateLimits.windowStart, cutoff)));
 }
 
 export async function pruneEmailOutbox(now: Date): Promise<number> {
   const cutoff = new Date(now.getTime() - EMAIL_OUTBOX_RETENTION_DAYS * DAY_MS);
-  const rows = await db.delete(emailOutbox).where(lt(emailOutbox.createdAt, cutoff)).returning({ id: emailOutbox.id });
-  return rows.length;
+  return affectedRows(await db.delete(emailOutbox).where(lt(emailOutbox.createdAt, cutoff)));
 }
 
 export async function runMaintenance(now: Date = new Date()): Promise<MaintenanceResult> {

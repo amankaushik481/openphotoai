@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { APP } from "@/config/app";
+import { focusOnMount } from "@/lib/a11y";
 import { ApiClientError, api } from "@/lib/api-client";
 import { REPORT_DETAILS_MAX, type ReportReason } from "@/server/gallery/dto";
 import { errorMessage } from "@/i18n";
@@ -103,9 +104,12 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
       </DialogTrigger>
       <DialogContent>
         {done ? (
-          <div className="flex flex-col items-center gap-3 py-4 text-center" role="status">
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
             <CircleCheckIcon aria-hidden="true" className="size-10 text-emerald-500" />
-            <DialogTitle>Thanks — we received your report</DialogTitle>
+            {/* The form (and its focused submit button) was replaced: focus the new title so it's announced. */}
+            <DialogTitle tabIndex={-1} ref={focusOnMount} className="focus:outline-hidden">
+              Thanks — we received your report
+            </DialogTitle>
             <DialogDescription>
               Our team reviews every report. Reports about non-consensual or harmful content are handled first.
               {email.trim() ? " We'll use your email if we need to follow up." : ""} For urgent takedowns, email{" "}

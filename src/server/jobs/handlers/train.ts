@@ -23,6 +23,7 @@ import { providerInputUrl } from "@/server/media/service";
 import { bestAcceptedPhotos, coverKeyFor } from "@/server/models/photos";
 import { minPhotosFor } from "@/server/models/readiness";
 import { getOwnedModel } from "@/server/models/service";
+import { copyWeightsToStorage, setWeightsSql, shouldCopyWeights } from "@/server/models/weights";
 import {
   assertTrainable,
   setModeSql,
@@ -137,6 +138,13 @@ export default defineHandler({
     // Thrown errors are retried by the engine and then fail the job (with a refund).
     if (!modelRef) throw new Error("The training provider returned no model reference.");
 
+    // Providers that can't delete files (fal): keep our own copy of the weights under the model's
+    // storage prefix, so deleting the model really deletes them (SAF-7). A failed copy throws (retried).
+    const weights =
+      job.modelId && shouldCopyWeights(job.provider, modelRef)
+        ? await copyWeightsToStorage({ userId: job.userId, modelId: job.modelId, jobId: job.id, modelRef })
+        : null;
+
     const [model] = job.modelId
       ? await db
           .update(identityModels)
@@ -146,6 +154,7 @@ export default defineHandler({
             providerModelRef: modelRef,
             trainedAt: new Date(),
             coverMediaKey: await coverKeyFor({ id: job.modelId, userId: job.userId }),
+            ...(weights ? { metadata: setWeightsSql(weights) } : {}),
           })
           .where(
             and(
@@ -162,6 +171,7 @@ export default defineHandler({
       await notifyOwner(job, model, { template: "model_ready" });
     } else {
       await discardWeights(job.provider, modelRef, job.id);
+      if (weights) await getStorage().delete(weights.key).catch(() => undefined);
     }
     await deleteTrainingZip(job);
     return { mediaIds: [], blockedCount: 0, extra: { modelRef } };

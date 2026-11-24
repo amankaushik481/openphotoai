@@ -23,8 +23,8 @@ export function useDraftAllowance(initial: number) {
 
   return {
     draftsLeft,
-    /** A draft job was accepted. */
-    spend: React.useCallback(() => settle(draftsLeft - 1), [settle, draftsLeft]),
+    /** A draft job for `images` draft images was accepted (the allowance counts images, not jobs). */
+    spend: React.useCallback((images = 1) => settle(draftsLeft - images), [settle, draftsLeft]),
     /** The server said the daily allowance is used up. */
     exhaust: React.useCallback(() => settle(0), [settle]),
   };

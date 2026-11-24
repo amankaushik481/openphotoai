@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { APP } from "@/config/app";
+import { focusOnMount } from "@/lib/a11y";
 import { api, apiErrorText } from "@/lib/api-client";
 import type { ApiKeyDTO, ApiKeyScope } from "@/types/domain";
 
@@ -340,7 +341,9 @@ function CreateKeyDialog({
               </DialogDescription>
             </DialogHeader>
             <div className="flex items-center gap-2">
+              {/* The form was replaced by this view: move focus to the key (it selects itself for copying). */}
               <Input
+                ref={focusOnMount}
                 readOnly
                 value={secret}
                 aria-label="New API key"

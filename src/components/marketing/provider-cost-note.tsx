@@ -78,6 +78,7 @@ export function ProviderCostNote() {
         >
           <GithubIcon className="size-4" />
           Get the source
+          <span className="sr-only">(opens in a new tab)</span>
         </a>
       </div>
     </div>

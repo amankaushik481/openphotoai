@@ -84,7 +84,8 @@ export function CodeBlock({ code, label, language }: { code: string; label: stri
 /** Simple responsive table (horizontal scroll on small screens). */
 export function DocTable({ caption, head, children }: { caption: string; head: string[]; children: React.ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    // Focusable, named scroller: Safari keyboard users can scroll wide tables (WCAG 2.1.1).
+    <div tabIndex={0} role="region" aria-label={caption} className="overflow-x-auto rounded-lg border [--focus-offset:-2px]">
       {/* Cell padding via descendant selectors keeps the (long) reference tables light. */}
       <table className="w-full text-left text-sm [&_td]:px-3 [&_td]:py-2">
         <caption className="sr-only">{caption}</caption>

@@ -18,7 +18,7 @@ import type {
   TrainingProvider,
   VideoProvider,
 } from "@/providers/types";
-import { AudioTooLongError, ProviderRequestError } from "@/providers/ai/shared/errors";
+import { AudioTooLongError, ProviderDeletionUnsupportedError, ProviderRequestError } from "@/providers/ai/shared/errors";
 import { fetchOutputBytes } from "@/providers/ai/shared/fetch-output";
 import { parsePromptHelperOutput } from "@/providers/ai/shared/prompt-helper";
 import { buildTemplatePrompt } from "@/providers/ai/shared/prompt-template";
@@ -53,8 +53,12 @@ export interface FalProviderOptions {
 
 /** Generated outputs are copied into our storage within minutes; 7 days leaves room for slow polling. */
 const OUTPUT_LIFECYCLE: StorageSettings = { expiresIn: "7d" };
-/** The trained LoRA file *is* the identity model (modelRef): it must not expire. */
-const MODEL_LIFECYCLE: StorageSettings = { expiresIn: "never" };
+/**
+ * Training outputs (the LoRA file). fal has no API to delete stored files, so they must NOT live
+ * forever: the job engine copies the weights into our own storage when training completes
+ * (src/server/models/weights.ts), generation uses that copy, and fal's copy expires after a day.
+ */
+const MODEL_LIFECYCLE: StorageSettings = { expiresIn: "1d" };
 /** Inputs we upload (selfie zips, references) only need to live until the job has read them. */
 const INPUT_LIFECYCLE: StorageSettings = { expiresIn: "1d" };
 
@@ -172,16 +176,13 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
       return submit("train", buildTrainingInput(input), submitOpts, MODEL_LIFECYCLE);
     },
 
-    async deleteModel(modelRef) {
-      // fal has no API to delete a trained LoRA file (docs/MODELS.md lists none); it lives at an unguessable
-      // CDN URL. Our own copies and references are removed by the models service. Best-effort no-op.
-      let host = "unknown host";
-      try {
-        host = new URL(modelRef).host;
-      } catch {
-        /* not a URL */
-      }
-      console.info(`[fal] deleteModel: provider-side LoRA files cannot be deleted via API (${host}); skipping.`);
+    async deleteModel() {
+      // fal has no API to delete a stored file (docs/MODELS.md lists none). Report it honestly: the models
+      // service records `providerDeleted: false` with this reason. Our copy (under the model's storage
+      // prefix) is deleted there; fal's copy expires on its own (MODEL_LIFECYCLE).
+      throw new ProviderDeletionUnsupportedError(
+        "fal can't delete stored files; its copy of the trained model expires automatically within 24 hours of training",
+      );
     },
 
     /* ───────────── Images ───────────── */

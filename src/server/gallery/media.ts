@@ -2,7 +2,7 @@
  * Gallery queries + mutations on the user's media. Every query is scoped by `userId` and excludes
  * deleted/removed media, so ids belonging to someone else behave exactly like missing ids (404).
  */
-import { and, asc, count, desc, eq, gt, inArray, isNull, lt, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { media, shareLinks } from "@/db/schema";
@@ -81,8 +81,12 @@ function filterConditions(userId: string, f: MediaFilters, opts: { ignoreHidden?
   return conds;
 }
 
-/** Postgres keeps microseconds but JS Dates (and so cursors) keep milliseconds: compare at ms precision. */
-const createdMs = sql`date_trunc('milliseconds', ${media.createdAt})`;
+/**
+ * Postgres keeps microseconds but JS Dates (and so cursors) keep milliseconds: compare at ms precision.
+ * The explicit 'UTC' makes the expression immutable, so it is indexed (media_user_created_ms_idx) and
+ * pages stay O(page size) instead of sorting the user's whole history.
+ */
+const createdMs = sql`date_trunc('milliseconds', ${media.createdAt}, 'UTC')`;
 
 function encodeCursor(row: Pick<MediaRow, "createdAt" | "id">): string {
   return Buffer.from(`${row.createdAt.toISOString()}|${row.id}`).toString("base64url");
@@ -106,13 +110,14 @@ function tsParam(d: Date): SQL {
 /** Rows strictly older than `c` in (createdAt desc, id desc) order. */
 function olderThan(c: { createdAt: Date; id: string }): SQL {
   const at = tsParam(c.createdAt);
-  return or(sql`${createdMs} < ${at}`, and(sql`${createdMs} = ${at}`, lt(media.id, c.id)))!;
+  // Row comparison (= ms < at or (ms = at and id < c.id)) is usable as an index range condition.
+  return sql`(${createdMs}, ${media.id}) < (${at}, ${c.id})`;
 }
 
 /** Rows strictly newer than `c` in (createdAt desc, id desc) order. */
 function newerThan(c: { createdAt: Date; id: string }): SQL {
   const at = tsParam(c.createdAt);
-  return or(sql`${createdMs} > ${at}`, and(sql`${createdMs} = ${at}`, gt(media.id, c.id)))!;
+  return sql`(${createdMs}, ${media.id}) > (${at}, ${c.id})`;
 }
 
 export interface MediaPage {

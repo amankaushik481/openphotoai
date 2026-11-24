@@ -114,6 +114,9 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
       <div className="flex flex-col gap-3">
         <CostHint input={input} />
         {!painted && <p className="text-sm text-muted-foreground">Paint a mask on the photo to continue.</p>}
+        {painted && !valid && (
+          <p className="text-sm text-muted-foreground">Describe what should appear in the brushed area to continue.</p>
+        )}
         <Button type="submit" variant="brand" size="lg" disabled={!valid || !painted || pending} className="w-full">
           {pending ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <BrushIcon aria-hidden="true" />}
           {pending ? "Starting…" : "Repaint area"}

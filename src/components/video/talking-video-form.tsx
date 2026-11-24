@@ -80,7 +80,11 @@ export function TalkingVideoForm({ source, onChooseSource, onCreated }: TalkingV
           aria-invalid={stats.tooLong || undefined}
           aria-describedby={`${scriptId}-stats`}
         />
-        <div id={`${scriptId}-stats`} className="flex flex-col gap-1.5" aria-live="polite">
+        {/* Not a live region (it changes on every keystroke); crossing the limit is announced once below. */}
+        <p className="sr-only" role="status">
+          {stats.tooLong ? `Script too long: trim it to about ${MAX_TALKING_WORDS} words.` : ""}
+        </p>
+        <div id={`${scriptId}-stats`} className="flex flex-col gap-1.5">
           <Progress
             value={Math.min(100, (stats.seconds / MAX_TALKING_SECONDS) * 100)}
             aria-label="Script length"

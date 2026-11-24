@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ReportDialog } from "@/components/gallery/report-dialog";
 import { APP } from "@/config/app";
 import type { PublicMediaDTO } from "@/server/gallery/dto";
+import { runAfterResponse } from "@/server/after";
 import { incrementShareViews, resolveShare, toPublicMediaDTO } from "@/server/gallery/share";
 import { signedUrl } from "@/server/storage";
 
@@ -115,7 +116,9 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
   const share = await getShare(token);
   if (!share) notFound();
 
-  await incrementShareViews(share.link.id);
+  // The view counter is a write: don't hold the page for it.
+  const linkId = share.link.id;
+  await runAfterResponse("share view counter", () => incrementShareViews(linkId));
   const items = await Promise.all(share.media.map((m) => toPublicMediaDTO(m)));
 
   if (share.folderName === null) {
@@ -161,7 +164,7 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block [--focus-offset:-5px] focus-visible:outline-background focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
-                  aria-label={`Open photo ${i + 1} in full size`}
+                  aria-label={`Open photo ${i + 1} in full size (opens in a new tab)`}
                 >
                   <SharedItem item={item} priority={i < 2} className="h-auto w-full" />
                 </a>

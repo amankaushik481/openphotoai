@@ -177,14 +177,12 @@ describe("try-on lifecycle (mock provider)", () => {
     expect(await getBalance(u.id)).toBe(20 - CREDIT_COSTS.tryOn);
   });
 
-  it("applies the likeness guarantee: a result that doesn't look like you is hidden and refunded", async () => {
+  it("applies the likeness guarantee: a result that doesn't look like you is refunded and discarded (PAY-7)", async () => {
     safetyState.defaultLikeness = 0.2;
     const job = await createJob(u, tryOn());
     const done = await syncJob(job.id);
-    expect(done.status).toBe("succeeded");
-    const [result] = await db.select().from(media).where(eq(media.jobId, job.id));
-    expect(result!.hidden).toBe(true);
-    expect(result!.scores?.likeness).toBeCloseTo(0.2);
+    expect(done).toMatchObject({ status: "failed", errorCode: "low_likeness" });
+    expect(await db.select().from(media).where(eq(media.jobId, job.id))).toHaveLength(0);
     expect(done.creditsRefunded).toBe(CREDIT_COSTS.tryOn);
     expect(await getBalance(u.id)).toBe(20);
   });

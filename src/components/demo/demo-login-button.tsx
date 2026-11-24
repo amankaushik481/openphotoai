@@ -23,7 +23,13 @@ interface DemoLoginButtonProps {
 }
 
 /** "Try the live demo": creates a throwaway demo account, signs in and opens its first batch. */
-export function DemoLoginButton({ probe = false, variant = "outline", size = "lg", className, label = "Try the live demo" }: DemoLoginButtonProps) {
+export function DemoLoginButton({
+  probe = false,
+  variant = "outline",
+  size = "lg",
+  className,
+  label = "Try the live demo",
+}: DemoLoginButtonProps) {
   const { data } = useSWR<{ enabled: boolean }>(probe ? DEMO_LOGIN_PATH : null, fetcher, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,

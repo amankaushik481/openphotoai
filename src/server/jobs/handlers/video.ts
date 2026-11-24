@@ -9,6 +9,7 @@ import { getVideoProvider } from "@/providers/registry";
 import { errors } from "@/server/http";
 import { getOwnedMedia, providerInputUrl } from "@/server/media/service";
 import type { AspectRatio } from "@/types/domain";
+import { assertSoloSource } from "../lineage";
 import { defineHandler } from "./types";
 
 /** Persisted on jobs.output.plan (JSON). `prompt` is also the default-ingestion media prompt. */
@@ -35,6 +36,8 @@ export default defineHandler({
 
   async plan({ user, input }) {
     const source = await getVideoSourcePhoto(user.id, input.sourceMediaId);
+    // The other person in a Together photo consented to photos, not to being animated (SAF-12).
+    await assertSoloSource(user.id, source, "Videos can only be made from photos of you alone, not Together photos.");
     const userPrompt = input.prompt?.trim() ?? "";
     const data: VideoPlanData = {
       prompt: userPrompt || DEFAULT_MOTION_PROMPT,

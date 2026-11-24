@@ -10,7 +10,17 @@ import { NextRequest } from "next/server";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, POST } from "@/app/api/demo/login/route";
 import { db } from "@/db";
-import { batches, consentRecords, creditLedger, identityModels, jobs, media, session, trainingPhotos, user } from "@/db/schema";
+import {
+  batches,
+  consentRecords,
+  creditLedger,
+  identityModels,
+  jobs,
+  media,
+  session,
+  trainingPhotos,
+  user,
+} from "@/db/schema";
 import { resetEnvCache } from "@/lib/env";
 import { createLocalStorage } from "@/providers/storage/local";
 import { setProviderOverrides } from "@/providers/registry";
@@ -30,7 +40,8 @@ vi.mock("@/server/packs/registry", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/server/packs/registry")>();
   return {
     ...actual,
-    getPack: async (slug: string) => (packs.hideDemoPack && slug === "linkedin-headshots" ? null : actual.getPack(slug)),
+    getPack: async (slug: string) =>
+      packs.hideDemoPack && slug === "linkedin-headshots" ? null : actual.getPack(slug),
   };
 });
 

@@ -120,6 +120,18 @@ describe("transferCredits", () => {
     expect(await getBalance(member.id)).toBe(65);
   });
 
+  it("an Idempotency-Key makes retries the same transfer; reusing it for another transfer conflicts (PAY-18)", async () => {
+    const first = await transferCredits(owner, teamId, member.id, 30, { idempotencyKey: "retry-1" });
+    const replay = await transferCredits(owner, teamId, member.id, 30, { idempotencyKey: "retry-1" });
+    expect(replay).toMatchObject({ transferId: first.transferId, amount: 30, balance: 70 });
+    expect(await getBalance(owner.id)).toBe(70);
+    expect(await getBalance(member.id)).toBe(35);
+    expect(await code(transferCredits(owner, teamId, member.id, 31, { idempotencyKey: "retry-1" }))).toBe("conflict");
+    // Keys are per owner: the same key from another call without a key is a new transfer.
+    await transferCredits(owner, teamId, member.id, 10);
+    expect(await getBalance(member.id)).toBe(45);
+  });
+
   it("only the owner can transfer (members and admins can't)", async () => {
     expect(await code(transferCredits(member, teamId, owner.id, 1))).toBe("forbidden");
     await updateMemberRole(owner.id, teamId, memberRowId, "admin");

@@ -65,6 +65,7 @@ export function persistedSecret(file) {
   return { secret, created: true };
 }
 
+/** @param {Record<string, string | undefined>} [env] */
 export function resolveAuthSecret(env = process.env) {
   const current = env.BETTER_AUTH_SECRET?.trim();
   if (!isPlaceholderSecret(current)) return { secret: current, source: "env" };

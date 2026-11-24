@@ -86,7 +86,9 @@ describe("SEC-7: update-user is disabled", () => {
 
 describe("SEC-8: account linking + team invites", () => {
   it("doesn't trust Google blindly for account linking (email_verified is checked)", () => {
-    expect(getAuth().options.account?.accountLinking?.trustedProviders).toBeUndefined();
+    const linking = getAuth().options.account?.accountLinking as { enabled?: boolean; trustedProviders?: unknown };
+    expect(linking.enabled).toBe(true);
+    expect(linking.trustedProviders).toBeUndefined();
   });
 
   it("refuses a team invite for an unverified email address", async () => {

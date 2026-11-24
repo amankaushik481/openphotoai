@@ -24,7 +24,7 @@ export function SchemaTable({ schema, caption }: { schema: JsonSchema; caption: 
           <td className="min-w-[14rem] text-muted-foreground">
             {row.description ? <InlineMarkdown text={row.description} /> : null}
             {row.constraints.length > 0 && (
-              <span className="mt-0.5 block text-xs text-muted-foreground/80">{row.constraints.join(" · ")}</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">{row.constraints.join(" · ")}</span>
             )}
           </td>
         </tr>

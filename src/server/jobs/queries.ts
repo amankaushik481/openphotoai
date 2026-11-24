@@ -1,5 +1,5 @@
 /** Read helpers for jobs: DTO mapping (batched media loading) + cursor pagination. */
-import { and, desc, eq, inArray, isNull, lt, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { jobs, media } from "@/db/schema";
@@ -88,8 +88,11 @@ function decodeCursor(cursor: string): { createdAt: Date; id: string } {
   return { createdAt, id };
 }
 
-/** Postgres keeps microseconds but JS Dates (and so cursors) keep milliseconds: compare at ms precision. */
-const createdMs = sql`date_trunc('milliseconds', ${jobs.createdAt})`;
+/**
+ * Postgres keeps microseconds but JS Dates (and so cursors) keep milliseconds: compare at ms precision.
+ * The explicit 'UTC' makes the expression immutable, so it is indexed (jobs_user_created_ms_idx).
+ */
+const createdMs = sql`date_trunc('milliseconds', ${jobs.createdAt}, 'UTC')`;
 
 /** Newest-first page of the user's jobs. */
 export async function listJobsForUser(userId: string, q: ListJobsQuery): Promise<{ jobs: JobRow[]; nextCursor: string | null }> {
@@ -101,7 +104,8 @@ export async function listJobsForUser(userId: string, q: ListJobsQuery): Promise
     const c = decodeCursor(q.cursor);
     // ISO string + cast: the postgres-js driver rejects bare Date parameters in raw `sql` templates.
     const at = sql`${c.createdAt.toISOString()}::timestamptz`;
-    conds.push(or(sql`${createdMs} < ${at}`, and(sql`${createdMs} = ${at}`, lt(jobs.id, c.id))));
+    // Row comparison (= ms < at or (ms = at and id < c.id)) is usable as an index range condition.
+    conds.push(sql`(${createdMs}, ${jobs.id}) < (${at}, ${c.id})`);
   }
   const rows = await db
     .select()

@@ -122,10 +122,29 @@ export async function getOwnedUpload(userId: string, uploadId: string, purpose?:
 export async function providerInputUrl(storageKey: string, contentType?: string): Promise<string> {
   const storage = getStorage();
   if (storage.publiclyReachable) return storage.getSignedUrl(storageKey, { expiresInSec: PROVIDER_INPUT_URL_TTL_SEC });
-  const bytes = await storage.get(storageKey);
-  const filename = storageKey.split("/").pop();
-  return getImageProvider().uploadInput(bytes, contentType ?? mimeForKey(storageKey), filename);
+  const provider = getImageProvider();
+  // Objects are immutable: reuse a recent upload of the same object (a 40-job instant-mode batch would
+  // otherwise upload the same 4 reference photos 40 times). In-flight uploads are shared too.
+  const memoKey = `${provider.name}\u0000${contentType ?? ""}\u0000${storageKey}`;
+  const now = Date.now();
+  const hit = uploadedInputs.get(memoKey);
+  if (hit && now - hit.at < UPLOADED_INPUT_REUSE_MS) return hit.url;
+  const url = (async () => {
+    const bytes = await storage.get(storageKey);
+    return provider.uploadInput(bytes, contentType ?? mimeForKey(storageKey), storageKey.split("/").pop());
+  })();
+  uploadedInputs.delete(memoKey);
+  if (uploadedInputs.size >= UPLOADED_INPUT_MEMO_MAX) uploadedInputs.delete(uploadedInputs.keys().next().value!);
+  uploadedInputs.set(memoKey, { url, at: now });
+  url.catch(() => uploadedInputs.delete(memoKey));
+  return url;
 }
+
+/** Provider-side copies of stored objects (local storage that providers can't reach). */
+const uploadedInputs = new Map<string, { url: Promise<string>; at: number }>();
+/** Well below the providers' own retention of uploaded inputs (hours to days). */
+const UPLOADED_INPUT_REUSE_MS = 30 * 60_000;
+const UPLOADED_INPUT_MEMO_MAX = 500;
 
 export interface IngestResult {
   mediaIds: string[];

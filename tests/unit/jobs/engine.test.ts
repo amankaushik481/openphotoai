@@ -274,23 +274,41 @@ describe("credits and refunds", () => {
     expect(events[0]!.jobId).toBe(job.id);
   });
 
-  it("applies the likeness guarantee (hide + refund) and the best-shots picker", async () => {
+  it("applies the likeness guarantee (refund + discard) and the best-shots picker", async () => {
     safetyState.likeness = [0.92, 0.3, 0.9, 0.88];
     const job = await createJob(u, gen({ numImages: 4 }));
     const done = await syncJob(job.id);
     expect(done.status).toBe("succeeded");
+    // PAY-7: the refunded photo is not kept (a hidden one could be unhidden, downloaded or shared).
     const rows = await jobMedia(job.id);
-    expect(rows).toHaveLength(4);
-    const low = rows.find((r) => r.scores?.likeness === 0.3)!;
-    expect(low.hidden).toBe(true);
+    expect(rows).toHaveLength(3);
+    expect(rows.some((r) => r.scores?.likeness === 0.3)).toBe(false);
     expect(rows.filter((r) => !r.hidden).length).toBeGreaterThanOrEqual(2);
+    // The discarded photo is neither "missing" nor refunded twice.
     expect(done.creditsRefunded).toBe(1);
     const refunds = await db.select().from(creditLedger).where(and(eq(creditLedger.jobId, job.id), eq(creditLedger.reason, "job_refund")));
     expect(refunds).toHaveLength(1);
     expect(refunds[0]!.idempotencyKey).toBe(`job:${job.id}:refund:likeness:1`);
     // Visible shots come first in the DTO.
     const dto = await toJobDTO(done);
-    expect(dto.media.at(-1)!.hidden).toBe(true);
+    expect(dto.media[0]!.hidden).toBe(false);
+  });
+
+  it("fails (fully refunded) when every paid result is discarded for low likeness (PAY-7)", async () => {
+    safetyState.likeness = [0.1, 0.2];
+    const job = await createJob(u, gen({ numImages: 2 }));
+    const done = await syncJob(job.id);
+    expect(done).toMatchObject({ status: "failed", errorCode: "low_likeness", creditsRefunded: done.creditsCharged });
+    expect(await jobMedia(job.id)).toHaveLength(0);
+  });
+
+  it("keeps (hidden) low-likeness free drafts: nothing was refunded", async () => {
+    safetyState.likeness = [0.1];
+    const job = await createJob(u, gen({ numImages: 1, quality: "draft" }));
+    const done = await syncJob(job.id);
+    expect(done.status).toBe("succeeded");
+    const [row] = await jobMedia(job.id);
+    expect(row).toMatchObject({ hidden: true, isDraft: true });
   });
 
   it("cancels a running job with a refund", async () => {

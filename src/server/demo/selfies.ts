@@ -46,8 +46,21 @@ async function renderSet(): Promise<Uint8Array[]> {
 }
 
 async function renderSelfie(seed: number): Promise<Uint8Array> {
-  const [{ default: sharp }, { renderMockImage }] = await Promise.all([import("sharp"), import("@/providers/mock/render")]);
-  const payload: MockPayload = { k: "gen", p: "Demo selfie", ar: "4:5", n: 1, q: "standard", L: LONG_SIDE, s: seed, f: 0, r: "" };
+  const [{ default: sharp }, { renderMockImage }] = await Promise.all([
+    import("sharp"),
+    import("@/providers/mock/render"),
+  ]);
+  const payload: MockPayload = {
+    k: "gen",
+    p: "Demo selfie",
+    ar: "4:5",
+    n: 1,
+    q: "standard",
+    L: LONG_SIDE,
+    s: seed,
+    f: 0,
+    r: "",
+  };
   const png = await renderMockImage(payload, 0);
   const { data, info } = await sharp(png).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   addLumaNoise(data, mulberry32(seed));

@@ -75,7 +75,7 @@ export function PackCategoryFilter({
                   onClick={select(c.id)}
                   aria-current={current ? "true" : undefined}
                   className={cn(
-                    "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                    "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors [--focus-offset:-2px]",
                     current
                       ? "border-foreground bg-foreground text-background"
                       : "bg-card text-muted-foreground hover:text-foreground",

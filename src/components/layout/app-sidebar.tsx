@@ -14,8 +14,9 @@ export function AppSidebar({ isAdmin, className }: { isAdmin: boolean; className
   const pathname = usePathname();
   const t = useT();
 
+  // A plain container, not <aside>: the primary navigation isn't complementary content.
   return (
-    <aside
+    <div
       className={cn(
         "sticky top-0 h-dvh flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
         className,
@@ -27,10 +28,13 @@ export function AppSidebar({ isAdmin, className }: { isAdmin: boolean; className
       <nav aria-label={t("nav.mainNavigation")} className="flex-1 overflow-y-auto px-3 pb-4">
         {APP_NAV_GROUPS.map((group) => (
           <div key={group.labelKey} className="mt-4 first:mt-1">
-            <p className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+            <p
+              id={`nav-group-${group.labelKey.replace(/\W+/g, "-")}`}
+              className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+            >
               {t(group.labelKey)}
             </p>
-            <ul className="flex flex-col gap-0.5">
+            <ul aria-labelledby={`nav-group-${group.labelKey.replace(/\W+/g, "-")}`} className="flex flex-col gap-0.5">
               {group.items.map((nav) => (
                 <li key={nav.href}>
                   <SidebarLink item={nav} active={isNavActive(pathname, nav)} label={t(nav.labelKey)} />
@@ -56,9 +60,10 @@ export function AppSidebar({ isAdmin, className }: { isAdmin: boolean; className
         >
           <GithubIcon className="size-3.5" />
           {t("app.openSource")}
+          <span className="sr-only">(opens in a new tab)</span>
         </a>
       </div>
-    </aside>
+    </div>
   );
 }
 

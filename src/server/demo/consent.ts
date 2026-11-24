@@ -50,7 +50,11 @@ export async function seedDemoConsent(input: DemoConsentInput): Promise<Identity
           status: "collecting",
         })
         .where(
-          and(eq(identityModels.id, model.id), eq(identityModels.userId, user.id), eq(identityModels.status, "awaiting_consent")),
+          and(
+            eq(identityModels.id, model.id),
+            eq(identityModels.userId, user.id),
+            eq(identityModels.status, "awaiting_consent"),
+          ),
         )
         .returning();
       if (!row) throw errors.conflict("The demo model changed while it was being set up.");

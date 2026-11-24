@@ -47,6 +47,7 @@ export function MarketingMobileNav() {
               >
                 <GithubIcon className="size-4" />
                 {t(link.labelKey)}
+                <span className="sr-only">(opens in a new tab)</span>
               </a>
             ) : (
               <Link

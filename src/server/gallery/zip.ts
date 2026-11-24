@@ -28,6 +28,23 @@ export function zipEntryName(row: Pick<MediaRow, "id" | "createdAt" | "mimeType"
   return `${brandSlug()}-${row.createdAt.toISOString().slice(0, 10)}-${row.id}.${extForMime(row.mimeType)}`;
 }
 
+/**
+ * fflate writes classic ZIP (no ZIP64): offsets past 4 GiB silently corrupt the archive. Keep a margin
+ * for headers and files whose size isn't recorded.
+ */
+export const MAX_ZIP_BYTES = 3.5 * 1024 ** 3;
+
+/** Refuse selections whose archive would exceed MAX_ZIP_BYTES (checked before streaming starts). */
+export function assertZipSize(rows: ReadonlyArray<Pick<MediaRow, "bytes">>): void {
+  const total = rows.reduce((sum, r) => sum + (r.bytes || 0), 0);
+  if (total > MAX_ZIP_BYTES) {
+    throw new AppError(
+      "payload_too_large",
+      `That selection is ${(total / 1024 ** 3).toFixed(1)} GB; downloads are limited to 3.5 GB. Select fewer files.`,
+    );
+  }
+}
+
 /** `openshoot-2026-11-24.zip` */
 export function zipFileName(now = new Date()): string {
   return `${brandSlug()}-${now.toISOString().slice(0, 10)}.zip`;

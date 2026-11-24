@@ -114,8 +114,9 @@ export function GenerationResult({
             disabled={state !== undefined}
             onClick={() => onFullQuality(m, job)}
             aria-label={
+              // The name starts with the visible text (label in name, WCAG 2.5.3).
               state === "started"
-                ? "Full-quality version started"
+                ? "Rendering full-quality version"
                 : `Render this draft at full quality (${cost} ${plural(cost, "credit")})`
             }
           >

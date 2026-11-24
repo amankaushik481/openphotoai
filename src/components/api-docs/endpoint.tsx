@@ -58,7 +58,7 @@ function Parameters({ params }: { params: ParameterObject[] }) {
             <td className="min-w-[14rem] text-muted-foreground">
               {p.description && <InlineMarkdown text={p.description} />}
               {extra.length > 0 && (
-                <span className="mt-0.5 block text-xs text-muted-foreground/80">{extra.join(" · ")}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">{extra.join(" · ")}</span>
               )}
             </td>
           </tr>

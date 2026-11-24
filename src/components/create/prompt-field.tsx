@@ -162,7 +162,9 @@ export function PromptField({
           size="sm"
           variant="outline"
           onClick={improve}
-          disabled={improving || tooShort || tooLong}
+          // aria-disabled (not `disabled`) keeps it focusable so the reason (helper hint) can be read.
+          aria-disabled={improving || tooShort || tooLong || undefined}
+          className="aria-disabled:opacity-50"
           aria-describedby={helperHint ? `${fieldId}-helper` : undefined}
         >
           {improving ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" className="text-primary" />}
@@ -196,7 +198,7 @@ export function PromptField({
                 onClick={() => applySuggestion(s)}
                 title={s.text}
                 aria-label={s.kind === "append" ? `Add “${s.text}” to the prompt` : `Use suggested prompt: ${s.text}`}
-                className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60"
+                className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60 pointer-coarse:min-h-9 pointer-coarse:px-3"
               >
                 {s.kind === "append" ? (
                   <PlusIcon aria-hidden="true" className="size-3 shrink-0 text-primary" />

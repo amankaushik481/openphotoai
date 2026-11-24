@@ -9,7 +9,8 @@ import { uploads } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { newId } from "@/lib/ids";
 import { AppError, errors, readFormDataLimited } from "@/server/http";
-import { imageMetrics, normalizeImage } from "@/server/images/process";
+import { binarizeMask, blurRegions } from "@/server/images/blur-faces";
+import { normalizeImage } from "@/server/images/process";
 import { sniffImageType } from "@/server/media/sniff";
 import { assertReferenceImageAllowed } from "@/server/safety";
 import { getStorage, signedUrl, storageKeys } from "@/server/storage";
@@ -33,7 +34,8 @@ export interface UploadDTO {
 
 /**
  * Read a multipart request (`file`, `purpose`) and store the upload. References and garments are
- * normalized (EXIF/GPS stripped, re-encoded JPEG) and safety-checked; masks are kept as PNG.
+ * normalized (EXIF/GPS stripped, re-encoded JPEG), safety-checked and stored with every face blurred;
+ * masks are classified too and stored as a pure black/white PNG.
  */
 export async function createUploadFromRequest(req: Request, user: Pick<UserRow, "id">): Promise<{ upload: UploadDTO }> {
   let form: FormData;
@@ -63,18 +65,21 @@ export async function createUploadFromRequest(req: Request, user: Pick<UserRow, 
   let moderation: ModerationSnapshot | null = null;
   if (purpose.data === "mask") {
     if (type !== "image/png") throw errors.validation("Masks must be PNG images.");
-    const metrics = await imageMetrics(raw).catch(() => {
+    // The classifier runs on what was sent; only a pure black/white re-encode is stored (no content, no metadata).
+    ({ moderation } = await assertReferenceImageAllowed(raw, { userId: user.id, purpose: "mask" }));
+    ({ bytes, width, height } = await binarizeMask(raw).catch(() => {
       throw errors.validation("That mask image couldn't be read.");
-    });
-    ({ width, height } = metrics);
-    bytes = raw;
+    }));
     mimeType = "image/png";
   } else {
     const normalized = await normalizeImage(raw).catch(() => {
       throw errors.validation("That image couldn't be read. Try a JPEG or PNG.");
     });
-    ({ bytes, width, height, mimeType } = normalized);
-    ({ face, moderation } = await assertReferenceImageAllowed(bytes, { userId: user.id, purpose: purpose.data }));
+    ({ width, height, mimeType } = normalized);
+    const checked = await assertReferenceImageAllowed(normalized.bytes, { userId: user.id, purpose: purpose.data });
+    ({ face, moderation } = checked);
+    // A reference may show a real third party: their face never reaches a generator (SAF-13).
+    bytes = await blurRegions(normalized.bytes, checked.faceBoxes);
   }
 
   const id = newId("upl");

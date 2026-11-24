@@ -1,4 +1,9 @@
-/** Uploaded reference / garment / mask images: sexual content, minors, public figures. Fails closed. */
+/**
+ * Uploaded reference / garment / mask images: sexual content, minors, public figures. Fails closed.
+ * Every face must be verifiably adult (estimated >= SAFETY_POLICY.minReferenceAge, which includes an
+ * estimator margin; a face of unknown age is refused). The face boxes are returned so the caller can
+ * blur third-party faces before the image is ever sent to a generator.
+ */
 import type { DetectedFace } from "@/providers/types";
 import { AppError, errors } from "@/server/http";
 import type { FaceAnalysisSummary, ModerationSnapshot } from "@/types/domain";
@@ -17,7 +22,7 @@ type ReferenceContext = SafetyContext & { purpose: "reference" | "garment" | "ma
 export async function assertReferenceImageAllowed(
   bytes: Uint8Array,
   ctx: ReferenceContext,
-): Promise<{ face: FaceAnalysisSummary; moderation: ModerationSnapshot }> {
+): Promise<{ face: FaceAnalysisSummary; moderation: ModerationSnapshot; faceBoxes: DetectedFace["box"][] }> {
   const base = { purpose: ctx.purpose, sha256: hashBytes(bytes), bytes: bytes.byteLength };
 
   const moderation = await guard(ctx, base, "classifier", async () => {
@@ -28,12 +33,12 @@ export async function assertReferenceImageAllowed(
     }
     return snapshot(c);
   });
-  if (ctx.purpose === "mask") return { face: { count: 0 }, moderation };
+  if (ctx.purpose === "mask") return { face: { count: 0 }, moderation, faceBoxes: [] };
 
   const faces: DetectedFace[] = await guard(ctx, base, "faces", async () => (await analyzeFaces(bytes)).faces);
   const minors = facesUnder(faces, SAFETY_POLICY.minReferenceAge);
   if (minors.length > 0) {
-    await recordBlock("underage", ctx, { ...base, ages: minors.map((f) => f.age), minAge: SAFETY_POLICY.minReferenceAge });
+    await recordBlock("underage", ctx, { ...base, ages: minors.map((f) => f.age ?? null), minAge: SAFETY_POLICY.minReferenceAge });
     throw blocked(["minors"]);
   }
 
@@ -44,7 +49,7 @@ export async function assertReferenceImageAllowed(
       throw blocked(["public_figure"]);
     }
   }
-  return { face: summarizeFaces(faces), moderation };
+  return { face: summarizeFaces(faces), moderation, faceBoxes: faces.map((f) => ({ ...f.box })) };
 }
 
 function blocked(categories: readonly string[]): AppError {

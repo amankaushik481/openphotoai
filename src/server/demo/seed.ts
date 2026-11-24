@@ -18,13 +18,7 @@ import { applyCredit } from "@/server/credits/ledger";
 import { createModel } from "@/server/models/crud";
 import { addTrainingPhoto } from "@/server/models/photos";
 import { startTraining } from "@/server/models/training";
-import {
-  DEMO_BATCH_SIZE,
-  DEMO_CREDITS,
-  DEMO_PACK_SLUG,
-  DEMO_USER_NAME,
-  demoEmail,
-} from "./constants";
+import { DEMO_BATCH_SIZE, DEMO_CREDITS, DEMO_PACK_SLUG, DEMO_USER_NAME, demoEmail } from "./constants";
 import { seedDemoConsent } from "./consent";
 import { demoSelfies } from "./selfies";
 

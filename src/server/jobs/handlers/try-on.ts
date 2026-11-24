@@ -17,6 +17,7 @@ import { getImageProvider } from "@/providers/registry";
 import { errors } from "@/server/http";
 import { getOwnedMedia, getOwnedUpload, providerInputUrl } from "@/server/media/service";
 import type { TRY_ON_CATEGORIES } from "@/types/domain";
+import { assertGroupConsentActive } from "./edit";
 import { defineHandler } from "./types";
 
 export type TryOnCategory = (typeof TRY_ON_CATEGORIES)[number];
@@ -73,6 +74,8 @@ export default defineHandler({
       throw errors.contentBlocked("This garment photo was blocked by our safety rules.");
     }
 
+    // A together photo shows a partner who consented through a share: only while it is still active.
+    await assertGroupConsentActive(user.id, person);
     const { modelId, scoreLikeness } = await likenessTarget(user.id, person);
     const data: TryOnPlanData = {
       personKey: person.storageKey,

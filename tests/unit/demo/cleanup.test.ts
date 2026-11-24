@@ -19,7 +19,9 @@ const hoursAgo = (h: number) => new Date(NOW.getTime() - h * 3_600_000);
 let storageDir: string;
 beforeAll(async () => {
   storageDir = await fs.mkdtemp(path.join(os.tmpdir(), "openshoot-demo-cleanup-"));
-  setStorageForTesting(createLocalStorage({ dir: storageDir, baseUrl: "http://localhost:3000", secret: "cleanup-secret" }));
+  setStorageForTesting(
+    createLocalStorage({ dir: storageDir, baseUrl: "http://localhost:3000", secret: "cleanup-secret" }),
+  );
 });
 afterAll(async () => {
   setStorageForTesting(null);
@@ -44,7 +46,12 @@ describe("deleteExpiredDemoUsers", () => {
     const freshDemo = await demoUser(hoursAgo(23));
     const oldRegular = await createTestUser({ email: "someone@example.com", createdAt: hoursAgo(24 * 30) });
     const lookalike = await createTestUser({ email: "demo+x@demo.invalid.example.com", createdAt: hoursAgo(48) });
-    await createTestModel(oldDemo.id, { status: "ready", metadata: { mode: "instant" }, provider: null, providerModelRef: null });
+    await createTestModel(oldDemo.id, {
+      status: "ready",
+      metadata: { mode: "instant" },
+      provider: null,
+      providerModelRef: null,
+    });
     const key = storageKeys.media(oldDemo.id, "med_demo", "jpg");
     await getStorage().put(key, new Uint8Array([1, 2, 3]), { contentType: "image/jpeg" });
 
