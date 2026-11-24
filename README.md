@@ -29,11 +29,11 @@ core module that cannot be switched off. The product name is configurable: set `
 
 | Landing | Create |
 |---|---|
-| ![Landing page](docs/screenshots/landing.png) | ![Create page: prompt, pack, drafts](docs/screenshots/create.png) |
+| ![Landing page](docs/screenshots/landing.jpg) | ![Create page: prompt, pack, drafts](docs/screenshots/create.jpg) |
 | **Gallery** | **New identity model** |
-| ![Gallery with filters and bulk actions](docs/screenshots/gallery.png) | ![Model wizard: consent selfie and photo quality check](docs/screenshots/models-new.png) |
+| ![Gallery with filters and bulk actions](docs/screenshots/gallery.jpg) | ![Model wizard: consent selfie and photo quality check](docs/screenshots/models-new.jpg) |
 | **Admin** | |
-| ![Admin dashboard](docs/screenshots/admin.png) | |
+| ![Admin dashboard](docs/screenshots/admin.jpg) | |
 
 ## Features
 
