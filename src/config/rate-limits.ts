@@ -11,6 +11,8 @@ export const RATE_LIMITS = {
   uploadsPerMinute: { limit: 60, windowSec: 60 },
   promptHelperPerMinute: { limit: 20, windowSec: 60 },
   trainingsPerDay: { limit: 5, windowSec: 86_400 },
+  /** Zip downloads per user. */
+  downloadsPerHour: { limit: 30, windowSec: 3600 },
   /** Checkout / portal session creation per user. */
   billingPerMinute: { limit: 10, windowSec: 60 },
   /** Team + multi-person invite emails per user. */

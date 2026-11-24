@@ -112,15 +112,16 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 ### Gallery / sharing
 | Method | Path | Auth | Body → Response |
 |---|---|---|---|
-| GET | `/api/media` | UK | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media: MediaDTO[], nextCursor }` |
+| GET | `/api/media` | UK | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media: MediaDTO[], nextCursor, hiddenCount? }` (hiddenCount on first page) |
 | GET | `/api/media/:id` | UK | → `{ media }` |
 | PATCH | `/api/media/:id` | U | `{ isFavorite?, folderId?, hidden? }` → `{ media }` |
 | DELETE | `/api/media/:id` | U | → `{ ok }` (storage + row) |
 | POST | `/api/media/bulk` | U | `{ action: favorite|unfavorite|move|delete|hide|unhide, ids, folderId? }` → `{ updated }` |
-| POST | `/api/media/download` | U | `{ ids }` → `application/zip` stream |
+| POST | `/api/media/download` | U | JSON `{ ids }` or form `ids=a,b` → `application/zip` stream |
 | GET/POST | `/api/folders` | U | list / `{ name }` create |
 | PATCH/DELETE | `/api/folders/:id` | U | rename / delete (media kept) |
 | POST | `/api/share` | U | `{ mediaId? , folderId? }` → `{ share: { id, token, url } }` |
+| GET | `/api/share` | U | `?mediaId|folderId` → `{ shares }` |
 | DELETE | `/api/share/:id` | U | revoke |
 | POST | `/api/reports` | P (IP rate limit) | `{ shareToken?, mediaId?, reason, details?, email? }` → `{ ok }` |
 
