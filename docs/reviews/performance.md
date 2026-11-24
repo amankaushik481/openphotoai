@@ -117,7 +117,7 @@ executes.
 
 ### PERF-3 — Open image optimizer (`hostname: "**"`) (High cost/abuse risk, XS)
 
-- **Where**: `next.config.ts:50-53` — `images: { unoptimized: false, remotePatterns: [{ protocol: "https", hostname: "**" }] }`.
+- **Where**: `next.config.ts:48-53` — `images: { unoptimized: false, remotePatterns: [{ protocol: "https", hostname: "**" }] }`.
 - **Evidence**: the only `next/image` user is `PackCard` (local pack covers, none exist today); all private media
   correctly use `<img>`. As configured, `/_next/image?url=https://anything&w=3840&q=100` lets anyone use the
   deployment as a free resizing proxy (sharp CPU on self-host; per-image billing on Vercel).
@@ -255,7 +255,7 @@ Indexes are compared against `drizzle/0000_init.sql` / `src/db/schema.ts`.
 ### PERF-9 — Heavy ingestion runs inside request handlers; tfjs blocks the event loop (High, L)
 
 - **Where**: `GET /api/jobs/[id]` → `getJobForUser(…, {sync:true})` (`engine.ts:418-432`) → `syncJob` →
-  `completeJob` (`engine.ts:537-…`) → `ingestImages`/`ingestVideos` (`src/server/media/service.ts:194-360`).
+  `completeJob` (`engine.ts:544-…`) → `ingestImages`/`ingestVideos` (`src/server/media/service.ts:194-360`).
   The same path runs from `/api/batches/[id]` (up to 4 jobs in parallel), webhooks (`maxDuration 60`) and cron (`maxDuration 60`, 50 jobs).
   `src/providers/safety/tf-runtime.ts:114-121` (process-wide `runExclusive` queue), `local-face.ts:52` (`async: false`).
 - **Evidence**:
@@ -352,7 +352,7 @@ Indexes are compared against `drizzle/0000_init.sql` / `src/db/schema.ts`.
 
 - **CSS**: one 125 KB raw / 21 KB gz render-blocking file for the whole app. `experimental.inlineCss` removes the round trip
   but duplicates CSS into HTML+RSC on every navigation. Measure before adopting. Otherwise accept it; the gzip cost is small.
-- **Paint** (`src/app/globals.css:199-225`, `src/components/marketing/hero.tsx:41-45`):
+- **Paint** (`src/app/globals.css:198-220,233`, `src/components/marketing/hero.tsx:41-45`):
   - a 960×544 px `blur-3xl` glow layer;
   - `.grain` (SVG `feTurbulence` background plus `mix-blend-mode: overlay`) on the hero, 6 tiles and 8 pack cards;
   - a `backdrop-filter: blur(16px) saturate(1.4)` sticky header;
