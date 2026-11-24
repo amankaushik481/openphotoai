@@ -219,7 +219,7 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
       const metrics = await imageMetrics(bytes);
 
       // Watermark first, AI label last: re-encoding for the watermark must not strip the label.
-      const visible = watermark ? await applyWatermark(bytes, APP.name) : bytes;
+      const visible = watermark ? await applyWatermark(bytes) : bytes;
       const labeled = await applyAiLabel(visible, { generator: APP.name, jobId: job.id, createdAt: new Date() });
       const thumb = await makeThumbnail(labeled.bytes);
 

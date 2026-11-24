@@ -160,12 +160,15 @@ function trainingModelRef(job: ReplicateJobLike): string | null {
   return encodeModelRef({ model, version, weights });
 }
 
-/** tqdm-style progress ("76%|███   | 7568/10000 [...]") or "step 120/1000", as an integer percentage. */
+/**
+ * tqdm-style progress ("76%|███   | 7568/10000 [...]", optionally after a "desc:" prefix) or "step 120/1000",
+ * as an integer percentage, taken from the most recent matching log line.
+ */
 export function parseProgress(logs: string | null | undefined): number | undefined {
   if (!logs) return undefined;
-  const lines = logs.split("\n").reverse();
+  const lines = logs.split(/[\r\n]+/).reverse();
   for (const line of lines) {
-    const tqdm = /^\s*(\d+)%\s*\|.+?\|\s*(\d+)\/(\d+)/.exec(line);
+    const tqdm = /(?:^|[\s:])(\d{1,3})%\s*\|[^|]*\|\s*(\d+)\/(\d+)/.exec(line);
     if (tqdm) return clampPercent(Number(tqdm[1]));
     const step = /\bsteps?\s*[:=]?\s*(\d+)\s*\/\s*(\d+)/i.exec(line);
     if (step && Number(step[2]) > 0) return clampPercent((Number(step[1]) / Number(step[2])) * 100);

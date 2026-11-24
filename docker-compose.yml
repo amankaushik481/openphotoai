@@ -1,0 +1,132 @@
+# OpenShoot — full stack on one machine:  cp .env.example .env && docker compose up --build
+#
+#   web        http://localhost:3000   Next.js app (migrates + seeds the DB on start)
+#   worker     background job poller (completes AI jobs without webhooks or cron)
+#   db         Postgres 16 (not published on the host)
+#   minio      S3-compatible object storage, API on http://localhost:9000
+#              console on http://localhost:9001 (user/password: MINIO_ROOT_USER/MINIO_ROOT_PASSWORD)
+#   minio-init creates the private bucket, then exits
+#
+# Everything else comes from .env (mock providers by default: zero API keys needed).
+# The `environment:` blocks below wire the app to the bundled db + minio and override the
+# matching .env values. Using managed Postgres or R2/S3 instead? Delete those lines (and the
+# db / minio services): the values from .env are then used.
+#
+# S3 "split horizon": presigned URLs embed and sign the S3 host, so the browser and the server must
+# use the same endpoint. S3_ENDPOINT is http://localhost:9000, which the browser reaches through
+# MinIO's published port; inside web/worker, LOOPBACK_FORWARD (docker/loopback-forward.mjs) makes
+# localhost:9000 reach the minio service. On a remote server, put MinIO behind a public hostname
+# (or use R2/S3) and set S3_ENDPOINT to that URL instead.
+
+name: openshoot
+
+x-app: &app
+  build:
+    context: .
+    args:
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-OpenShoot}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-}
+      NEXT_PUBLIC_TAKEDOWN_EMAIL: ${NEXT_PUBLIC_TAKEDOWN_EMAIL:-}
+      NEXT_PUBLIC_LEGAL_ENTITY: ${NEXT_PUBLIC_LEGAL_ENTITY:-}
+      NEXT_PUBLIC_LEGAL_JURISDICTION: ${NEXT_PUBLIC_LEGAL_JURISDICTION:-}
+      NEXT_PUBLIC_GITHUB_URL: ${NEXT_PUBLIC_GITHUB_URL:-}
+      NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
+      NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-}
+  image: openshoot:local
+  init: true
+  restart: unless-stopped
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    # ⚠️  INSECURE DEV DEFAULT. The image runs with NODE_ENV=production, which requires a secret.
+    # When BETTER_AUTH_SECRET is empty in .env this publicly known value is used so `docker compose up`
+    # works out of the box. Set your own (`openssl rand -base64 32`) before exposing the app.
+    BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-INSECURE-docker-compose-dev-secret-set-BETTER_AUTH_SECRET}
+    DATABASE_URL: postgres://openshoot:${POSTGRES_PASSWORD:-openshoot}@db:5432/openshoot
+    STORAGE_DRIVER: s3
+    S3_ENDPOINT: http://localhost:${MINIO_PORT:-9000}
+    S3_REGION: us-east-1
+    S3_BUCKET: openshoot
+    S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-openshoot}
+    S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-openshoot-dev-secret}
+    S3_FORCE_PATH_STYLE: "true"
+    LOOPBACK_FORWARD: "${MINIO_PORT:-9000}:minio:9000"
+    # Absolute path shared by web + worker if you switch STORAGE_DRIVER to local
+    # (then also mount a volume at /data on both services).
+    LOCAL_STORAGE_DIR: /data/storage
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openshoot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openshoot}
+      POSTGRES_DB: openshoot
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openshoot -d openshoot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # MinIO's upstream images are no longer published on Docker Hub; pgsty/minio is a maintained
+  # community build of the same server (any S3-compatible server works here).
+  minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-openshoot}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-openshoot-dev-secret}
+    ports:
+      - "127.0.0.1:${MINIO_PORT:-9000}:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-init:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["mc"]
+    # Private bucket (no anonymous policy): users only get presigned URLs.
+    command: ["mb", "--ignore-existing", "local/openshoot"]
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER:-openshoot}:${MINIO_ROOT_PASSWORD:-openshoot-dev-secret}@minio:9000
+    restart: "no"
+
+  web:
+    <<: *app
+    command: ["web"]
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    depends_on:
+      # web runs the migrations; start polling once it is healthy.
+      web:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:
+  minio-data:

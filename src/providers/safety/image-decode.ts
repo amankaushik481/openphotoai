@@ -59,3 +59,50 @@ export async function decodeRgb(bytes: Uint8Array, opts: DecodeOptions = {}): Pr
     sourceHeight,
   };
 }
+
+export interface UprightJpeg {
+  bytes: Uint8Array;
+  /** Dimensions of the encoded JPEG. */
+  width: number;
+  height: number;
+  /** Dimensions of the upright source image before any resize. */
+  sourceWidth: number;
+  sourceHeight: number;
+}
+
+/**
+ * Re-encode any input as an upright (EXIF-applied) sRGB JPEG for hosted APIs, shrinking until it
+ * fits `maxBytes`. Hosted APIs (Rekognition: JPEG/PNG ≤ 5 MB) do not all honour EXIF orientation,
+ * so returned face boxes are only meaningful for the upright image.
+ */
+export async function toUprightJpeg(
+  bytes: Uint8Array,
+  opts: { maxSide: number; maxBytes: number; quality?: number },
+): Promise<UprightJpeg> {
+  const sharp = await loadSharp();
+  let maxSide = opts.maxSide;
+  let quality = opts.quality ?? 90;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const { data, info } = await sharp(bytes, { limitInputPixels: LIMIT_INPUT_PIXELS, failOn: "error" })
+      .rotate()
+      .flatten({ background: "#ffffff" })
+      .toColourspace("srgb")
+      .resize(maxSide, maxSide, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality, mozjpeg: false })
+      .toBuffer({ resolveWithObject: true });
+    if (data.byteLength <= opts.maxBytes) {
+      const meta = await sharp(bytes, { limitInputPixels: LIMIT_INPUT_PIXELS }).metadata();
+      const swap = (meta.orientation ?? 1) >= 5;
+      return {
+        bytes: new Uint8Array(data.buffer, data.byteOffset, data.byteLength),
+        width: info.width,
+        height: info.height,
+        sourceWidth: (swap ? meta.height : meta.width) ?? info.width,
+        sourceHeight: (swap ? meta.width : meta.height) ?? info.height,
+      };
+    }
+    quality = Math.max(60, quality - 10);
+    maxSide = Math.round(maxSide * 0.8);
+  }
+  throw new Error("safety: could not shrink image under the provider size limit");
+}
