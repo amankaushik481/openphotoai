@@ -19,7 +19,7 @@ import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { creditCost } from "@/config/credits";
 import { getPlan } from "@/config/plans";
 import { db } from "@/db";
-import { batches, jobs, webhookEvents } from "@/db/schema";
+import { batches, jobs, user as userTable, webhookEvents } from "@/db/schema";
 import type { BatchRow, JobRow, UserRow } from "@/db/types";
 import { env } from "@/lib/env";
 import { getAIProvider } from "@/providers/registry";
@@ -245,6 +245,10 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
   let job: JobRow;
   try {
     job = await db.transaction(async (tx) => {
+      // Lock the user row BEFORE inserting the job: the jobs.user_id FK takes a KEY SHARE lock on the
+      // user row, and the debit below takes FOR UPDATE. Two concurrent creates for the same user would
+      // otherwise each hold KEY SHARE and wait on the other's FOR UPDATE -> Postgres deadlock (40P01).
+      if (credits > 0) await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
       const [row] = await tx
         .insert(jobs)
         .values({

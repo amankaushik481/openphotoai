@@ -15,7 +15,8 @@ const display = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
   variable: "--font-instrument-serif",
-  display: "swap",
+  // "optional": the hero headline is the LCP element; never swap fonts late (keeps LCP + CLS stable).
+  display: "optional",
 });
 
 const defaultTitle = `${APP.name} — ${APP.tagline}`;
