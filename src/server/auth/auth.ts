@@ -20,6 +20,12 @@ const ID_PREFIX: Record<string, string> = { user: "usr", session: "ses", account
 
 const SESSION_TTL_SEC = 60 * 60 * 24 * 30;
 const MAGIC_LINK_TTL_SEC = 60 * 15;
+/**
+ * Better Auth's own magic-link limit (send + verify, per IP) when links only reach the dev mailbox.
+ * Its default (5 / minute) would lock out dev and e2e runs, which share one localhost IP; our
+ * per-IP send limit is skipped in that mode for the same reason (see enforceMagicLinkRateLimit).
+ */
+const DEV_MAILBOX_MAGIC_LINK_RATE_LIMIT = { window: 60, max: 100 };
 
 /** Where a blocked user lands when a browser sign-in is refused. */
 const BLOCKED_REDIRECT: Record<SignInBlock, string> = {
@@ -111,6 +117,11 @@ function createAuth() {
       magicLink({
         expiresIn: MAGIC_LINK_TTL_SEC,
         storeToken: "hashed",
+        // Mock email explicitly chosen (not a production fallback for a missing RESEND_API_KEY).
+        rateLimit:
+          env.emailProvider === "mock" && (!env.isProd || env.MOCK_PROVIDERS || env.EMAIL_PROVIDER === "mock")
+            ? DEV_MAILBOX_MAGIC_LINK_RATE_LIMIT
+            : undefined,
         sendMagicLink: async ({ email, url }, ctx) => {
           await enforceMagicLinkRateLimit(requestHeaders(ctx));
           const { sendEmail } = await import("@/server/email"); // lazy: keeps provider SDKs off the auth path
