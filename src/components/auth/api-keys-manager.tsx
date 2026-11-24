@@ -30,7 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { APP } from "@/config/app";
 import { api, ApiClientError } from "@/lib/api-client";
-import type { ApiKeyDTO } from "@/server/auth/api-keys";
+import type { ApiKeyDTO } from "@/types/domain";
 
 interface ApiKeysManagerProps {
   initialKeys: ApiKeyDTO[];

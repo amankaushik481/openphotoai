@@ -17,14 +17,8 @@ export const API_KEY_PREFIX = "os_live_";
 export const API_KEY_DISPLAY_PREFIX_LENGTH = 12;
 export const MAX_ACTIVE_API_KEYS = 10;
 
-export interface ApiKeyDTO {
-  id: string;
-  name: string;
-  prefix: string;
-  scopes: ApiKeyScope[];
-  lastUsedAt: string | null;
-  createdAt: string;
-}
+export type { ApiKeyDTO } from "@/types/domain";
+import type { ApiKeyDTO } from "@/types/domain";
 
 export function hashApiKey(key: string): string {
   return createHash("sha256").update(key).digest("hex");

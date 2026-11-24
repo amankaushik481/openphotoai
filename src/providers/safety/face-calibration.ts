@@ -17,14 +17,22 @@ export interface PairScores {
   different: number[];
 }
 
-/** Cosine similarity of every unordered pair, split into same-identity and different-identity. */
-export function pairScores(samples: LabeledEmbedding[]): PairScores {
+/**
+ * Cosine similarity of every unordered pair, split into same-identity and different-identity.
+ * With `anchorLabel`, only pairs involving that identity are used (anchor×anchor = same,
+ * anchor×other = different): for sets where only one identity's labels are trustworthy.
+ */
+export function pairScores(samples: LabeledEmbedding[], opts: { anchorLabel?: string } = {}): PairScores {
   const same: number[] = [];
   const different: number[] = [];
+  const anchor = opts.anchorLabel;
   for (let i = 0; i < samples.length; i++) {
     for (let j = i + 1; j < samples.length; j++) {
+      const a = samples[i].label;
+      const b = samples[j].label;
+      if (anchor !== undefined && a !== anchor && b !== anchor) continue;
       const s = cosineSimilarity(samples[i].embedding, samples[j].embedding);
-      (samples[i].label === samples[j].label ? same : different).push(s);
+      (a === b ? same : different).push(s);
     }
   }
   return { same, different };

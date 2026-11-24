@@ -474,6 +474,17 @@ export interface MeDTO {
   plan: PlanId;
   hasPaid: boolean;
   watermark: boolean;
+  marketingOptIn: boolean;
+  createdAt: string;
+}
+
+export interface ApiKeyDTO {
+  id: string;
+  name: string;
+  /** First characters of the key, e.g. "os_live_ab12". */
+  prefix: string;
+  scopes: ApiKeyScope[];
+  lastUsedAt: string | null;
   createdAt: string;
 }
 

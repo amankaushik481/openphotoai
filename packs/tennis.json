@@ -1,0 +1,86 @@
+{
+  "slug": "tennis",
+  "name": "Tennis",
+  "tagline": "Clay, grass and hard courts with real match energy.",
+  "description": "Match-day tennis photos: serve tosses, clay-court slides, two-handed backhands, grass-court whites, courtside breaks, club lounges and a playful 1970s retro look. Crisp sports-photography light and no logos.",
+  "category": "fitness",
+  "emoji": "🎾",
+  "tags": [
+    "tennis",
+    "sport",
+    "tennis whites",
+    "clay court",
+    "country club",
+    "racket",
+    "athletic",
+    "preppy"
+  ],
+  "colors": [
+    "#65a30d",
+    "#fef08a"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, deformed racket, extra rackets, extra balls in hands",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 550,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Serve toss",
+      "prompt": "action photo of {subject} tossing the ball for a serve on a hard court, wearing a fitted tennis polo and shorts, racket drawn back, focused upward gaze, bright afternoon sun, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "action photo of {subject} tossing the ball for a serve on a hard court, wearing a white tennis polo and navy shorts, racket drawn back, focused upward gaze, bright afternoon sun, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "action photo of {subject} tossing the ball for a serve on a hard court, wearing a white tennis dress, racket drawn back, focused upward gaze, bright afternoon sun, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Clay court slide",
+      "prompt": "action photo of {subject} sliding into a forehand on a red clay court with clay dust flying, wearing tennis whites, determined expression, warm late-afternoon light, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Grass court whites",
+      "prompt": "portrait of {subject} on a pristine grass court in classic tennis whites, racket resting on one shoulder, confident smile, ivy-covered clubhouse behind, soft daylight, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "After the match",
+      "prompt": "photo of {subject} standing at the net after a match with a towel around the neck, wearing tennis clothes, laughing, golden hour light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} standing at the net after a match with a towel around the neck, wearing a white tennis polo and shorts, laughing, golden hour light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} standing at the net after a match with a towel around the neck, wearing a pleated tennis skirt and a fitted top, laughing, golden hour light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Courtside break",
+      "prompt": "candid photo of {subject} sitting courtside on a bench during a changeover, drinking from a water bottle, wearing a tennis visor and athletic wear, relaxed smile, bright sun, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Two-handed backhand",
+      "prompt": "action photo of {subject} hitting a two-handed backhand on a blue hard court, ball on the strings, focused expression, crisp midday light, 400mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Racket over shoulders",
+      "prompt": "portrait of {subject} holding a tennis racket across the shoulders, playful smile, green court and chain-link fence behind, golden light, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Indoor court",
+      "prompt": "photo of {subject} mid-rally on an indoor tennis court under a white dome with soft even light, wearing a fitted athletic top, focused expression, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Club lounge",
+      "prompt": "photo of {subject} in a tennis club lounge after a match, wearing a white cable-knit sweater over tennis clothes and holding an iced tea, relaxed smile, soft window light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunset rally",
+      "prompt": "photo of {subject} mid-rally on an outdoor court at sunset with long shadows across the court, warm backlight, wearing tennis clothes, joyful effort, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Practice basket",
+      "prompt": "photo of {subject} beside a basket of tennis balls on a practice court, wearing a cap and tennis clothes, cheerful expression, morning light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seventies retro",
+      "prompt": "1970s-style photo of {subject} on a vintage tennis court in retro tennis whites with striped sweatbands and a wooden racket, warm faded film colors, playful confident pose, 35mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

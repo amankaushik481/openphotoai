@@ -174,18 +174,23 @@ export function ImageDropzone<T = unknown>({
     [patch, t],
   );
 
+  /** Start workers (up to `concurrency`); each drains the shared queue. */
   const pump = React.useCallback(() => {
     while (active.current < concurrency && queue.current.length > 0) {
-      const id = queue.current.shift() as string;
       active.current += 1;
-      void processOne(id).finally(() => {
-        active.current -= 1;
-        if (active.current === 0 && queue.current.length === 0) {
-          // Read settled state after React applies the last patches.
-          setTimeout(() => latest.current.onIdle?.(itemsRef.current), 0);
+      void (async () => {
+        try {
+          for (let id = queue.current.shift(); id !== undefined; id = queue.current.shift()) {
+            await processOne(id);
+          }
+        } finally {
+          active.current -= 1;
+          if (active.current === 0) {
+            // Read settled state after React applies the last patches.
+            setTimeout(() => latest.current.onIdle?.(itemsRef.current), 0);
+          }
         }
-        pump();
-      });
+      })();
     }
   }, [concurrency, processOne]);
 

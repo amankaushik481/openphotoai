@@ -182,7 +182,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 ## 5. Page map
 
 Marketing (static, fast): `/`, `/pricing`, `/packs`, `/packs/[slug]`, `/faq`, `/legal/terms`, `/legal/privacy`,
-`/legal/acceptable-use`, `/docs/api`, `/s/[token]` (shared media + report button), `/login`,
+`/legal/acceptable-use`, `/docs/api`, `/s/[token]` (shared media + report button), `/login`, `/verify` (magic-link landing: user clicks to consume the token, so link scanners can't burn it),
 `/invites/[token]` (multi-person), `/teams/join/[token]`, `/account/delete/confirm`, `/suspended`.
 
 App (`/app/**`, signed in): `/app` (dashboard), `/app/models`, `/app/models/new` (wizard: name → consent selfie →

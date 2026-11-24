@@ -1,0 +1,94 @@
+{
+  "slug": "fitness-athleisure",
+  "name": "Fitness & Athleisure",
+  "tagline": "Strong, active and camera-ready: gym, run, yoga and more.",
+  "description": "Energetic fitness photos for coaches, athletes and anyone proud of their training: barbell lifts, sunrise runs, yoga, boxing, cycling, climbing, pilates and city athleisure. Dramatic gym light and real motion, always in proper training clothes with no logos.",
+  "category": "fitness",
+  "emoji": "💪",
+  "tags": [
+    "fitness",
+    "gym",
+    "athleisure",
+    "workout",
+    "running",
+    "yoga",
+    "wellness",
+    "sport"
+  ],
+  "colors": [
+    "#dc2626",
+    "#f97316"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, exaggerated muscles, oiled skin, distorted body proportions",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 240,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Barbell focus",
+      "prompt": "photo of {subject} in a moody industrial gym gripping a loaded barbell before a lift, wearing a fitted training t-shirt and joggers, focused determined expression, dramatic overhead light with deep shadows, 35mm lens, athletic editorial, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} in a moody industrial gym gripping a loaded barbell before a lift, wearing a fitted charcoal training t-shirt and joggers, focused determined expression, dramatic overhead light with deep shadows, 35mm lens, athletic editorial, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} in a moody industrial gym gripping a loaded barbell before a lift, wearing a fitted long-sleeve training top and full-length leggings, focused determined expression, dramatic overhead light with deep shadows, 35mm lens, athletic editorial, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunrise run",
+      "prompt": "action photo of {subject} running along a waterfront path at sunrise, wearing a light running jacket and running pants, mid-stride, glowing rim light, 200mm lens, motion energy, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Yoga studio",
+      "prompt": "photo of {subject} holding a warrior pose in a sunlit yoga studio with wooden floors and plants, wearing comfortable fitted yoga clothes, calm focused expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} holding a warrior pose in a sunlit yoga studio with wooden floors and plants, wearing a fitted t-shirt and loose yoga pants, calm focused expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} holding a warrior pose in a sunlit yoga studio with wooden floors and plants, wearing a fitted long-sleeve top and full-length leggings, calm focused expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Boxing gym",
+      "prompt": "photo of {subject} training at a heavy bag in a gritty boxing gym, wearing hand wraps and a fitted training tee, intense focused stare, a single hanging light, 50mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Post-workout smoothie",
+      "prompt": "candid photo of {subject} after a workout at a bright juice bar holding a green smoothie, wearing a zip-up track jacket with a towel around the neck, relaxed smile, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mountain road cycling",
+      "prompt": "action photo of {subject} on a road bike climbing a winding mountain road, wearing a cycling jersey and a helmet with the face clearly visible, determined smile, warm afternoon light, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Battle ropes",
+      "prompt": "action photo of {subject} working battle ropes in a functional training gym, wearing a fitted training t-shirt and joggers, explosive movement with waves in the ropes, focused expression, dramatic side light, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Track stretch",
+      "prompt": "photo of {subject} stretching on a red running track at golden hour, wearing a fitted half-zip running top and training pants, relaxed confident expression, stadium lights softly blurred, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop workout",
+      "prompt": "photo of {subject} mid-jump during a rooftop workout at sunrise with the city skyline behind, wearing a fitted training top and joggers, energetic expression, warm light, 24mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pilates studio",
+      "prompt": "photo of {subject} on a pilates reformer in a minimalist white studio, wearing fitted studio activewear, calm controlled expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on a pilates reformer in a minimalist white studio, wearing a fitted tee and track pants, calm controlled expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on a pilates reformer in a minimalist white studio, wearing a fitted long-sleeve top and full-length leggings, calm controlled expression, soft daylight, 35mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bouldering gym",
+      "prompt": "photo of {subject} climbing a colorful indoor bouldering wall, wearing a t-shirt and climbing pants, reaching for a hold while glancing back with a grin, bright gym light, 24mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "City athleisure",
+      "prompt": "street style photo of {subject} walking through the city in athleisure, wearing a matching fleece hoodie set and clean sneakers, holding a water bottle and a plain gym bag, confident relaxed expression, morning light, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "street style photo of {subject} walking through the city in athleisure, wearing a matching grey fleece hoodie and joggers with clean sneakers, holding a water bottle and a plain gym bag, confident relaxed expression, morning light, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "street style photo of {subject} walking through the city in athleisure, wearing a matching knit zip jacket, leggings and clean sneakers, holding a water bottle and a plain gym bag, confident relaxed expression, morning light, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Trail run pause",
+      "prompt": "portrait of {subject} pausing on a mountain trail during a run, wearing a lightweight running vest over a technical tee, slightly out of breath with a proud smile, golden light, 85mm lens, proper training clothes, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

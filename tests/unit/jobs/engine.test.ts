@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
 import { batches, creditLedger, jobs, media, moderationEvents, user as userTable } from "@/db/schema";
@@ -324,6 +324,52 @@ describe("concurrency", () => {
     expect(await jobMedia(job.id)).toHaveLength(2);
     expect(fetchOutput).toHaveBeenCalledTimes(2);
     expect(final.output?.finalizing).toBeUndefined();
+  });
+
+  it("retries a failed completion and gives up (with refund) after the max attempts", async () => {
+    overrideMockAI({
+      fetchOutput: async () => {
+        throw new Error("network down");
+      },
+    });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const job = await createJob(u, gen({ numImages: 1 }));
+    const expireLease = () =>
+      db
+        .update(jobs)
+        .set({ output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now() - interval '1 hour'))` })
+        .where(eq(jobs.id, job.id));
+
+    let row = await syncJob(job.id, { force: true });
+    expect(row).toMatchObject({ status: "running", attempts: 1 });
+    // Backoff: the lease is still held, so an immediate retry does nothing.
+    row = await syncJob(job.id, { force: true });
+    expect(row.attempts).toBe(1);
+    await expireLease();
+    row = await syncJob(job.id, { force: true });
+    expect(row).toMatchObject({ status: "running", attempts: 2 });
+    await expireLease();
+    row = await syncJob(job.id, { force: true });
+    expect(row).toMatchObject({ status: "failed", attempts: 3, errorCode: "internal", creditsRefunded: 1 });
+    expect(await getBalance(u.id)).toBe(20);
+  });
+
+  it("discards outputs when the job is canceled during completion", async () => {
+    const provider = overrideMockAI();
+    const { fetchOutput } = provider;
+    let jobId = "";
+    provider.fetchOutput = async (url) => {
+      // The user cancels while outputs are being downloaded.
+      if (jobId) await cancelJob(u.id, jobId);
+      jobId = "";
+      return fetchOutput(url);
+    };
+    const job = await createJob(u, gen({ numImages: 1 }));
+    jobId = job.id;
+    const row = await syncJob(job.id, { force: true });
+    expect(row.status).toBe("canceled");
+    expect(await jobMedia(job.id)).toHaveLength(0);
+    expect(await getBalance(u.id)).toBe(20);
   });
 
   it("throttles provider polling unless forced", async () => {

@@ -69,9 +69,10 @@ async function loadFolder(dir: string): Promise<Sample[]> {
 
 /**
  * Built-in set from human's bundled screenshot-facematch.jpg (a grid of ~100 px face crops):
- * row 1 is one person (the library author, 18 photos); rows 3-6 are 72 other faces, each
- * labeled as its own identity (a few may repeat, which only makes the FAR estimate pessimistic).
- * Row 2 mixes the author with others and is skipped.
+ * row 1 is one person (the library author, 18 photos); rows 3-6 are 72 faces of other people.
+ * Several of those 72 are the same person photographed twice, so only pairs involving the
+ * author are scored (author×author = same, author×other = different). Row 2 mixes the author
+ * with others and is skipped.
  */
 async function loadHumanSamples(): Promise<Sample[]> {
   const file = path.join(path.dirname(packageEntryDir("@vladmandic/human")), "assets", "screenshot-facematch.jpg");
@@ -118,7 +119,7 @@ async function main() {
   }
   const elapsedMs = performance.now() - started;
 
-  const scores = pairScores(embedded);
+  const scores = pairScores(embedded, args.humanSamples ? { anchorLabel: "author" } : {});
   if (scores.same.length === 0 || scores.different.length === 0) {
     throw new Error("need at least two people and one person with two or more usable photos");
   }

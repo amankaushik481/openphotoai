@@ -1,0 +1,82 @@
+{
+  "slug": "ski-trip",
+  "name": "Ski & Snow",
+  "tagline": "Fresh powder, chairlifts and après-ski by the fire.",
+  "description": "Winter-sports photos with real mountain light: sunny slopes, carving turns, chairlifts, gondolas, powder days, mountain-hut terraces, timber chalets at blue hour and a retro 80s ski suit for fun. Goggles stay up so your face is always visible.",
+  "category": "travel",
+  "emoji": "⛷️",
+  "tags": [
+    "ski",
+    "snowboard",
+    "winter",
+    "mountains",
+    "apres ski",
+    "chalet",
+    "snow",
+    "alpine"
+  ],
+  "colors": [
+    "#1d4ed8",
+    "#e0f2fe"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, goggles covering eyes, face hidden, fake-looking snow",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 530,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Sunny slope",
+      "prompt": "portrait of {subject} on a sunny ski slope, wearing a bright ski jacket and a helmet, rosy cheeks and a big smile, snow-covered peaks behind, crisp clear light, 85mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Carving turn",
+      "prompt": "action photo of {subject} carving a turn on freshly groomed snow with spray flying, wearing a ski suit and helmet, focused grin, bright sunlight, 200mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Chairlift ride",
+      "prompt": "photo of {subject} riding a chairlift above snowy pines with skis dangling, wearing a puffer jacket and a knit beanie, laughing toward the camera, bluebird sky, 24mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Après-ski fireside",
+      "prompt": "photo of {subject} in a cozy wooden ski lodge by a roaring fireplace, wearing a fair-isle sweater and holding a mug of hot chocolate, relaxed smile, warm firelight, 35mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowboard village",
+      "prompt": "photo of {subject} walking through a snowy ski village with a snowboard on one shoulder, wearing a baggy snowboard jacket and beanie, cheerful expression, soft afternoon light, 50mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mountain hut terrace",
+      "prompt": "photo of {subject} on a sunny mountain hut terrace with skis propped beside, wearing ski pants and a light down jacket, raising a cup of mulled wine, jagged peaks behind, 35mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Powder day",
+      "prompt": "photo of {subject} standing knee-deep in fresh powder among snowy trees, wearing a one-piece ski suit, joyful laugh, snowflakes in the air, soft diffused light, 50mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gondola panorama",
+      "prompt": "photo of {subject} inside a gondola cabin with frost on the windows and a vast snowy panorama, wearing a ski jacket with the neck gaiter pulled down, smiling, bright light, 24mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Chalet blue hour",
+      "prompt": "photo of {subject} on the balcony of a timber chalet at blue hour with snow falling, wearing a cozy shearling jacket and holding a warm drink, warm window glow behind, 35mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Retro ski suit",
+      "prompt": "1980s-style photo of {subject} on the slopes in a bold color-block retro ski suit and headband, playful pose with ski poles, vivid colors and film grain, bright sun, 35mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wooden sled",
+      "prompt": "candid photo of {subject} speeding down a snowy hill on a wooden sled, wearing a puffer jacket and mittens, laughing, snow spray, golden afternoon light, 85mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Top of the run",
+      "prompt": "portrait of {subject} at the top of a ski run with a sea of mountains behind, wearing a sleek ski jacket and helmet, confident smile, brilliant high-altitude light, 35mm lens, goggles pushed up so the face is visible, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

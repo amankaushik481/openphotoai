@@ -1,0 +1,84 @@
+{
+  "slug": "beach-resort",
+  "name": "Beach & Resort",
+  "tagline": "Linen, sunsets and seaside calm, tastefully dressed.",
+  "description": "Vacation photos that are all about the place and the mood: shoreline walks, cabanas, boardwalks, seaside cafés, beach bonfires, hammocks, tide pools and overwater villas. Breezy linen shirts, sundresses and resort wear only, perfect to share with family and colleagues alike.",
+  "category": "travel",
+  "emoji": "🏖️",
+  "tags": [
+    "beach",
+    "resort",
+    "vacation",
+    "summer",
+    "tropical",
+    "linen",
+    "seaside",
+    "sunset"
+  ],
+  "colors": [
+    "#06b6d4",
+    "#fde68a"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, crowded beach, brand logos, harsh midday glare",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 290,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Shoreline walk",
+      "prompt": "photo of {subject} walking along a white-sand shoreline at golden hour, wearing breezy linen resort wear, gentle waves at the ankles, carefree smile, warm backlight, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} walking along a white-sand shoreline at golden hour, wearing an open-collar linen shirt and rolled linen trousers, gentle waves at the ankles, carefree smile, warm backlight, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} walking along a white-sand shoreline at golden hour, wearing a flowing linen maxi dress, gentle waves at the ankles, carefree smile, warm backlight, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cabana shade",
+      "prompt": "photo of {subject} relaxing in a shaded white cabana with billowing curtains, wearing a light linen shirt and sipping from a fresh coconut, calm smile, turquoise sea beyond, 50mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dune boardwalk",
+      "prompt": "photo of {subject} strolling a weathered wooden boardwalk through sea grass dunes, wearing a straw hat and a linen shirt, relaxed smile, soft afternoon light, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seaside café",
+      "prompt": "photo of {subject} at a seaside café with blue shutters overlooking fishing boats, wearing a striped linen shirt, laughing over iced tea, bright Mediterranean light, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach bonfire",
+      "prompt": "photo of {subject} sitting by a beach bonfire at dusk wrapped in a chunky knit cardigan, warm firelight on the face, waves and twilight sky behind, gentle smile, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Palm hammock",
+      "prompt": "photo of {subject} relaxing in a woven hammock strung between palm trees, wearing a loose linen shirt and reading a book, dappled tropical light, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunset glow",
+      "prompt": "portrait of {subject} on the beach at sunset, wearing a white linen shirt, warm golden light on the face, the sea glowing behind, serene smile, 85mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tide pools",
+      "prompt": "photo of {subject} exploring rocky tide pools at low tide, wearing rolled linen trousers and a light shirt, crouching with a curious smile, soft morning light, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Resort terrace",
+      "prompt": "photo of {subject} on a lounge chair under a striped umbrella on a resort terrace, wearing a linen resort shirt with sunglasses, holding a fruit mocktail, relaxed smile, bright tropical light, 50mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seaside bicycle",
+      "prompt": "photo of {subject} riding a cruiser bicycle along a seaside promenade lined with palm trees, wearing a linen shirt and a straw hat, joyful expression, golden afternoon light, 50mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach shack lunch",
+      "prompt": "photo of {subject} at a rustic beach shack table with grilled fish and lemons, wearing a light linen shirt, laughing, feet in the sand, bright midday shade, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Overwater villa",
+      "prompt": "photo of {subject} on the deck of an overwater villa above a turquoise lagoon, wearing elegant linen resort wear and holding a cup of coffee, peaceful smile, soft morning light, 35mm lens, elegant resort wear, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "slug": "yacht-life",
+  "name": "Yacht & Luxury Vacation",
+  "tagline": "Sun-drenched decks, Riviera harbors and cliffside villas.",
+  "description": "The luxury-vacation set: teak yacht decks at sunset, glamorous Mediterranean harbors, champagne toasts, a private jet cabin, Amalfi villa terraces, classic wooden speedboats and candlelit dinners on deck. Elegant linen and resort wear with no logos.",
+  "category": "travel",
+  "emoji": "🛥️",
+  "tags": [
+    "yacht",
+    "luxury",
+    "vacation",
+    "riviera",
+    "boat",
+    "resort",
+    "summer",
+    "lifestyle"
+  ],
+  "colors": [
+    "#0c4a6e",
+    "#fcd34d"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, brand names, crowded deck",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 280,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Deck at sunset",
+      "prompt": "photo of {subject} on the teak deck of a sleek white yacht at sunset, wearing a crisp linen resort outfit, leaning on the polished rail, relaxed confident smile, golden light over the sea, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on the teak deck of a sleek white yacht at sunset, wearing a white linen shirt and navy tailored shorts, leaning on the polished rail, relaxed confident smile, golden light over the sea, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on the teak deck of a sleek white yacht at sunset, wearing a flowing white linen maxi dress, leaning on the polished rail, relaxed confident smile, golden light over the sea, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Harbor arrival",
+      "prompt": "photo of {subject} stepping onto the dock of a glamorous Mediterranean harbor lined with yachts and pastel buildings, wearing navy linen with sunglasses pushed up, poised smile, bright afternoon light, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bow cruising",
+      "prompt": "photo of {subject} seated on the cushioned bow of a yacht cruising turquoise water, wearing a striped linen shirt, wind in the hair, laughing, bright sun and sea spray, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Champagne toast",
+      "prompt": "photo of {subject} raising a glass of champagne on the aft deck of a yacht at golden hour, wearing a smart linen outfit, joyful expression, the coastline glowing behind, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Private jet cabin",
+      "prompt": "photo of {subject} seated in a cream leather seat in a private jet cabin, wearing a cashmere sweater, turning from the oval window to smile at the camera, soft daylight, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Amalfi villa terrace",
+      "prompt": "portrait of {subject} on the terrace of a cliffside villa overlooking the Amalfi Coast, wearing an elegant linen outfit and holding an espresso, warm morning light, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wooden speedboat",
+      "prompt": "action photo of {subject} at the helm of a classic varnished wooden speedboat on an alpine lake, wearing a polo shirt with sunglasses pushed up, wind in the hair, big smile, bright sun, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach club cabana",
+      "prompt": "photo of {subject} relaxing in a white cabana at an exclusive beach club, wearing elegant linen resort wear and holding a fresh juice, calm smile, soft shade and turquoise sea, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dinner on deck",
+      "prompt": "photo of {subject} at a candlelit dinner table on a yacht deck at dusk, wearing a smart evening outfit, warm smile, harbor lights twinkling, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tender ride",
+      "prompt": "candid photo of {subject} in a small tender boat speeding toward a moored yacht, wearing a linen shirt, laughing as spray flies, crystal-clear water, bright light, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Harbor at night",
+      "prompt": "portrait of {subject} on a harbor promenade at night with illuminated yachts and a hillside of glittering lights, wearing an elegant evening outfit, confident smile, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Shaded upper deck",
+      "prompt": "photo of {subject} reading on the shaded upper deck of a yacht anchored in a quiet bay, wearing a linen shirt and a straw hat, peaceful expression, soft bright light, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

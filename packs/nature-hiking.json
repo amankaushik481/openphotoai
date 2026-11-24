@@ -1,0 +1,82 @@
+{
+  "slug": "nature-hiking",
+  "name": "Nature & Hiking",
+  "tagline": "Forests, waterfalls and summits in honest daylight.",
+  "description": "Landscape-rich portraits for nature lovers: old-growth forest trails, waterfalls, sunrise summits, alpine lakes, autumn foliage, coastal cliffs, wildflower meadows, desert arches and rainforest ferns. Practical outdoor gear and big, beautiful scenery.",
+  "category": "lifestyle",
+  "emoji": "🥾",
+  "tags": [
+    "hiking",
+    "nature",
+    "forest",
+    "mountains",
+    "outdoors",
+    "waterfall",
+    "trail",
+    "wilderness"
+  ],
+  "colors": [
+    "#166534",
+    "#86efac"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, back to camera, tiny figure, oversaturated landscape",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 310,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Old-growth trail",
+      "prompt": "portrait of {subject} on a mossy forest trail among giant old-growth trees, wearing a hiking jacket and a daypack, soft light filtering through the canopy, calm happy expression, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Waterfall bridge",
+      "prompt": "photo of {subject} on a wooden footbridge in front of a thundering waterfall, wearing a rain shell, misty spray glowing in the sun, joyful expression, 24mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Summit sunrise",
+      "prompt": "photo of {subject} on a summit at sunrise with layers of blue ridgelines below, wearing a warm fleece and a beanie, peaceful smile, golden first light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Alpine lake refill",
+      "prompt": "photo of {subject} kneeling at the edge of a mirror-still alpine lake to fill a water bottle, wearing a technical shirt and trekking pants, glancing up with a smile, crisp morning light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Autumn foliage",
+      "prompt": "portrait of {subject} on a trail blanketed in orange and red autumn leaves, wearing a flannel shirt and a knit beanie, warm smile, soft golden backlight, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Coastal cliff path",
+      "prompt": "photo of {subject} hiking a coastal cliff path above crashing waves, wearing a windbreaker, hair blowing, exhilarated expression, dramatic clouds, 24mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wildflower meadow",
+      "prompt": "photo of {subject} walking through a high meadow of purple and yellow wildflowers, wearing a sun hat and a light hiking shirt, relaxed smile, bright afternoon light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lakeside camp",
+      "prompt": "photo of {subject} outside a tent at a lakeside campsite at dawn, wrapped in a down jacket and holding a steaming tin mug, sleepy content smile, mist over the water, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "River stepping stones",
+      "prompt": "photo of {subject} hopping across stepping stones in a clear mountain river, wearing hiking boots and a light jacket, arms out for balance, laughing, dappled light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert arch",
+      "prompt": "photo of {subject} standing beneath a natural red sandstone arch at golden hour, wearing a sun hoodie and a wide-brim hat, awed smile, deep blue sky, 24mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainforest ferns",
+      "prompt": "portrait of {subject} in a lush rainforest of giant ferns after rain, wearing a green rain jacket, water droplets glistening on the leaves, calm expression, soft diffused light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Trail map break",
+      "prompt": "photo of {subject} resting on a granite boulder studying a paper trail map, wearing a cap and a daypack, looking up with a grin, a big valley view behind, bright light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

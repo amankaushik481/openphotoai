@@ -26,13 +26,23 @@ export interface Translator {
   locale: Locale;
 }
 
+const translators = new Map<Locale, Translator>();
+
+/** One stable translator per locale (stable identity keeps hook dependency arrays quiet). */
+function translatorFor(locale: Locale): Translator {
+  let fn = translators.get(locale);
+  if (!fn) {
+    fn = Object.assign((key: TranslationKey, vars?: TranslationVars) => translateKey(key, vars, locale), {
+      count: (key: TranslationKey, oneKey: TranslationKey, count: number, vars?: TranslationVars) =>
+        translateCount(key, oneKey, count, vars, locale),
+      locale,
+    });
+    translators.set(locale, fn);
+  }
+  return fn;
+}
+
 /** Translator bound to the current locale: `const t = useT(); t("nav.pricing")`. */
 export function useT(): Translator {
-  const locale = useLocale();
-  return React.useMemo(() => {
-    const fn = ((key: TranslationKey, vars?: TranslationVars) => translateKey(key, vars, locale)) as Translator;
-    fn.count = (key, oneKey, count, vars) => translateCount(key, oneKey, count, vars, locale);
-    fn.locale = locale;
-    return fn;
-  }, [locale]);
+  return translatorFor(useLocale());
 }

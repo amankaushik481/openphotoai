@@ -1,0 +1,84 @@
+{
+  "slug": "golf",
+  "name": "Golf",
+  "tagline": "Fairway swings, clubhouse terraces and links at sunset.",
+  "description": "Golf photos from first tee to 19th hole: fairway swings, putting greens, bunker shots, seaside links, desert courses and clubhouse terraces. Classic golf attire, soft morning mist and golden evening light, no logos anywhere.",
+  "category": "fitness",
+  "emoji": "⛳",
+  "tags": [
+    "golf",
+    "country club",
+    "sport",
+    "fairway",
+    "preppy",
+    "clubhouse",
+    "links",
+    "outdoors"
+  ],
+  "colors": [
+    "#15803d",
+    "#ecfccb"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, bent golf club, extra golf clubs in hands",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 540,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Fairway swing",
+      "prompt": "action photo of {subject} completing a golf swing on a lush fairway, wearing a fitted golf polo and tailored trousers, balanced follow-through, focused confident expression, soft morning light, rolling green course behind, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "action photo of {subject} completing a golf swing on a lush fairway, wearing a navy golf polo and tailored grey trousers, balanced follow-through, focused confident expression, soft morning light, rolling green course behind, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "action photo of {subject} completing a golf swing on a lush fairway, wearing a white golf polo and a pleated golf skirt, balanced follow-through, focused confident expression, soft morning light, rolling green course behind, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Reading the green",
+      "prompt": "photo of {subject} crouched reading the line of a putt on a manicured green with a putter in hand, wearing a quarter-zip pullover and a cap, concentrated expression, low golden light, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Clubhouse terrace",
+      "prompt": "photo of {subject} on a clubhouse terrace overlooking the final green, holding an iced tea, wearing a crisp golf polo with a light sweater over the shoulders, relaxed smile, late afternoon light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Golf cart",
+      "prompt": "photo of {subject} driving a white golf cart along a tree-lined cart path, wearing a visor and a polo shirt, laughing, dappled sunlight, 35mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Seaside links",
+      "prompt": "portrait of {subject} on a windswept seaside links course with dunes and the ocean behind, wearing a wool sweater over a polo with a club resting on one shoulder, confident smile, dramatic clouds, 35mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Driving range dusk",
+      "prompt": "photo of {subject} at a driving range at dusk mid-swing, wearing a vest over a long-sleeve polo, focused smile, floodlights and a pink sky, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bunker shot",
+      "prompt": "action photo of {subject} splashing a ball out of a sand bunker with sand spraying in the sunlight, wearing a light golf outfit, determined expression, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "First tee",
+      "prompt": "portrait of {subject} standing beside a leather golf bag on the first tee, wearing a classic golf outfit and a cap, arms crossed, confident smile, soft morning mist, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunset fairway walk",
+      "prompt": "photo of {subject} walking up the fairway at sunset with a golf bag over the shoulder, long shadows, wearing a polo and trousers, content smile, warm backlight, 85mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Clubhouse lounge",
+      "prompt": "portrait of {subject} in a wood-paneled golf clubhouse lounge with leather chairs, wearing a navy sweater over a polo and holding a coffee, relaxed smile, warm light, 50mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunk putt",
+      "prompt": "candid photo of {subject} celebrating a sunk putt with a fist pump and a big smile on the green, wearing a golf polo and a cap, bright afternoon light, 200mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert course",
+      "prompt": "portrait of {subject} on a desert golf course with saguaro cacti and red mountains, wearing a breathable polo with sunglasses resting on the cap, smiling, warm golden light, 35mm lens, no logos, sports photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}
