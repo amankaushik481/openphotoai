@@ -18,7 +18,12 @@ type Params = Promise<{ token: string }>;
 /** One lookup per request, shared by generateMetadata and the page. */
 const getShare = cache((token: string) => resolveShare(token));
 
-const ROBOTS: Metadata["robots"] = { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } };
+const ROBOTS: Metadata["robots"] = {
+  index: false,
+  follow: false,
+  nocache: true,
+  googleBot: { index: false, follow: false },
+};
 /** Social previews fetch the image once; give them longer than the 1h page URLs. */
 const PREVIEW_TTL_SEC = 7 * 24 * 3600;
 
@@ -32,7 +37,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const description = `AI-generated with ${APP.name}.`;
   const preview = share.media.find((m) => m.kind === "image");
   const image = preview
-    ? { url: await signedUrl(preview.storageKey, { expiresInSec: PREVIEW_TTL_SEC }), width: preview.width ?? undefined, height: preview.height ?? undefined }
+    ? {
+        url: await signedUrl(preview.storageKey, { expiresInSec: PREVIEW_TTL_SEC }),
+        width: preview.width ?? undefined,
+        height: preview.height ?? undefined,
+      }
     : undefined;
   return {
     title,

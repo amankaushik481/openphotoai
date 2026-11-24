@@ -1,9 +1,8 @@
 import { parseBody, parseQuery } from "@/server/http";
 import { readIdempotencyKey, syncRunningJobs } from "@/server/jobs/api";
 import { createJob, toJobDTO } from "@/server/jobs/engine";
-import { listJobsForUser, toJobDTOs } from "@/server/jobs/queries";
+import { listJobsForUser, listJobsQuery, toJobDTOs } from "@/server/jobs/queries";
 import { v1Operations } from "@/server/openapi/operations";
-import { v1ListJobsQuery } from "@/server/openapi/queries";
 import { createJobRequest } from "@/types/domain";
 import { v1Route } from "@/app/api/v1/_lib/handler";
 
@@ -17,7 +16,7 @@ export const POST = v1Route(v1Operations.createJob, async ({ req, user, apiKey }
 
 /** `?status&type&limit&cursor` (newest first), or `?ids=a,b,c` to poll specific jobs. */
 export const GET = v1Route(v1Operations.listJobs, async ({ req, user }) => {
-  const query = parseQuery(req, v1ListJobsQuery);
+  const query = parseQuery(req, listJobsQuery);
   const page = await listJobsForUser(user.id, query);
   const rows = query.ids ? await syncRunningJobs(page.jobs) : page.jobs;
   return { jobs: await toJobDTOs(rows), nextCursor: page.nextCursor };

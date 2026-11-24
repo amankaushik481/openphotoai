@@ -11,6 +11,8 @@ import type {
   IdentityModelDTO,
   JobDTO,
   MediaDTO,
+  ReadinessDTO,
+  TrainingPhotoDTO,
 } from "@/types/domain";
 import type { PackSummary } from "@/types/pack";
 
@@ -139,6 +141,7 @@ export const modelExample: IdentityModelDTO = {
   name: "Me",
   subject: "person",
   status: "ready",
+  mode: "trained",
   triggerWord: "ohwxkqmzt",
   coverUrl: null,
   photoCount: 18,
@@ -148,6 +151,39 @@ export const modelExample: IdentityModelDTO = {
   shared: false,
   createdAt: "2026-04-30T09:00:00.000Z",
   trainedAt: "2026-04-30T09:21:00.000Z",
+};
+
+export const trainingPhotoExample: TrainingPhotoDTO = {
+  id: "tph_p1h2o3t4o5s6e7l8f9i0",
+  url: `https://openshoot.example/api/files/users/usr_x/models/${MODEL_ID}/photos/tph_p1h2o3t4o5s6e7l8f9i0.jpg${SIGNED}`,
+  thumbUrl: `https://openshoot.example/api/files/users/usr_x/models/${MODEL_ID}/photos/tph_p1h2o3t4o5s6e7l8f9i0-thumb.webp${SIGNED}`,
+  status: "accepted",
+  quality: {
+    score: 86,
+    issues: [
+      {
+        code: "extreme_angle",
+        severity: "warning",
+        message: "Your head is turned quite far.",
+        fix: "Add a few photos looking straight at the camera.",
+      },
+    ],
+    metrics: { width: 1536, height: 2048, sharpness: 412.5, brightness: 131, contrast: 52.3, faceAreaRatio: 0.11, yaw: -31, pitch: 4 },
+  },
+  faceMatchScore: 0.93,
+  createdAt: "2026-04-30T09:02:00.000Z",
+};
+
+export const readinessExample: ReadinessDTO = {
+  total: 18,
+  accepted: 16,
+  rejected: 2,
+  minRequired: 10,
+  maxAllowed: 30,
+  variety: { frontal: 9, left: 3, right: 2, up: 1, down: 1 },
+  canTrain: true,
+  blockers: [],
+  tips: ["Add a couple more photos looking to the right for more varied results."],
 };
 
 export const ledgerExample: CreditLedgerEntryDTO = {

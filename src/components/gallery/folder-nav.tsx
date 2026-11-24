@@ -76,7 +76,8 @@ export function FolderNav({ filters, onNavigate, onFoldersChanged, className }: 
     await api(`/api/folders/${folder.id}`, { method: "DELETE" });
     await mutate();
     toast.success(`Folder “${folder.name}” deleted. Its photos are still in your gallery.`);
-    if (filters.folderId === folder.id) router.replace(galleryHref({ ...filters, folderId: undefined }), { scroll: false });
+    if (filters.folderId === folder.id)
+      router.replace(galleryHref({ ...filters, folderId: undefined }), { scroll: false });
     onFoldersChanged?.();
   }
 

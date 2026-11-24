@@ -22,9 +22,12 @@ export function LoadMore({ hasMore, loading, onLoadMore }: LoadMoreProps) {
     const el = ref.current;
     if (!hasMore || loading || !el || typeof IntersectionObserver === "undefined") return;
     // Re-created after every page, so a sentinel that is still visible keeps loading.
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) onLoadMore();
-    }, { rootMargin: "800px 0px" });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) onLoadMore();
+      },
+      { rootMargin: "800px 0px" },
+    );
     observer.observe(el);
     return () => observer.disconnect();
   }, [hasMore, loading, onLoadMore]);

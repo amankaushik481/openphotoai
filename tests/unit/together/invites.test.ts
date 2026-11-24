@@ -3,6 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import { consentRecords, emailOutbox, identityModels, modelShares } from "@/db/schema";
 import type { IdentityModelRow, UserRow } from "@/db/types";
+import { RATE_LIMITS } from "@/config/rate-limits";
+import { checkRateLimit } from "@/server/rate-limit";
 import { DAY_MS, MAX_PENDING_INVITES } from "@/server/together/constants";
 import {
   acceptInvite,
@@ -112,8 +114,12 @@ describe("createInvite", () => {
     await expect(createInvite(alice, { email: "friend3@example.com" })).resolves.toMatchObject({ resent: true });
   });
 
-  it("rate-limits invite emails", async () => {
-    for (let i = 0; i < 10; i++) await createInvite(alice, { email: `f${i}@example.com` });
+  it("rate-limits invite emails (re-sends included, shared invitesPerHour limit)", async () => {
+    const { limit } = RATE_LIMITS.invitesPerHour;
+    await createInvite(alice, { email: "bob@example.com" });
+    await createInvite(alice, { email: "bob@example.com" }); // re-send counts too
+    await checkRateLimit("invitesPerHour", `user:${alice.id}`, limit - 2);
+    await expect(createInvite(alice, { email: "bob@example.com" })).rejects.toMatchObject({ code: "rate_limited" });
     await expect(createInvite(alice, { email: "f10@example.com" })).rejects.toMatchObject({ code: "rate_limited" });
     // Per user: someone else can still invite.
     await expect(createInvite(eve, { email: "bob@example.com" })).resolves.toMatchObject({ resent: false });

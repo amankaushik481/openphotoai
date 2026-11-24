@@ -78,7 +78,15 @@ function overlayOpen(): boolean {
   return Boolean(document.querySelector("[role=dialog],[role=alertdialog],[role=menu],[role=listbox]"));
 }
 
-export function MediaViewer({ media: initial, parent, childMedia, prevId, nextId, filters, details }: MediaViewerProps) {
+export function MediaViewer({
+  media: initial,
+  parent,
+  childMedia,
+  prevId,
+  nextId,
+  filters,
+  details,
+}: MediaViewerProps) {
   const t = useT();
   const router = useRouter();
   const { mutate: mutateFolders } = useFolders();
@@ -184,7 +192,8 @@ export function MediaViewer({ media: initial, parent, childMedia, prevId, nextId
             </Badge>
           )}
           <figcaption className="sr-only">
-            {media.kind === "video" ? "AI-generated video" : "AI-generated photo"}, created {created.toLocaleString(t.locale)}
+            {media.kind === "video" ? "AI-generated video" : "AI-generated photo"}, created{" "}
+            {created.toLocaleString(t.locale)}
           </figcaption>
         </figure>
 
@@ -399,7 +408,13 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
   ]);
   if (media.width && media.height) rows.push(["Resolution", `${media.width} × ${media.height}`]);
   if (media.durationSec != null) rows.push(["Duration", `${Math.round(media.durationSec)}s`]);
-  if (details.seed != null) rows.push(["Seed", <span key="seed" className="font-mono text-xs">{details.seed}</span>]);
+  if (details.seed != null)
+    rows.push([
+      "Seed",
+      <span key="seed" className="font-mono text-xs">
+        {details.seed}
+      </span>,
+    ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -438,10 +453,18 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
             Scores
           </h2>
           {media.scores.likeness != null && (
-            <ScoreMeter label="Likeness" value={media.scores.likeness} hint="How closely the face matches your consent selfie" />
+            <ScoreMeter
+              label="Likeness"
+              value={media.scores.likeness}
+              hint="How closely the face matches your consent selfie"
+            />
           )}
           {media.scores.quality != null && (
-            <ScoreMeter label="Quality" value={media.scores.quality} hint="Sharpness, exposure and overall image quality" />
+            <ScoreMeter
+              label="Quality"
+              value={media.scores.quality}
+              hint="Sharpness, exposure and overall image quality"
+            />
           )}
         </section>
       )}

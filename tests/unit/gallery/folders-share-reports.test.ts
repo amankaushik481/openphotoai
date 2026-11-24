@@ -59,7 +59,11 @@ describe("folders", () => {
     });
     expect(renamed.json.folder).toMatchObject({ name: "Headshots", mediaCount: 1 });
 
-    const deleted = await callRoute(deleteFolderRoute, { method: "DELETE", url: `/api/folders/${folder.id}`, params: { id: folder.id } });
+    const deleted = await callRoute(deleteFolderRoute, {
+      method: "DELETE",
+      url: `/api/folders/${folder.id}`,
+      params: { id: folder.id },
+    });
     expect(deleted.status).toBe(200);
     expect(await db.select().from(folders)).toHaveLength(0);
     const [kept] = await db.select().from(media).where(eq(media.id, m.id));
@@ -72,7 +76,9 @@ describe("folders", () => {
     expect((await createFolder("x".repeat(FOLDER_NAME_MAX + 1))).status).toBe(400);
     expect((await createFolder("x".repeat(FOLDER_NAME_MAX))).status).toBe(200);
 
-    await db.insert(folders).values(Array.from({ length: MAX_FOLDERS - 1 }, (_, i) => ({ userId: alice.id, name: `F${i}` })));
+    await db
+      .insert(folders)
+      .values(Array.from({ length: MAX_FOLDERS - 1 }, (_, i) => ({ userId: alice.id, name: `F${i}` })));
     const over = await createFolder("one too many");
     expect(over.status).toBe(403);
     expect(over.json.error.code).toBe("plan_limit");
@@ -90,7 +96,11 @@ describe("folders", () => {
       body: { name: "Mine now" },
     });
     expect(rename.status).toBe(404);
-    const del = await callRoute(deleteFolderRoute, { method: "DELETE", url: `/api/folders/${bobFolder!.id}`, params: { id: bobFolder!.id } });
+    const del = await callRoute(deleteFolderRoute, {
+      method: "DELETE",
+      url: `/api/folders/${bobFolder!.id}`,
+      params: { id: bobFolder!.id },
+    });
     expect(del.status).toBe(404);
     expect((await callRoute(listFoldersRoute, { url: "/api/folders" })).json.folders).toEqual([]);
     const [still] = await db.select().from(folders).where(eq(folders.id, bobFolder!.id));
@@ -118,15 +128,21 @@ describe("share links", () => {
 
     // Other users can't revoke it.
     sessionMock.setUser(bob);
-    expect((await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status).toBe(404);
+    expect(
+      (await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status,
+    ).toBe(404);
     expect(await resolveShare(token)).not.toBeNull();
 
     sessionMock.setUser(alice);
-    expect((await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status).toBe(200);
+    expect(
+      (await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status,
+    ).toBe(200);
     expect(await resolveShare(token)).toBeNull();
     expect((await callRoute(listSharesRoute, { url: `/api/share?mediaId=${m.id}` })).json.shares).toEqual([]);
     // Revoking twice is fine.
-    expect((await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status).toBe(200);
+    expect(
+      (await callRoute(revokeShareRoute, { method: "DELETE", url: `/api/share/${id}`, params: { id } })).status,
+    ).toBe(200);
   });
 
   it("refuses sharing other users' media or folders (404)", async () => {
@@ -144,7 +160,10 @@ describe("share links", () => {
     const expiring = (await share({ mediaId: m.id, expiresInDays: 1 })).json.share;
     expect(new Date(expiring.expiresAt).getTime()).toBeGreaterThan(Date.now());
     expect(await resolveShare(expiring.token)).not.toBeNull();
-    await db.update(shareLinks).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(shareLinks.id, expiring.id));
+    await db
+      .update(shareLinks)
+      .set({ expiresAt: new Date(Date.now() - 1000) })
+      .where(eq(shareLinks.id, expiring.id));
     expect(await resolveShare(expiring.token)).toBeNull();
 
     const live = (await share({ mediaId: m.id })).json.share;
@@ -166,7 +185,11 @@ describe("share links", () => {
     expect(resolved?.media.map((r) => r.id)).toEqual([shown.id]);
 
     // Deleting the folder takes its links with it.
-    await callRoute(deleteFolderRoute, { method: "DELETE", url: `/api/folders/${folder!.id}`, params: { id: folder!.id } });
+    await callRoute(deleteFolderRoute, {
+      method: "DELETE",
+      url: `/api/folders/${folder!.id}`,
+      params: { id: folder!.id },
+    });
     expect(await resolveShare(link.token)).toBeNull();
   });
 });
@@ -180,7 +203,12 @@ describe("POST /api/reports", () => {
     const link = (await callRoute(createShareRoute, { url: "/api/share", body: { mediaId: m.id } })).json.share;
     sessionMock.setUser(null);
 
-    const res = await report({ shareToken: link.token, reason: "non_consensual", details: "This is me", email: "victim@example.com" });
+    const res = await report({
+      shareToken: link.token,
+      reason: "non_consensual",
+      details: "This is me",
+      email: "victim@example.com",
+    });
     expect(res.status).toBe(200);
     expect(res.json).toEqual({ ok: true });
     const [row] = await db.select().from(reports);
@@ -203,7 +231,12 @@ describe("POST /api/reports", () => {
     sessionMock.setUser(bob);
     expect((await report({ mediaId: m.id, reason: "impersonation", email: "" })).status).toBe(200);
     const [byMedia] = await db.select().from(reports);
-    expect(byMedia).toMatchObject({ mediaId: m.id, targetUserId: alice.id, reporterUserId: bob.id, reporterEmail: null });
+    expect(byMedia).toMatchObject({
+      mediaId: m.id,
+      targetUserId: alice.id,
+      reporterUserId: bob.id,
+      reporterEmail: null,
+    });
     expect(sendEmailSafe).toHaveBeenCalledTimes(1);
 
     await db.delete(reports);
@@ -216,7 +249,11 @@ describe("POST /api/reports", () => {
     await report({ shareToken: link.token, mediaId: m.id, reason: "other" });
     await report({ shareToken: link.token, mediaId: inFolder.id, reason: "harassment" });
     const rows = await db.select().from(reports);
-    expect(rows.find((r) => r.reason === "other")).toMatchObject({ mediaId: null, targetUserId: alice.id, shareLinkId: link.id });
+    expect(rows.find((r) => r.reason === "other")).toMatchObject({
+      mediaId: null,
+      targetUserId: alice.id,
+      shareLinkId: link.id,
+    });
     expect(rows.find((r) => r.reason === "harassment")).toMatchObject({ mediaId: inFolder.id, targetUserId: alice.id });
   });
 

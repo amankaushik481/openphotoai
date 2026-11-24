@@ -105,7 +105,13 @@ export function SelectionBar({
         }
       />
 
-      <Button type="button" variant="outline" size="sm" onClick={() => void onDownload()} disabled={disabled || overLimit}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => void onDownload()}
+        disabled={disabled || overLimit}
+      >
         {spin("download") ?? <DownloadIcon aria-hidden="true" />}
         <span className="hidden sm:inline">Download</span>
         <span className="sr-only sm:hidden">Download zip</span>
@@ -157,4 +163,3 @@ export function SelectionBar({
     </div>
   );
 }
-

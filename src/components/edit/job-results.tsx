@@ -67,7 +67,7 @@ export function JobResults({ jobs, onCompare, compareId, title = "Results", clas
             <Button asChild size="sm" variant="secondary" className="h-8 bg-background/90 backdrop-blur-sm">
               <Link href={`/app/edit/${m.id}`} title="Use as the new source and keep editing">
                 <PencilLineIcon />
-                Edit
+                Edit<span className="sr-only"> this result</span>
               </Link>
             </Button>
           </>

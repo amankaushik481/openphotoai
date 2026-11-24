@@ -6,13 +6,7 @@ import { Link2Icon, LoaderCircleIcon, ShieldCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,7 +40,9 @@ function describe(share: ShareDTO, locale: string): string {
 export function ShareDialog({ target, open, onOpenChange, title = "Share" }: ShareDialogProps) {
   const t = useT();
   const expiryId = React.useId();
-  const query = target.mediaId ? `mediaId=${encodeURIComponent(target.mediaId)}` : `folderId=${encodeURIComponent(target.folderId!)}`;
+  const query = target.mediaId
+    ? `mediaId=${encodeURIComponent(target.mediaId)}`
+    : `folderId=${encodeURIComponent(target.folderId!)}`;
   const { data, isLoading, mutate } = useSWR<{ shares: ShareDTO[] }>(open ? `/api/share?${query}` : null, fetcher, {
     revalidateOnFocus: false,
   });
@@ -87,8 +83,8 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Anyone with the link can view {target.mediaId ? "this photo" : "this folder"} without signing in. Shared pages
-            are labeled AI-generated, hidden from search engines and have a report button.
+            Anyone with the link can view {target.mediaId ? "this photo" : "this folder"} without signing in. Shared
+            pages are labeled AI-generated, hidden from search engines and have a report button.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,7 +109,12 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
                     <span>{describe(share, t.locale)}</span>
                     <ConfirmDialog
                       trigger={
-                        <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
                           Revoke
                         </Button>
                       }
@@ -148,7 +149,11 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
             </Select>
           </div>
           <Button type="button" onClick={create} disabled={creating || isLoading} aria-busy={creating}>
-            {creating ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <Link2Icon aria-hidden="true" />}
+            {creating ? (
+              <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+            ) : (
+              <Link2Icon aria-hidden="true" />
+            )}
             {shares.length ? "Create another link" : "Create link"}
           </Button>
         </div>

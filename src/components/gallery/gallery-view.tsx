@@ -136,43 +136,46 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
   const loadedIds = list.media.filter((m) => filters.showHidden || !m.hidden).map((m) => m.id);
   const allSelected = loadedIds.length > 0 && loadedIds.every((id) => selected.includes(id));
 
-  const empty = filters.folderId && !hasNarrowingFilters({ ...filters, folderId: undefined }) ? (
-    <EmptyState
-      icon={<FolderOpenIcon />}
-      title="This folder is empty"
-      description="Open All media, tap Select, pick photos and use Move to add them here."
-      action={
-        <Button asChild variant="outline">
-          <Link href={galleryHref({ ...filters, folderId: undefined })}>All media</Link>
-        </Button>
-      }
-    />
-  ) : hasNarrowingFilters(filters) ? (
-    <EmptyState
-      icon={<SearchXIcon />}
-      title="Nothing matches these filters"
-      description={list.hiddenCount > 0 && !filters.showHidden ? "Some results are hidden by the best-shots picker." : undefined}
-      action={
-        <Button asChild variant="outline">
-          <Link href={galleryHref({ folderId: filters.folderId })}>Clear filters</Link>
-        </Button>
-      }
-    />
-  ) : (
-    <EmptyState
-      icon={<ImagesIcon />}
-      title={t("empty.gallery")}
-      description={t("empty.galleryBody")}
-      action={
-        <Button asChild variant="brand">
-          <Link href="/app/create">
-            <SparklesIcon aria-hidden="true" />
-            {t("nav.create")}
-          </Link>
-        </Button>
-      }
-    />
-  );
+  const empty =
+    filters.folderId && !hasNarrowingFilters({ ...filters, folderId: undefined }) ? (
+      <EmptyState
+        icon={<FolderOpenIcon />}
+        title="This folder is empty"
+        description="Open All media, tap Select, pick photos and use Move to add them here."
+        action={
+          <Button asChild variant="outline">
+            <Link href={galleryHref({ ...filters, folderId: undefined })}>All media</Link>
+          </Button>
+        }
+      />
+    ) : hasNarrowingFilters(filters) ? (
+      <EmptyState
+        icon={<SearchXIcon />}
+        title="Nothing matches these filters"
+        description={
+          list.hiddenCount > 0 && !filters.showHidden ? "Some results are hidden by the best-shots picker." : undefined
+        }
+        action={
+          <Button asChild variant="outline">
+            <Link href={galleryHref({ folderId: filters.folderId })}>Clear filters</Link>
+          </Button>
+        }
+      />
+    ) : (
+      <EmptyState
+        icon={<ImagesIcon />}
+        title={t("empty.gallery")}
+        description={t("empty.galleryBody")}
+        action={
+          <Button asChild variant="brand">
+            <Link href="/app/create">
+              <SparklesIcon aria-hidden="true" />
+              {t("nav.create")}
+            </Link>
+          </Button>
+        }
+      />
+    );
 
   return (
     <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">

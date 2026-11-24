@@ -73,7 +73,10 @@ export async function createShare(userId: string, req: CreateShareRequest): Prom
 }
 
 /** Active links the user created for one media item or folder (newest first). */
-export async function listShares(userId: string, target: { mediaId?: string; folderId?: string }): Promise<ShareLinkRow[]> {
+export async function listShares(
+  userId: string,
+  target: { mediaId?: string; folderId?: string },
+): Promise<ShareLinkRow[]> {
   return db
     .select()
     .from(shareLinks)

@@ -34,7 +34,6 @@ function host(): string {
 function Silhouette() {
   return (
     <svg width="360" height="450" viewBox="0 0 160 200" style={{ position: "absolute", bottom: 0, left: 20 }}>
-      <circle cx="40" cy="36" r="92" fill="#fff" opacity="0.18" />
       <g fill={INK} opacity="0.42">
         <path d="M52 84 C48 54 64 44 81 44 C100 44 112 56 108 84 C102 66 72 62 52 84 Z" />
         <ellipse cx="80" cy="86" rx="27" ry="33" />

@@ -12,6 +12,7 @@
     "src/app/s/**/*.tsx",
     "src/components/gallery/**/*.tsx",
     "src/components/gallery/**/*.ts",
-    "tests/unit/gallery/**/*.ts"
+    "tests/unit/gallery/**/*.ts",
+    "tests/unit/gallery/**/*.tsx"
   ]
 }

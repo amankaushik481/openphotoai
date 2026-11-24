@@ -133,7 +133,10 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
   const [brush, setBrush] = React.useState(BRUSH_DEFAULT);
   const [history, setHistory] = React.useState<MaskHistory>(EMPTY_HISTORY);
   const [view, setView] = React.useState<View>(IDENTITY_VIEW);
-  const [cursor, setCursor] = React.useState<Point | null>(null);
+  // The brush ring follows the pointer imperatively (no re-render per mouse move).
+  const [hovering, setHovering] = React.useState(false);
+  const ringRef = React.useRef<HTMLSpanElement | null>(null);
+  const lastHover = React.useRef<Point | null>(null);
 
   const live = React.useRef({ history, view, tool, brush, work, onPaintChange });
   React.useEffect(() => {
@@ -178,6 +181,12 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
   const viewportPoint = (e: { clientX: number; clientY: number }): Point => {
     const rect = viewportRef.current?.getBoundingClientRect();
     return rect ? { x: e.clientX - rect.left, y: e.clientY - rect.top } : { x: 0, y: 0 };
+  };
+  const placeRing = (el: HTMLSpanElement | null, size = live.current.brush) => {
+    const p = lastHover.current;
+    if (!el || !p) return;
+    const r = size / 2;
+    el.style.transform = `translate(${p.x - r}px, ${p.y - r}px)`;
   };
   const zoomBy = (factor: number) => {
     const size = viewportSize();
@@ -261,7 +270,11 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "touch") setCursor(viewportPoint(e));
+    if (e.pointerType !== "touch") {
+      lastHover.current = viewportPoint(e);
+      if (!hovering) setHovering(true);
+      placeRing(ringRef.current);
+    }
     if (!pointers.current.has(e.pointerId)) return;
     pointers.current.set(e.pointerId, viewportPoint(e));
 
@@ -368,7 +381,7 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
   );
 
   const painted = hasPaint(history.done);
-  const showRing = cursor !== null && tool !== "move" && !disabled;
+  const showRing = hovering && tool !== "move" && !disabled;
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
@@ -385,7 +398,8 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         onPointerMove={onPointerMove}
         onPointerUp={(e) => endPointer(e, false)}
         onPointerCancel={(e) => endPointer(e, true)}
-        onPointerLeave={() => setCursor(null)}
+        onLostPointerCapture={(e) => endPointer(e, false)}
+        onPointerLeave={() => setHovering(false)}
         onContextMenu={(e) => e.preventDefault()}
         className={cn(
           "relative mx-auto w-full touch-none overflow-hidden rounded-xl bg-muted outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/60",
@@ -425,9 +439,13 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
 
         {showRing && (
           <span
+            ref={(el) => {
+              ringRef.current = el;
+              placeRing(el, brush);
+            }}
             aria-hidden="true"
-            className="pointer-events-none absolute rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.5)]"
-            style={{ width: brush, height: brush, left: cursor.x - brush / 2, top: cursor.y - brush / 2 }}
+            className="pointer-events-none absolute top-0 left-0 rounded-full border-2 border-white shadow-[0_0_0_1px_rgb(0_0_0/0.5)]"
+            style={{ width: brush, height: brush }}
           />
         )}
         {!painted && (

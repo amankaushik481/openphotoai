@@ -171,7 +171,12 @@ describe("/api/media/:id", () => {
     const [bobRow] = await db.select().from(media).where(eq(media.id, theirs.id));
     expect(bobRow).toMatchObject({ isFavorite: false });
 
-    const empty = await callRoute(patchMediaRoute, { method: "PATCH", url: `/api/media/${mine.id}`, params: { id: mine.id }, body: {} });
+    const empty = await callRoute(patchMediaRoute, {
+      method: "PATCH",
+      url: `/api/media/${mine.id}`,
+      params: { id: mine.id },
+      body: {},
+    });
     expect(empty.status).toBe(400);
   });
 
@@ -181,14 +186,22 @@ describe("/api/media/:id", () => {
     expect(await storage.exists(row.storageKey)).toBe(true);
     expect(await storage.exists(row.thumbKey!)).toBe(true);
 
-    const res = await callRoute(deleteMediaRoute, { method: "DELETE", url: `/api/media/${row.id}`, params: { id: row.id } });
+    const res = await callRoute(deleteMediaRoute, {
+      method: "DELETE",
+      url: `/api/media/${row.id}`,
+      params: { id: row.id },
+    });
     expect(res.status).toBe(200);
     expect(await storage.exists(row.storageKey)).toBe(false);
     expect(await storage.exists(row.thumbKey!)).toBe(false);
     expect(await db.select().from(media).where(eq(media.id, row.id))).toHaveLength(0);
     expect(await db.select().from(shareLinks).where(eq(shareLinks.mediaId, row.id))).toHaveLength(0);
 
-    const again = await callRoute(deleteMediaRoute, { method: "DELETE", url: `/api/media/${row.id}`, params: { id: row.id } });
+    const again = await callRoute(deleteMediaRoute, {
+      method: "DELETE",
+      url: `/api/media/${row.id}`,
+      params: { id: row.id },
+    });
     expect(again.status).toBe(404);
   });
 });

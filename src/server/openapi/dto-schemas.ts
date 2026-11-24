@@ -6,17 +6,23 @@
  */
 import {
   API_ERROR_CODES,
+  CREDIT_REASONS,
   JOB_STATUSES,
   JOB_TYPES,
   MODEL_STATUSES,
+  PHOTO_STATUSES,
   SUBJECTS,
-  CREDIT_REASONS,
   type BatchDTO,
   type CreditLedgerEntryDTO,
   type IdentityModelDTO,
   type JobDTO,
   type MediaDTO,
   type MediaScores,
+  type PhotoIssue,
+  type PhotoIssueCode,
+  type PhotoQualityReport,
+  type ReadinessDTO,
+  type TrainingPhotoDTO,
 } from "@/types/domain";
 import { PACK_CATEGORIES, type PackSummary } from "@/types/pack";
 import type { JsonSchema } from "./types";
@@ -142,6 +148,7 @@ export const IdentityModelSchema = dto<IdentityModelDTO>(
     name: str("Display name."),
     subject: enumOf(SUBJECTS, "Subject used in prompts."),
     status: enumOf(MODEL_STATUSES, "Only `ready` models can generate."),
+    mode: enumOf(["instant", "trained"], "`instant` (reference-based, no training) or `trained` (best likeness)."),
     triggerWord: str("Unique token that refers to this identity in prompts."),
     coverUrl: nullable(str("Signed cover image URL.", { format: "uri" })),
     photoCount: int("Training photos uploaded.", { minimum: 0 }),
@@ -155,6 +162,89 @@ export const IdentityModelSchema = dto<IdentityModelDTO>(
   },
   ["ownerName"],
 );
+
+/** Exhaustive (a Record), so a new PhotoIssueCode can't be forgotten here. */
+const PHOTO_ISSUE_CODES: Record<PhotoIssueCode, true> = {
+  unreadable: true,
+  too_small: true,
+  blurry: true,
+  too_dark: true,
+  too_bright: true,
+  low_contrast: true,
+  no_face: true,
+  multiple_faces: true,
+  face_too_small: true,
+  face_cut_off: true,
+  extreme_angle: true,
+  duplicate: true,
+  face_mismatch: true,
+  underage: true,
+  nsfw: true,
+};
+
+export const PhotoIssueSchema = dto<PhotoIssue>("A problem found in a training photo, with a fix-it tip.", {
+  code: enumOf(Object.keys(PHOTO_ISSUE_CODES), "Issue code."),
+  severity: enumOf(["error", "warning"], "`error` photos are rejected; `warning` photos are accepted."),
+  message: str("What is wrong, in plain language."),
+  fix: str("How to fix it, in plain language."),
+});
+
+const num = (description: string): JsonSchema => ({ type: "number", description });
+
+export const PhotoQualityReportSchema = dto<PhotoQualityReport>("Quality check of one training photo.", {
+  score: int("Overall quality 0-100.", { minimum: 0, maximum: 100 }),
+  issues: { type: "array", items: ref("PhotoIssue"), description: "Problems found (empty when the photo is great)." },
+  metrics: {
+    type: "object",
+    description: "Raw measurements.",
+    required: ["width", "height", "sharpness", "brightness", "contrast"],
+    properties: {
+      width: int("Width in pixels."),
+      height: int("Height in pixels."),
+      sharpness: num("Variance of the Laplacian; higher is sharper."),
+      brightness: num("Mean luminance 0-255."),
+      contrast: num("Standard deviation of luminance."),
+      faceAreaRatio: num("Face box area / image area."),
+      yaw: num("Head yaw in degrees (negative = left)."),
+      pitch: num("Head pitch in degrees."),
+    } satisfies { [K in keyof PhotoQualityReport["metrics"]]-?: JsonSchema },
+  },
+});
+
+export const TrainingPhotoSchema = dto<TrainingPhotoDTO>("A training selfie of one of your models.", {
+  id: id("tph", "Training photo"),
+  url: str("Signed URL (expires).", { format: "uri" }),
+  thumbUrl: str("Signed thumbnail URL (expires).", { format: "uri" }),
+  status: enumOf(PHOTO_STATUSES, "`accepted` photos are used for training."),
+  quality: nullable(ref("PhotoQualityReport")),
+  faceMatchScore: nullable({ type: "number", minimum: 0, maximum: 1, description: "Similarity to the consent selfie." }),
+  createdAt: dateTime("Upload time."),
+});
+
+const poseCount = (pose: string) => int(`Accepted photos with a ${pose} head pose.`, { minimum: 0 });
+
+export const ReadinessSchema = dto<ReadinessDTO>("Whether a model has enough good photos to be created/trained.", {
+  total: int("Photos uploaded.", { minimum: 0 }),
+  accepted: int("Photos accepted.", { minimum: 0 }),
+  rejected: int("Photos rejected.", { minimum: 0 }),
+  minRequired: int("Accepted photos needed.", { minimum: 0 }),
+  maxAllowed: int("Maximum photos.", { minimum: 0 }),
+  variety: {
+    type: "object",
+    description: "Accepted photos by head-pose bucket.",
+    required: ["frontal", "left", "right", "up", "down"],
+    properties: {
+      frontal: poseCount("frontal"),
+      left: poseCount("left"),
+      right: poseCount("right"),
+      up: poseCount("upward"),
+      down: poseCount("downward"),
+    } satisfies { [K in keyof ReadinessDTO["variety"]]-?: JsonSchema },
+  },
+  canTrain: bool("All requirements met."),
+  blockers: { type: "array", items: { type: "string" }, description: "What still blocks training." },
+  tips: { type: "array", items: { type: "string" }, description: "Suggestions for better results." },
+});
 
 export const CreditLedgerEntrySchema = dto<CreditLedgerEntryDTO>("One credit ledger entry (append-only).", {
   id: id("crd", "Ledger entry"),
@@ -217,6 +307,10 @@ export const DTO_SCHEMAS = {
   JobInput: JobInputSchema,
   Batch: BatchSchema,
   IdentityModel: IdentityModelSchema,
+  TrainingPhoto: TrainingPhotoSchema,
+  PhotoQualityReport: PhotoQualityReportSchema,
+  PhotoIssue: PhotoIssueSchema,
+  Readiness: ReadinessSchema,
   CreditLedgerEntry: CreditLedgerEntrySchema,
   PackSummary: PackSummarySchema,
   Error: ErrorSchema,

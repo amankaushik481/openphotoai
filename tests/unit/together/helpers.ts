@@ -36,17 +36,15 @@ export async function addReferencePhoto(model: IdentityModelRow): Promise<void> 
   const id = `tph_${newToken(12).toLowerCase()}`;
   const key = storageKeys.trainingPhoto(model.userId, model.id, id);
   await getStorage().put(key, await pngBytes(), { contentType: "image/png" });
-  await db
-    .insert(trainingPhotos)
-    .values({
-      id,
-      modelId: model.id,
-      userId: model.userId,
-      storageKey: key,
-      width: 64,
-      height: 64,
-      status: "accepted",
-    });
+  await db.insert(trainingPhotos).values({
+    id,
+    modelId: model.id,
+    userId: model.userId,
+    storageKey: key,
+    width: 64,
+    height: 64,
+    status: "accepted",
+  });
 }
 
 /** Insert a model_shares row directly (default: accepted, valid for 30 days). Returns the row + its token. */

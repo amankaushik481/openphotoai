@@ -39,7 +39,11 @@ async function ownedOrNull(userId: string, mediaId: string | null): Promise<Medi
 }
 
 /** Null when the media doesn't exist or isn't the user's (the page renders a 404). */
-export async function loadViewerData(userId: string, mediaId: string, filters: MediaFilters): Promise<ViewerData | null> {
+export async function loadViewerData(
+  userId: string,
+  mediaId: string,
+  filters: MediaFilters,
+): Promise<ViewerData | null> {
   const row = await ownedOrNull(userId, mediaId);
   if (!row) return null;
 
@@ -49,7 +53,14 @@ export async function loadViewerData(userId: string, mediaId: string, filters: M
     db
       .select()
       .from(media)
-      .where(and(eq(media.userId, userId), eq(media.parentMediaId, row.id), isNull(media.deletedAt), isNull(media.removedAt)))
+      .where(
+        and(
+          eq(media.userId, userId),
+          eq(media.parentMediaId, row.id),
+          isNull(media.deletedAt),
+          isNull(media.removedAt),
+        ),
+      )
       .orderBy(desc(media.createdAt))
       .limit(MAX_CHILDREN),
     row.modelId

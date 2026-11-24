@@ -15,7 +15,12 @@ import { MAX_BULK_IDS } from "./dto";
 import { mediaIdsRequest } from "./media";
 
 function brandSlug(): string {
-  return APP.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "media";
+  return (
+    APP.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "media"
+  );
 }
 
 /** `openshoot-2026-11-24-med_abc.jpg` */
@@ -33,7 +38,10 @@ export interface MediaZipOptions {
 }
 
 /** A web ReadableStream producing a ZIP of the given media (pull-based: storage is read on demand). */
-export function createMediaZipStream(rows: readonly MediaRow[], opts: MediaZipOptions = {}): ReadableStream<Uint8Array> {
+export function createMediaZipStream(
+  rows: readonly MediaRow[],
+  opts: MediaZipOptions = {},
+): ReadableStream<Uint8Array> {
   const storage = opts.storage ?? getStorage();
   const ready: Uint8Array[] = [];
   let complete = false;

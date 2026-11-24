@@ -64,7 +64,9 @@ export async function renameFolder(userId: string, folderId: string, name: strin
   const [c] = await db
     .select({ n: count() })
     .from(media)
-    .where(and(eq(media.userId, userId), eq(media.folderId, folderId), isNull(media.deletedAt), isNull(media.removedAt)));
+    .where(
+      and(eq(media.userId, userId), eq(media.folderId, folderId), isNull(media.deletedAt), isNull(media.removedAt)),
+    );
   return toFolderDTO(row, c?.n ?? 0);
 }
 
@@ -72,7 +74,10 @@ export async function renameFolder(userId: string, folderId: string, name: strin
 export async function deleteFolder(userId: string, folderId: string): Promise<void> {
   await db.transaction(async (tx) => {
     // The FK would null folder_id too; doing it explicitly keeps "media are kept" independent of it.
-    await tx.update(media).set({ folderId: null }).where(and(eq(media.userId, userId), eq(media.folderId, folderId)));
+    await tx
+      .update(media)
+      .set({ folderId: null })
+      .where(and(eq(media.userId, userId), eq(media.folderId, folderId)));
     const [row] = await tx
       .delete(folders)
       .where(and(eq(folders.id, folderId), eq(folders.userId, userId)))

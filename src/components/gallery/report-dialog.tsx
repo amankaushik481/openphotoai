@@ -25,7 +25,11 @@ import { REPORT_DETAILS_MAX, type ReportReason } from "@/server/gallery/dto";
 import { errorMessage } from "@/i18n";
 
 const REASONS: { value: ReportReason; label: string; hint: string }[] = [
-  { value: "non_consensual", label: "It shows me or someone I know without consent", hint: "Including look-alikes and deepfakes" },
+  {
+    value: "non_consensual",
+    label: "It shows me or someone I know without consent",
+    hint: "Including look-alikes and deepfakes",
+  },
   { value: "sexual", label: "Sexual or explicit content", hint: "Nudity or sexualized imagery" },
   { value: "minor", label: "It involves a minor", hint: "Anyone who looks under 18" },
   { value: "impersonation", label: "Impersonation", hint: "Pretends to be a real person or public figure" },
@@ -105,7 +109,10 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
             <DialogDescription>
               Our team reviews every report. Reports about non-consensual or harmful content are handled first.
               {email.trim() ? " We emailed you a reference number." : ""} For urgent takedowns, email{" "}
-              <a href={`mailto:${APP.takedownEmail}`} className="font-medium text-foreground underline underline-offset-4">
+              <a
+                href={`mailto:${APP.takedownEmail}`}
+                className="font-medium text-foreground underline underline-offset-4"
+              >
                 {APP.takedownEmail}
               </a>
               .

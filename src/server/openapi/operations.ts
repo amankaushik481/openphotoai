@@ -13,10 +13,12 @@ import {
   mediaExample,
   modelExample,
   packExample,
+  readinessExample,
   runningJobExample,
   succeededJobExample,
+  trainingPhotoExample,
 } from "./examples";
-import { v1CreditsQuery, v1ListJobsQuery, v1ListMediaQuery } from "./queries";
+import { v1CreditsQuery, v1GetModelQuery, v1ListJobsQuery, v1ListMediaQuery } from "./queries";
 import type { ExampleObject, HttpMethod, JsonSchema } from "./types";
 
 export type V1Scope = "read" | "generate";
@@ -74,7 +76,7 @@ const mediaQueryDocs = {
   packId: "Only media generated from this pack.",
   batchId: "Only media from this batch.",
   showHidden: "Include outputs hidden by the best-shots picker (default `false`).",
-  limit: "Page size (1-100).",
+  limit: "Page size (1-100, default 40).",
   cursor: "`nextCursor` from the previous page.",
 };
 
@@ -101,11 +103,30 @@ export const v1Operations = {
     path: "/models/{id}",
     tag: "Models",
     summary: "Get an identity model",
-    description: "One of your models, or a model shared with you.",
+    description:
+      "One of your models with its training photos and readiness, or a model shared with you (without the owner's photos).",
     scope: "read",
     pathParams: ID_PARAM("Model"),
-    response: { description: "The model.", schema: obj({ model: ref("IdentityModel") }), example: { model: modelExample } },
-    errors: [404],
+    query: {
+      schema: v1GetModelQuery,
+      docs: { mode: "Compute `readiness` for this identity mode instead of the model's own." },
+    },
+    response: {
+      description: "The model, its training photos and readiness.",
+      schema: obj({
+        model: ref("IdentityModel"),
+        photos: list("TrainingPhoto"),
+        readiness: ref("Readiness"),
+        readinessByMode: obj({ instant: ref("Readiness"), trained: ref("Readiness") }),
+      }),
+      example: {
+        model: modelExample,
+        photos: [trainingPhotoExample],
+        readiness: readinessExample,
+        readinessByMode: { instant: readinessExample, trained: readinessExample },
+      },
+    },
+    errors: [400, 404],
   },
   createJob: {
     operationId: "createJob",
@@ -236,8 +257,18 @@ export const v1Operations = {
     query: { schema: v1ListMediaQuery, docs: mediaQueryDocs },
     response: {
       description: "A page of media.",
-      schema: obj({ media: list("Media"), nextCursor: cursor }),
-      example: { media: [mediaExample], nextCursor: null },
+      schema: obj(
+        {
+          media: list("Media"),
+          nextCursor: cursor,
+          hiddenCount: {
+            type: "integer",
+            description: "Media hidden by the best-shots picker that match the other filters (first page only).",
+          },
+        },
+        ["hiddenCount"],
+      ),
+      example: { media: [mediaExample], nextCursor: null, hiddenCount: 2 },
     },
     errors: [400],
   },

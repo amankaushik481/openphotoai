@@ -72,13 +72,19 @@ describe("gallery filters", () => {
     expect(galleryHref({})).toBe("/app/gallery");
     expect(galleryHref({ favorite: true })).toBe("/app/gallery?favorite=true");
     expect(viewerHref("med_1", { folderId: "fld_1" })).toBe("/app/gallery/med_1?folderId=fld_1");
-    expect(mediaPageUrl({ kind: "video" }, { cursor: "abc", limit: 40 })).toBe("/api/media?kind=video&limit=40&cursor=abc");
+    expect(mediaPageUrl({ kind: "video" }, { cursor: "abc", limit: 40 })).toBe(
+      "/api/media?kind=video&limit=40&cursor=abc",
+    );
   });
 
   it("maps the All / Favorites / Videos view", () => {
     expect(viewOf({})).toBe("all");
     expect(viewOf(withView({ folderId: "f" }, "favorites"))).toBe("favorites");
-    expect(withView({ favorite: true, packId: "p" }, "videos")).toEqual({ favorite: undefined, kind: "video", packId: "p" });
+    expect(withView({ favorite: true, packId: "p" }, "videos")).toEqual({
+      favorite: undefined,
+      kind: "video",
+      packId: "p",
+    });
     expect(hasNarrowingFilters({ showHidden: true })).toBe(false);
     expect(hasNarrowingFilters({ batchId: "b" })).toBe(true);
   });

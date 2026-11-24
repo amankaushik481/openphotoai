@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useModels } from "@/hooks/use-models";
-import { galleryHref, viewOf, withView, type GalleryFilters, type GalleryView } from "./gallery-filters";
+import { viewOf, withView, type GalleryFilters, type GalleryView } from "./gallery-filters";
 
 export interface PackOption {
   slug: string;
@@ -166,8 +166,4 @@ export function GalleryToolbar({
       )}
     </div>
   );
-}
-
-export function clearFiltersHref(filters: GalleryFilters): string {
-  return galleryHref({ folderId: filters.folderId });
 }

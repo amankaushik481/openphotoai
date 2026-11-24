@@ -42,8 +42,16 @@ describe("loadViewerData", () => {
   it("returns lineage, model, pack and job details for the owner only", async () => {
     const model = await createTestModel(alice.id, { name: "Me" });
     const parent = await seedMedia(alice.id, 1, { modelId: model.id });
-    const job = await createTestJob(alice.id, { type: "upscale", input: { type: "upscale", sourceMediaId: parent.id, scale: 2, faceRestore: false } });
-    const child = await seedMedia(alice.id, 2, { parentMediaId: parent.id, jobId: job.id, modelId: model.id, seed: 42 });
+    const job = await createTestJob(alice.id, {
+      type: "upscale",
+      input: { type: "upscale", sourceMediaId: parent.id, scale: 2, faceRestore: false },
+    });
+    const child = await seedMedia(alice.id, 2, {
+      parentMediaId: parent.id,
+      jobId: job.id,
+      modelId: model.id,
+      seed: 42,
+    });
     // A row pointing at someone else's media as parent doesn't reveal it.
     const foreign = await seedMedia(bob.id, 3);
     const sneaky = await seedMedia(alice.id, 4, { parentMediaId: foreign.id });
