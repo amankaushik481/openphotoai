@@ -1,0 +1,24 @@
+import type * as s from "./schema";
+
+export type UserRow = typeof s.user.$inferSelect;
+export type IdentityModelRow = typeof s.identityModels.$inferSelect;
+export type TrainingPhotoRow = typeof s.trainingPhotos.$inferSelect;
+export type JobRow = typeof s.jobs.$inferSelect;
+export type NewJobRow = typeof s.jobs.$inferInsert;
+export type BatchRow = typeof s.batches.$inferSelect;
+export type MediaRow = typeof s.media.$inferSelect;
+export type NewMediaRow = typeof s.media.$inferInsert;
+export type UploadRow = typeof s.uploads.$inferSelect;
+export type FolderRow = typeof s.folders.$inferSelect;
+export type ShareLinkRow = typeof s.shareLinks.$inferSelect;
+export type ReportRow = typeof s.reports.$inferSelect;
+export type ModerationEventRow = typeof s.moderationEvents.$inferSelect;
+export type CreditLedgerRow = typeof s.creditLedger.$inferSelect;
+export type SubscriptionRow = typeof s.subscriptions.$inferSelect;
+export type PaymentRow = typeof s.payments.$inferSelect;
+export type ApiKeyRow = typeof s.apiKeys.$inferSelect;
+export type TeamRow = typeof s.teams.$inferSelect;
+export type TeamMemberRow = typeof s.teamMembers.$inferSelect;
+export type BrandKitRow = typeof s.brandKits.$inferSelect;
+export type ModelShareRow = typeof s.modelShares.$inferSelect;
+export type EmailOutboxRow = typeof s.emailOutbox.$inferSelect;
