@@ -53,17 +53,17 @@ Live status of the autonomous build. Updated after every wave.
 |---|---|---|
 | Integration follow-ups (docs/agents/INTEGRATION_TODO.md) | agent W3-integration-fixes | ✅ done (1,729 unit tests, tsc clean) |
 | Production build + standalone trace check | orchestrator | ✅ done (ffmpeg + safety models traced) |
-| Playwright full journey + safety e2e on mocks | e2e agent | 🔄 running |
+| Playwright full journey + safety e2e on mocks | e2e agent | ✅ done (journey, safety, billing specs: 3/3 runs green; re-run after Wave 4 fixes pending) |
 | docker compose up (zero keys): db/minio/web/worker healthy; sign-in → mock checkout → consent → photos → instant model → generate job completed by worker | orchestrator | ✅ done |
 
 ## Wave 4 — hardening (independent reviewers, report-only, then fixes)
 | Lens | Status |
 |---|---|
-| Security (authz, IDOR, webhooks, uploads, CSRF) | 🔄 reviewing |
-| Safety bypass red-team | 🔄 reviewing |
-| Payments + credits edge cases | 🔄 reviewing |
-| Performance (Lighthouse readiness, N+1, bundles) | 🔄 reviewing |
-| Accessibility + mobile UI | 🔄 reviewing |
+| Security (authz, IDOR, webhooks, uploads, CSRF) | ✅ reviewed → 🔧 fixing |
+| Safety bypass red-team | ✅ reviewed → 🔧 fixing |
+| Payments + credits edge cases | ✅ reviewed → 🔧 fixing |
+| Performance (Lighthouse readiness, N+1, bundles) | ✅ reviewed → 🔧 fixing |
+| Accessibility + mobile UI | ✅ reviewed → 🔧 fixing |
 | Docs accuracy | ⏳ after docs are written |
 
 ## Wave 5 — ship
