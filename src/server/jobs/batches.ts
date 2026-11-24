@@ -7,20 +7,9 @@ import { db, type Database, type Tx } from "@/db";
 import { batches } from "@/db/schema";
 import type { BatchRow } from "@/db/types";
 import { errors } from "@/server/http";
-import type { BatchStatus, JobStatus } from "@/types/domain";
+import type { BatchDTO, BatchStatus, JobStatus } from "@/types/domain";
 
-export interface BatchDTO {
-  id: string;
-  modelId: string | null;
-  packId: string | null;
-  brandKitId: string | null;
-  total: number;
-  completed: number;
-  failed: number;
-  status: BatchStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { BatchDTO } from "@/types/domain";
 
 export function toBatchDTO(row: BatchRow): BatchDTO {
   return {
