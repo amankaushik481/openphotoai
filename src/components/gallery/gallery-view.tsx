@@ -99,7 +99,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     }
   }
 
-  async function bulk(action: BulkAction, folderId: string | null = null) {
+  async function bulk(action: BulkAction, folderId: string | null = null, folderName: string | null = null) {
     const ids = [...selected];
     if (!ids.length) return;
     setBusy(action);
@@ -107,8 +107,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
       const { updated } = await runBulkAction(action, ids, folderId);
       const chosen = new Set(ids);
       await list.patchLocal((m) => (chosen.has(m.id) ? applyBulkLocally(m, action, folderId) : m));
-      const target = folderId ? (folders?.find((f) => f.id === folderId)?.name ?? "folder") : null;
-      toast.success(bulkMessage(action, updated, target));
+      toast.success(bulkMessage(action, updated, folderId ? (folderName ?? "folder") : null));
       setSelected([]);
       if (action === "delete") setSelecting(false);
       if (action === "move" || action === "delete") void mutateFolders();

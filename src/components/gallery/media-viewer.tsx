@@ -123,8 +123,9 @@ export function MediaViewer({
     const before = media;
     setMedia({ ...media, ...body });
     try {
-      const res = await api<{ media: MediaDTO }>(`/api/media/${media.id}`, { method: "PATCH", body });
-      setMedia(res.media);
+      const { media: saved } = await api<{ media: MediaDTO }>(`/api/media/${media.id}`, { method: "PATCH", body });
+      // Keep the current signed URLs so the image doesn't reload.
+      setMedia((cur) => ({ ...cur, isFavorite: saved.isFavorite, folderId: saved.folderId, hidden: saved.hidden }));
       if (success) toast.success(success);
       return true;
     } catch (err) {
@@ -139,7 +140,6 @@ export function MediaViewer({
     toast.success(media.kind === "video" ? "Video deleted" : "Photo deleted");
     void mutateFolders();
     router.replace(nextHref ?? prevHref ?? backHref, { scroll: false });
-    router.refresh();
   }
 
   const created = new Date(media.createdAt);

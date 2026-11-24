@@ -7,15 +7,17 @@ import path from "node:path";
 import { z } from "zod";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
-import { batches } from "@/db/schema";
+import { batches, trainingPhotos } from "@/db/schema";
 import { grantCredits, listLedger } from "@/server/credits/ledger";
+import { listMedia, listMediaQuery } from "@/server/gallery/media";
 import { toBatchDTO } from "@/server/jobs/batches";
 import { toJobDTO } from "@/server/jobs/engine";
 import { listJobsQuery } from "@/server/jobs/queries";
 import { toMediaDTO } from "@/server/media/service";
+import { getModelDetail } from "@/server/models/detail";
 import { toModelDTO } from "@/server/models/service";
 import { v1Operations, type V1Operation } from "@/server/openapi/operations";
-import { v1ListJobsQuery } from "@/server/openapi/queries";
+import { v1ListJobsQuery, v1ListMediaQuery } from "@/server/openapi/queries";
 import { buildOpenApiSpec, errorCodeTable, jobInputSchemaName } from "@/server/openapi/spec";
 import type { JsonSchema, OperationObject, ResponseObject } from "@/server/openapi/types";
 import { listPackSummaries } from "@/server/packs/registry";
@@ -119,9 +121,10 @@ describe("document structure", () => {
     expect(schema("Error").properties?.error?.properties?.code?.enum).toEqual([...API_ERROR_CODES]);
   });
 
-  it("keeps the v1 jobs query identical to the app's listJobsQuery", () => {
+  it("documents exactly the query schemas the app routes parse", () => {
     const json = (s: z.ZodType) => z.toJSONSchema(s, { io: "input", unrepresentable: "any" });
     expect(json(v1ListJobsQuery)).toEqual(json(listJobsQuery));
+    expect(json(v1ListMediaQuery)).toEqual(json(listMediaQuery));
   });
 
   it("maps every error code to a status", () => {
@@ -203,7 +206,7 @@ describe("DTO schemas match real DTOs", () => {
     expect(documented.length, name).toBeGreaterThan(0);
   }
 
-  it("Job, Media, MediaScores, IdentityModel, Batch, CreditLedgerEntry, PackSummary", async () => {
+  it("Job, Media, MediaScores, IdentityModel, Batch, CreditLedgerEntry, PackSummary, model detail", async () => {
     const owner = await createTestUser({ plan: "pro", name: "Owner" });
     const viewer = await createTestUser({ plan: "pro" });
     const model = await createTestModel(owner.id);
@@ -234,5 +237,37 @@ describe("DTO schemas match real DTOs", () => {
     expectInSync("CreditLedgerEntry", (await listLedger(owner.id)).entries);
     expect(packs.length).toBeGreaterThan(0);
     expectInSync("PackSummary", packs);
+
+    await db.insert(trainingPhotos).values([
+      {
+        modelId: model.id,
+        userId: owner.id,
+        storageKey: `users/${owner.id}/models/${model.id}/a.jpg`,
+        thumbKey: `users/${owner.id}/models/${model.id}/a-thumb.webp`,
+        width: 1024,
+        height: 1024,
+        status: "accepted",
+        faceMatchScore: 0.9,
+        quality: {
+          score: 80,
+          issues: [{ code: "blurry", severity: "warning", message: "A bit soft.", fix: "Hold still." }],
+          metrics: { width: 1024, height: 1024, sharpness: 120, brightness: 128, contrast: 50, faceAreaRatio: 0.1, yaw: 5, pitch: -2 },
+        },
+      },
+      { modelId: model.id, userId: owner.id, storageKey: `users/${owner.id}/models/${model.id}/b.jpg`, width: 800, height: 800 },
+    ]);
+    const detail = await getModelDetail(owner.id, model.id);
+    expect(detail.photos).toHaveLength(2);
+    const detailSchema = operation(v1Operations.getModel).responses["200"] as ResponseObject;
+    expect(validate(JSON.parse(JSON.stringify(detail)), detailSchema.content!["application/json"]!.schema, doc, { strict: true })).toEqual([]);
+    expectInSync("TrainingPhoto", detail.photos);
+    expectInSync("PhotoQualityReport", detail.photos.flatMap((p) => (p.quality ? [p.quality] : [])));
+    expectInSync("PhotoIssue", detail.photos.flatMap((p) => p.quality?.issues ?? []));
+    expectInSync("Readiness", [detail.readiness, detail.readinessByMode.instant]);
+
+    const page = await listMedia(owner.id, listMediaQuery.parse({}));
+    const mediaSchema = (operation(v1Operations.listMedia).responses["200"] as ResponseObject).content!["application/json"]!.schema;
+    const body = { media: await Promise.all(page.media.map(toMediaDTO)), nextCursor: page.nextCursor, hiddenCount: page.hiddenCount };
+    expect(validate(JSON.parse(JSON.stringify(body)), mediaSchema, doc, { strict: true })).toEqual([]);
   });
 });

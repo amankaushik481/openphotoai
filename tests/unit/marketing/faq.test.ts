@@ -51,7 +51,11 @@ describe("buildFaqPageJsonLd", () => {
     const ld = buildFaqPageJsonLd(items);
     expect(ld["@context"]).toBe("https://schema.org");
     expect(ld["@type"]).toBe("FAQPage");
-    const main = ld.mainEntity as { "@type": string; name: string; acceptedAnswer: { "@type": string; text: string } }[];
+    const main = ld.mainEntity as {
+      "@type": string;
+      name: string;
+      acceptedAnswer: { "@type": string; text: string };
+    }[];
     expect(main).toHaveLength(items.length);
     for (const q of main) {
       expect(q["@type"]).toBe("Question");

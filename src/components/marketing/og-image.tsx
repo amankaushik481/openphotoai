@@ -118,6 +118,17 @@ export function renderOgImage({ title, subtitle, eyebrow, colors }: OgCardProps)
           background: panel,
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundImage: "radial-gradient(circle at 22% 12%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0) 58%)",
+          }}
+        />
         <Silhouette />
         <div
           style={{

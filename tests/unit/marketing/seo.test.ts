@@ -13,7 +13,15 @@ describe("sitemap", () => {
     const packs = await listPacks();
 
     expect(packs.length).toBeGreaterThan(0);
-    for (const route of ["/", "/pricing", "/packs", "/faq", "/legal/terms", "/legal/privacy", "/legal/acceptable-use"]) {
+    for (const route of [
+      "/",
+      "/pricing",
+      "/packs",
+      "/faq",
+      "/legal/terms",
+      "/legal/privacy",
+      "/legal/acceptable-use",
+    ]) {
       expect(urls).toContain(absoluteUrl(route));
     }
     for (const r of STATIC_ROUTES) expect(urls).toContain(`${APP.url}${r.path}`);

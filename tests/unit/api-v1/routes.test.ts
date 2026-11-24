@@ -260,8 +260,19 @@ describe("models", () => {
     expect(res.json.models.map((m: { id: string }) => m.id)).toEqual([modelId, sharedModel.id]);
     expect(res.json.models[1]).toMatchObject({ shared: true, ownerName: "Friend" });
 
-    expect((await call("getModel", { params: { id: modelId } })).json.model).toMatchObject({ id: modelId, shared: false });
-    expect((await call("getModel", { params: { id: sharedModel.id } })).json.model.shared).toBe(true);
+    const own = await call("getModel", { params: { id: modelId } });
+    expect(own.json).toEqual({
+      model: expect.objectContaining({ id: modelId, shared: false, mode: "trained" }),
+      photos: [],
+      readiness: expect.objectContaining({ canTrain: expect.any(Boolean) }),
+      readinessByMode: { instant: expect.any(Object), trained: expect.any(Object) },
+    });
+    const instant = await call("getModel", { params: { id: modelId }, query: "mode=instant" });
+    expect(instant.json.readiness).toEqual(instant.json.readinessByMode.instant);
+    expect((await call("getModel", { params: { id: modelId }, query: "mode=nope" })).status).toBe(400);
+    const shared = await call("getModel", { params: { id: sharedModel.id } });
+    expect(shared.json.model.shared).toBe(true);
+    expect(shared.json.photos).toEqual([]);
     const hidden = await call("getModel", { params: { id: pendingModel.id } });
     expect(hidden.status).toBe(404);
     expect(hidden.json.error.code).toBe("not_found");
@@ -280,6 +291,7 @@ describe("media", () => {
 
     const all = await call("listMedia");
     expect(all.json.media.map((m: { id: string }) => m.id)).toEqual([m3.id, m2.id, m1.id]);
+    expect(all.json.hiddenCount).toBe(1);
     const withHidden = await call("listMedia", { query: "showHidden=true" });
     expect(withHidden.json.media[0].id).toBe(hidden.id);
     expect((await call("listMedia", { query: "kind=video" })).json.media.map((m: { id: string }) => m.id)).toEqual([m2.id]);

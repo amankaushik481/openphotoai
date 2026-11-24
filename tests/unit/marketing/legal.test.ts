@@ -79,7 +79,9 @@ describe("legal template interpolation", () => {
 });
 
 describe("legal template coverage", () => {
-  const all = SLUGS.map((s) => text(s)).join("\n").toLowerCase();
+  const all = SLUGS.map((s) => text(s))
+    .join("\n")
+    .toLowerCase();
 
   it.each([
     ["AI-generated labeling", /ai-generated/],

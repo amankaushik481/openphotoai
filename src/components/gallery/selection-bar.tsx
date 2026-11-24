@@ -36,7 +36,7 @@ export interface SelectionBarProps {
   /** Folder currently shown (for "Remove from folder"). */
   currentFolderId?: string;
   busy: BulkAction | "download" | null;
-  onAction: (action: BulkAction, folderId?: string | null) => Promise<void>;
+  onAction: (action: BulkAction, folderId?: string | null, folderName?: string | null) => Promise<void>;
   onDownload: () => Promise<void>;
 }
 
@@ -95,7 +95,7 @@ export function SelectionBar({
 
       <MoveToFolderMenu
         currentFolderId={currentFolderId}
-        onMove={(folderId) => onAction("move", folderId)}
+        onMove={(folderId, folderName) => onAction("move", folderId, folderName)}
         trigger={
           <Button type="button" variant="outline" size="sm" disabled={disabled || overLimit}>
             {spin("move") ?? <FolderInputIcon aria-hidden="true" />}

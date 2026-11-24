@@ -56,14 +56,8 @@ export default defineHandler({
     if (models.length !== 2) throw errors.validation("Pick two different models.");
     const own = models.find((m) => m.userId === user.id);
     if (!own) {
-      await recordModerationEvent(
-        "multi_person_unauthorized",
-        { userId: user.id },
-        {
-          reason: "no_own_model",
-          requestedModelIds: input.modelIds,
-        },
-      );
+      const details = { reason: "no_own_model", requestedModelIds: input.modelIds };
+      await recordModerationEvent("multi_person_unauthorized", { userId: user.id }, details);
       throw errors.forbidden("Together photos must include one of your own models.");
     }
     await assertReferencePhotos(models);
