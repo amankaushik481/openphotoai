@@ -9,7 +9,7 @@ export const WEBHOOK_TOLERANCE_SEC = 5 * 60;
 /**
  * Standard Webhooks verification as used by Replicate: HMAC-SHA256 over `${id}.${timestamp}.${body}`, keyed with the
  * base64-decoded secret after the `whsec_` prefix; `webhook-signature` holds space-separated `v1,<base64>` entries.
- * Throws a WebhookVerificationError (shared with the fal adapter) when anything is missing, stale (±5 min) or does not match.
+ * Throws the shared WebhookVerificationError when anything is missing, stale (±5 min) or does not match.
  */
 export function verifyReplicateSignature(
   req: Pick<WebhookRequest, "headers" | "rawBody">,

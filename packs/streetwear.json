@@ -1,0 +1,82 @@
+{
+  "slug": "streetwear",
+  "name": "Streetwear",
+  "tagline": "Urban fits, sneakers and city texture.",
+  "description": "Street-style shots with real city grit: crosswalks, murals, skate parks, subway platforms, rooftops and parking-garage flash. Oversized layers, cargo pants, techwear and clean sneakers, all logo-free so the fit and the attitude do the talking.",
+  "category": "fashion",
+  "emoji": "👟",
+  "tags": [
+    "streetwear",
+    "street style",
+    "urban",
+    "sneakers",
+    "techwear",
+    "city",
+    "fashion",
+    "skate"
+  ],
+  "colors": [
+    "#18181b",
+    "#84cc16"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos, readable graffiti, readable signs",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 160,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Crosswalk stride",
+      "prompt": "street style photo of {subject} striding across a busy downtown crosswalk, wearing an oversized boxy hoodie, cargo pants and chunky sneakers, confident expression, overcast city light, shallow depth of field, 85mm lens, fashion-week street style, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mural wall",
+      "prompt": "full-length photo of {subject} leaning against a colorful abstract mural with no lettering, wearing a two-tone bomber jacket, baggy jeans and high-top sneakers, relaxed cool pose, bright midday light, 35mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Skate park",
+      "prompt": "photo of {subject} sitting on the edge of a concrete skate bowl with a skateboard, wearing a plain tee, a flannel overshirt and a beanie, laid-back grin, late-afternoon sun, 24mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Subway platform",
+      "prompt": "photo of {subject} standing on a gritty subway platform as a train blurs past, wearing a puffer vest over a hoodie and wide-leg trousers, calm cool stare, mixed fluorescent and tungsten light, 35mm lens, cinematic street look, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop water towers",
+      "prompt": "photo of {subject} on a city rooftop at dusk with water towers behind, wearing a technical shell jacket, a utility vest and tapered cargo pants, hands in pockets, moody blue-hour light, 50mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Basketball court",
+      "prompt": "photo of {subject} at an outdoor chain-link basketball court holding a basketball on the hip, wearing a mesh jersey-style top over a t-shirt and track pants, confident smile, golden hour light, 35mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Neon storefront",
+      "prompt": "night photo of {subject} in front of a glowing corner store, neon reflections on wet pavement, wearing a reflective windbreaker and a bucket hat, cool expression, 35mm lens, cinematic color, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Clean sneakers",
+      "prompt": "low-angle full-length photo of {subject} sitting on concrete steps showing off clean white sneakers, wearing cuffed wide trousers and an oversized knit, relaxed pose, soft daylight, 24mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Underpass techwear",
+      "prompt": "photo of {subject} in a concrete underpass with graphic shadows, wearing an all-black techwear outfit with straps and a crossbody bag, serious editorial stare, hard sunlight slicing through, 35mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Thrifted layers",
+      "prompt": "street portrait of {subject} on a busy market street, wearing a vintage leather jacket over a hoodie, patterned trousers and retro runners, playful expression, warm afternoon light, 50mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fire escape",
+      "prompt": "photo of {subject} sitting on a metal fire escape above a city street, wearing a knit beanie, an oversized flannel and loose jeans, looking down at the camera with a half smile, soft evening light, 35mm lens, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garage flash",
+      "prompt": "direct-flash photo of {subject} in an empty parking garage at night, wearing a glossy puffer jacket and wide cargo pants, bold confident pose, harsh on-camera flash against a dark background, 28mm lens, editorial street fashion, no logos or brand marks, contemporary street fashion photography, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

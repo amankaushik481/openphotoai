@@ -1,0 +1,100 @@
+{
+  "slug": "old-money",
+  "name": "Old Money",
+  "tagline": "Heritage style: tennis whites, cable knits and country estates.",
+  "description": "The understated heritage aesthetic everyone is pinning: grass tennis clubs, Riviera terraces, classic sailboats, stable yards, garden parties and black-tie staircases. Cable knits, navy blazers, linen and tweed, with no logos in sight and the soft film tones of an old family album.",
+  "category": "fashion",
+  "emoji": "🐎",
+  "tags": [
+    "old money",
+    "preppy",
+    "heritage",
+    "country club",
+    "equestrian",
+    "riviera",
+    "classic",
+    "aesthetic"
+  ],
+  "colors": [
+    "#14532d",
+    "#d6c7a1"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, flashy jewelry, neon colors, streetwear",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 60,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Tennis club whites",
+      "prompt": "portrait of {subject} at a historic grass tennis club, wearing classic tennis whites with a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a historic grass tennis club, wearing a white piqué polo, pleated white shorts and a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a historic grass tennis club, wearing a white pleated tennis dress with a cable-knit sweater draped over the shoulders, a wooden racket tucked under one arm, relaxed confident smile, white clubhouse and manicured hedges behind, soft afternoon sun, 85mm lens, heritage editorial, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Country estate",
+      "prompt": "portrait of {subject} on the lawn of a grand country estate with a stone manor behind, wearing a navy blazer with brass buttons, a golden retriever at heel, soft overcast light, 50mm lens, timeless heritage feel, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Riviera terrace",
+      "prompt": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a linen shirt and tailored trousers, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a cream linen shirt and tailored navy trousers, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a sun-washed Riviera terrace overlooking a turquoise bay, wearing a white linen sundress and a silk scarf in the hair, holding a small espresso cup, relaxed ease, terracotta pots and lemon trees, bright Mediterranean light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Classic sailboat",
+      "prompt": "photo of {subject} at the helm of a classic wooden sailboat, wearing a striped Breton top under a navy cable-knit sweater, wind in the hair, sparkling sea, bright late-morning light, 35mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Stable yard",
+      "prompt": "portrait of {subject} beside a chestnut horse in a stable yard, wearing a tweed jacket, cream riding breeches and tall leather riding boots, one hand resting on the horse's neck, soft morning light, 85mm lens, equestrian heritage portrait, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Private library",
+      "prompt": "portrait of {subject} reading in a wood-paneled private library with leather armchairs, wearing a camel cashmere sweater over a collared shirt, warm lamp light, thoughtful expression, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden party",
+      "prompt": "candid photo of {subject} at an elegant garden party on a manicured lawn, wearing a light linen suit, holding a glass of champagne, laughing with guests softly blurred, white marquee and roses, soft afternoon light, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "candid photo of {subject} at an elegant garden party on a manicured lawn, wearing a pale beige linen suit and an open-collar shirt, holding a glass of champagne, laughing with guests softly blurred, white marquee and roses, soft afternoon light, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "candid photo of {subject} at an elegant garden party on a manicured lawn, wearing a pale floral tea dress and pearl earrings, holding a glass of champagne, laughing with guests softly blurred, white marquee and roses, soft afternoon light, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vintage convertible",
+      "prompt": "portrait of {subject} leaning against a vintage cream convertible on a coastal road, wearing a navy knit polo and holding tortoiseshell sunglasses, relaxed smile, warm late-afternoon light, no badges, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lake house dock",
+      "prompt": "portrait of {subject} sitting at the end of a lake house dock with wooden boats moored nearby, wearing a crisp oxford shirt with rolled sleeves and chinos, calm content smile, golden evening light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Autumn quad",
+      "prompt": "portrait of {subject} walking across a gothic stone university quad in autumn, wearing a navy wool overcoat over a cable-knit sweater and carrying leather-bound books, crisp light, 85mm lens, collegiate heritage style, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Black-tie staircase",
+      "prompt": "portrait of {subject} on the grand staircase of a historic ballroom during a black-tie gala, in classic black-tie attire, poised gentle smile, crystal chandeliers glowing above, warm candlelit tones, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on the grand staircase of a historic ballroom during a black-tie gala, wearing a classic black tuxedo with a bow tie, poised gentle smile, crystal chandeliers glowing above, warm candlelit tones, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on the grand staircase of a historic ballroom during a black-tie gala, wearing an elegant floor-length satin gown and pearl drop earrings, poised gentle smile, crystal chandeliers glowing above, warm candlelit tones, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Polo sideline",
+      "prompt": "photo of {subject} on the sideline of a polo field on a sunny day, wearing a light linen blazer, relaxed elegant pose beside a wicker picnic hamper, horses softly blurred in the distance, bright daylight, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on the sideline of a polo field on a sunny day, wearing a light linen blazer and white trousers, relaxed elegant pose beside a wicker picnic hamper, horses softly blurred in the distance, bright daylight, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on the sideline of a polo field on a sunny day, wearing a white sundress and a wide-brim straw hat, relaxed elegant pose beside a wicker picnic hamper, horses softly blurred in the distance, bright daylight, 85mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Alpine lodge",
+      "prompt": "portrait of {subject} on the balcony of a wooden alpine lodge, wearing a cream fair-isle sweater and holding a mug of mulled cider, snowy peaks behind, crisp winter light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Afternoon tea",
+      "prompt": "portrait of {subject} at afternoon tea in a grand hotel lounge, porcelain teacup in hand, a tiered stand of pastries on the table, wearing a tailored tweed blazer, polite amused smile, soft window light, 50mm lens, no visible logos, soft editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

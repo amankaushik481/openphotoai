@@ -1,0 +1,96 @@
+{
+  "slug": "dating-natural",
+  "name": "Natural Dating Profile",
+  "tagline": "Real, warm, candid photos that start conversations.",
+  "description": "Dating-app photos that look like a friend took them on a great day, not like a studio shoot. Candid laughs, hobbies, sunny parks, bookshops, home cooking and a candlelit wine bar. Varied scenes, genuine smiles and honest skin texture, because the best profile photo is still you.",
+  "category": "dating",
+  "emoji": "💘",
+  "tags": [
+    "dating",
+    "dating profile",
+    "tinder",
+    "hinge",
+    "bumble",
+    "candid",
+    "natural",
+    "approachable"
+  ],
+  "colors": [
+    "#e11d48",
+    "#fb923c"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, glossy retouch, heavy makeup, overly posed, studio backdrop, group photo",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 30,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Farmers market laugh",
+      "prompt": "candid photo of {subject} laughing while browsing a sunny farmers market stall piled with peaches, wearing a casual linen shirt, genuine crinkle-eyed smile, warm natural daylight, background softly blurred, 35mm lens, looks like a friend took it, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cooking at home",
+      "prompt": "candid photo of {subject} cooking in a warm home kitchen, stirring a pot of pasta sauce with a wooden spoon, wearing a casual t-shirt with a dish towel over one shoulder, playful smile toward the camera, warm evening light, 35mm lens, cozy and genuine, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Park bench sunshine",
+      "prompt": "relaxed portrait of {subject} sitting on a park bench under a big oak tree, wearing a soft crew-neck sweater and jeans, leaning back with an easy smile, dappled afternoon sunlight, soft green bokeh, 50mm lens at f/1.8, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "relaxed portrait of {subject} sitting on a park bench under a big oak tree, wearing a soft grey crew-neck sweater and dark jeans, leaning back with an easy smile, dappled afternoon sunlight, soft green bokeh, 50mm lens at f/1.8, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "relaxed portrait of {subject} sitting on a park bench under a big oak tree, wearing a soft cream sweater and light-wash jeans, leaning back with an easy smile, dappled afternoon sunlight, soft green bokeh, 50mm lens at f/1.8, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop at dusk",
+      "prompt": "portrait of {subject} on a rooftop terrace at dusk with string lights and a softly blurred city skyline, wearing a smart casual outfit and holding a drink, warm natural smile, blue-hour sky with warm practical light, 50mm lens, date-night mood, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bookstore browse",
+      "prompt": "candid photo of {subject} browsing a cozy independent bookstore, holding an open book and glancing up with a curious smile, wearing a corduroy jacket, warm lamp light, shelves softly blurred, 35mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bike ride",
+      "prompt": "candid photo of {subject} riding a vintage city bicycle down a tree-lined street, wearing a casual jacket and sneakers, laughing mid-ride, golden afternoon light, slight motion blur in the background, 85mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Picnic blanket",
+      "prompt": "relaxed photo of {subject} sitting on a picnic blanket in a sunny park with a basket of fruit and a baguette, wearing a light linen shirt, propped on one hand, warm genuine smile, soft golden light, 50mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "relaxed photo of {subject} sitting on a picnic blanket in a sunny park with a basket of fruit and a baguette, wearing a light linen shirt and chino shorts, propped on one hand, warm genuine smile, soft golden light, 50mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "relaxed photo of {subject} sitting on a picnic blanket in a sunny park with a basket of fruit and a baguette, wearing a flowy floral midi dress, propped on one hand, warm genuine smile, soft golden light, 50mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Record store",
+      "prompt": "candid photo of {subject} flipping through vinyl records in a vintage record store, wearing a denim jacket, grinning at a find, warm tungsten light, crates softly blurred, 35mm film look, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Shoreline sunset",
+      "prompt": "candid photo of {subject} walking along the shoreline at sunset holding sandals in one hand, wearing rolled linen trousers and a loose button-down shirt, carefree laugh, warm backlight, 85mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dog park",
+      "prompt": "candid photo of {subject} crouching to pet a friendly golden retriever at a sunny dog park, wearing a casual hoodie, big genuine smile, soft daylight, 50mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hiking viewpoint",
+      "prompt": "photo of {subject} at a scenic hiking viewpoint above green valleys, wearing a light outdoor jacket and a small backpack, relaxed happy expression, bright natural light, 35mm lens, adventurous but approachable, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wine bar candlelight",
+      "prompt": "portrait of {subject} at a candlelit wine bar table, wearing a smart dark shirt, warm smile across the table toward the camera, soft amber light, bokeh of bottles and bulbs, 50mm lens at f/1.4, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a candlelit wine bar table, wearing a fitted dark button-up shirt, warm smile across the table toward the camera, soft amber light, bokeh of bottles and bulbs, 50mm lens at f/1.4, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a candlelit wine bar table, wearing a simple black top and gold hoop earrings, warm smile across the table toward the camera, soft amber light, bokeh of bottles and bulbs, 50mm lens at f/1.4, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Window light close-up",
+      "prompt": "natural close-up portrait of {subject} in soft window light at home, wearing a simple t-shirt, relaxed genuine smile, minimal retouching, 85mm lens, honest and warm, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Street café",
+      "prompt": "candid photo of {subject} laughing at an outdoor café table on a lively European-style street, sunglasses pushed up on the head, wearing a casual shirt, espresso cup on the table, bright afternoon light, 35mm lens, candid natural photo, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

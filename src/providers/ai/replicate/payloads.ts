@@ -176,7 +176,11 @@ function multiPersonPlan(input: EditInput, count: number): PredictionPlan {
     images.push(...refs);
     return { identity, from, to: images.length };
   });
-  return nanoBananaPlan({ prompt: multiPersonPrompt(input.prompt, people), image_input: images }, input.aspectRatio, count);
+  return nanoBananaPlan(
+    { prompt: multiPersonPrompt(input.prompt, people), image_input: images },
+    input.aspectRatio,
+    count,
+  );
 }
 
 function nanoBananaPlan(

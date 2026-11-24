@@ -15,7 +15,10 @@ function sign(secret: string, id: string, ts: number, body: string): string {
   return createHmac("sha256", key).update(`${id}.${ts}.${body}`).digest("base64");
 }
 
-function request(body: unknown, opts: { secret?: string; ts?: number; id?: string; signature?: string } = {}): WebhookRequest {
+function request(
+  body: unknown,
+  opts: { secret?: string; ts?: number; id?: string; signature?: string } = {},
+): WebhookRequest {
   const rawBody = typeof body === "string" ? body : JSON.stringify(body);
   const id = opts.id ?? "msg_2Abc";
   const ts = opts.ts ?? Math.floor(Date.now() / 1000);
@@ -44,7 +47,9 @@ describe("Replicate webhook verification", () => {
       requestId: "pred123",
       status: {
         state: "succeeded",
-        output: expect.objectContaining({ images: [{ url: "https://replicate.delivery/x/out-0.jpg", contentType: "image/jpeg" }] }),
+        output: expect.objectContaining({
+          images: [{ url: "https://replicate.delivery/x/out-0.jpg", contentType: "image/jpeg" }],
+        }),
       },
     });
   });
@@ -76,7 +81,9 @@ describe("Replicate webhook verification", () => {
   });
 
   it("rejects a signature made with another secret", () => {
-    expect(() => parseReplicateWebhook(request(prediction, { secret: OTHER_SECRET }), SECRET)).toThrow(/Invalid Replicate webhook signature/);
+    expect(() => parseReplicateWebhook(request(prediction, { secret: OTHER_SECRET }), SECRET)).toThrow(
+      /Invalid Replicate webhook signature/,
+    );
   });
 
   it("rejects missing headers, unknown versions and an unconfigured secret", async () => {
@@ -84,7 +91,9 @@ describe("Replicate webhook verification", () => {
     const noSig = { ...req, headers: new Headers({ "webhook-id": "x", "webhook-timestamp": "1" }) };
     expect(() => parseReplicateWebhook(noSig, SECRET)).toThrow(WebhookVerificationError);
 
-    const v2 = request(prediction, { signature: `v2,${sign(SECRET, "msg_2Abc", Math.floor(Date.now() / 1000), JSON.stringify(prediction))}` });
+    const v2 = request(prediction, {
+      signature: `v2,${sign(SECRET, "msg_2Abc", Math.floor(Date.now() / 1000), JSON.stringify(prediction))}`,
+    });
     expect(() => parseReplicateWebhook(v2, SECRET)).toThrow(WebhookVerificationError);
 
     const p = createReplicateProvider({ apiToken: "t", owner: "acme" });
@@ -103,19 +112,27 @@ describe("Replicate webhook verification", () => {
       id: "trn999",
       model: "replicate/fast-flux-trainer",
       status: "succeeded",
-      output: { version: `acme/openshoot-ohwxabcdef:${"d".repeat(64)}`, weights: "https://replicate.delivery/w/trained_model.tar" },
+      output: {
+        version: `acme/openshoot-ohwxabcdef:${"d".repeat(64)}`,
+        weights: "https://replicate.delivery/w/trained_model.tar",
+      },
       urls: { get: "https://api.replicate.com/v1/trainings/trn999" },
     };
     const event = parseReplicateWebhook(request(body), SECRET);
     expect(event.requestId).toBe("trn:trn999");
     expect(event.status).toMatchObject({
       state: "succeeded",
-      output: { modelRef: `acme/openshoot-ohwxabcdef:${"d".repeat(64)}|https://replicate.delivery/w/trained_model.tar` },
+      output: {
+        modelRef: `acme/openshoot-ohwxabcdef:${"d".repeat(64)}|https://replicate.delivery/w/trained_model.tar`,
+      },
     });
   });
 
   it("normalizes failed predictions and rejects non-JSON bodies", () => {
-    const failed = parseReplicateWebhook(request({ ...prediction, status: "failed", output: null, error: "NSFW content detected" }), SECRET);
+    const failed = parseReplicateWebhook(
+      request({ ...prediction, status: "failed", output: null, error: "NSFW content detected" }),
+      SECRET,
+    );
     expect(failed.status).toEqual({ state: "failed", error: "NSFW content detected", retryable: false });
     expect(() => parseReplicateWebhook(request("not json"), SECRET)).toThrow(/not valid JSON/);
   });

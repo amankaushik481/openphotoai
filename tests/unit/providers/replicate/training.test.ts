@@ -26,9 +26,14 @@ beforeEach(() => {
 
 describe("submitTraining", () => {
   it("creates the private destination model, then starts the training into it", async () => {
-    const ref = await provider().submitTraining(training, { webhookUrl: "https://app.example.com/api/webhooks/ai/replicate" });
+    const ref = await provider().submitTraining(training, {
+      webhookUrl: "https://app.example.com/api/webhooks/ai/replicate",
+    });
 
-    expect(fake.models.create).toHaveBeenCalledWith("acme", "openshoot-ohwxabcdef", { visibility: "private", hardware: "cpu" });
+    expect(fake.models.create).toHaveBeenCalledWith("acme", "openshoot-ohwxabcdef", {
+      visibility: "private",
+      hardware: "cpu",
+    });
     expect(fake.models.get).toHaveBeenCalledWith("replicate", "fast-flux-trainer");
     expect(fake.trainings.create).toHaveBeenCalledWith("replicate", "fast-flux-trainer", "trainer-v1", {
       destination: "acme/openshoot-ohwxabcdef",
@@ -36,7 +41,9 @@ describe("submitTraining", () => {
       webhook: "https://app.example.com/api/webhooks/ai/replicate",
       webhook_events_filter: ["completed"],
     });
-    expect(fake.models.create.mock.invocationCallOrder[0]).toBeLessThan(fake.trainings.create.mock.invocationCallOrder[0]);
+    expect(fake.models.create.mock.invocationCallOrder[0]).toBeLessThan(
+      fake.trainings.create.mock.invocationCallOrder[0],
+    );
     expect(ref).toEqual({ provider: "replicate", endpoint: R.train.id, requestId: "trn:t1" });
   });
 
@@ -56,7 +63,9 @@ describe("submitTraining", () => {
 
   it("does not start a training when the destination cannot be created", async () => {
     fake.models.create.mockRejectedValue(apiError(500, "server error"));
-    const err = await provider().submitTraining(training).catch((e: unknown) => e);
+    const err = await provider()
+      .submitTraining(training)
+      .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ProviderRequestError);
     expect(err).toMatchObject({ status: 500, retryable: true });
     expect(fake.trainings.create).not.toHaveBeenCalled();
@@ -67,7 +76,10 @@ describe("deleteModel", () => {
   const modelRef = `acme/openshoot-ohwxabcdef:${HASH}|https://replicate.delivery/w/trained_model.tar`;
 
   it("deletes every version (across pages), then the model", async () => {
-    fake.models.versions.list.mockResolvedValue({ results: [{ id: HASH }, { id: "older1" }], next: "https://api.replicate.com/v1/models/acme/openshoot-ohwxabcdef/versions?cursor=2" });
+    fake.models.versions.list.mockResolvedValue({
+      results: [{ id: HASH }, { id: "older1" }],
+      next: "https://api.replicate.com/v1/models/acme/openshoot-ohwxabcdef/versions?cursor=2",
+    });
     fake.request.mockImplementation(async (route: string, init: { method: string }) =>
       init.method === "GET" ? Response.json({ results: [{ id: "older2" }] }) : new Response(null, { status: 204 }),
     );
@@ -75,7 +87,9 @@ describe("deleteModel", () => {
     await provider().deleteModel(modelRef);
 
     expect(fake.models.versions.list).toHaveBeenCalledWith("acme", "openshoot-ohwxabcdef");
-    const deletes = fake.request.mock.calls.filter((c) => (c[1] as { method: string }).method === "DELETE").map((c) => c[0]);
+    const deletes = fake.request.mock.calls
+      .filter((c) => (c[1] as { method: string }).method === "DELETE")
+      .map((c) => c[0]);
     expect(deletes).toEqual([
       `/models/acme/openshoot-ohwxabcdef/versions/${HASH}`,
       "/models/acme/openshoot-ohwxabcdef/versions/older1",

@@ -17,9 +17,7 @@ const TRAINING_PREFIX = "trn:";
 const GROUP_PREFIX = "grp:";
 
 export type RequestIdParts =
-  | { kind: "prediction"; id: string }
-  | { kind: "training"; id: string }
-  | { kind: "group"; ids: string[] };
+  { kind: "prediction"; id: string } | { kind: "training"; id: string } | { kind: "group"; ids: string[] };
 
 export function encodeRequestId(parts: RequestIdParts): string {
   switch (parts.kind) {

@@ -39,7 +39,12 @@ function bearerToken(req: Request): string | null {
   return match?.[1] ?? null;
 }
 
-/** Resolve the caller for a route. Never throws for missing auth (route() decides). */
+/**
+ * Resolve the caller for a route. Never throws for a missing session (route() decides).
+ * API modes: a presented key that doesn't authenticate is a 401, a key on a plan
+ * without API access is plan_limit, and mode "api" without a key is a 401.
+ * In "user_or_api" a Bearer `os_live_` key wins over the session cookie.
+ */
 export async function resolveRequestAuth(req: NextRequest, mode: AuthMode): Promise<AuthResult> {
   if (mode === "api" || mode === "user_or_api") {
     const token = bearerToken(req);

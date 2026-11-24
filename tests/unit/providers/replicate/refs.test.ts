@@ -6,6 +6,7 @@ import {
   encodeModelRef,
   encodeRequestId,
   loraWeightsFor,
+  type RequestIdParts,
 } from "@/providers/ai/replicate/refs";
 
 const HASH = "e".repeat(64);
@@ -13,11 +14,12 @@ const WEIGHTS = "https://replicate.delivery/w/trained_model.tar";
 
 describe("request id codec", () => {
   it("round-trips predictions, trainings and groups", () => {
-    for (const parts of [
+    const cases: RequestIdParts[] = [
       { kind: "prediction", id: "abc" },
       { kind: "training", id: "t1" },
       { kind: "group", ids: ["a", "b", "c"] },
-    ] as const) {
+    ];
+    for (const parts of cases) {
       expect(decodeRequestId(encodeRequestId(parts))).toEqual(parts);
     }
     expect(encodeRequestId({ kind: "group", ids: ["solo"] })).toBe("solo");

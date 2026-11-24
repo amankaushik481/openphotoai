@@ -41,7 +41,9 @@ export const sessionMock = {
     }
   },
 
-  resolveRequestAuth: vi.fn(async (_req: NextRequest, _mode: AuthMode) => ({ user: state.user, apiKey: state.apiKey })),
+  resolveRequestAuth: vi.fn<
+    (req: NextRequest, mode: AuthMode) => Promise<{ user: UserRow | null; apiKey: ApiKeyRow | null }>
+  >(async () => ({ user: state.user, apiKey: state.apiKey })),
   getCurrentUser: vi.fn(async (): Promise<UserRow | null> => state.user),
   requireUserPage: vi.fn(async (nextPath?: string): Promise<UserRow> => {
     if (!state.user) redirect(nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login");
@@ -52,7 +54,7 @@ export const sessionMock = {
     if (!state.user || state.user.role !== "admin") notFound();
     return state.user;
   }),
-  authenticateApiKey: vi.fn(async (_req: Request) =>
+  authenticateApiKey: vi.fn<(req: Request) => Promise<{ user: UserRow; apiKey: ApiKeyRow } | null>>(async () =>
     state.user && state.apiKey ? { user: state.user, apiKey: state.apiKey } : null,
   ),
 };

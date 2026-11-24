@@ -51,7 +51,14 @@ describe("client", () => {
 describe("submitGenerate", () => {
   it("maps a trained identity to flux-dev-lora with the LoRA weights, safety on and the webhook", async () => {
     const ref = await provider().submitGenerate(
-      { prompt: "photo of ohwxabcdef woman in Paris", identity: trained, aspectRatio: "4:5", numImages: 4, quality: "standard", seed: 7 },
+      {
+        prompt: "photo of ohwxabcdef woman in Paris",
+        identity: trained,
+        aspectRatio: "4:5",
+        numImages: 4,
+        quality: "standard",
+        seed: 7,
+      },
       WEBHOOK,
     );
     expect(ref).toEqual({ provider: "replicate", endpoint: R.generate.id, requestId: "pred1" });
@@ -87,7 +94,13 @@ describe("submitGenerate", () => {
   });
 
   it("uses fast low-res settings for drafts", async () => {
-    const ref = await provider().submitGenerate({ prompt: "p", identity: trained, aspectRatio: "9:16", numImages: 1, quality: "draft" });
+    const ref = await provider().submitGenerate({
+      prompt: "p",
+      identity: trained,
+      aspectRatio: "9:16",
+      numImages: 1,
+      quality: "draft",
+    });
     expect(ref.endpoint).toBe(R.draft.id);
     expect(createdInput()).toMatchObject({ num_inference_steps: 8, megapixels: "0.25", go_fast: true, num_outputs: 1 });
   });
@@ -102,7 +115,11 @@ describe("submitGenerate", () => {
       referenceImageUrl: "https://cdn.example.com/style.jpg",
       referenceStrength: 0.5,
     });
-    expect(createdInput()).toMatchObject({ image: "https://cdn.example.com/style.jpg", prompt_strength: 0.5, output_format: "png" });
+    expect(createdInput()).toMatchObject({
+      image: "https://cdn.example.com/style.jpg",
+      prompt_strength: 0.5,
+      output_format: "png",
+    });
   });
 
   it("splits more than 4 images into a polled prediction group with distinct seeds", async () => {
@@ -148,7 +165,13 @@ describe("submitGenerate", () => {
 
   it("rejects identities without weights or reference photos before calling the API", async () => {
     const err = await provider()
-      .submitGenerate({ prompt: "p", identity: { ...instant, referenceImageUrls: [] }, aspectRatio: "1:1", numImages: 1, quality: "standard" })
+      .submitGenerate({
+        prompt: "p",
+        identity: { ...instant, referenceImageUrls: [] },
+        aspectRatio: "1:1",
+        numImages: 1,
+        quality: "standard",
+      })
       .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ProviderRequestError);
     expect(err).toMatchObject({ retryable: false });
@@ -159,7 +182,12 @@ describe("submitGenerate", () => {
 describe("submitEdit", () => {
   it("instruct edits the source image with nano-banana-2", async () => {
     const ref = await provider().submitEdit(
-      { mode: "instruct", prompt: "change the jacket to a red blazer", imageUrls: ["https://cdn.example.com/src.jpg"], numImages: 1 },
+      {
+        mode: "instruct",
+        prompt: "change the jacket to a red blazer",
+        imageUrls: ["https://cdn.example.com/src.jpg"],
+        numImages: 1,
+      },
       WEBHOOK,
     );
     expect(ref).toMatchObject({ endpoint: "google/nano-banana-2", requestId: "pred1" });
@@ -185,14 +213,25 @@ describe("submitEdit", () => {
   });
 
   it("pose copy with only a trained LoRA uses flux-dev-lora img2img", async () => {
-    await provider().submitEdit({ mode: "pose_copy", prompt: "", imageUrls: ["https://cdn.example.com/pose.jpg"], identity: trained, numImages: 1 });
+    await provider().submitEdit({
+      mode: "pose_copy",
+      prompt: "",
+      imageUrls: ["https://cdn.example.com/pose.jpg"],
+      identity: trained,
+      numImages: 1,
+    });
     expect(createdOptions()).toMatchObject({ model: R.generate.id });
     expect(createdInput()).toMatchObject({ image: "https://cdn.example.com/pose.jpg", lora_weights: WEIGHTS });
     expect(String(createdInput().prompt)).toContain("ohwxabcdef woman");
   });
 
   it("multi-person combines both identities' references and labels each person", async () => {
-    const second: IdentityRef = { ...instant, triggerWord: "ohwxsecond", subject: "woman", referenceImageUrls: ["https://cdn.example.com/s1.jpg"] };
+    const second: IdentityRef = {
+      ...instant,
+      triggerWord: "ohwxsecond",
+      subject: "woman",
+      referenceImageUrls: ["https://cdn.example.com/s1.jpg"],
+    };
     await provider().submitEdit({
       mode: "multi_person",
       prompt: "ohwxzyxwvu man and ohwxsecond woman at a picnic",
@@ -219,7 +258,11 @@ describe("other image methods", () => {
     expect(ref.endpoint).toBe("acme/openshoot-ohwxabcdef");
     expect(createdOptions()).toMatchObject({ version: HASH });
     expect(createdOptions()).not.toHaveProperty("model");
-    expect(createdInput()).toMatchObject({ image: "https://cdn.example.com/src.jpg", mask: "https://cdn.example.com/mask.png", disable_safety_checker: false });
+    expect(createdInput()).toMatchObject({
+      image: "https://cdn.example.com/src.jpg",
+      mask: "https://cdn.example.com/mask.png",
+      disable_safety_checker: false,
+    });
   });
 
   it("inpaints with flux-fill-pro at the strictest safety tolerance otherwise", async () => {
@@ -233,9 +276,17 @@ describe("other image methods", () => {
   });
 
   it("upscales with topaz", async () => {
-    const ref = await provider().submitUpscale({ imageUrl: "https://cdn.example.com/src.jpg", scale: 4, faceRestore: true });
+    const ref = await provider().submitUpscale({
+      imageUrl: "https://cdn.example.com/src.jpg",
+      scale: 4,
+      faceRestore: true,
+    });
     expect(ref.endpoint).toBe(R.upscale.id);
-    expect(createdInput()).toMatchObject({ image: "https://cdn.example.com/src.jpg", upscale_factor: "4x", face_enhancement: true });
+    expect(createdInput()).toMatchObject({
+      image: "https://cdn.example.com/src.jpg",
+      upscale_factor: "4x",
+      face_enhancement: true,
+    });
   });
 
   it("restores faces with CodeFormer at its resolved latest version", async () => {
@@ -250,7 +301,10 @@ describe("other image methods", () => {
   it("removes backgrounds with the pinned birefnet version (no lookup)", async () => {
     await provider().submitRemoveBackground({ imageUrl: "https://cdn.example.com/src.jpg" });
     expect(fake.models.get).not.toHaveBeenCalled();
-    expect(createdOptions()).toMatchObject({ version: R.removeBg.version, input: { image: "https://cdn.example.com/src.jpg" } });
+    expect(createdOptions()).toMatchObject({
+      version: R.removeBg.version,
+      input: { image: "https://cdn.example.com/src.jpg" },
+    });
   });
 
   it("tries garments on with nano-banana-2 [person, garment], never idm-vton", async () => {
@@ -268,7 +322,10 @@ describe("other image methods", () => {
 
 describe("video", () => {
   it("animates a photo with kling", async () => {
-    const ref = await provider().submitImageToVideo({ imageUrl: "https://cdn.example.com/me.jpg", prompt: "", durationSec: 10 }, WEBHOOK);
+    const ref = await provider().submitImageToVideo(
+      { imageUrl: "https://cdn.example.com/me.jpg", prompt: "", durationSec: 10 },
+      WEBHOOK,
+    );
     expect(ref).toMatchObject({ endpoint: R.imageToVideo.id, requestId: "pred1" });
     expect(createdInput()).toMatchObject({ start_image: "https://cdn.example.com/me.jpg", duration: 10 });
     expect(String(createdInput().prompt).length).toBeGreaterThan(0);
@@ -280,7 +337,10 @@ describe("video", () => {
       { imageUrl: "https://cdn.example.com/me.jpg", script: "Hello there!", voice: "deep_male" },
       WEBHOOK,
     );
-    expect(fake.run).toHaveBeenCalledWith(R.tts.id, expect.objectContaining({ input: { text: "Hello there!", voice_id: "Deep_Voice_Man" } }));
+    expect(fake.run).toHaveBeenCalledWith(
+      R.tts.id,
+      expect.objectContaining({ input: { text: "Hello there!", voice_id: "Deep_Voice_Man" } }),
+    );
     expect(ref).toMatchObject({ endpoint: R.talkingVideo.id, requestId: "pred1" });
     expect(createdOptions()).toMatchObject({
       model: R.talkingVideo.id,
@@ -300,11 +360,17 @@ describe("video", () => {
 
 describe("promptHelper", () => {
   it("joins the LLM's streamed chunks and parses its JSON", async () => {
-    fake.run.mockResolvedValue(['{"prompt": "photo of {subject} on a yacht at sunset", ', '"negativePrompt": "blurry", "suggestions": ["Add an outfit"]}']);
+    fake.run.mockResolvedValue([
+      '{"prompt": "photo of {subject} on a yacht at sunset", ',
+      '"negativePrompt": "blurry", "suggestions": ["Add an outfit"]}',
+    ]);
     const out = await provider().promptHelper({ request: "me on a yacht", subject: "man" });
     expect(out.prompt).toBe("photo of {subject} on a yacht at sunset");
     expect(out.negativePrompt).toBe("blurry");
-    expect(fake.run).toHaveBeenCalledWith(R.llm.id, expect.objectContaining({ input: expect.objectContaining({ system_prompt: expect.any(String) }) }));
+    expect(fake.run).toHaveBeenCalledWith(
+      R.llm.id,
+      expect.objectContaining({ input: expect.objectContaining({ system_prompt: expect.any(String) }) }),
+    );
   });
 
   it("falls back to the deterministic template on LLM errors or unusable output", async () => {
@@ -321,7 +387,10 @@ describe("promptHelper", () => {
 
 describe("files", () => {
   it("uploads inputs with files.create and returns the get URL", async () => {
-    fake.files.create.mockResolvedValue({ id: "f1", urls: { get: "https://api.replicate.com/v1/files/f1/download?sig=x" } });
+    fake.files.create.mockResolvedValue({
+      id: "f1",
+      urls: { get: "https://api.replicate.com/v1/files/f1/download?sig=x" },
+    });
     const url = await provider().uploadInput(new Uint8Array([1, 2, 3]), "application/zip", "selfies.zip");
     expect(url).toBe("https://api.replicate.com/v1/files/f1/download?sig=x");
     const file = fake.files.create.mock.calls[0][0] as File;
@@ -332,7 +401,9 @@ describe("files", () => {
   });
 
   it("fetches outputs, sending the token only to api.replicate.com", async () => {
-    const fetchMock = vi.fn(async () => new Response(new Uint8Array([9, 9]), { headers: { "content-type": "application/octet-stream" } }));
+    const fetchMock = vi.fn(
+      async () => new Response(new Uint8Array([9, 9]), { headers: { "content-type": "application/octet-stream" } }),
+    );
     vi.stubGlobal("fetch", fetchMock);
     try {
       const p = provider();

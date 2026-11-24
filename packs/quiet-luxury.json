@@ -1,0 +1,88 @@
+{
+  "slug": "quiet-luxury",
+  "name": "Quiet Luxury",
+  "tagline": "Understated elegance in cashmere, linen and calm, minimal spaces.",
+  "description": "Stealth-wealth style without a single logo: tonal cashmere, fine linen and long wool coats in galleries, limestone apartments, boutique hotels and quiet seaside terraces. Muted palettes, soft daylight and calm confidence, a modern counterpart to Old Money.",
+  "category": "fashion",
+  "emoji": "🤍",
+  "tags": [
+    "quiet luxury",
+    "minimalist",
+    "cashmere",
+    "neutral tones",
+    "stealth wealth",
+    "elegant",
+    "aesthetic",
+    "fashion"
+  ],
+  "colors": [
+    "#a8a29e",
+    "#f5f5f4"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, monograms, flashy jewelry, bright saturated colors, clutter",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 130,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Limestone apartment",
+      "prompt": "portrait of {subject} standing in a serene minimalist apartment with limestone floors and a single sculptural chair, wearing an oatmeal cashmere sweater and wide-leg wool trousers, calm composed expression, soft diffused daylight, 50mm lens, refined editorial, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} standing in a serene minimalist apartment with limestone floors and a single sculptural chair, wearing an oatmeal cashmere crew-neck and pleated wool trousers, calm composed expression, soft diffused daylight, 50mm lens, refined editorial, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} standing in a serene minimalist apartment with limestone floors and a single sculptural chair, wearing an oatmeal cashmere sweater, wide-leg wool trousers and fine gold jewelry, calm composed expression, soft diffused daylight, 50mm lens, refined editorial, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gallery visit",
+      "prompt": "portrait of {subject} in a quiet contemporary art gallery before a large minimal canvas, wearing a camel wool coat, hands in pockets, contemplative gaze, cool even gallery light, 35mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Boutique hotel lobby",
+      "prompt": "portrait of {subject} seated in a low bouclé armchair in a boutique hotel lobby with travertine walls, wearing a charcoal knit polo and tailored trousers, relaxed elegant posture, warm indirect lighting, 50mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Linen by the sea",
+      "prompt": "portrait of {subject} on a stone terrace above a calm sea, wearing loose natural linen layers, soft breeze, serene expression, muted morning light, 85mm lens, understated coastal elegance, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a stone terrace above a calm sea, wearing an ecru linen shirt and drawstring linen trousers, soft breeze, serene expression, muted morning light, 85mm lens, understated coastal elegance, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a stone terrace above a calm sea, wearing an ecru linen shirt dress and flat leather sandals, soft breeze, serene expression, muted morning light, 85mm lens, understated coastal elegance, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Members' club",
+      "prompt": "portrait of {subject} in a dimly lit private members' club with walnut paneling and velvet seating, wearing a navy suede overshirt and holding a crystal tumbler of sparkling water, subtle confident smile, warm low light, 50mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Winery tasting room",
+      "prompt": "photo of {subject} in a minimalist winery tasting room of concrete and oak, swirling a glass of red wine, wearing a cream turtleneck, contemplative smile, soft window light, 50mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Airport lounge",
+      "prompt": "portrait of {subject} in a calm premium airport lounge with a runway view, wearing a tonal grey merino knit set with a long wool coat over the chair, a plain leather weekender bag beside, relaxed expression, soft daylight, 35mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cobbled morning walk",
+      "prompt": "candid photo of {subject} walking along a quiet cobbled street in early morning, wearing a long camel coat over a cream knit and carrying a plain leather tote, soft overcast light, 85mm lens, effortless understated style, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Stone-tone studio",
+      "prompt": "studio portrait of {subject} against a warm stone-colored backdrop, wearing a tonal beige knit and trousers, seated on a simple wooden stool, calm direct gaze, soft large window-style light, 85mm lens, minimalist fashion editorial, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lakeside villa",
+      "prompt": "portrait of {subject} on the terrace of a modernist villa above a misty lake, wearing a soft grey cashmere zip cardigan and holding a ceramic cup, peaceful expression, cool morning light, 50mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Flower market",
+      "prompt": "candid photo of {subject} carrying white flowers wrapped in brown paper through a quiet market, wearing a navy cashmere crew-neck and cream trousers, gentle smile, soft daylight, 85mm lens, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Candlelit dinner",
+      "prompt": "portrait of {subject} at a candlelit minimalist restaurant with linen tablecloths, wearing a black fine-knit sweater, subtle warm smile, soft amber light, 50mm lens at f/1.4, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a candlelit minimalist restaurant with linen tablecloths, wearing a black fine-knit polo under a charcoal jacket, subtle warm smile, soft amber light, 50mm lens at f/1.4, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a candlelit minimalist restaurant with linen tablecloths, wearing a black silk column dress and a cashmere wrap, subtle warm smile, soft amber light, 50mm lens at f/1.4, no logos, muted neutral palette, editorial film tones, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

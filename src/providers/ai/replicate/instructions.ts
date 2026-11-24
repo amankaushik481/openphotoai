@@ -14,7 +14,11 @@ export function imageRange(from: number, to: number): string {
 }
 
 /** Replace the LoRA trigger phrase ("ohwxabc man" / "ohwxabc") with a plain description of the referenced person. */
-export function replaceTriggerPhrase(prompt: string, identity: Pick<IdentityRef, "triggerWord" | "subject">, label: string): string {
+export function replaceTriggerPhrase(
+  prompt: string,
+  identity: Pick<IdentityRef, "triggerWord" | "subject">,
+  label: string,
+): string {
   const word = escapeRegExp(identity.triggerWord);
   return prompt
     .replace(new RegExp(`\\b${word}\\s+${escapeRegExp(identity.subject)}\\b`, "gi"), label)
@@ -32,7 +36,9 @@ export function referenceGenerationPrompt(
   const first = layout.styleImage ? 2 : 1;
   const who = `the ${identity.subject} shown in ${imageRange(first, first + layout.identityImages - 1)}`;
   const scene = replaceTriggerPhrase(prompt, identity, who);
-  const style = layout.styleImage ? " Use image 1 only as a reference for composition, pose, setting and lighting; do not copy its person." : "";
+  const style = layout.styleImage
+    ? " Use image 1 only as a reference for composition, pose, setting and lighting; do not copy its person."
+    : "";
   return `Create a new photo: ${scene}.${style} ${KEEP_IDENTITY}`;
 }
 

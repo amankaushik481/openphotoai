@@ -1,0 +1,84 @@
+{
+  "slug": "golden-hour",
+  "name": "Golden Hour",
+  "tagline": "Sun-kissed portraits in the most flattering light of the day.",
+  "description": "Warm, glowing portraits shot in the last hour of sunlight: wheat fields, rooftops, beaches, vineyards and city streets. Soft rim light and gentle flare flatter every skin tone and make these some of the best-performing dating and profile photos you can have.",
+  "category": "dating",
+  "emoji": "🌅",
+  "tags": [
+    "golden hour",
+    "sunset",
+    "dating",
+    "warm light",
+    "portrait",
+    "backlit",
+    "outdoor",
+    "glow"
+  ],
+  "colors": [
+    "#f59e0b",
+    "#ec4899"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, overexposed face, washed out, harsh midday sun",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 120,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Wheat field",
+      "prompt": "golden hour portrait of {subject} walking through a tall wheat field, wearing a loose linen shirt, sun low behind {possessive} shoulder creating a warm rim light and soft flare, relaxed smile, 85mm lens at f/1.8, dreamy warm tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "golden hour portrait of {subject} walking through a tall wheat field, wearing a loose white linen shirt and khaki trousers, sun low behind {possessive} shoulder creating a warm rim light and soft flare, relaxed smile, 85mm lens at f/1.8, dreamy warm tones, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "golden hour portrait of {subject} walking through a tall wheat field, wearing a flowing white linen dress, sun low behind {possessive} shoulder creating a warm rim light and soft flare, relaxed smile, 85mm lens at f/1.8, dreamy warm tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop sunset",
+      "prompt": "portrait of {subject} leaning on a rooftop railing at sunset, wearing a light denim jacket, the city skyline glowing orange behind, warm smile, soft lens flare, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach glow",
+      "prompt": "portrait of {subject} on a sandy beach at golden hour, wearing a relaxed linen shirt, ocean sparkling behind, wind in the hair, laughing, warm backlight, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunflower field",
+      "prompt": "portrait of {subject} among tall sunflowers at sunset, wearing a light cotton shirt, gentle smile turned toward the sun, glowing petals blurred in the foreground, 85mm lens, warm saturated tones, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Long shadows street",
+      "prompt": "candid portrait of {subject} crossing a quiet city street bathed in low golden light with long shadows, wearing a casual jacket, glancing over the shoulder with a smile, 85mm lens, cinematic warm grade, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lakeside dock",
+      "prompt": "portrait of {subject} sitting on a wooden dock at a calm lake during golden hour, wearing a knit sweater, warm glow on the face, water shimmering behind, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Road trip window",
+      "prompt": "candid portrait of {subject} in the passenger seat of a car on a coastal road, warm sunset light streaming through the open window, sunglasses pushed up, relaxed smile, 35mm lens, road-trip feel, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Meadow halo",
+      "prompt": "close portrait of {subject} in a wildflower meadow with the sun directly behind creating a halo through the hair, soft warm fill on the face, serene smile, 135mm lens at f/2, creamy bokeh, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Desert dusk",
+      "prompt": "portrait of {subject} among glowing sand dunes at dusk, wearing a light earth-toned shirt, warm side light sculpting the face, calm confident expression, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vineyard rows",
+      "prompt": "portrait of {subject} walking between vineyard rows at sunset holding a glass of wine, wearing a linen button-down shirt, warm smile, golden haze, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Window glow at home",
+      "prompt": "portrait of {subject} at home by a west-facing window, golden sunset light falling across the face through linen curtains in soft patterns, wearing a white t-shirt, peaceful smile, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Stone bridge",
+      "prompt": "portrait of {subject} on an old stone bridge at sunset with the river glowing below, wearing a light coat, warm backlight with soft fill, joyful expression, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

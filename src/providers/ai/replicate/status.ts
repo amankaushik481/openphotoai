@@ -41,7 +41,8 @@ export function isTrainingJob(job: ReplicateJobLike): boolean {
   return typeof job.urls?.get === "string" && /\/trainings\//.test(job.urls.get);
 }
 
-const TRANSIENT_ERROR_RE = /timed? ?out|timeout|temporar|unavailable|overloaded|rate limit|out of memory|internal server error|try again/i;
+const TRANSIENT_ERROR_RE =
+  /timed? ?out|timeout|temporar|unavailable|overloaded|rate limit|out of memory|internal server error|try again/i;
 
 export function normalizeJob(job: ReplicateJobLike, kind: OutputKind): ProviderJobStatus {
   switch (job.status) {
@@ -88,7 +89,9 @@ function succeeded(job: ReplicateJobLike, kind: OutputKind): ProviderJobStatus {
   else {
     // A seed identifies a single image exactly; batches share one seed, so only the job carries it.
     const perImageSeed = urls.length === 1 ? seed : undefined;
-    output.images = urls.map((url) => withType(perImageSeed !== undefined ? { url, seed: perImageSeed } : { url }, url));
+    output.images = urls.map((url) =>
+      withType(perImageSeed !== undefined ? { url, seed: perImageSeed } : { url }, url),
+    );
     if (seed !== undefined) output.seed = seed;
   }
   return { state: "succeeded", output };

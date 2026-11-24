@@ -11,7 +11,7 @@ export const maxDuration = 60;
  * AI provider completion webhooks. The signature is verified on the raw body (401 when invalid);
  * duplicates are acknowledged with 200 so providers stop retrying.
  */
-export const POST = route<{ provider: string }>({ auth: "public" }, async ({ req, params }) => {
+export const POST = route<{ provider: string }, "public">({ auth: "public" }, async ({ req, params }) => {
   const provider = PROVIDERS.find((p) => p === params.provider);
   if (!provider) throw errors.notFound("Webhook");
   const rawBody = await req.text();

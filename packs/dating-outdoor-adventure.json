@@ -1,0 +1,82 @@
+{
+  "slug": "dating-outdoor-adventure",
+  "name": "Outdoor Adventure",
+  "tagline": "Trails, lakes and campfires for the adventurous profile.",
+  "description": "Show the outdoorsy side of your dating profile: summits, kayaks, campfires, canyons and trail runs. Active, sunlit and full of life, with your face clearly visible in every shot so matches can see who they're going on that hike with.",
+  "category": "dating",
+  "emoji": "🏕️",
+  "tags": [
+    "dating",
+    "outdoors",
+    "adventure",
+    "hiking",
+    "camping",
+    "kayak",
+    "nature",
+    "active"
+  ],
+  "colors": [
+    "#15803d",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, face covered, back to camera, tiny figure in landscape",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 300,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Summit celebration",
+      "prompt": "photo of {subject} on a rocky mountain summit with arms raised in celebration, wearing a technical shell jacket and a backpack, a sweeping range of peaks behind, bright clear light, 35mm lens, triumphant genuine smile, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Kayak on the lake",
+      "prompt": "candid photo of {subject} paddling a red kayak on a glassy alpine lake, wearing a light fleece, turning to smile at the camera, pine forest and mountains reflected in the water, morning light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Campfire evening",
+      "prompt": "warm portrait of {subject} sitting by a crackling campfire at dusk, wearing a flannel shirt and holding an enamel mug, firelight glowing on the face, tents and pines silhouetted behind, 35mm lens, cozy adventurous mood, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Trail running",
+      "prompt": "action photo of {subject} trail running along a forest path, wearing a lightweight running jacket and trail shoes, mid-stride with a focused smile, dappled sunlight, motion in the background, 70-200mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Camper van morning",
+      "prompt": "candid photo of {subject} sitting in the open side door of a camper van parked at a coastal overlook, wearing a knit beanie and a canvas jacket, holding a coffee, relaxed grin, golden morning light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bouldering",
+      "prompt": "photo of {subject} bouldering on a sunlit sandstone boulder, wearing a t-shirt and climbing pants, chalked hands gripping the rock, looking back with a determined smile, warm desert light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mountain bike trail",
+      "prompt": "action photo of {subject} riding a mountain bike down a dusty switchback trail, wearing a helmet and a riding jersey with the face clearly visible, joyful expression, late afternoon sunlight, 85mm lens, dynamic angle, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Forest waterfall",
+      "prompt": "photo of {subject} resting on a mossy rock beside a misty forest waterfall, wearing a rain jacket and hiking boots, serene happy expression, soft overcast light, lush greens, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lake dock fishing",
+      "prompt": "candid photo of {subject} sitting on the edge of a wooden dock at a quiet lake with a fishing rod, wearing a flannel shirt and a cap, laughing, warm sunrise mist on the water, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowshoe trek",
+      "prompt": "photo of {subject} snowshoeing through a snowy pine forest, wearing a bright puffer jacket and a knit beanie, cheeks flushed from the cold, big smile, crisp winter sunlight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Red rock canyon",
+      "prompt": "photo of {subject} hiking through a narrow red sandstone canyon with glowing walls, wearing a sun hoodie and a wide-brim hat, looking up in awe, warm reflected light, 24mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunset ridge",
+      "prompt": "portrait of {subject} on a grassy ridge at sunset, wearing a light jacket, hair moving in the breeze, warm smile toward the camera, sun flare behind one shoulder, 85mm lens, golden adventurous mood, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

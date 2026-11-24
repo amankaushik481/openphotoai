@@ -1,0 +1,84 @@
+{
+  "slug": "y2k-90s-retro",
+  "name": "Y2K & 90s Retro",
+  "tagline": "Flash snapshots, chrome, denim and mall-era nostalgia.",
+  "description": "A nostalgia trip through the late 90s and early 2000s: disposable-camera flash, mall food courts, video rental shelves, roller rinks, arcades, grunge garages and glossy chrome studios. Tinted sunglasses, velour, windbreakers and flannel, finished with authentic film grain.",
+  "category": "fashion",
+  "emoji": "📼",
+  "tags": [
+    "y2k",
+    "90s",
+    "retro",
+    "nostalgia",
+    "vintage",
+    "disposable camera",
+    "flash",
+    "aesthetic"
+  ],
+  "colors": [
+    "#c026d3",
+    "#22d3ee"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, modern smartphone, brand logos, readable text, date stamp",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 560,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "House party flash",
+      "prompt": "on-camera flash snapshot of {subject} at a late-90s house party, wearing a shiny silver windbreaker, laughing, bright foreground with a dark background, disposable camera look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mall food court",
+      "prompt": "photo of {subject} in a 1990s shopping mall food court with neon accents and a glass elevator, wearing a denim jacket over a pastel tee and holding a plain soda cup, carefree smile, warm fluorescent light, 35mm film, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Chrome studio",
+      "prompt": "Y2K studio portrait of {subject} against a glossy silver chrome backdrop, wearing an iridescent futuristic jacket with tiny tinted oval sunglasses pushed up, playful pose, cool blue and pink lighting, glossy early-2000s magazine look, 85mm lens, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Velour and flip phone",
+      "prompt": "photo of {subject} in a velour tracksuit standing beside a pastel early-2000s convertible, tinted sunglasses on, a flip phone in hand, bright sunny day, saturated point-and-shoot flash colors, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Video rental store",
+      "prompt": "photo of {subject} browsing the shelves of a 1990s video rental store lined with plain VHS cases, wearing an oversized flannel over a ringer tee and holding a tape, warm fluorescent light, 35mm film, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Roller rink",
+      "prompt": "photo of {subject} on roller skates at a retro roller rink under colored disco lights, wearing high-waisted jeans and a bright windbreaker, mid-glide and laughing, motion blur in the lights, 35mm film look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Arcade glow",
+      "prompt": "photo of {subject} playing a classic arcade cabinet in a dark arcade lit by colorful screens, wearing a bomber jacket, glancing back with a grin, glowing neon reflections, 35mm film, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Grunge garage",
+      "prompt": "90s grunge portrait of {subject} in a dim garage rehearsal space, wearing a worn flannel shirt over a plain t-shirt, ripped jeans and combat boots, moody half smile, warm tungsten light, gritty 35mm film, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "CRT living room",
+      "prompt": "photo of {subject} sitting cross-legged on a carpeted floor in front of a chunky CRT television with retro game controllers, wearing an oversized sweatshirt, cheerful expression, warm lamp light, early 2000s snapshot, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bubblegum backdrop",
+      "prompt": "Y2K portrait of {subject} against a bubblegum pink backdrop, wearing a satin bomber jacket and tinted sunglasses, bright direct flash, playful pose, early-2000s pop magazine look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "Y2K portrait of {subject} against a bubblegum pink backdrop, wearing a satin bomber jacket, a chain necklace and tinted sunglasses, bright direct flash, playful pose, early-2000s pop magazine look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "Y2K portrait of {subject} against a bubblegum pink backdrop, wearing a fitted pastel tee, a denim jacket and glittery butterfly hair clips, bright direct flash, playful pose, early-2000s pop magazine look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Skate shop strip mall",
+      "prompt": "photo of {subject} outside a 1990s skate shop in a sunny suburban strip mall, wearing a baggy windbreaker and wide-leg jeans with a skateboard under one arm, faded film colors, 35mm lens, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Payphone night",
+      "prompt": "night photo of {subject} talking on a vintage payphone under a flickering street light, wearing a leather jacket, wistful smile, cinematic grain and halation, 1990s film look, authentic retro film grain and color shift, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

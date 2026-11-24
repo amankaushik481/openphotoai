@@ -91,7 +91,9 @@ export function instructEditPrompt(args: {
   let next = 2;
   if (args.identityRefCount > 0) {
     lines.push(
-      `${capitalize(imageRange(next, args.identityRefCount))} ${args.identityRefCount > 1 ? "are" : "is"} extra reference photos of the same ${noun}; use them only to keep the face accurate.`,
+      args.identityRefCount > 1
+        ? `${capitalize(imageRange(next, args.identityRefCount))} are extra reference photos of the same ${noun}; use them only to keep the face accurate.`
+        : `Image ${next} is an extra reference photo of the same ${noun}; use it only to keep the face accurate.`,
     );
     next += args.identityRefCount;
   }
@@ -111,7 +113,7 @@ export function poseCopyPrompt(args: {
   const noun = subjectNoun(args.identity.subject);
   const refs = imageRange(2, args.identityRefCount);
   const lines = [
-    `Image 1 is a pose and scene reference. ${capitalize(refs)} show the ${noun} to photograph.`,
+    `Image 1 is a pose and scene reference. ${capitalize(refs)} ${args.identityRefCount > 1 ? "show" : "shows"} the ${noun} to photograph.`,
     `Create a new photorealistic photo of the ${noun} from ${refs} in the same pose, body position, framing, camera angle, setting and lighting as image 1.`,
     `Take the face, hair, skin tone and body type only from ${refs} and keep that identity exactly (${IDENTITY_TRAITS}). ` +
       "Do not keep any facial features of the person in image 1.",
@@ -132,7 +134,8 @@ export interface MultiPersonSlot {
 export function multiPersonPrompt(args: { prompt: string; people: MultiPersonSlot[]; sceneRefIndex?: number }): string {
   const labels = args.people.map((_, i) => `person ${String.fromCharCode(65 + i)}`);
   const lines = args.people.map(
-    (p, i) => `${capitalize(imageRange(p.start, p.count))} show ${labels[i]} (an adult ${subjectNoun(p.identity.subject)}).`,
+    (p, i) =>
+      `${capitalize(imageRange(p.start, p.count))} ${p.count > 1 ? "show" : "shows"} ${labels[i]} (an adult ${subjectNoun(p.identity.subject)}).`,
   );
   let scene = args.prompt;
   args.people.forEach((p, i) => {

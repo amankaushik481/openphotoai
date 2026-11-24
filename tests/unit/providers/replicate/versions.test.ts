@@ -16,11 +16,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const faceRestore = (p: ReturnType<typeof createReplicateProvider>) => p.submitFaceRestore({ imageUrl: "https://cdn.example.com/a.jpg" });
+const faceRestore = (p: ReturnType<typeof createReplicateProvider>) =>
+  p.submitFaceRestore({ imageUrl: "https://cdn.example.com/a.jpg" });
 
 describe("latest version resolution", () => {
   it("resolves community 'latest' versions once and caches them for an hour", async () => {
-    fake.models.get.mockResolvedValueOnce({ latest_version: { id: "v1" } }).mockResolvedValueOnce({ latest_version: { id: "v2" } });
+    fake.models.get
+      .mockResolvedValueOnce({ latest_version: { id: "v1" } })
+      .mockResolvedValueOnce({ latest_version: { id: "v2" } });
     const p = createReplicateProvider({ apiToken: "t", owner: "acme" });
 
     await faceRestore(p);
@@ -57,7 +60,9 @@ describe("latest version resolution", () => {
 
   it("errors when a model has no published version", async () => {
     fake.models.get.mockResolvedValue({ latest_version: null });
-    await expect(faceRestore(createReplicateProvider({ apiToken: "t", owner: "acme" }))).rejects.toThrow(/no published version/);
+    await expect(faceRestore(createReplicateProvider({ apiToken: "t", owner: "acme" }))).rejects.toThrow(
+      /no published version/,
+    );
     expect(fake.predictions.create).not.toHaveBeenCalled();
   });
 

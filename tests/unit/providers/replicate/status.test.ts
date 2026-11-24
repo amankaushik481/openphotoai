@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MODELS } from "@/config/models";
 import { createReplicateProvider } from "@/providers/ai/replicate";
-import { combineStatuses, collectUrls, normalizeJob, outputKindFor, parseProgress } from "@/providers/ai/replicate/status";
+import {
+  combineStatuses,
+  collectUrls,
+  normalizeJob,
+  outputKindFor,
+  parseProgress,
+} from "@/providers/ai/replicate/status";
 import type { ProviderJobRef } from "@/providers/types";
 import { apiError, fake, resetFake } from "./fake-replicate";
 
@@ -10,7 +16,11 @@ vi.mock("replicate", async () => (await import("./fake-replicate")).replicateMod
 const R = MODELS.replicate;
 const HASH = "b".repeat(64);
 const provider = () => createReplicateProvider({ apiToken: "r8_test", owner: "acme" });
-const ref = (requestId: string, endpoint: string = R.generate.id): ProviderJobRef => ({ provider: "replicate", endpoint, requestId });
+const ref = (requestId: string, endpoint: string = R.generate.id): ProviderJobRef => ({
+  provider: "replicate",
+  endpoint,
+  requestId,
+});
 
 beforeEach(() => {
   resetFake();
@@ -53,18 +63,33 @@ describe("prediction status mapping", () => {
   });
 
   it("normalizes a single string output", async () => {
-    fake.predictions.get.mockResolvedValue({ id: "p1", status: "succeeded", output: "https://replicate.delivery/a/out.webp" });
+    fake.predictions.get.mockResolvedValue({
+      id: "p1",
+      status: "succeeded",
+      output: "https://replicate.delivery/a/out.webp",
+    });
     const status = await provider().getStatus(ref("p1", "google/nano-banana-2"));
-    expect(status).toMatchObject({ state: "succeeded", output: { images: [{ url: "https://replicate.delivery/a/out.webp", contentType: "image/webp" }] } });
+    expect(status).toMatchObject({
+      state: "succeeded",
+      output: { images: [{ url: "https://replicate.delivery/a/out.webp", contentType: "image/webp" }] },
+    });
   });
 
   it("normalizes video and audio endpoints", async () => {
-    fake.predictions.get.mockResolvedValueOnce({ id: "v1", status: "succeeded", output: "https://replicate.delivery/v/out.mp4" });
+    fake.predictions.get.mockResolvedValueOnce({
+      id: "v1",
+      status: "succeeded",
+      output: "https://replicate.delivery/v/out.mp4",
+    });
     expect(await provider().getStatus(ref("v1", R.imageToVideo.id))).toMatchObject({
       state: "succeeded",
       output: { videos: [{ url: "https://replicate.delivery/v/out.mp4", contentType: "video/mp4" }] },
     });
-    fake.predictions.get.mockResolvedValueOnce({ id: "t1", status: "succeeded", output: { audio: "https://replicate.delivery/t/a.mp3" } });
+    fake.predictions.get.mockResolvedValueOnce({
+      id: "t1",
+      status: "succeeded",
+      output: { audio: "https://replicate.delivery/t/a.mp3" },
+    });
     expect(await provider().getStatus(ref("t1", R.tts.id))).toMatchObject({
       state: "succeeded",
       output: { audio: [{ url: "https://replicate.delivery/t/a.mp3" }] },
@@ -72,8 +97,16 @@ describe("prediction status mapping", () => {
   });
 
   it("maps failures (with retryability), cancellations and empty outputs", async () => {
-    fake.predictions.get.mockResolvedValueOnce({ id: "p1", status: "failed", error: "NSFW content detected. Try a different prompt." });
-    expect(await provider().getStatus(ref("p1"))).toEqual({ state: "failed", error: "NSFW content detected. Try a different prompt.", retryable: false });
+    fake.predictions.get.mockResolvedValueOnce({
+      id: "p1",
+      status: "failed",
+      error: "NSFW content detected. Try a different prompt.",
+    });
+    expect(await provider().getStatus(ref("p1"))).toEqual({
+      state: "failed",
+      error: "NSFW content detected. Try a different prompt.",
+      retryable: false,
+    });
 
     fake.predictions.get.mockResolvedValueOnce({ id: "p1", status: "failed", error: "CUDA out of memory" });
     expect(await provider().getStatus(ref("p1"))).toMatchObject({ state: "failed", retryable: true });
@@ -114,7 +147,10 @@ describe("training status", () => {
     fake.trainings.get.mockResolvedValue({
       id: "t1",
       status: "succeeded",
-      output: { version: `acme/openshoot-ohwxabcdef:${HASH}`, weights: "https://replicate.delivery/w/trained_model.tar" },
+      output: {
+        version: `acme/openshoot-ohwxabcdef:${HASH}`,
+        weights: "https://replicate.delivery/w/trained_model.tar",
+      },
       urls: { get: "https://api.replicate.com/v1/trainings/t1" },
     });
     const status = await provider().getStatus(ref("trn:t1", R.train.id));
@@ -127,7 +163,11 @@ describe("training status", () => {
   });
 
   it("reports running trainings and failed trainings without output", async () => {
-    fake.trainings.get.mockResolvedValueOnce({ id: "t1", status: "processing", logs: "flux_train_replicate:  30%|███       | 300/1000 [00:30<01:10]" });
+    fake.trainings.get.mockResolvedValueOnce({
+      id: "t1",
+      status: "processing",
+      logs: "flux_train_replicate:  30%|███       | 300/1000 [00:30<01:10]",
+    });
     expect(await provider().getStatus(ref("trn:t1", R.train.id))).toMatchObject({ state: "running", progress: 30 });
 
     fake.trainings.get.mockResolvedValueOnce({ id: "t1", status: "succeeded", output: {} });
@@ -150,10 +190,9 @@ describe("pure helpers", () => {
   it("collects URLs from strings, arrays and objects", () => {
     expect(collectUrls("https://x/1.png")).toEqual(["https://x/1.png"]);
     expect(collectUrls(["https://x/1.png", "https://x/2.png"])).toEqual(["https://x/1.png", "https://x/2.png"]);
-    expect(collectUrls({ image: "https://x/1.png", meta: { mask: "https://x/m.png", n: 3, label: "normal" } })).toEqual([
-      "https://x/1.png",
-      "https://x/m.png",
-    ]);
+    expect(collectUrls({ image: "https://x/1.png", meta: { mask: "https://x/m.png", n: 3, label: "normal" } })).toEqual(
+      ["https://x/1.png", "https://x/m.png"],
+    );
     expect(collectUrls(null)).toEqual([]);
   });
 
@@ -180,7 +219,10 @@ describe("pure helpers", () => {
   });
 
   it("surfaces the first failure of a group", () => {
-    expect(combineStatuses([{ state: "queued" }, { state: "failed", error: "x" }])).toEqual({ state: "failed", error: "x" });
+    expect(combineStatuses([{ state: "queued" }, { state: "failed", error: "x" }])).toEqual({
+      state: "failed",
+      error: "x",
+    });
     expect(combineStatuses([{ state: "queued" }, { state: "queued" }])).toEqual({ state: "queued" });
   });
 });

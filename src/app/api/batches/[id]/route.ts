@@ -7,7 +7,7 @@ import { getBatchForUser, toBatchDTO } from "@/server/jobs/batches";
 import { toJobDTOs } from "@/server/jobs/queries";
 
 /** Batch progress + its jobs (running jobs are lazily synced with the provider). */
-export const GET = route<{ id: string }>({ auth: "user" }, async ({ user, params }) => {
+export const GET = route<{ id: string }, "user">({ auth: "user" }, async ({ user, params }) => {
   await getBatchForUser(user.id, params.id);
   const rows = await db
     .select()

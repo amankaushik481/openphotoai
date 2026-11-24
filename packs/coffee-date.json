@@ -1,0 +1,86 @@
+{
+  "slug": "coffee-date",
+  "name": "Coffee Date",
+  "tagline": "Warm café moments for an easy first impression.",
+  "description": "The low-key first-date look: window seats, latte art, sidewalk terraces, bakeries and rainy-day cafés. Cozy knits, soft light and relaxed smiles that feel like you're sitting across the table, which is exactly where a match wants to be.",
+  "category": "dating",
+  "emoji": "☕",
+  "tags": [
+    "dating",
+    "coffee",
+    "cafe",
+    "first date",
+    "cozy",
+    "casual",
+    "latte",
+    "approachable"
+  ],
+  "colors": [
+    "#78350f",
+    "#fcd34d"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos on cups, readable menus, harsh flash",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 150,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Window seat latte",
+      "prompt": "candid photo of {subject} at a café window seat with a latte, wearing a soft knit sweater, warm smile toward the camera as if across the table, soft diffused window light, street softly blurred outside, 50mm lens at f/1.8, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "candid photo of {subject} at a café window seat with a latte, wearing a navy knit sweater over a collared shirt, warm smile toward the camera as if across the table, soft diffused window light, street softly blurred outside, 50mm lens at f/1.8, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "candid photo of {subject} at a café window seat with a latte, wearing a cream ribbed knit sweater, warm smile toward the camera as if across the table, soft diffused window light, street softly blurred outside, 50mm lens at f/1.8, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Latte art",
+      "prompt": "close portrait of {subject} holding a cappuccino with heart-shaped latte art, wearing a cozy cardigan, playful smile, warm café light, the espresso machine glinting in the bokeh, 85mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sidewalk terrace",
+      "prompt": "photo of {subject} at a sidewalk café table with wicker chairs, wearing a light jacket with sunglasses pushed up on the head, laughing mid-conversation, croissant and espresso on the table, bright morning sun, 35mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "At the counter",
+      "prompt": "candid photo of {subject} leaning on a wooden café counter waiting for an order, wearing a casual button-down shirt, chatting with a smile, pastry display and hanging bulbs softly blurred, warm light, 35mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Coffee to go",
+      "prompt": "candid photo of {subject} walking down a leafy street holding a plain takeaway coffee cup, wearing a trench coat, glancing back at the camera with a grin, autumn light, 85mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bakery morning",
+      "prompt": "photo of {subject} in a rustic bakery café holding a cup of coffee beside shelves of fresh sourdough loaves, wearing a denim shirt, relaxed happy expression, golden morning light, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy day café",
+      "prompt": "cozy photo of {subject} inside a café on a rainy day, raindrops on the window, hands wrapped around a mug of hot chocolate, wearing a chunky knit sweater, gentle smile, soft grey daylight with warm interior lamps, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bookshop café",
+      "prompt": "candid photo of {subject} reading a paperback at a bookshop café with a coffee cup beside, looking up with a curious smile, wearing a soft cardigan, warm lamp light, 35mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pour-over bar",
+      "prompt": "photo of {subject} at a minimalist specialty coffee bar watching a pour-over being brewed, wearing a black t-shirt, intrigued smile, clean Scandinavian interior, soft daylight, 35mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Across the table",
+      "prompt": "portrait of {subject} seated across a small marble café table, framed from the date's point of view, wearing a relaxed overshirt, leaning in with forearms on the table, warm engaged smile, two cups between, warm afternoon light, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} seated across a small marble café table, framed from the date's point of view, wearing a relaxed olive overshirt over a white tee, leaning in with forearms on the table, warm engaged smile, two cups between, warm afternoon light, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} seated across a small marble café table, framed from the date's point of view, wearing a soft blouse and delicate earrings, leaning in with forearms on the table, warm engaged smile, two cups between, warm afternoon light, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden café",
+      "prompt": "photo of {subject} in a garden café surrounded by potted plants and hanging greenery, wearing a pastel linen shirt, laughing, iced coffee on the table, dappled sunlight, 50mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Evening espresso bar",
+      "prompt": "portrait of {subject} at an Italian-style espresso bar in the evening, standing at the counter with a tiny espresso cup, wearing a dark wool coat, warm confident smile, amber light and reflections, 35mm lens, candid lifestyle photo, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

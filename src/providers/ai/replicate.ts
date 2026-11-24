@@ -107,7 +107,8 @@ export function createReplicateProvider(
     try {
       return normalizeJob(await client.predictions.get(id), outputKindFor(endpoint));
     } catch (err) {
-      if (apiErrorStatus(err) === 404) return { state: "failed", error: "Replicate prediction not found", retryable: false };
+      if (apiErrorStatus(err) === 404)
+        return { state: "failed", error: "Replicate prediction not found", retryable: false };
       throw toProviderError(err, endpoint);
     }
   }
@@ -145,7 +146,8 @@ export function createReplicateProvider(
       try {
         return normalizeJob((await client.trainings.get(parts.id)) as ReplicateJobLike, "training");
       } catch (err) {
-        if (apiErrorStatus(err) === 404) return { state: "failed", error: "Replicate training not found", retryable: false };
+        if (apiErrorStatus(err) === 404)
+          return { state: "failed", error: "Replicate training not found", retryable: false };
         throw toProviderError(err, ref.endpoint);
       }
     },
@@ -196,7 +198,12 @@ export function createReplicateProvider(
       await ensureDestinationModel(client, name);
 
       const trainerVersion = await call(R.train.id, () => versions.versionOf(R.train));
-      if (!trainerVersion) throw new ProviderRequestError({ provider: PROVIDER, message: "Trainer version is not configured", retryable: false });
+      if (!trainerVersion)
+        throw new ProviderRequestError({
+          provider: PROVIDER,
+          message: "Trainer version is not configured",
+          retryable: false,
+        });
       const trainer = splitModelId(R.train.id);
       const training = await call(R.train.id, () =>
         client.trainings.create(trainer.owner, trainer.name, trainerVersion, {
@@ -205,7 +212,11 @@ export function createReplicateProvider(
           ...(submit?.webhookUrl ? { webhook: submit.webhookUrl, webhook_events_filter: ["completed"] } : {}),
         }),
       );
-      return { provider: PROVIDER, endpoint: R.train.id, requestId: encodeRequestId({ kind: "training", id: training.id }) };
+      return {
+        provider: PROVIDER,
+        endpoint: R.train.id,
+        requestId: encodeRequestId({ kind: "training", id: training.id }),
+      };
     },
 
     /** Deletes every version of the identity's private destination model, then the model itself (404 = already gone). */
@@ -269,10 +280,19 @@ export function createReplicateProvider(
     async submitTalkingVideo(input, submit) {
       const client = await getClient();
       const speech = await call(R.tts.id, () =>
-        client.run(R.tts.id, { input: ttsInput(input.script, input.voice), wait: { mode: "block", timeout: TTS_WAIT_SEC } }),
+        client.run(R.tts.id, {
+          input: ttsInput(input.script, input.voice),
+          wait: { mode: "block", timeout: TTS_WAIT_SEC },
+        }),
       );
       const audioUrl = collectUrls(speech)[0];
-      if (!audioUrl) throw new ProviderRequestError({ provider: PROVIDER, endpoint: R.tts.id, message: "Text-to-speech returned no audio", retryable: true });
+      if (!audioUrl)
+        throw new ProviderRequestError({
+          provider: PROVIDER,
+          endpoint: R.tts.id,
+          message: "Text-to-speech returned no audio",
+          retryable: true,
+        });
       return submitPlan(talkingAvatarPlan(input.imageUrl, audioUrl), submit);
     },
   };

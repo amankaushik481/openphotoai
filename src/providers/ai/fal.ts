@@ -148,7 +148,7 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
       }
     },
 
-    parseWebhook(req): Promise<AIWebhookEvent> {
+    async parseWebhook(req): Promise<AIWebhookEvent> {
       return parseFalWebhook(req, { jwks, now });
     },
 
@@ -162,13 +162,13 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
       }
     },
 
-    fetchOutput(url) {
+    async fetchOutput(url) {
       return fetchOutputBytes(url, { fetch: doFetch });
     },
 
     /* ───────────── Training ───────────── */
 
-    submitTraining(input, submitOpts) {
+    async submitTraining(input, submitOpts) {
       return submit("train", buildTrainingInput(input), submitOpts, MODEL_LIFECYCLE);
     },
 
@@ -186,33 +186,33 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
 
     /* ───────────── Images ───────────── */
 
-    submitGenerate(input, submitOpts) {
+    async submitGenerate(input, submitOpts) {
       const capability = generateCapability(input);
       if (capability === "editMulti") return submit(capability, buildInstantGenerateInput(input), submitOpts);
       return submit(capability, buildLoraGenerateInput(input), submitOpts);
     },
 
-    submitEdit(input, submitOpts) {
+    async submitEdit(input, submitOpts) {
       return submit("editMulti", buildEditInput(input), submitOpts);
     },
 
-    submitInpaint(input, submitOpts) {
+    async submitInpaint(input, submitOpts) {
       return submit("inpaint", buildInpaintInput(input), submitOpts);
     },
 
-    submitUpscale(input, submitOpts) {
+    async submitUpscale(input, submitOpts) {
       return submit("upscale", buildUpscaleInput(input), submitOpts);
     },
 
-    submitFaceRestore(input, submitOpts) {
+    async submitFaceRestore(input, submitOpts) {
       return submit("faceRestore", buildFaceRestoreInput(input.imageUrl), submitOpts);
     },
 
-    submitRemoveBackground(input, submitOpts) {
+    async submitRemoveBackground(input, submitOpts) {
       return submit("removeBg", buildRemoveBackgroundInput(input.imageUrl), submitOpts);
     },
 
-    submitTryOn(input, submitOpts) {
+    async submitTryOn(input, submitOpts) {
       return submit("tryOn", buildTryOnInput(input), submitOpts);
     },
 
@@ -239,7 +239,7 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
 
     /* ───────────── Video ───────────── */
 
-    submitImageToVideo(input, submitOpts) {
+    async submitImageToVideo(input, submitOpts) {
       return submit("imageToVideo", buildImageToVideoInput(input), submitOpts);
     },
 

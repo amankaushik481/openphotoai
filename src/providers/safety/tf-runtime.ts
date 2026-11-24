@@ -79,12 +79,14 @@ export function registerFileModelRouter(tf: Tf): void {
   const engine = tf.engine();
   if (routedEngines.has(engine)) return;
   routedEngines.add(engine);
-  tf.io.registerLoadRouter((url: string | string[]) => {
+  // tfjs routers return null for "not mine" although the published type omits it.
+  const router = (url: string | string[]): TfCore.io.IOHandler | null => {
     if (typeof url !== "string" || !url.startsWith("file://")) return null;
     const file = fileURLToPath(url);
     if (!isAllowedModelFile(file)) return null;
     return { load: () => loadModelArtifacts(tf, file) };
-  });
+  };
+  tf.io.registerLoadRouter(router as Parameters<Tf["io"]["registerLoadRouter"]>[0]);
 }
 
 async function loadModelArtifacts(tf: Tf, modelJsonPath: string): Promise<TfCore.io.ModelArtifacts> {
