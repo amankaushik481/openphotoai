@@ -152,3 +152,45 @@ describe("seed", () => {
     await expect(validatePacks()).rejects.toThrow("prompts too short");
   });
 });
+
+describe("createPeriodicTask (worker maintenance)", () => {
+  it("runs at most once per interval and never overlaps itself", async () => {
+    const { createPeriodicTask } = await import("../../../scripts/lib/periodic");
+    let release: () => void = () => {};
+    const run = vi.fn(() => new Promise<void>((resolve) => (release = resolve)));
+    const task = createPeriodicTask({ intervalMs: 1000, run });
+
+    expect(task.tick(0)).toBe(true); // first tick runs immediately
+    expect(task.running).toBe(true);
+    expect(task.tick(5000)).toBe(false); // still running: no overlap even though it's due
+    release();
+    await task.idle();
+    expect(task.running).toBe(false);
+    expect(task.tick(500)).toBe(false); // not due yet (interval counts from the last start)
+    expect(task.tick(1000)).toBe(true);
+    release();
+    await task.idle();
+    expect(run).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports failures without throwing and can wait one interval before the first run", async () => {
+    const { createPeriodicTask } = await import("../../../scripts/lib/periodic");
+    const onError = vi.fn();
+    const task = createPeriodicTask({
+      intervalMs: 100,
+      runImmediately: false,
+      run: async () => {
+        throw new Error("db down");
+      },
+      onError,
+    });
+    expect(task.tick(0)).toBe(false);
+    expect(task.tick(99)).toBe(false);
+    expect(task.tick(100)).toBe(true);
+    await task.idle();
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: "db down" }));
+    expect(task.tick(150)).toBe(false);
+    expect(task.tick(200)).toBe(true);
+    await task.idle();
+  });
+});

@@ -44,7 +44,7 @@ async function initRuntime(): Promise<TfRuntime> {
   const wasm = requireFromApp<{ setWasmPaths(prefix: string, usePlatformFetch?: boolean): void }>(
     "@tensorflow/tfjs-backend-wasm",
   );
-  const wasmDir = path.join(packageDir("@tensorflow/tfjs-backend-wasm"), "dist") + path.sep;
+  const wasmDir = path.join(/* turbopackIgnore: true */ packageDir("@tensorflow/tfjs-backend-wasm"), "dist") + path.sep;
   registerFileModelRouter(tf);
   // setWasmPaths must precede the first backend initialization; repeating it is harmless.
   wasm.setWasmPaths(wasmDir);
@@ -62,11 +62,11 @@ const routedEngines = new WeakSet<object>();
 
 /** Allow `file://` model loading from `dir` (absolute). */
 export function allowModelDir(dir: string): void {
-  allowedModelDirs.add(path.resolve(dir) + path.sep);
+  allowedModelDirs.add(path.resolve(/* turbopackIgnore: true */ dir) + path.sep);
 }
 
 function isAllowedModelFile(file: string): boolean {
-  const resolved = path.resolve(file);
+  const resolved = path.resolve(/* turbopackIgnore: true */ file);
   for (const dir of allowedModelDirs) if (resolved.startsWith(dir)) return true;
   return false;
 }
@@ -90,16 +90,16 @@ export function registerFileModelRouter(tf: Tf): void {
 }
 
 async function loadModelArtifacts(tf: Tf, modelJsonPath: string): Promise<TfCore.io.ModelArtifacts> {
-  const modelJson = JSON.parse(await readFile(modelJsonPath, "utf8")) as TfCore.io.ModelJSON;
+  const modelJson = JSON.parse(await readFile(/* turbopackIgnore: true */ modelJsonPath, "utf8")) as TfCore.io.ModelJSON;
   const dir = path.dirname(modelJsonPath);
   return tf.io.getModelArtifactsForJSON(modelJson, async (manifest) => {
     const specs: TfCore.io.WeightsManifestEntry[] = [];
     const chunks: Buffer[] = [];
     for (const group of manifest) {
       for (const rel of group.paths) {
-        const file = path.resolve(dir, rel);
+        const file = path.resolve(/* turbopackIgnore: true */ dir, rel);
         if (!isAllowedModelFile(file)) throw new Error(`safety: refusing to read weights outside model dir: ${rel}`);
-        chunks.push(await readFile(file));
+        chunks.push(await readFile(/* turbopackIgnore: true */ file));
       }
       specs.push(...group.weights);
     }

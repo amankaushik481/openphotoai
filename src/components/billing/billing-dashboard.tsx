@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ME_KEY } from "@/hooks/use-me";
 import { api, ApiClientError, fetcher } from "@/lib/api-client";
+import type { CheckoutItem } from "@/providers/types";
 import type { BillingSummaryDTO } from "@/server/billing/types";
+import { CheckoutIntentDialog } from "./checkout-intent-dialog";
 import { CreditHistory, CREDITS_KEY, type CreditsPage } from "./credit-history";
 import { CreditPackCards } from "./credit-pack-cards";
 import { CurrentPlanCard } from "./current-plan-card";
@@ -30,9 +32,17 @@ export interface BillingDashboardProps {
   initialCredits: CreditsPage;
   notice: "success" | "canceled" | null;
   mockPortal: boolean;
+  /** Plan / pack picked on the public pricing page before signing in (`?plan=&interval=` / `?pack=`). */
+  checkoutIntent?: CheckoutItem | null;
 }
 
-export function BillingDashboard({ initialSummary, initialCredits, notice, mockPortal }: BillingDashboardProps) {
+export function BillingDashboard({
+  initialSummary,
+  initialCredits,
+  notice,
+  mockPortal,
+  checkoutIntent,
+}: BillingDashboardProps) {
   const router = useRouter();
   const { mutate: mutateGlobal } = useSWRConfig();
   const [polling, setPolling] = React.useState(notice === "success");
@@ -105,6 +115,15 @@ export function BillingDashboard({ initialSummary, initialCredits, notice, mockP
       )}
 
       {isTestMode && mockPortal && <MockPortalPanel summary={summary} onChanged={refresh} />}
+
+      {checkoutIntent && (
+        <CheckoutIntentDialog
+          item={checkoutIntent}
+          currentPlanId={summary.plan}
+          // Offer it once: a reload or back-navigation shouldn't ask again.
+          onDone={() => router.replace("/app/billing", { scroll: false })}
+        />
+      )}
 
       <section aria-label="Plan and credits" className="grid gap-4 lg:grid-cols-[3fr_2fr]">
         <CurrentPlanCard summary={summary} onManage={openPortal} managing={pending === "portal"} />

@@ -5,7 +5,7 @@ import { ChevronLeftIcon } from "lucide-react";
 
 import { PackStudio } from "@/components/create/pack-studio";
 import { toPackDetail } from "@/app/api/packs/pack-detail";
-import { loadDraftAllowance, loadModelModes } from "@/app/app/create/data";
+import { loadDraftAllowance } from "@/app/app/create/data";
 import { requireUserPage } from "@/server/auth/session";
 import { getPack } from "@/server/packs/registry";
 
@@ -21,7 +21,7 @@ export default async function PackPage({ params }: Props) {
   const user = await requireUserPage(`/app/packs/${slug}`);
   const pack = await getPack(slug);
   if (!pack) notFound();
-  const [modelModes, drafts] = await Promise.all([loadModelModes(user.id), loadDraftAllowance(user)]);
+  const drafts = await loadDraftAllowance(user);
 
   return (
     <>
@@ -34,8 +34,7 @@ export default async function PackPage({ params }: Props) {
       </Link>
       <PackStudio
         pack={toPackDetail(pack)}
-        modelModes={modelModes}
-        drafts={{ limit: drafts.limit, remaining: drafts.remaining }}
+        drafts={drafts}
         plan={user.plan}
       />
     </>

@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { api, ApiClientError } from "@/lib/api-client";
+import { api, apiErrorText } from "@/lib/api-client";
 import type { SentInviteDTO } from "@/server/together/types";
 
 const MAX_MESSAGE = 500;
@@ -51,7 +51,7 @@ export function InviteFriendCard({ id, onInvited }: InviteFriendCardProps) {
       setMessage("");
       onInvited();
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.");
+      setError(apiErrorText(err));
     } finally {
       setSending(false);
     }

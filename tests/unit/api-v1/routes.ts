@@ -12,6 +12,7 @@ import { GET as getModel } from "@/app/api/v1/models/[id]/route";
 import { GET as listModels } from "@/app/api/v1/models/route";
 import { GET as getOpenApiDocument } from "@/app/api/v1/openapi.json/route";
 import { GET as listPacks } from "@/app/api/v1/packs/route";
+import { POST as createUpload } from "@/app/api/v1/uploads/route";
 import type { V1OperationName } from "@/server/openapi/operations";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- handlers differ only in their params type
@@ -26,6 +27,7 @@ export const V1_HANDLERS: Record<V1OperationName, AnyHandler> = {
   cancelJob,
   createBatch,
   getBatch,
+  createUpload,
   listMedia,
   getMedia,
   listPacks,

@@ -12,6 +12,7 @@ import {
   providerInputUrl,
   toMediaDTO,
 } from "@/server/media/service";
+import { readVideoAiLabel } from "@/server/images/process";
 import { getStorage, setStorageForTesting } from "@/server/storage";
 import {
   createTestDb,
@@ -122,6 +123,25 @@ describe("ingestVideos", () => {
     expect(await getStorage().exists(row!.storageKey)).toBe(true);
     expect(await getStorage().exists(row!.thumbKey!)).toBe(true);
     expect(safetyMock.checkOutputVideo).toHaveBeenCalledTimes(1);
+    // Free tier, never paid: watermarked, and always AI-labeled.
+    expect(row!.watermarked).toBe(true);
+    const stored = await getStorage().get(row!.storageKey);
+    expect((await readVideoAiLabel(stored))?.jobId).toBe(job.id);
+    expect(row!.bytes).toBe(stored.byteLength);
+  });
+
+  it("labels but doesn't watermark videos of paying users", async () => {
+    const a = await createTestUser({ plan: "pro", hasPaid: true });
+    const provider = createMockAIProvider();
+    const ref = await provider.submitImageToVideo({ imageUrl: "", prompt: "wave", durationSec: 5 });
+    const status = await provider.getStatus(ref);
+    if (status.state !== "succeeded") throw new Error("unexpected mock state");
+    const job = await createTestJob(a.id, { input: { type: "video", sourceMediaId: "med_x", durationSec: 5 }, status: "running" });
+    const result = await ingestVideos(job, status.output.videos!);
+    const [row] = await db.select().from(media).where(eq(media.id, result.mediaIds[0]!));
+    expect(row!.watermarked).toBe(false);
+    const label = await readVideoAiLabel(await getStorage().get(row!.storageKey));
+    expect(label?.comment).toContain(job.id);
   });
 
   it("discards blocked videos without storing them", async () => {

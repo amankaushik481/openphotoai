@@ -29,6 +29,7 @@ import {
   costBreakdown,
   describeApiError,
   maxBatchFor,
+  newIdempotencyKey,
   plural,
   resolveIdentityMode,
   type BatchQuality,
@@ -36,7 +37,9 @@ import {
   type IdentityMode,
   type PackDetail,
 } from "@/components/create/logic";
+import { useDraftAllowance } from "@/components/create/use-draft-allowance";
 import { useGenerationSession } from "@/components/create/use-generation-session";
+import { useModelModes } from "@/components/create/use-model-modes";
 import { useMe } from "@/hooks/use-me";
 import { api } from "@/lib/api-client";
 import type { AspectRatio, BatchDTO, IdentityModelDTO, JobDTO, PlanId } from "@/types/domain";
@@ -44,7 +47,9 @@ import { cn } from "@/lib/utils";
 
 export interface PackStudioProps {
   pack: PackDetail;
-  modelModes: Record<string, IdentityMode>;
+  /** Optional fallback: identity mode per model id (the models list's `mode` takes precedence). */
+  modelModes?: Record<string, IdentityMode>;
+  /** Server-rendered allowance, used until /api/me (`draftsRemaining`) loads. */
   drafts: { limit: number; remaining: number };
   /** Server-side plan, used until /api/me loads. */
   plan: PlanId;
@@ -61,7 +66,7 @@ const SHOTS_PREVIEW = 12;
 const DEFAULT_COUNT = 10;
 
 /** `/app/packs/[slug]`: pack hero, shot list and the batch form ("Generate N photos" / free draft). */
-export function PackStudio({ pack, modelModes, drafts, plan: initialPlan }: PackStudioProps) {
+export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: initialPlan }: PackStudioProps) {
   const router = useRouter();
   const formId = React.useId();
   const { user, mutate: refreshMe } = useMe();
@@ -78,7 +83,8 @@ export function PackStudio({ pack, modelModes, drafts, plan: initialPlan }: Pack
   const [brandKitId, setBrandKitId] = React.useState<string | undefined>();
   const [submitting, setSubmitting] = React.useState<"batch" | "draft" | null>(null);
   const [error, setError] = React.useState<FriendlyError | null>(null);
-  const [draftsLeft, setDraftsLeft] = React.useState(drafts.remaining);
+  const { draftsLeft, spend: spendDraft, exhaust: exhaustDrafts } = useDraftAllowance(drafts.remaining);
+  const { modes: modelModes } = useModelModes(fallbackModes);
   const session = useGenerationSession({ nextPath, limit: 6 });
 
   const count = clampBatchSize(countInput, plan);
@@ -97,6 +103,8 @@ export function PackStudio({ pack, modelModes, drafts, plan: initialPlan }: Pack
     try {
       const res = await api<CreateBatchResponse>("/api/batches", {
         method: "POST",
+        // A network-level retry of this click can't start a second (charged) batch.
+        headers: { "Idempotency-Key": newIdempotencyKey() },
         body: {
           modelId,
           packId: pack.slug,
@@ -137,10 +145,10 @@ export function PackStudio({ pack, modelModes, drafts, plan: initialPlan }: Pack
         },
         `Free draft · ${pack.name}`,
       );
-      setDraftsLeft((n) => Math.max(0, n - 1));
+      spendDraft();
     } catch (err) {
       const friendly = describeApiError(err, { draft: true, nextPath });
-      if (friendly.code === "rate_limited") setDraftsLeft(0);
+      if (friendly.code === "rate_limited") exhaustDrafts();
       setError(friendly);
     } finally {
       setSubmitting(null);

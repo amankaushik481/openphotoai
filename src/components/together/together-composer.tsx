@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useMe } from "@/hooks/use-me";
-import { api, ApiClientError } from "@/lib/api-client";
+import { api, apiErrorText } from "@/lib/api-client";
 import type { PartnerModelDTO } from "@/server/together/types";
 import type { AspectRatio, CreateJobRequest, IdentityModelDTO, JobDTO } from "@/types/domain";
 import type { PackSummary } from "@/types/pack";
@@ -109,7 +109,7 @@ export function TogetherComposer({
       void mutateMe();
       toast.success(numImages === 1 ? "Creating your together photo…" : `Creating ${numImages} together photos…`);
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.");
+      setError(apiErrorText(err));
     } finally {
       setSubmitting(false);
     }

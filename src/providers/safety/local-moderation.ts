@@ -42,19 +42,19 @@ let loaded: Promise<LoadedNsfw> | undefined;
 
 /** Directory of nsfwjs' bundled model files (not reachable through its `exports` map). */
 export function nsfwModelDir(): string {
-  return path.join(packageDir("nsfwjs"), "dist", "models", NSFW_MODEL_DIR);
+  return path.join(/* turbopackIgnore: true */ packageDir("nsfwjs"), "dist", "models", NSFW_MODEL_DIR);
 }
 
 async function loadNsfwModel(): Promise<LoadedNsfw> {
   const { tf, converter } = await getTfRuntime();
   const dir = nsfwModelDir();
-  const json = requireUncached<GraphModelJson>(path.join(dir, "model.min.js"));
+  const json = requireUncached<GraphModelJson>(path.join(/* turbopackIgnore: true */ dir, "model.min.js"));
   if (json.format !== "graph-model") throw new Error(`safety: unexpected nsfw model format "${json.format}"`);
   const chunks: Buffer[] = [];
   const weightSpecs: unknown[] = [];
   for (const group of json.weightsManifest) {
     for (const shard of group.paths) {
-      const base64 = requireUncached<string>(path.join(dir, `${shard}.min.js`));
+      const base64 = requireUncached<string>(path.join(/* turbopackIgnore: true */ dir, `${shard}.min.js`));
       if (typeof base64 !== "string" || base64.length === 0) throw new Error(`safety: empty nsfw weight shard ${shard}`);
       chunks.push(Buffer.from(base64, "base64"));
     }

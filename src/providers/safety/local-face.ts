@@ -89,9 +89,9 @@ async function loadHuman(): Promise<LoadedHuman> {
   // human's package "exports" keys lack "./", so the wasm build cannot be imported by subpath:
   // locate the package and load the file by absolute path (docs/MODELS.md §C.1).
   const humanRoot = packageDir("@vladmandic/human");
-  const modelsDir = path.join(humanRoot, "models");
+  const modelsDir = path.join(/* turbopackIgnore: true */ humanRoot, "models");
   allowModelDir(modelsDir);
-  const { Human: HumanCtor } = requireFromApp<HumanModule>(path.join(humanRoot, "dist", "human.node-wasm.js"));
+  const { Human: HumanCtor } = requireFromApp<HumanModule>(path.join(/* turbopackIgnore: true */ humanRoot, "dist", "human.node-wasm.js"));
   const human = new HumanCtor(humanConfig(wasmDir, modelsDir));
   registerFileModelRouter(human.tf as unknown as Tf); // no-op when human shares our tfjs-core
   // Backend checks inside load() must not interleave with inference already running on the engine.

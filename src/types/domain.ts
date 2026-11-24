@@ -489,6 +489,8 @@ export interface MeDTO {
   plan: PlanId;
   hasPaid: boolean;
   watermark: boolean;
+  /** Free draft previews left today (draftsPerDay, or draftsPerDayFree before the first purchase). */
+  draftsRemaining: number;
   marketingOptIn: boolean;
   createdAt: string;
 }

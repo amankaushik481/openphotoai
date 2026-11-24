@@ -140,6 +140,21 @@ describe("batches API", () => {
   });
 });
 
+describe("batches API idempotency", () => {
+  it("returns the original batch for a replayed Idempotency-Key and validates the header", async () => {
+    const body = { modelId, packId: "linkedin-headshots", count: 2 };
+    const headers = { "idempotency-key": "retry-me" };
+    const first = await callRoute(createBatchRoute, { url: "/api/batches", body, headers });
+    const again = await callRoute(createBatchRoute, { url: "/api/batches", body, headers });
+    expect(first.status).toBe(200);
+    expect(again.status).toBe(200);
+    expect(again.json.batch.id).toBe(first.json.batch.id);
+    expect(again.json.jobs.map((j: { id: string }) => j.id).sort()).toEqual(first.json.jobs.map((j: { id: string }) => j.id).sort());
+    const bad = await callRoute(createBatchRoute, { url: "/api/batches", body, headers: { "idempotency-key": "x".repeat(201) } });
+    expect(bad.status).toBe(400);
+  });
+});
+
 describe("AI webhooks", () => {
   async function runningJob() {
     const res = await callRoute(createJobRoute, { url: "/api/jobs", body: genBody() });

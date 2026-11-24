@@ -4,8 +4,8 @@
 import sharp, { type Metadata, type Sharp, type SharpOptions } from "sharp";
 import { APP } from "@/config/app";
 import { AppError } from "@/server/http";
-import { extractFrames } from "./video";
-import { buildAiXmp, parseAiXmp, type AiLabelInfo } from "./xmp";
+import { extractFrames, finalizeVideo, readVideoMetadata, type VideoProbe } from "./video";
+import { buildAiXmp, parseAiXmp, TRAINED_ALGORITHMIC_MEDIA, type AiLabelInfo } from "./xmp";
 
 export { TRAINED_ALGORITHMIC_MEDIA, type AiLabelInfo } from "./xmp";
 
@@ -216,7 +216,11 @@ function escapeXml(s: string): string {
 }
 
 /** Pill-shaped label SVG sized to the image width, or null when the image is too small to carry one. */
-function watermarkOverlay(width: number, height: number, text: string): { svg: Buffer; left: number; top: number } | null {
+function watermarkOverlay(
+  width: number,
+  height: number,
+  text: string,
+): { svg: Buffer; left: number; top: number; margin: number } | null {
   const margin = Math.max(4, Math.round(width * 0.02));
   // Generous average glyph width so the text never overflows the pill.
   const boxFor = (fontSize: number) => {
@@ -234,7 +238,7 @@ function watermarkOverlay(width: number, height: number, text: string): { svg: B
   <rect width="${box.w}" height="${box.h}" rx="${box.h / 2}" ry="${box.h / 2}" fill="#000000" fill-opacity="0.45"/>
   <text x="${box.w / 2}" y="${(box.h / 2 + fontSize * 0.35).toFixed(1)}" text-anchor="middle" font-family="Inter, 'Helvetica Neue', Arial, 'DejaVu Sans', sans-serif" font-size="${fontSize}" font-weight="600" fill="#ffffff" fill-opacity="0.92">${escapeXml(text)}</text>
 </svg>`;
-  return { svg: Buffer.from(svg), left: width - box.w - margin, top: height - box.h - margin };
+  return { svg: Buffer.from(svg), left: width - box.w - margin, top: height - box.h - margin, margin };
 }
 
 /** Re-encode in the input's format family (keeps PNG/WebP transparency), JPEG otherwise. */
@@ -274,6 +278,56 @@ export async function cropRegion(input: Uint8Array, box: { x: number; y: number;
       .jpeg({ quality: 92 })
       .toBuffer();
   });
+}
+
+/**
+ * The free-tier watermark pill as a transparent PNG for a `width`×`height` frame (same look as
+ * `applyWatermark`), plus its distance from the bottom-right edges. Null when the frame is too small.
+ */
+export async function watermarkPng(
+  width: number,
+  height: number,
+  text = `${APP.name} · AI`,
+): Promise<{ png: Uint8Array; margin: number } | null> {
+  const overlay = watermarkOverlay(width, height, text);
+  if (!overlay) return null;
+  return { png: await sharp(overlay.svg).png().toBuffer(), margin: overlay.margin };
+}
+
+/** `comment` tag written by `applyVideoAiLabel` (and matched by `readVideoAiLabel`). */
+export function videoAiComment(appName: string, jobId: string): string {
+  return `AI-generated with ${appName} (IPTC trainedAlgorithmicMedia) job:${jobId}`;
+}
+
+/**
+ * Mark a video output as AI-generated: MP4 `comment` / `description` tags naming the IPTC digital
+ * source type + job, rewritten as faststart MP4 (streams copied). With `watermark`, also burns the
+ * free-tier pill into the bottom-right corner (re-encoded H.264). `watermarked` is false when the
+ * video is too small to carry it.
+ */
+export async function applyVideoAiLabel(
+  video: Uint8Array,
+  info: { generator: string; jobId: string; createdAt: Date },
+  opts?: { watermark?: boolean },
+): Promise<{ bytes: Uint8Array; mimeType: "video/mp4"; watermarked: boolean; probe: VideoProbe }> {
+  const by = info.generator && info.generator !== APP.name ? ` (${info.generator})` : "";
+  const result = await finalizeVideo(video, {
+    metadata: {
+      comment: videoAiComment(APP.name, info.jobId),
+      description: `AI-generated with ${APP.name}${by}. Digital source type: ${TRAINED_ALGORITHMIC_MEDIA}`,
+      creation_time: info.createdAt.toISOString(),
+    },
+    overlay: opts?.watermark ? (size) => watermarkPng(size.width, size.height) : undefined,
+  });
+  return { bytes: result.bytes, mimeType: result.mimeType, watermarked: result.overlaid, probe: result.probe };
+}
+
+/** Read the AI label written by `applyVideoAiLabel` (null when absent). For tests + admin. */
+export async function readVideoAiLabel(video: Uint8Array): Promise<{ comment: string; description?: string; jobId?: string } | null> {
+  const tags = await readVideoMetadata(video).catch(() => ({}) as Record<string, string>);
+  const comment = tags.comment;
+  if (!comment || !comment.includes("trainedAlgorithmicMedia")) return null;
+  return { comment, description: tags.description, jobId: /\bjob:(\S+)/.exec(comment)?.[1] };
 }
 
 /** Probe a video: duration + first-frame JPEG + N evenly spaced frames (ffmpeg-static). */

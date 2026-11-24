@@ -219,4 +219,11 @@ export const packExample: PackSummary = {
   sampleTitles: ["Studio grey backdrop", "Modern office", "Outdoor city", "Warm window light"],
 };
 
+export const uploadExample = {
+  id: "upl_r5t6y7u8i9o0p1a2s3d4",
+  url: `https://photos.example.com/api/files/users/usr_1/uploads/upl_r5t6y7u8i9o0p1a2s3d4.jpg${SIGNED}`,
+  width: 1024,
+  height: 1280,
+};
+
 export const ids = { MODEL_ID, JOB_ID, MEDIA_ID, BATCH_ID } as const;

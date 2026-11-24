@@ -11,6 +11,9 @@ vi.mock("@/providers/registry", () => ({ getEmailProvider: () => registry.provid
 vi.mock("@/server/auth/session", () => ({
   resolveRequestAuth: async () => ({ user: null, apiKey: null }),
 }));
+// Account deletion is covered by tests/unit/account; here we only check maintenance runs it.
+const resumeStalledDeletions = vi.hoisted(() => vi.fn<(now?: Date) => Promise<number>>(async () => 0));
+vi.mock("@/server/account", () => ({ resumeStalledDeletions }));
 
 const { findLowCreditCandidates, runMaintenance, sendLowCreditReminders, isCronAuthorized } = await import(
   "@/server/maintenance"
@@ -137,6 +140,7 @@ describe("runMaintenance", () => {
     ]);
     await userWith({ credits: 2, lastJobDaysAgo: 1 });
 
+    resumeStalledDeletions.mockResolvedValueOnce(2);
     const result = await runMaintenance(NOW);
     expect(result).toEqual({
       lowCreditEmails: 1,
@@ -144,7 +148,9 @@ describe("runMaintenance", () => {
       expiredDeletionRequests: 1,
       prunedRateLimits: 1,
       prunedEmails: 1,
+      resumedDeletions: 2,
     });
+    expect(resumeStalledDeletions).toHaveBeenCalledWith(NOW);
 
     const shares = await db.select({ status: modelShares.status }).from(modelShares);
     expect(shares.map((s) => s.status).sort()).toEqual(["accepted", "expired", "pending"]);
@@ -159,6 +165,7 @@ describe("runMaintenance", () => {
       expiredDeletionRequests: 0,
       prunedRateLimits: 0,
       prunedEmails: 0,
+      resumedDeletions: 0,
     });
   });
 });
@@ -181,7 +188,7 @@ describe("GET /api/cron/maintenance", () => {
   it("runs maintenance with the right secret", async () => {
     const res = await call("Bearer test-cron-secret");
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ ok: true, lowCreditEmails: 0, expiredModelShares: 0 });
+    expect(await res.json()).toMatchObject({ ok: true, lowCreditEmails: 0, expiredModelShares: 0, resumedDeletions: 0 });
   });
 
   it("is always unauthorized when CRON_SECRET is not configured", () => {

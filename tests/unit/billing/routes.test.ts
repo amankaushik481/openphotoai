@@ -6,6 +6,7 @@ import { POST as portalRoute } from "@/app/api/billing/portal/route";
 import { GET as subscriptionRoute } from "@/app/api/billing/subscription/route";
 import { POST as webhookRoute } from "@/app/api/webhooks/payments/[provider]/route";
 import type { UserRow } from "@/db/types";
+import { RATE_LIMITS } from "@/config/rate-limits";
 import { resetEnvCache } from "@/lib/env";
 import { buildMockEvent, mockWebhookHeaders, serializeMockEvent } from "@/providers/payment/mock";
 import { setProviderOverrides } from "@/providers/registry";
@@ -105,6 +106,24 @@ describe("POST /api/billing/portal", () => {
     const res = await callRoute(portalRoute, { url: "/api/billing/portal", method: "POST" });
     expect(res.status).toBe(200);
     expect(res.json).toEqual({ url: "http://localhost:3000/app/billing?mockPortal=1" });
+  });
+});
+
+describe("billing rate limit", () => {
+  it("caps checkout + portal sessions per user per minute (shared bucket)", async () => {
+    const { limit } = RATE_LIMITS.billingPerMinute;
+    for (let i = 0; i < limit - 1; i++) {
+      expect((await startCheckout({ type: "credit_pack", packId: "credits_100" })).status).toBe(200);
+    }
+    expect((await callRoute(portalRoute, { url: "/api/billing/portal", method: "POST" })).status).toBe(409);
+    const limited = await startCheckout({ type: "credit_pack", packId: "credits_100" });
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get("retry-after")).toBeTruthy();
+    expect((await callRoute(portalRoute, { url: "/api/billing/portal", method: "POST" })).status).toBe(429);
+
+    // Per user: someone else is unaffected.
+    sessionMock.setUser(await createTestUser());
+    expect((await startCheckout({ type: "credit_pack", packId: "credits_100" })).status).toBe(200);
   });
 });
 

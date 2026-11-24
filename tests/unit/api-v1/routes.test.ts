@@ -5,7 +5,7 @@
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
-import { apiKeys, batches, jobs, media, modelShares, user as userTable } from "@/db/schema";
+import { apiKeys, batches, jobs, media, modelShares, uploads, user as userTable } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { setProviderOverrides } from "@/providers/registry";
 import { createApiKey, revokeApiKey } from "@/server/auth/api-keys";
@@ -13,7 +13,7 @@ import { v1Operations, type V1Operation, type V1OperationName } from "@/server/o
 import { checkRateLimit } from "@/server/rate-limit";
 import type { ApiKeyScope } from "@/types/domain";
 import { callRoute, createTestDb, createTestMedia, createTestModel, createTestUser } from "../../helpers/factories";
-import { resetSafety, useTempStorage } from "../jobs/fixtures";
+import { pngBytes, resetSafety, useTempStorage } from "../jobs/fixtures";
 import { V1_HANDLERS } from "./routes";
 
 // Deterministic safety fakes from the job-engine tests; other exports (e.g. SAFETY_POLICY) stay real.
@@ -245,6 +245,55 @@ describe("batches", () => {
     const other = await newKey(await createTestUser({ plan: "pro" }));
     expect((await call("getBatch", { key: other, params: { id } })).status).toBe(404);
     expect(await db.select().from(batches)).toHaveLength(1);
+  });
+});
+
+describe("batches idempotency", () => {
+  it("replays an Idempotency-Key with the original batch", async () => {
+    const body = { modelId, packId: "linkedin-headshots", count: 2 };
+    const headers = { "idempotency-key": "v1-batch-1" };
+    const first = await call("createBatch", { body, headers });
+    const again = await call("createBatch", { body, headers });
+    expect(first.status).toBe(200);
+    expect(again.status).toBe(200);
+    expect(again.json.batch.id).toBe(first.json.batch.id);
+    expect(await db.select().from(batches)).toHaveLength(1);
+    const [owner] = await db.select().from(userTable).where(eq(userTable.id, u.id));
+    expect(owner!.credits).toBe(18);
+  });
+});
+
+describe("uploads", () => {
+  const form = async (purpose: string, bytes?: Uint8Array<ArrayBuffer>) => {
+    const fd = new FormData();
+    fd.set("file", new Blob([bytes ?? (await pngBytes(96, 120))], { type: "image/png" }), "in.png");
+    fd.set("purpose", purpose);
+    return fd;
+  };
+
+  it("stores references (as JPEG) and masks (as PNG) for the key's owner", async () => {
+    const ref = await call("createUpload", { body: await form("reference") });
+    expect(ref.status).toBe(200);
+    expect(ref.json.upload).toMatchObject({ id: expect.stringMatching(/^upl_/), width: 96, height: 120 });
+    expect(ref.json.upload.url).toMatch(/^http/);
+    expect(ref.headers.get("x-ratelimit-limit")).toBeTruthy();
+    const mask = await call("createUpload", { body: await form("mask") });
+    expect(mask.status).toBe(200);
+    const rows = await db.select().from(uploads).where(eq(uploads.userId, u.id));
+    expect(rows.map((r) => [r.purpose, r.mimeType]).sort()).toEqual([
+      ["mask", "image/png"],
+      ["reference", "image/jpeg"],
+    ]);
+    // The upload is usable as a job input over the API.
+    const job = await call("createJob", { body: { type: "pose_copy", modelId, referenceUploadId: ref.json.upload.id } });
+    expect(job.status).toBe(200);
+  });
+
+  it("validates purpose and file type", async () => {
+    expect((await call("createUpload", { body: await form("selfie") })).status).toBe(400);
+    const text = await call("createUpload", { body: await form("reference", Uint8Array.from(new TextEncoder().encode("hello"))) });
+    expect(text.status).toBe(400);
+    expect((await call("createUpload", { body: JSON.stringify({ purpose: "reference" }), headers: { "content-type": "application/json" } })).status).toBe(400);
   });
 });
 

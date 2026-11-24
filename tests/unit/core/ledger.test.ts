@@ -171,7 +171,16 @@ describe("refundJob", () => {
     const [row] = await db.select().from(jobs).where(eq(jobs.id, job.id));
     expect(row!.creditsRefunded).toBe(8);
     const [entry] = await db.select().from(creditLedger).where(eq(creditLedger.idempotencyKey, `job:${job.id}:refund:full`));
-    expect(entry).toMatchObject({ delta: 8, reason: "job_refund", jobId: job.id, note: "provider failed" });
+    expect(entry).toMatchObject({ delta: 8, reason: "job_refund", jobId: job.id, note: "provider failed", createdBy: null });
+    await expectInvariant(u.id);
+  });
+
+  it("attributes the entry to an admin when createdBy is given", async () => {
+    const { u, job } = await chargedJob(4);
+    const admin = await createTestUser({ role: "admin" });
+    expect(await refundJob(job.id, { tag: "admin", note: "goodwill", createdBy: admin.id })).toEqual({ refunded: 4 });
+    const [entry] = await db.select().from(creditLedger).where(eq(creditLedger.idempotencyKey, `job:${job.id}:refund:admin`));
+    expect(entry).toMatchObject({ delta: 4, createdBy: admin.id, note: "goodwill" });
     await expectInvariant(u.id);
   });
 

@@ -105,7 +105,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | GET | `/api/jobs` | U | `?status&type&limit&cursor` → `{ jobs: JobDTO[], nextCursor }` |
 | GET | `/api/jobs/:id` | U | → `{ job: JobDTO }` (lazy provider sync) |
 | POST | `/api/jobs/:id/cancel` | U | → `{ job }` |
-| POST | `/api/batches` | U | `CreateBatchRequest` → `{ batch, jobs: JobDTO[] }` |
+| POST | `/api/batches` | U | `CreateBatchRequest` (+ header `Idempotency-Key`, stored on child jobs as `<key>:<i>`) → `{ batch, jobs: JobDTO[], requested, stoppedReason }` |
 | GET | `/api/batches/:id` | U | → `{ batch, jobs: JobDTO[] }` |
 | POST | `/api/prompt-helper` | U | `{ request, modelId?, style? }` → `{ prompt, negativePrompt?, suggestions? }` |
 | POST | `/api/uploads` | U | multipart `file`, `purpose` (`reference`/`garment`/`mask`) → `{ upload: { id, url, width, height } }` |
@@ -157,12 +157,13 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/teams/:id/credits/transfer` | U | `{ memberUserId, amount }` (owner → member) |
 
 ### API keys + public API v1
-| GET/POST | `/api/api-keys` | U | list / `{ name }` → `{ key, apiKey }` (key shown once) |
+| GET/POST | `/api/api-keys` | U | list / `{ name, scopes? }` (`*` default, `read`, `generate`) → `{ key, apiKey }` (key shown once) |
 | DELETE | `/api/api-keys/:id` | U | revoke |
 | GET | `/api/v1/openapi.json` | P | OpenAPI 3.1 document |
 | GET | `/api/v1/models`, `/api/v1/models/:id` | K | models |
 | POST/GET | `/api/v1/jobs`, GET `/api/v1/jobs/:id`, POST `/api/v1/jobs/:id/cancel` | K | same bodies as `/api/jobs` |
-| POST | `/api/v1/batches` | K | |
+| POST | `/api/v1/batches` | K | same body + `Idempotency-Key` as `/api/batches` |
+| POST | `/api/v1/uploads` | K | multipart `file` + `purpose` (`reference`/`garment`/`mask`), same as `/api/uploads` |
 | GET | `/api/v1/media`, `/api/v1/media/:id` | K | |
 | GET | `/api/v1/packs` | K | |
 | GET | `/api/v1/credits` | K | |
@@ -170,7 +171,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 ### Webhooks / cron / files
 | POST | `/api/webhooks/ai/[provider]` | P (signature) | fal / replicate / mock completion webhooks |
 | GET | `/api/cron/jobs` | `Authorization: Bearer CRON_SECRET` | poll stale jobs |
-| GET | `/api/cron/maintenance` | CRON_SECRET | low-credit emails, expire shares/invites/deletions, prune rate limits |
+| GET | `/api/cron/maintenance` | CRON_SECRET | low-credit emails, expire shares/invites/deletions, resume stalled account deletions, prune rate limits (`pnpm worker` also runs it hourly) |
 | GET/HEAD | `/api/files/[...key]` | signature (`?exp&sig&dl`) | local storage driver file serving (Range supported) |
 
 ### Admin (auth A)

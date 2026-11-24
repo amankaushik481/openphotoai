@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useT } from "@/i18n/react";
 import { api, ApiClientError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import type { CreditLedgerEntryDTO } from "@/types/domain";
@@ -23,6 +24,7 @@ export const CREDITS_KEY = `/api/credits?limit=${CREDITS_PAGE_SIZE}`;
 
 /** Credit ledger table; the first page comes from the parent (SWR), older pages load on demand. */
 export function CreditHistory({ firstPage }: { firstPage: CreditsPage }) {
+  const t = useT();
   const [older, setOlder] = React.useState<{ entries: CreditLedgerEntryDTO[]; cursor: string | null } | null>(null);
   const [loading, setLoading] = React.useState(false);
 
@@ -51,8 +53,8 @@ export function CreditHistory({ firstPage }: { firstPage: CreditsPage }) {
       <EmptyState
         size="sm"
         icon={<HistoryIcon />}
-        title="No credit activity yet"
-        description="Purchases, plan credits, usage and refunds will show up here."
+        title={t("empty.creditHistory")}
+        description={t("empty.creditHistoryBody")}
       />
     );
   }

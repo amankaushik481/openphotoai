@@ -2,4 +2,4 @@
 import { openPortal } from "@/server/billing";
 import { route } from "@/server/http";
 
-export const POST = route({ auth: "user" }, async ({ user }) => openPortal(user));
+export const POST = route({ auth: "user", rateLimit: "billingPerMinute" }, async ({ user }) => openPortal(user));

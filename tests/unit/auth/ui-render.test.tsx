@@ -42,6 +42,12 @@ describe("ApiKeysManager", () => {
     expect(html).toContain('href="/docs/api"');
   });
 
+  it("shows each key's access level", () => {
+    const keys: ApiKeyDTO[] = [key, { ...key, id: "key_2", name: "Read", scopes: ["read"] }, { ...key, id: "key_3", name: "Gen", scopes: ["generate"] }];
+    const html = renderToStaticMarkup(<ApiKeysManager initialKeys={keys} apiAccess planName="Pro" maxKeys={10} />);
+    for (const label of ["Full access", "Read only", "Generate only"]) expect(html).toContain(label);
+  });
+
   it("offers key creation with API access", () => {
     const html = renderToStaticMarkup(<ApiKeysManager initialKeys={[]} apiAccess planName="Pro" maxKeys={10} />);
     expect(html).toContain("Create key");

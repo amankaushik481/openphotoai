@@ -4,6 +4,7 @@
  * (`v1Route(v1Operations.listJobs, …)`), and the OpenAPI document + /docs/api are generated from it.
  */
 import type { z } from "zod";
+import { UPLOAD_LIMITS } from "@/config/app";
 import { ref } from "./dto-schemas";
 import {
   batchExample,
@@ -17,13 +18,14 @@ import {
   runningJobExample,
   succeededJobExample,
   trainingPhotoExample,
+  uploadExample,
 } from "./examples";
 import { v1CreditsQuery, v1GetModelQuery, v1ListJobsQuery, v1ListMediaQuery } from "./queries";
 import type { ExampleObject, HttpMethod, JsonSchema } from "./types";
 
 export type V1Scope = "read" | "generate";
-export type V1Tag = "Models" | "Jobs" | "Batches" | "Media" | "Packs" | "Credits" | "Meta";
-export type ErrorStatus = 400 | 401 | 402 | 403 | 404 | 409 | 422 | 429 | 502;
+export type V1Tag = "Models" | "Jobs" | "Batches" | "Uploads" | "Media" | "Packs" | "Credits" | "Meta";
+export type ErrorStatus = 400 | 401 | 402 | 403 | 404 | 409 | 413 | 422 | 429 | 502;
 
 export interface V1Operation {
   operationId: string;
@@ -41,6 +43,8 @@ export interface V1Operation {
   /** Accepts an `Idempotency-Key` header. */
   idempotencyKey?: boolean;
   body?: { schema: string; description: string; examples: Record<string, ExampleObject> };
+  /** `multipart/form-data` request body (file uploads); mutually exclusive with `body`. */
+  multipart?: { schema: JsonSchema; description: string };
   response: { description: string; schema: JsonSchema; example?: unknown };
   /** Error statuses besides the ones every authenticated call can return (401, 403, 429). */
   errors: ErrorStatus[];
@@ -211,15 +215,16 @@ export const v1Operations = {
     tag: "Batches",
     summary: "Create a batch",
     description:
-      "One pack → many images: creates `count` single-image generate jobs spread over the pack's prompts. If credits run out part-way, the batch shrinks to the jobs that were created (`requested` vs `batch.total`, `stoppedReason`).",
+      "One pack → many images: creates `count` single-image generate jobs spread over the pack's prompts. If credits run out part-way, the batch shrinks to the jobs that were created (`requested` vs `batch.total`, `stoppedReason`). Send an `Idempotency-Key` header to make retries safe: a replay returns the original batch.",
     scope: "generate",
+    idempotencyKey: true,
     body: {
       schema: "CreateBatchRequest",
       description: "The pack, model and number of images.",
       examples: { batch: createBatchExample },
     },
     response: {
-      description: "The batch and its jobs.",
+      description: "The batch and its jobs (or the original batch for a replayed Idempotency-Key).",
       schema: obj({
         batch: ref("Batch"),
         jobs: list("Job"),
@@ -249,6 +254,44 @@ export const v1Operations = {
       example: { batch: batchExample, jobs: [succeededJobExample] },
     },
     errors: [404],
+  },
+  createUpload: {
+    operationId: "createUpload",
+    method: "post",
+    path: "/uploads",
+    tag: "Uploads",
+    summary: "Upload an input image",
+    description:
+      "Upload an image a job takes as input: a style/pose `reference` (`referenceUploadId` of `generate` / `pose_copy`), a try-on `garment` (`garmentUploadId`) or an inpainting `mask` (`maskUploadId`, PNG: white = repaint, black = keep). References and garments are re-encoded as JPEG without metadata (EXIF/GPS stripped) and safety-checked; photos of people other than you are refused. Uploads are private to your account.",
+    scope: "generate",
+    multipart: {
+      description: "`file` (JPEG, PNG, WebP or HEIC; masks must be PNG) and its `purpose`.",
+      schema: obj({
+        file: {
+          type: "string",
+          format: "binary",
+          description: `The image (max ${Math.round(UPLOAD_LIMITS.maxBytes / (1024 * 1024))} MB).`,
+        },
+        purpose: {
+          type: "string",
+          enum: ["reference", "garment", "mask"],
+          description: "What the image is for: `reference`, `garment` or `mask`.",
+        },
+      }),
+    },
+    response: {
+      description: "The stored upload. Pass its `id` as the job input's upload id.",
+      schema: obj({
+        upload: obj({
+          id: { type: "string", description: "Upload id (`upl_…`)." },
+          url: { type: "string", format: "uri", description: "Short-lived signed URL of the stored image." },
+          width: { type: "integer", description: "Stored width in pixels." },
+          height: { type: "integer", description: "Stored height in pixels." },
+        }),
+      }),
+      example: { upload: uploadExample },
+    },
+    errors: [400, 413, 422],
   },
   listMedia: {
     operationId: "listMedia",
@@ -354,6 +397,7 @@ export const V1_TAGS: { name: V1Tag; description: string }[] = [
     description: "Generate, edit, upscale and animate photos. Every job charges credits and refunds failures.",
   },
   { name: "Batches", description: "One pack → up to 50 images in one call." },
+  { name: "Uploads", description: "Input images for jobs: style references, garments and masks." },
   { name: "Media", description: "Your gallery: generated photos and videos with signed download URLs." },
   { name: "Models", description: "Your identity models (create and train them in the web app)." },
   { name: "Packs", description: "Themed prompt packs." },

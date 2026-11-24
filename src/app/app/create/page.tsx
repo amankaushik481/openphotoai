@@ -5,7 +5,7 @@ import { CreateStudio } from "@/components/create/create-studio";
 import type { CreateMode } from "@/components/create/logic";
 import { requireUserPage } from "@/server/auth/session";
 import { listPackSummaries } from "@/server/packs/registry";
-import { loadDraftAllowance, loadModelModes } from "./data";
+import { loadDraftAllowance } from "./data";
 
 export const metadata: Metadata = { title: "Create" };
 
@@ -22,12 +22,7 @@ export default async function CreatePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await requireUserPage("/app/create");
-  const [params, packs, modelModes, drafts] = await Promise.all([
-    searchParams,
-    listPackSummaries(),
-    loadModelModes(user.id),
-    loadDraftAllowance(user),
-  ]);
+  const [params, packs, drafts] = await Promise.all([searchParams, listPackSummaries(), loadDraftAllowance(user)]);
 
   const mode = one(params.mode);
   const modelId = one(params.model);
@@ -42,11 +37,11 @@ export default async function CreatePage({
       />
       <CreateStudio
         packs={packs}
-        modelModes={modelModes}
-        drafts={{ limit: drafts.limit, remaining: drafts.remaining }}
+        drafts={drafts}
         initial={{
           mode: MODES.find((m) => m === mode),
-          modelId: modelId && Object.hasOwn(modelModes, modelId) ? modelId : undefined,
+          // Checked against the user's own models on the client (unknown ids fall back to the picker).
+          modelId,
           packId: packId && packs.some((p) => p.slug === packId) ? packId : undefined,
           prompt,
         }}

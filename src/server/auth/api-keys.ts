@@ -47,11 +47,30 @@ export function planHasApiAccess(u: Pick<UserRow, "plan">): boolean {
   return getPlan(u.plan).limits.apiAccess;
 }
 
-export async function createApiKey(userId: string, name: string): Promise<{ key: string; row: ApiKeyRow }> {
+/** Scopes a key can be created with: `*` (everything), `read` (GET endpoints), `generate` (jobs/batches). */
+export const API_KEY_SCOPES = ["*", "read", "generate"] as const satisfies readonly ApiKeyScope[];
+
+/** Deduplicated, ordered scopes; `*` absorbs everything else. Empty → `["*"]`. */
+export function normalizeApiKeyScopes(scopes: readonly ApiKeyScope[] | undefined): ApiKeyScope[] {
+  if (!scopes?.length || scopes.includes("*")) return ["*"];
+  return API_KEY_SCOPES.filter((s) => scopes.includes(s));
+}
+
+export async function createApiKey(
+  userId: string,
+  name: string,
+  scopes?: readonly ApiKeyScope[],
+): Promise<{ key: string; row: ApiKeyRow }> {
   const key = generateApiKey();
   const [row] = await db
     .insert(apiKeys)
-    .values({ userId, name, prefix: key.slice(0, API_KEY_DISPLAY_PREFIX_LENGTH), keyHash: hashApiKey(key) })
+    .values({
+      userId,
+      name,
+      prefix: key.slice(0, API_KEY_DISPLAY_PREFIX_LENGTH),
+      keyHash: hashApiKey(key),
+      scopes: normalizeApiKeyScopes(scopes),
+    })
     .returning();
   return { key, row: row! };
 }

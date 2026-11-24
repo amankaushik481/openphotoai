@@ -7,7 +7,7 @@ import { CircleCheckIcon, LoaderCircleIcon, PlusIcon, ShieldCheckIcon } from "lu
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { api, ApiClientError } from "@/lib/api-client";
+import { api, apiErrorText } from "@/lib/api-client";
 import type { ReceivedInviteDTO } from "@/server/together/types";
 import type { IdentityModelDTO } from "@/types/domain";
 import { modelDetail, PersonPicker } from "./person-picker";
@@ -39,7 +39,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
       await api(`${base}/${action}`, { method: "POST", body: action === "accept" ? { modelId } : undefined });
       setOutcome(action === "accept" ? "accepted" : "declined");
     } catch (err) {
-      setError(err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.");
+      setError(apiErrorText(err));
     } finally {
       setBusy(null);
     }

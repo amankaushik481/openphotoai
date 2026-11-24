@@ -16,12 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ApiClientError } from "@/lib/api-client";
+import { apiErrorText } from "@/lib/api-client";
 
 /** Message for a failed admin action (server message first). */
 export function actionErrorMessage(err: unknown): string {
-  if (err instanceof ApiClientError && err.message) return err.message;
-  return "Something went wrong. Please try again.";
+  return apiErrorText(err);
 }
 
 export interface ActionDialogProps {

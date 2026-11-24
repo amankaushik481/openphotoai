@@ -126,6 +126,22 @@ export function resolveIdentityMode(
   return undefined;
 }
 
+/**
+ * Identity mode per model id from `IdentityModelDTO.mode` (or, for DTOs without it, the
+ * `resolveIdentityMode` fallbacks), on top of `fallback`.
+ */
+export function modelModesFrom(
+  models: readonly { id: string; status?: string; trainingJobId?: string | null; mode?: unknown }[] | undefined,
+  fallback?: Readonly<Record<string, IdentityMode>>,
+): Record<string, IdentityMode> {
+  const modes: Record<string, IdentityMode> = { ...fallback };
+  for (const model of models ?? []) {
+    const mode = resolveIdentityMode(model, fallback);
+    if (mode) modes[model.id] = mode;
+  }
+  return modes;
+}
+
 /* ───────────────────────────── requests ───────────────────────────── */
 
 export interface CreateFormState {

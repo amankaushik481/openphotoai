@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { folders, media, shareLinks } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import type { LocalStorageProvider } from "@/providers/storage/local";
+import { RATE_LIMITS } from "@/config/rate-limits";
 import { MAX_BULK_IDS } from "@/server/gallery/dto";
 import { zipEntryName } from "@/server/gallery/zip";
 import { callRoute, createTestDb, createTestModel, createTestUser, sessionMock } from "../../helpers/factories";
@@ -302,6 +303,24 @@ describe("POST /api/media/download", () => {
       headers: { "content-type": "application/x-www-form-urlencoded", origin: "https://evil.example" },
     });
     expect(evil.status).toBe(403);
+  });
+
+  it("is rate limited per user (downloadsPerHour), not counting rejected cross-site posts", async () => {
+    const a = await seedMedia(alice.id, 1, {}, { storage });
+    const { limit } = RATE_LIMITS.downloadsPerHour;
+    const form = new URLSearchParams({ ids: a.id }).toString();
+    const evil = await callRoute(downloadRoute, {
+      url: "/api/media/download",
+      body: form,
+      headers: { "content-type": "application/x-www-form-urlencoded", origin: "https://evil.example" },
+    });
+    expect(evil.status).toBe(403);
+    for (let i = 0; i < limit; i++) {
+      const res = await callRoute(downloadRoute, { url: "/api/media/download", body: { ids: [a.id] } });
+      expect(res.status).toBe(200);
+      await res.response.arrayBuffer();
+    }
+    expect((await callRoute(downloadRoute, { url: "/api/media/download", body: { ids: [a.id] } })).status).toBe(429);
   });
 
   it("404s on other users' media and validates the id count", async () => {

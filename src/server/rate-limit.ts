@@ -6,7 +6,7 @@
  * RETURNING count`), so concurrent requests can never both slip under the limit and no
  * Redis is needed. Old windows are removed by `pruneRateLimits()` (maintenance cron).
  */
-import { lt, sql } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import { RATE_LIMITS, type RateLimitName } from "@/config/rate-limits";
 import { db } from "@/db";
 import { rateLimits } from "@/db/schema";
@@ -45,6 +45,20 @@ export async function checkRateLimit(name: RateLimitName, subject: string, cost 
 
   const count = row?.count ?? cost;
   return { ok: count <= limit, limit, remaining: Math.max(0, limit - count), resetAt };
+}
+
+/** Read the current window without counting a hit (no write). For "N left today" UI. */
+export async function peekRateLimit(name: RateLimitName, subject: string): Promise<RateLimitResult> {
+  const { limit, windowSec } = RATE_LIMITS[name];
+  const windowStart = windowStartFor(Date.now(), windowSec);
+  const resetAt = new Date(windowStart.getTime() + windowSec * 1000);
+  const [row] = await db
+    .select({ count: rateLimits.count })
+    .from(rateLimits)
+    .where(and(eq(rateLimits.key, `${name}:${subject}`), eq(rateLimits.windowStart, windowStart)))
+    .limit(1);
+  const count = row?.count ?? 0;
+  return { ok: count < limit, limit, remaining: Math.max(0, limit - count), resetAt };
 }
 
 /** Increment and throw AppError("rate_limited") when over the limit. */

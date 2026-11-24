@@ -15,7 +15,8 @@ them is available over the API.
 ## Authentication
 
 1. Upgrade to a plan with API access (**Pro** or **Studio**; see `src/config/plans.ts`, `limits.apiAccess`).
-2. Create a key at `/app/api-keys`. It is shown once; only its SHA-256 hash is stored.
+2. Create a key at `/app/api-keys` and pick its access (scope below). It is shown once; only its SHA-256 hash is
+   stored. Prefer a `read` key for dashboards and a `*` key only where you create jobs.
 3. Send it as a Bearer token: `Authorization: Bearer os_live_...`
 
 | Scope      | Grants                                                      |
@@ -164,14 +165,21 @@ or `GET /media/{id}` for fresh ones.
 Partial refunds happen automatically for outputs the safety filter blocked (`blockedCount`) or the provider didn't
 return. See `creditsCharged` / `creditsRefunded` on the job, or `GET /credits`.
 
-Inputs that reference uploads (`referenceUploadId`, `maskUploadId`, `garmentUploadId`) need an upload created in the
-web app for now; inputs that reference media (`sourceMediaId`, `personMediaId`) take any `media.id` you own.
+Inputs that reference uploads (`referenceUploadId`, `maskUploadId`, `garmentUploadId`) take the `upload.id` returned by
+`POST /uploads` (multipart `file` + `purpose` = `reference`, `mask` or `garment`; masks must be PNG). Inputs that
+reference media (`sourceMediaId`, `personMediaId`) take any `media.id` you own.
+
+```bash
+curl -X POST "$BASE/uploads" -H "Authorization: Bearer $API_KEY" \
+  -F "file=@pose.jpg" -F "purpose=reference"
+```
 
 ## Idempotency
 
-Send `Idempotency-Key: <unique string>` (1–200 printable ASCII characters, e.g. a UUID) with `POST /jobs`. Retrying
-with the same key returns the original job instead of creating and charging a new one — even when the first request is
-still in flight. Keys are scoped to your account and don't expire; use a fresh key per job.
+Send `Idempotency-Key: <unique string>` (1–200 printable ASCII characters, e.g. a UUID) with `POST /jobs` or
+`POST /batches`. Retrying with the same key returns the original job (or batch) instead of creating and charging a new
+one — even when the first request is still in flight. Keys are scoped to your account and don't expire; use a fresh key
+per job or batch. (A batch stores its key on its jobs as `<key>:0`, `<key>:1`, … so don't reuse those as job keys.)
 
 ## Rate limits
 
@@ -212,8 +220,9 @@ Every error has the same body: `{ "error": { "code": "...", "message": "...", "d
 | `GET /api/v1/jobs`              | read     | `?status&type&limit&cursor` or `?ids=a,b` → `{ jobs, nextCursor }`                                               |
 | `GET /api/v1/jobs/{id}`         | read     | Job status + results (lazy provider sync) → `{ job }`                                                            |
 | `POST /api/v1/jobs/{id}/cancel` | generate | Cancel + refund → `{ job }`                                                                                      |
-| `POST /api/v1/batches`          | generate | One pack → up to 50 images → `{ batch, jobs, requested, stoppedReason }`                                         |
+| `POST /api/v1/batches`          | generate | One pack → up to 50 images (`Idempotency-Key` supported) → `{ batch, jobs, requested, stoppedReason }`           |
 | `GET /api/v1/batches/{id}`      | read     | Batch progress → `{ batch, jobs }`                                                                               |
+| `POST /api/v1/uploads`          | generate | Multipart `file` + `purpose` (`reference` / `garment` / `mask`) → `{ upload: { id, url, width, height } }`       |
 | `GET /api/v1/media`             | read     | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media, nextCursor, hiddenCount? }` |
 | `GET /api/v1/media/{id}`        | read     | One photo/video with fresh signed URLs → `{ media }`                                                             |
 | `GET /api/v1/packs`             | read     | All photo packs → `{ packs }`                                                                                    |

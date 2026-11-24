@@ -35,6 +35,7 @@ import { LIKENESS_GUARANTEE_THRESHOLD } from "@/server/media/scoring";
 import { getOwnedMedia, ingestImages, providerInputUrl } from "@/server/media/service";
 import { getOwnedModel } from "@/server/models/service";
 import { getStorage } from "@/server/storage";
+import { NonRetryableError } from "../util";
 import { defineHandler, type CompleteArgs, type CompleteResult, type JobPlan } from "./types";
 
 export const ENHANCE_KINDS = ["upscale", "face_restore", "remove_background"] as const;
@@ -122,8 +123,8 @@ export async function enhanceSourceUrl(plan: JobPlan): Promise<string> {
 export async function completeEnhancement({ job, output, plan }: CompleteArgs): Promise<CompleteResult> {
   const data = readEnhancePlan(plan);
   const image = output.images?.[0];
-  // Throwing lets the engine retry the completion and, if it keeps happening, fail + refund the job.
-  if (!image) throw new Error(`${job.type} job ${job.id}: the provider returned no image`);
+  // The provider's output won't change on a retry: fail (and refund) the job right away.
+  if (!image) throw new NonRetryableError(`${job.type} job ${job.id}: the provider returned no image`);
 
   const { mediaIds, blockedCount } = await ingestImages(job, [{ ...image, seed: undefined }], {
     prompt: data.sourcePrompt ?? undefined,

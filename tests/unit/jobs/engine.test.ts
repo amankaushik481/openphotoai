@@ -354,6 +354,46 @@ describe("concurrency", () => {
     expect(await getBalance(u.id)).toBe(20);
   });
 
+  it("fails fast (one attempt, full refund) when completion throws a non-retryable error", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    overrideMockAI({
+      fetchOutput: async () => {
+        throw Object.assign(new Error("output expired"), { retryable: false });
+      },
+    });
+    const job = await createJob(u, gen({ numImages: 1 }));
+    const row = await syncJob(job.id, { force: true });
+    expect(row).toMatchObject({ status: "failed", attempts: 1, errorCode: "internal", creditsRefunded: 1 });
+    expect(row.error).toMatch(/refunded/);
+    expect(row.output?.failureDetail).toBe("output expired");
+    expect(await getBalance(u.id)).toBe(20);
+  });
+
+  it("surfaces a deterministic AppError from completion to the user and refunds", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    overrideMockAI({
+      fetchOutput: async () => {
+        throw new AppError("validation_error", "We couldn't read this video");
+      },
+    });
+    const job = await createJob(u, gen({ numImages: 1 }));
+    const row = await syncJob(job.id, { force: true });
+    expect(row).toMatchObject({ status: "failed", attempts: 1, errorCode: "validation_error" });
+    expect(row.error).toBe("We couldn't read this video. Your credits were refunded.");
+    expect(await getBalance(u.id)).toBe(20);
+  });
+
+  it("keeps retrying transient AppErrors and errors flagged retryable", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    overrideMockAI({
+      fetchOutput: async () => {
+        throw new AppError("provider_error", "fal is down");
+      },
+    });
+    const job = await createJob(u, gen({ numImages: 1 }));
+    expect(await syncJob(job.id, { force: true })).toMatchObject({ status: "running", attempts: 1 });
+  });
+
   it("discards outputs when the job is canceled during completion", async () => {
     const provider = overrideMockAI();
     const { fetchOutput } = provider;
@@ -441,6 +481,42 @@ describe("createBatch", () => {
     expect((await reloadUser(poor.id)).credits).toBe(0);
   });
 
+  it("replays an Idempotency-Key: same batch, no second charge", async () => {
+    const req = { modelId, packId: "linkedin-headshots", count: 3, quality: "standard" as const };
+    const first = await createBatch(u, req, { idempotencyKey: "batch-key-1" });
+    expect(first.replayed).toBeUndefined();
+    expect(first.jobs.map((j) => j.idempotencyKey).sort()).toEqual(["batch-key-1:0", "batch-key-1:1", "batch-key-1:2"]);
+    expect(await getBalance(u.id)).toBe(17);
+
+    const again = await createBatch(u, req, { idempotencyKey: "batch-key-1" });
+    expect(again).toMatchObject({ replayed: true, requested: 3 });
+    expect(again.batch.id).toBe(first.batch.id);
+    expect(again.jobs.map((j) => j.id).sort()).toEqual(first.jobs.map((j) => j.id).sort());
+    expect(await getBalance(u.id)).toBe(17);
+    expect(await db.select().from(batches).where(eq(batches.userId, u.id))).toHaveLength(1);
+
+    // Same key, different request: refused. Another user's identical key is independent.
+    await expect(createBatch(u, { ...req, packId: "studio-portrait" }, { idempotencyKey: "batch-key-1" })).rejects.toMatchObject({
+      code: "conflict",
+    });
+    const other = await createTestUser({ credits: 5, plan: "pro" });
+    const otherModel = await createTestModel(other.id);
+    const theirs = await createBatch(other, { ...req, modelId: otherModel.id }, { idempotencyKey: "batch-key-1" });
+    expect(theirs.batch.id).not.toBe(first.batch.id);
+  });
+
+  it("concurrent requests with one Idempotency-Key create a single batch", async () => {
+    const req = { modelId, packId: "linkedin-headshots", count: 2, quality: "standard" as const };
+    const results = await Promise.all([
+      createBatch(u, req, { idempotencyKey: "race" }),
+      createBatch(u, req, { idempotencyKey: "race" }),
+    ]);
+    expect(results[0].batch.id).toBe(results[1].batch.id);
+    expect(await db.select().from(batches).where(eq(batches.userId, u.id))).toHaveLength(1);
+    expect(await db.select().from(jobs).where(eq(jobs.userId, u.id))).toHaveLength(2);
+    expect(await getBalance(u.id)).toBe(18);
+  });
+
   it("enforces the plan's batch size and fails cleanly with no credits", async () => {
     const free = await createTestUser({ credits: 0, plan: "free" });
     const m = await createTestModel(free.id);
@@ -461,5 +537,20 @@ describe("safety hooks", () => {
     safetyMock.assertTextAllowed.mockClear();
     await createJob(u, gen({ prompt: undefined, packId: "linkedin-headshots", numImages: 1 }));
     expect(safetyMock.assertTextAllowed).not.toHaveBeenCalled();
+  });
+});
+
+describe("isNonRetryable", () => {
+  it("classifies completion errors", async () => {
+    const { isNonRetryable, NonRetryableError } = await import("@/server/jobs/util");
+    expect(isNonRetryable(new NonRetryableError("x"))).toBe(true);
+    expect(isNonRetryable(Object.assign(new Error("x"), { retryable: false }))).toBe(true);
+    expect(isNonRetryable(new AppError("validation_error", "bad"))).toBe(true);
+    expect(isNonRetryable(new AppError("not_found", "gone"))).toBe(true);
+    expect(isNonRetryable(new AppError("rate_limited", "slow down"))).toBe(false);
+    expect(isNonRetryable(new AppError("provider_error", "down"))).toBe(false);
+    expect(isNonRetryable(Object.assign(new AppError("validation_error", "x"), { retryable: true }))).toBe(false);
+    expect(isNonRetryable(new Error("network"))).toBe(false);
+    expect(isNonRetryable("string")).toBe(false);
   });
 });

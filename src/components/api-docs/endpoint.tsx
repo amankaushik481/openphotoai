@@ -69,13 +69,14 @@ function Parameters({ params }: { params: ParameterObject[] }) {
 }
 
 function RequestBody({ doc, op }: { doc: OpenApiDocument; op: OperationObject }) {
-  const content = op.requestBody?.content["application/json"];
+  const multipart = op.requestBody?.content["multipart/form-data"];
+  const content = op.requestBody?.content["application/json"] ?? multipart;
   if (!content) return null;
   const schema = schemaOf(doc, content.schema);
   const variants = schema.oneOf?.map((v) => ({ name: v.$ref ? refName(v.$ref) : "", schema: schemaOf(doc, v) }));
   return (
     <>
-      <SubHeading>Request body</SubHeading>
+      <SubHeading>{multipart ? "Request body (multipart/form-data)" : "Request body"}</SubHeading>
       {op.requestBody?.description && (
         <p className="mb-2 text-sm text-muted-foreground">
           <InlineMarkdown text={op.requestBody.description} />

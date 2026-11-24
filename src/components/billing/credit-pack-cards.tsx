@@ -9,7 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { CREDIT_PACKS } from "@/config/plans";
 import { cn } from "@/lib/utils";
 import { formatCredits, formatPrice } from "./format";
-import { PUBLIC_SIGNUP_HREF } from "./plan-cards";
+import { publicCheckoutHref } from "./checkout-intent";
 import { useBillingActions } from "./use-billing-actions";
 
 export interface CreditPackCardsProps {
@@ -48,7 +48,7 @@ export function CreditPackCards({ mode, className }: CreditPackCardsProps) {
             <CardFooter>
               {mode === "public" ? (
                 <Button asChild variant={pack.popular ? "brand" : "outline"} className="w-full">
-                  <Link href={PUBLIC_SIGNUP_HREF}>Buy {pack.name}</Link>
+                  <Link href={publicCheckoutHref({ type: "credit_pack", packId: pack.id })}>Buy {pack.name}</Link>
                 </Button>
               ) : (
                 <Button

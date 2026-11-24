@@ -54,7 +54,7 @@ import { estimateCostUsd, expectedOutputs } from "./costs";
 import { getHandler } from "./handlers";
 import type { CompleteResult } from "./handlers/types";
 import { toJobDTOs } from "./queries";
-import { errorMessage, isUniqueViolation, mapLimit } from "./util";
+import { errorMessage, isNonRetryable, isUniqueViolation, mapLimit } from "./util";
 
 /** Minimum seconds between provider status polls for one job (unless forced). */
 export const SYNC_MIN_INTERVAL_SEC = 3;
@@ -72,6 +72,13 @@ const POLL_CONCURRENCY = 5;
 const BATCH_SUBMIT_CONCURRENCY = 5;
 
 const ACTIVE_STATUSES: JobStatus[] = ["queued", "running"];
+
+/** User-facing failure message that also says the credits came back. */
+function withRefundNote(message: string): string {
+  const text = message.trim();
+  if (/refund/i.test(text)) return text;
+  return `${text}${/[.!?]$/.test(text) ? "" : "."} Your credits were refunded.`;
+}
 const isTerminal = (s: JobStatus) => TERMINAL_JOB_STATUSES.includes(s);
 
 const MSG = {
@@ -245,12 +252,55 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
   return loadJob(job.id);
 }
 
-/** One pack -> many images. Creates a batch + N generate jobs spread over the pack's prompts. */
+export interface CreateBatchResult {
+  batch: BatchRow;
+  jobs: JobRow[];
+  requested: number;
+  stoppedReason?: "insufficient_credits" | "error";
+  /** True when an `Idempotency-Key` matched an earlier batch (nothing new was created or charged). */
+  replayed?: boolean;
+}
+
+/** Child job `i` of a batch created with `Idempotency-Key: key` carries the job idempotency key `key:i`. */
+const batchJobKey = (key: string, index: number) => `${key}:${index}`;
+
+/** The batch an earlier request with this Idempotency-Key created (found via its first child job). */
+async function findBatchByIdempotencyKey(user: UserRow, key: string, req: CreateBatchRequest): Promise<CreateBatchResult | null> {
+  const first = await findByIdempotencyKey(user.id, batchJobKey(key, 0));
+  if (!first) return null;
+  const [batch] = first.batchId
+    ? await db
+        .select()
+        .from(batches)
+        .where(and(eq(batches.id, first.batchId), eq(batches.userId, user.id)))
+        .limit(1)
+    : [];
+  if (!batch || batch.packId !== req.packId || batch.modelId !== req.modelId) {
+    throw errors.conflict("This Idempotency-Key was already used for a different request.");
+  }
+  const childJobs = await db
+    .select()
+    .from(jobs)
+    .where(and(eq(jobs.batchId, batch.id), eq(jobs.userId, user.id)))
+    .orderBy(jobs.createdAt);
+  return { batch, jobs: childJobs, requested: batch.total, replayed: true };
+}
+
+/**
+ * One pack -> many images. Creates a batch + N generate jobs spread over the pack's prompts.
+ * With `idempotencyKey`, a retried request returns the batch the first one created (the key is stored
+ * on the child jobs as `key:0`, `key:1`, ...; the batches table has no key column).
+ */
 export async function createBatch(
   user: UserRow,
   req: CreateBatchRequest,
-  opts?: { apiKeyId?: string | null },
-): Promise<{ batch: BatchRow; jobs: JobRow[]; requested: number; stoppedReason?: "insufficient_credits" | "error" }> {
+  opts?: { apiKeyId?: string | null; idempotencyKey?: string | null },
+): Promise<CreateBatchResult> {
+  const idempotencyKey = opts?.idempotencyKey?.trim() || null;
+  if (idempotencyKey) {
+    const existing = await findBatchByIdempotencyKey(user, idempotencyKey, req);
+    if (existing) return existing;
+  }
   const plan = getPlan(user.plan);
   if (req.count > plan.limits.maxBatch) {
     throw errors.planLimit(`The ${plan.name} plan creates up to ${plan.limits.maxBatch} images per batch.`);
@@ -300,13 +350,33 @@ export async function createBatch(
     });
   });
 
+  // With a key, job 0 goes first and alone: if a concurrent request with the same key already created
+  // it, we get that request's job back and hand over to its batch instead of creating a second one.
+  const indexes = inputs.map((_, i) => i);
+  const chunks: number[][] = [];
+  if (idempotencyKey) chunks.push(indexes.splice(0, 1));
+  while (indexes.length) chunks.push(indexes.splice(0, BATCH_SUBMIT_CONCURRENCY));
+
   let stoppedReason: "insufficient_credits" | "error" | undefined;
   let firstError: unknown;
-  for (let start = 0; start < inputs.length && !stoppedReason; start += BATCH_SUBMIT_CONCURRENCY) {
-    const chunk = inputs.slice(start, start + BATCH_SUBMIT_CONCURRENCY);
+  for (const chunk of chunks) {
+    if (stoppedReason) break;
     const results = await Promise.allSettled(
-      chunk.map((input) => createJob(user, input, { batchId, skipRateLimit: true, apiKeyId: opts?.apiKeyId })),
+      chunk.map((i) =>
+        createJob(user, inputs[i]!, {
+          batchId,
+          skipRateLimit: true,
+          apiKeyId: opts?.apiKeyId,
+          idempotencyKey: idempotencyKey ? batchJobKey(idempotencyKey, i) : null,
+        }),
+      ),
     );
+    if (idempotencyKey && chunk[0] === 0 && results[0]?.status === "fulfilled" && results[0].value.batchId !== batchId) {
+      await db.delete(batches).where(and(eq(batches.id, batchId), eq(batches.userId, user.id)));
+      const winner = await findBatchByIdempotencyKey(user, idempotencyKey, req);
+      if (winner) return winner;
+      throw errors.conflict("This Idempotency-Key was already used for a different request.");
+    }
     for (const r of results) {
       if (r.status === "fulfilled") continue;
       const err: unknown = r.reason;
@@ -488,8 +558,12 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
       : await defaultComplete(leased, output, plan);
   } catch (err) {
     console.error(`[jobs] completion attempt ${leased.attempts} failed for ${job.id}:`, err);
-    if (leased.attempts >= MAX_FINALIZE_ATTEMPTS) {
-      return failJob(job.id, MSG.ingest, "internal", "failed", { detail: errorMessage(err) });
+    // Deterministic failures (bad output, invalid data) fail + refund right away: retrying can't help.
+    const final = isNonRetryable(err);
+    if (final || leased.attempts >= MAX_FINALIZE_ATTEMPTS) {
+      const appErr = final && err instanceof AppError && err.code !== "internal" ? err : null;
+      const message = appErr ? withRefundNote(appErr.message) : MSG.ingest;
+      return failJob(job.id, message, appErr?.code ?? "internal", "failed", { detail: errorMessage(err) });
     }
     await releaseLease(job.id, token, 30 * leased.attempts);
     return loadJob(job.id);

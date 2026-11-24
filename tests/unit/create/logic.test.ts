@@ -25,6 +25,7 @@ import {
   packCategoriesIn,
   parseSeed,
   pushHistory,
+  modelModesFrom,
   resolveIdentityMode,
   sortBestShots,
   splitBestShots,
@@ -433,5 +434,23 @@ describe("describeApiError", () => {
     expect(formatWait(60)).toBe("1 minute");
     expect(formatWait(3601)).toBe("2 hours");
     expect(formatWait(0)).toBe("1 second");
+  });
+});
+
+describe("modelModesFrom", () => {
+  it("uses IdentityModelDTO.mode, falls back to the heuristics and the fallback map", () => {
+    expect(
+      modelModesFrom(
+        [
+          { id: "a", mode: "instant" },
+          { id: "b", mode: "trained" },
+          { id: "c", status: "ready", trainingJobId: null },
+          { id: "d", status: "training", trainingJobId: null },
+        ],
+        { b: "instant", e: "instant" },
+      ),
+    ).toEqual({ a: "instant", b: "trained", c: "instant", e: "instant" });
+    expect(modelModesFrom(undefined, { x: "trained" })).toEqual({ x: "trained" });
+    expect(modelModesFrom(undefined)).toEqual({});
   });
 });

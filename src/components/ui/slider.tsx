@@ -5,14 +5,27 @@ import { Slider as SliderPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
+export type SliderProps = React.ComponentProps<typeof SliderPrimitive.Root> & {
+  /** Accessible names per thumb (multi-thumb sliders), e.g. ["Minimum", "Maximum"]. */
+  thumbLabels?: string[];
+};
+
+/**
+ * The accessible name goes on the thumbs (they carry role="slider"): `aria-label` / `aria-labelledby`
+ * given to the slider are forwarded to every thumb, `thumbLabels` names thumbs individually, and
+ * unnamed sliders fall back to "Value".
+ */
 function Slider({
   className,
   defaultValue,
   value,
   min = 0,
   max = 100,
+  thumbLabels,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: SliderProps) {
   const _values = React.useMemo(
     () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
     [value, defaultValue, min, max],
@@ -44,6 +57,8 @@ function Slider({
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
+          aria-label={thumbLabels?.[index] ?? (ariaLabelledBy ? ariaLabel : (ariaLabel ?? "Value"))}
+          aria-labelledby={thumbLabels?.[index] ? undefined : ariaLabelledBy}
           className="block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
         />
       ))}

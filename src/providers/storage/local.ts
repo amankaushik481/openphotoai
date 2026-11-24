@@ -88,13 +88,13 @@ async function countFiles(dir: string): Promise<number> {
 }
 
 export function createLocalStorage(opts: LocalStorageOptions): LocalStorageProvider {
-  const root = path.resolve(opts.dir);
+  const root = path.resolve(/* turbopackIgnore: true */ opts.dir);
   const baseUrl = opts.baseUrl.replace(/\/+$/, "");
   const secret = opts.secret;
   if (!secret) throw new Error("createLocalStorage: a signing secret is required");
 
   const inside = (segments: string[]): string => {
-    const p = path.resolve(root, ...segments);
+    const p = path.resolve(/* turbopackIgnore: true */ root, ...segments);
     if (p !== root && !p.startsWith(root + path.sep)) throw new Error("Invalid storage key: escapes storage root");
     return p;
   };

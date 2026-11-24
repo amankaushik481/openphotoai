@@ -42,7 +42,7 @@ function createFromEnv(): StorageProvider {
     });
   }
   return createLocalStorage({
-    dir: path.resolve(env.LOCAL_STORAGE_DIR),
+    dir: path.resolve(/* turbopackIgnore: true */ env.LOCAL_STORAGE_DIR),
     baseUrl: env.NEXT_PUBLIC_APP_URL,
     secret: env.authSecret,
   });

@@ -91,11 +91,12 @@ describe("POST /api/account/delete/confirm", () => {
   });
 
   it("is rate limited per IP, in its own bucket", async () => {
-    const { limit } = RATE_LIMITS.reportsPerHourPerIp;
+    const { limit } = RATE_LIMITS.accountDeleteConfirmPerHourPerIp;
     for (let i = 0; i < limit; i++) expect((await confirm({ token: `t${i}` })).status).toBe(404);
     expect((await confirm({ token: "t" })).status).toBe(429);
     expect((await confirm({ token: "t" }, "198.51.100.1")).status).toBe(404);
     const keys = (await db.select().from(schema.rateLimits)).map((r) => r.key);
-    expect(keys).toContain("reportsPerHourPerIp:account-delete-confirm:203.0.113.7");
+    expect(keys).toContain("accountDeleteConfirmPerHourPerIp:ip:203.0.113.7");
+    expect(keys.some((k) => k.startsWith("reportsPerHourPerIp:"))).toBe(false);
   });
 });

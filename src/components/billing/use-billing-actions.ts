@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { api, ApiClientError } from "@/lib/api-client";
+import { api, apiErrorText } from "@/lib/api-client";
 import type { CheckoutItem } from "@/providers/types";
 
 function message(err: unknown): string {
-  return err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.";
+  return apiErrorText(err);
 }
 
 /**

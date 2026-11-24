@@ -8,6 +8,7 @@ import { newToken } from "@/lib/ids";
 import { env } from "@/lib/env";
 import { sendEmail } from "@/server/email";
 import { errors } from "@/server/http";
+import { rateLimit } from "@/server/rate-limit";
 import { getTeamForManager, getTeamForMember, getTeamForOwner, hashInviteToken, normalizeEmail } from "./access";
 import type { TeamInvitePreview } from "./types";
 
@@ -29,6 +30,8 @@ export async function inviteMember(
   const address = normalizeEmail(email);
   if (!address) throw errors.validation("Enter a valid email address.");
   const { team } = await getTeamForManager(actor.id, teamId, "invite people");
+  // Shared with multi-person invites; counted once the actor is allowed to invite at all.
+  await rateLimit("invitesPerHour", `user:${actor.id}`);
 
   const token = newToken();
   const result = await db.transaction(async (tx) => {

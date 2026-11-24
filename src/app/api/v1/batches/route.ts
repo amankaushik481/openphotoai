@@ -1,4 +1,5 @@
 import { parseBody } from "@/server/http";
+import { readIdempotencyKey } from "@/server/jobs/api";
 import { toBatchDTO } from "@/server/jobs/batches";
 import { createBatch } from "@/server/jobs/engine";
 import { toJobDTOs } from "@/server/jobs/queries";
@@ -6,10 +7,14 @@ import { v1Operations } from "@/server/openapi/operations";
 import { createBatchRequest } from "@/types/domain";
 import { v1Route } from "@/app/api/v1/_lib/handler";
 
-/** One pack -> many images. Shrinks to the jobs created if credits run out part-way. */
+/**
+ * One pack -> many images. Shrinks to the jobs created if credits run out part-way.
+ * `Idempotency-Key` replays return the original batch.
+ */
 export const POST = v1Route(v1Operations.createBatch, async ({ req, user, apiKey }) => {
+  const idempotencyKey = readIdempotencyKey(req);
   const body = await parseBody(req, createBatchRequest);
-  const result = await createBatch(user, body, { apiKeyId: apiKey.id });
+  const result = await createBatch(user, body, { apiKeyId: apiKey.id, idempotencyKey });
   return {
     batch: toBatchDTO(result.batch),
     jobs: await toJobDTOs(result.jobs),

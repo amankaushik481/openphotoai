@@ -103,3 +103,16 @@ export function shouldWatermark(u: { plan: PlanId; hasPaid: boolean }, watermark
   if (!watermarkFreeTier) return false;
   return getPlan(u.plan).limits.watermark && !u.hasPaid;
 }
+
+/** Whole months a yearly subscription saves vs. 12 monthly payments (0 for free / no discount). */
+export function yearlyMonthsFree(plan: Plan): number {
+  if (plan.monthlyPriceCents <= 0) return 0;
+  const saved = (12 * plan.monthlyPriceCents - plan.yearlyPriceCents) / plan.monthlyPriceCents;
+  return Math.max(0, Math.floor(saved + 1e-9));
+}
+
+/** What a "N months free" badge can promise for every paid plan (the smallest saving). */
+export function minYearlyMonthsFree(planIds: readonly PlanId[] = PAID_PLAN_IDS): number {
+  const savings = planIds.map((id) => yearlyMonthsFree(getPlan(id)));
+  return savings.length ? Math.min(...savings) : 0;
+}

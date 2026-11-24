@@ -15,6 +15,7 @@ import { refundJob } from "@/server/credits/ledger";
 import { errors } from "@/server/http";
 import {
   applyAiLabel,
+  applyVideoAiLabel,
   applyWatermark,
   extractVideoFrames,
   imageMetrics,
@@ -293,9 +294,15 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
   }
 }
 
+/**
+ * Store provider videos as media: download -> safety check (blocked videos are discarded) -> AI label
+ * (MP4 metadata) + watermark (free tier, burned in) -> first-frame thumbnail -> storage -> media rows.
+ */
 export async function ingestVideos(job: JobRow, videos: ProviderVideo[], opts?: { prompt?: string }): Promise<IngestResult> {
   const provider = providerFor(job);
   const storage = getStorage();
+  const { owner } = await loadJobContext(job);
+  const watermark = shouldWatermark(owner, env.WATERMARK_FREE_TIER);
   const ctx = { userId: job.userId, jobId: job.id, modelId: job.modelId ?? undefined };
 
   let blockedCount = 0;
@@ -303,21 +310,27 @@ export async function ingestVideos(job: JobRow, videos: ProviderVideo[], opts?: 
   const written: string[] = [];
   try {
     for (const video of videos) {
-      const { bytes, contentType } = await provider.fetchOutput(video.url);
+      const { bytes } = await provider.fetchOutput(video.url);
       const moderation = await checkOutputVideo(bytes, ctx);
       if (!moderation.allowed) {
         blockedCount++;
         continue;
       }
-      const probe = await extractVideoFrames(bytes, 1);
+      // Always rewritten as MP4 so the label (and the free-tier watermark) can't be skipped.
+      const labeled = await applyVideoAiLabel(
+        bytes,
+        { generator: APP.name, jobId: job.id, createdAt: new Date() },
+        { watermark },
+      );
+      // Thumbnail from the stored file, so it shows the watermark too.
+      const probe = await extractVideoFrames(labeled.bytes, 1);
       const firstFrame = probe.frames[0];
       const thumb = firstFrame ? await makeThumbnail(firstFrame) : null;
 
-      const mimeType = (video.contentType ?? contentType ?? "video/mp4").split(";")[0]!.trim() || "video/mp4";
       const id = newId("med");
-      const key = storageKeys.media(job.userId, id, mimeType.startsWith("video/") ? extForMime(mimeType) : "mp4");
+      const key = storageKeys.media(job.userId, id, extForMime(labeled.mimeType));
       const thumbKey = thumb ? storageKeys.mediaThumb(job.userId, id) : null;
-      await storage.put(key, bytes, { contentType: mimeType });
+      await storage.put(key, labeled.bytes, { contentType: labeled.mimeType });
       written.push(key);
       if (thumb && thumbKey) {
         await storage.put(thumbKey, thumb, { contentType: "image/webp" });
@@ -331,8 +344,8 @@ export async function ingestVideos(job: JobRow, videos: ProviderVideo[], opts?: 
         kind: "video",
         storageKey: key,
         thumbKey,
-        mimeType,
-        bytes: bytes.byteLength,
+        mimeType: labeled.mimeType,
+        bytes: labeled.bytes.byteLength,
         width: probe.width || null,
         height: probe.height || null,
         durationSec: probe.durationSec || video.durationSec || null,
@@ -341,6 +354,7 @@ export async function ingestVideos(job: JobRow, videos: ProviderVideo[], opts?: 
         batchId: job.batchId,
         parentMediaId: job.sourceMediaId,
         moderation,
+        watermarked: labeled.watermarked,
       });
     }
     if (rows.length) await db.insert(media).values(rows);

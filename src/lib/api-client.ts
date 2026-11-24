@@ -2,6 +2,7 @@
  * Typed fetch helper for client components. CONTRACT FILE.
  * Throws ApiClientError with the server's `{ error: { code, message } }`.
  */
+import { t } from "@/i18n";
 import type { ApiErrorBody, ApiErrorCode } from "@/types/domain";
 
 export class ApiClientError extends Error {
@@ -41,6 +42,12 @@ export async function api<T>(
     throw new ApiClientError(err?.code ?? "internal", err?.message ?? `Request failed (${res.status})`, res.status, err?.details);
   }
   return data as T;
+}
+
+/** Text for a failed request: the server's message when there is one, else a generic "try again". */
+export function apiErrorText(err: unknown): string {
+  if (err instanceof ApiClientError && err.message) return err.message;
+  return t("errors.tryAgain");
 }
 
 /** SWR fetcher. */

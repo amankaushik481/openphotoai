@@ -346,11 +346,22 @@ describe("lifecycle (mock provider)", () => {
     expect(await getBalance(u.id)).toBe(20);
   });
 
-  it("completion fails loudly (engine retries, then refunds) when the provider returns no image", async () => {
+  it("completion fails fast (no retries) and refunds when the provider returns no image", async () => {
     const src = await storeSource(u.id);
     const job = await createJob(u, restore(src.id));
     const handler = getHandler("face_restore");
     const plan = job.output?.plan as Record<string, unknown>;
-    await expect(handler.complete!({ job, output: { images: [] }, plan })).rejects.toThrow(/no image/);
+    await expect(handler.complete!({ job, output: { images: [] }, plan })).rejects.toMatchObject({
+      message: expect.stringMatching(/no image/),
+      retryable: false,
+    });
+
+    const provider = overrideMockAI();
+    provider.getStatus = async () => ({ state: "succeeded", output: { images: [] } });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const done = await syncJob(job.id, { force: true });
+    expect(done).toMatchObject({ status: "failed", attempts: 1, errorCode: "internal" });
+    expect(done.creditsRefunded).toBe(done.creditsCharged);
+    expect(await getBalance(u.id)).toBe(20);
   });
 });

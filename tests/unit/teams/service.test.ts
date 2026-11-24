@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
-import { teamMembers, teams, user as userTable } from "@/db/schema";
+import { rateLimits, teamMembers, teams, user as userTable } from "@/db/schema";
 import type { UserRow } from "@/db/types";
+import { RATE_LIMITS } from "@/config/rate-limits";
 import { AppError } from "@/server/http";
 import {
   acceptInvite,
@@ -137,6 +138,21 @@ describe("team access", () => {
 });
 
 describe("invites", () => {
+  it("are rate limited per inviter (invitesPerHour, shared with multi-person invites)", async () => {
+    const team = await createTeam(owner, "Acme");
+    const { limit } = RATE_LIMITS.invitesPerHour;
+    // Re-sends count too: every email is an invite email.
+    for (let i = 0; i < limit; i++) await inviteMember(owner, team.id, "again@example.com");
+    const err = await rejection(inviteMember(owner, team.id, "again@example.com"));
+    expect(err.code).toBe("rate_limited");
+    expect(sentEmails).toHaveLength(limit);
+    // Someone who can't invite at all gets the permission error, not a spent counter.
+    const outsider = await createTestUser();
+    expect((await rejection(inviteMember(outsider, team.id, "x@example.com"))).code).not.toBe("rate_limited");
+    const [row] = await db.select().from(rateLimits).where(eq(rateLimits.key, `invitesPerHour:user:${outsider.id}`));
+    expect(row).toBeUndefined();
+  });
+
   it("emails a join link and stores only the token's hash", async () => {
     const team = await createTeam(owner, "Acme");
     const { member, resent } = await inviteMember(owner, team.id, "  New.Hire@Example.COM ");

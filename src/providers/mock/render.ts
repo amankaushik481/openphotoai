@@ -39,9 +39,9 @@ export async function renderMockImage(payload: MockPayload, index: number): Prom
 
 /** ~3s, yuv420p H.264 MP4 with a slow zoom. Cached per payload in the OS temp dir. */
 export async function renderMockVideo(payload: MockPayload, encoded: string): Promise<Uint8Array> {
-  const cacheFile = join(tmpdir(), `openshoot-mock-video-${createHash("sha256").update(encoded).digest("hex").slice(0, 32)}.mp4`);
+  const cacheFile = join(/* turbopackIgnore: true */ tmpdir(), `openshoot-mock-video-${createHash("sha256").update(encoded).digest("hex").slice(0, 32)}.mp4`);
   try {
-    return new Uint8Array(await readFile(cacheFile));
+    return new Uint8Array(await readFile(/* turbopackIgnore: true */ cacheFile));
   } catch {
     // not cached yet
   }
@@ -58,8 +58,9 @@ export async function renderMockVideo(payload: MockPayload, encoded: string): Pr
   const marker = outputMarker(payload);
 
   const tmpOut = `${cacheFile}.${process.pid}.${randomBytes(4).toString("hex")}.tmp`;
+  const bin = await ffmpegBinary();
   const ffmpeg = spawn(
-    await ffmpegBinary(),
+    /* turbopackIgnore: true */ bin,
     [
       ...["-hide_banner", "-loglevel", "error", "-y"],
       ...["-f", "rawvideo", "-pix_fmt", "rgb24", "-s", `${width}x${height}`, "-r", String(VIDEO_FPS), "-i", "pipe:0"],
@@ -95,11 +96,11 @@ export async function renderMockVideo(payload: MockPayload, encoded: string): Pr
     ffmpeg.stdin.end();
     const [code] = await exited;
     if (code !== 0) throw new Error(`Mock video encoding failed (ffmpeg exit ${code}): ${stderr.trim().slice(0, 300)}`);
-    await rename(tmpOut, cacheFile);
-    return new Uint8Array(await readFile(cacheFile));
+    await rename(/* turbopackIgnore: true */ tmpOut, /* turbopackIgnore: true */ cacheFile);
+    return new Uint8Array(await readFile(/* turbopackIgnore: true */ cacheFile));
   } finally {
     if (ffmpeg.exitCode === null) ffmpeg.kill("SIGKILL");
-    await rm(tmpOut, { force: true });
+    await rm(/* turbopackIgnore: true */ tmpOut, { force: true });
   }
 }
 

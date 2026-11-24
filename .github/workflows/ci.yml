@@ -43,6 +43,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Validate packs
+        run: pnpm packs:validate
+
       - name: Unit tests
         run: pnpm test
 

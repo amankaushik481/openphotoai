@@ -126,11 +126,12 @@ export async function debitForJob(
  * Refund (part of) a job's charge. idempotencyKey = `job:${jobId}:refund:${tag}`.
  * Also increments jobs.creditsRefunded. Never refunds more than creditsCharged - creditsRefunded.
  * `opts.amount` defaults to everything still refundable; `opts.tag` defaults to "full".
+ * `opts.createdBy` attributes the ledger entry to an admin (manual refunds).
  * Pass `tx` to refund inside the caller's transaction (e.g. while it holds the job row).
  */
 export async function refundJob(
   jobId: string,
-  opts?: { amount?: number; tag?: string; note?: string },
+  opts?: { amount?: number; tag?: string; note?: string; createdBy?: string | null },
   tx?: Database | Tx,
 ): Promise<{ refunded: number }> {
   if (opts?.amount !== undefined) assertIntegerAmount(opts.amount, "Refund amount");
@@ -155,6 +156,7 @@ export async function refundJob(
         reason: "job_refund",
         jobId,
         note: opts?.note ?? null,
+        createdBy: opts?.createdBy ?? null,
         idempotencyKey: `job:${jobId}:refund:${tag}`,
       },
       t,

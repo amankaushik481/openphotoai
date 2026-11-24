@@ -26,9 +26,8 @@ vi.mock("@/server/models/service", async () => {
 });
 vi.mock("@/server/jobs/engine", () => ({ cancelJob: vi.fn(async () => ({})) }));
 
-const { confirmAccountDeletion, hashDeletionToken, requestAccountDeletion, deleteAccountCompletely } = await import(
-  "@/server/account"
-);
+const { confirmAccountDeletion, hashDeletionToken, requestAccountDeletion, deleteAccountCompletely, resumeStalledDeletions } =
+  await import("@/server/account");
 const { deleteModelCompletely } = await import("@/server/models/service");
 const { cancelJob } = await import("@/server/jobs/engine");
 
@@ -332,6 +331,32 @@ describe("confirmAccountDeletion — real deletion", () => {
     expect(cancelJob).toHaveBeenCalledTimes(1); // finished steps are not re-run
     expect(await db.select().from(schema.user).where(eq(schema.user.id, user.id))).toEqual([]);
     expect(await outbox("deletion_completed")).toHaveLength(1);
+  });
+
+  it("resumeStalledDeletions (maintenance) finishes a failed run but leaves leased ones alone", async () => {
+    vi.mocked(deleteModelCompletely).mockRejectedValueOnce(new Error("fal: 503 Service Unavailable"));
+    await requestAccountDeletion(seeded.user);
+    await expectAppError(confirmAccountDeletion(await lastEmailedToken()), "provider_error", "incomplete");
+
+    // Someone else is running it right now: skip.
+    const lease = { leaseUntil: new Date(Date.now() + 60_000).toISOString() };
+    const [failed] = await requestRows(seeded.user.id);
+    await db
+      .update(schema.deletionRequests)
+      .set({ report: { ...(failed!.report as object), ...lease } })
+      .where(eq(schema.deletionRequests.id, failed!.id));
+    expect(await resumeStalledDeletions()).toBe(0);
+
+    // Lease released (or expired): maintenance completes it.
+    await db
+      .update(schema.deletionRequests)
+      .set({ report: { ...(failed!.report as object), leaseUntil: null } })
+      .where(eq(schema.deletionRequests.id, failed!.id));
+    expect(await resumeStalledDeletions()).toBe(1);
+    const [done] = await requestRows(seeded.user.id);
+    expect(done).toMatchObject({ status: "completed" });
+    expect(await outbox("deletion_completed")).toHaveLength(1);
+    expect(await resumeStalledDeletions()).toBe(0);
   });
 
   it("treats subscription cancellation as best effort and records the failure", async () => {

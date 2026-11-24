@@ -1,8 +1,13 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE as deleteApiKey } from "@/app/api/api-keys/[id]/route";
 import { GET as listKeys, POST as createKey } from "@/app/api/api-keys/route";
 import { GET as getMe, PATCH as patchMe } from "@/app/api/me/route";
+import { RATE_LIMITS } from "@/config/rate-limits";
+import { db } from "@/db";
+import { rateLimits } from "@/db/schema";
 import { MAX_ACTIVE_API_KEYS, createApiKey, listApiKeys } from "@/server/auth/api-keys";
+import { rateLimit } from "@/server/rate-limit";
 import { callRoute, createTestDb, createTestUser, sessionMock } from "../../helpers/factories";
 
 vi.mock("@/server/auth/session", () => sessionMock);
@@ -34,10 +39,28 @@ describe("GET /api/me", () => {
       plan: "free",
       hasPaid: false,
       watermark: true,
+      draftsRemaining: RATE_LIMITS.draftsPerDayFree.limit,
       createdAt: u.createdAt.toISOString(),
       marketingOptIn: false,
     });
     expect(sessionMock.resolveRequestAuth).toHaveBeenCalledWith(expect.anything(), "user");
+  });
+
+  it("reports free drafts left today without consuming one (paid users get the bigger allowance)", async () => {
+    const free = await createTestUser();
+    sessionMock.setUser(free);
+    await rateLimit("draftsPerDayFree", `user:${free.id}`);
+    await rateLimit("draftsPerDayFree", `user:${free.id}`);
+    const left = RATE_LIMITS.draftsPerDayFree.limit - 2;
+    expect((await callRoute(getMe, { url: "/api/me" })).json.user.draftsRemaining).toBe(left);
+    expect((await callRoute(getMe, { url: "/api/me" })).json.user.draftsRemaining).toBe(left);
+    expect(await db.select().from(rateLimits).where(eq(rateLimits.key, `draftsPerDay:user:${free.id}`))).toEqual([]);
+
+    const paid = await createTestUser({ hasPaid: true });
+    sessionMock.setUser(paid);
+    expect((await callRoute(getMe, { url: "/api/me" })).json.user.draftsRemaining).toBe(RATE_LIMITS.draftsPerDay.limit);
+    // Reading never creates counter rows.
+    expect(await db.select().from(rateLimits).where(eq(rateLimits.key, `draftsPerDay:user:${paid.id}`))).toEqual([]);
   });
 
   it("no watermark once the user has paid or is on a paid plan", async () => {
@@ -99,6 +122,23 @@ describe("/api/api-keys", () => {
     const listed = await callRoute(listKeys, { url: "/api/api-keys" });
     expect(listed.json.apiKeys).toHaveLength(1);
     expect(JSON.stringify(listed.json)).not.toContain(created.json.key);
+  });
+
+  it("POST creates keys with the chosen scope (default full access) and rejects unknown scopes", async () => {
+    sessionMock.setUser(await createTestUser({ plan: "pro" }));
+    const full = await callRoute(createKey, { url: "/api/api-keys", body: { name: "default" } });
+    expect(full.json.apiKey.scopes).toEqual(["*"]);
+    const read = await callRoute(createKey, { url: "/api/api-keys", body: { name: "dashboards", scopes: ["read"] } });
+    expect(read.json.apiKey.scopes).toEqual(["read"]);
+    const gen = await callRoute(createKey, { url: "/api/api-keys", body: { name: "worker", scopes: ["generate", "read", "generate"] } });
+    expect(gen.json.apiKey.scopes).toEqual(["read", "generate"]);
+    const star = await callRoute(createKey, { url: "/api/api-keys", body: { name: "all", scopes: ["read", "*"] } });
+    expect(star.json.apiKey.scopes).toEqual(["*"]);
+    for (const scopes of [["admin"], [], "read"]) {
+      expect((await callRoute(createKey, { url: "/api/api-keys", body: { name: "bad", scopes } })).status).toBe(400);
+    }
+    const listed = await callRoute(listKeys, { url: "/api/api-keys" });
+    expect(listed.json.apiKeys.map((k: { scopes: string[] }) => k.scopes)).toContainEqual(["read"]);
   });
 
   it(`POST refuses more than ${MAX_ACTIVE_API_KEYS} active keys`, async () => {

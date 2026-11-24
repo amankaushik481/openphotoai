@@ -144,24 +144,22 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     filters.folderId && !hasNarrowingFilters({ ...filters, folderId: undefined }) ? (
       <EmptyState
         icon={<FolderOpenIcon />}
-        title="This folder is empty"
-        description="Open All media, tap Select, pick photos and use Move to add them here."
+        title={t("empty.folder")}
+        description={t("empty.folderBody")}
         action={
           <Button asChild variant="outline">
-            <Link href={galleryHref({ ...filters, folderId: undefined })}>All media</Link>
+            <Link href={galleryHref({ ...filters, folderId: undefined })}>{t("empty.allMedia")}</Link>
           </Button>
         }
       />
     ) : hasNarrowingFilters(filters) ? (
       <EmptyState
         icon={<SearchXIcon />}
-        title="Nothing matches these filters"
-        description={
-          list.hiddenCount > 0 && !filters.showHidden ? "Some results are hidden by the best-shots picker." : undefined
-        }
+        title={t("empty.filtered")}
+        description={list.hiddenCount > 0 && !filters.showHidden ? t("empty.filteredHiddenBody") : undefined}
         action={
           <Button asChild variant="outline">
-            <Link href={galleryHref({ folderId: filters.folderId })}>Clear filters</Link>
+            <Link href={galleryHref({ folderId: filters.folderId })}>{t("empty.clearFilters")}</Link>
           </Button>
         }
       />

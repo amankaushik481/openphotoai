@@ -5,6 +5,7 @@
 import { and, eq, lt } from "drizzle-orm";
 import { db } from "@/db";
 import { deletionRequests, emailOutbox, modelShares, rateLimits } from "@/db/schema";
+import { resumeStalledDeletions } from "@/server/account";
 import { sendLowCreditReminders } from "./low-credits";
 
 export { isCronAuthorized } from "./cron-auth";
@@ -23,6 +24,8 @@ export interface MaintenanceResult {
   expiredDeletionRequests: number;
   prunedRateLimits: number;
   prunedEmails: number;
+  /** Confirmed account deletions whose last run failed or died, finished now. */
+  resumedDeletions: number;
 }
 
 export async function expirePendingModelShares(now: Date): Promise<number> {
@@ -64,6 +67,8 @@ export async function runMaintenance(now: Date = new Date()): Promise<Maintenanc
   const expiredDeletionRequests = await expirePendingDeletionRequests(now);
   const prunedRateLimits = await pruneRateLimitWindows(now);
   const prunedEmails = await pruneEmailOutbox(now);
+  // Before the emails: finishing a confirmed deletion matters more than a low-credit reminder.
+  const resumedDeletions = await resumeStalledDeletions(now);
   const lowCreditEmails = await sendLowCreditReminders(now);
-  return { lowCreditEmails, expiredModelShares, expiredDeletionRequests, prunedRateLimits, prunedEmails };
+  return { lowCreditEmails, expiredModelShares, expiredDeletionRequests, prunedRateLimits, prunedEmails, resumedDeletions };
 }

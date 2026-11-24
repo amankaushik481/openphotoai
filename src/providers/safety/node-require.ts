@@ -36,7 +36,7 @@ function bases(): NodeRequire[] {
   } catch {
     // import.meta.url unavailable or not a file URL in this runtime: fall through to cwd.
   }
-  list.push(create(path.join(process.cwd(), "package.json")));
+  list.push(create(path.join(/* turbopackIgnore: true */ process.cwd(), "package.json")));
   cached = list;
   return list;
 }
@@ -46,7 +46,7 @@ export function resolveFromApp(specifier: string): string {
   let lastError: unknown;
   for (const req of bases()) {
     try {
-      return req.resolve(specifier);
+      return req.resolve(/* turbopackIgnore: true */ specifier);
     } catch (err) {
       lastError = err;
     }
@@ -57,7 +57,7 @@ export function resolveFromApp(specifier: string): string {
 /** Load a CommonJS module (package name or absolute path) with Node's real `require`. */
 export function requireFromApp<T>(specifier: string): T {
   const resolved = path.isAbsolute(specifier) ? specifier : resolveFromApp(specifier);
-  return bases()[0](resolved) as T;
+  return bases()[0](/* turbopackIgnore: true */ resolved) as T;
 }
 
 /**
@@ -66,9 +66,9 @@ export function requireFromApp<T>(specifier: string): T {
  */
 export function requireUncached<T>(absPath: string): T {
   const req = bases()[0];
-  const resolved = req.resolve(absPath);
+  const resolved = req.resolve(/* turbopackIgnore: true */ absPath);
   try {
-    return req(resolved) as T;
+    return req(/* turbopackIgnore: true */ resolved) as T;
   } finally {
     delete req.cache[resolved];
   }
@@ -83,8 +83,8 @@ export function requireUncached<T>(absPath: string): T {
 export function packageDir(pkg: string): string {
   for (const req of bases()) {
     for (const dir of req.resolve.paths(pkg) ?? []) {
-      const candidate = path.join(dir, pkg);
-      if (existsSync(path.join(candidate, "package.json"))) return realpathSync(candidate);
+      const candidate = path.join(/* turbopackIgnore: true */ dir, pkg);
+      if (existsSync(path.join(/* turbopackIgnore: true */ candidate, "package.json"))) return realpathSync(/* turbopackIgnore: true */ candidate);
     }
   }
   throw new Error(`safety: package "${pkg}" is not installed (looked from the app root)`);

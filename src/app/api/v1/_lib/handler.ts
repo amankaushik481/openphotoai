@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import type { ApiKeyRow } from "@/db/types";
 import { errors, route, type AuthedRouteContext } from "@/server/http";
 import type { ScopedV1Operation, V1Scope } from "@/server/openapi/operations";
-import { checkRateLimit } from "@/server/rate-limit";
+import { peekRateLimit } from "@/server/rate-limit";
 
 const RATE_LIMIT = "apiPerMinute" as const;
 
@@ -17,11 +17,11 @@ export function keyHasScope(key: Pick<ApiKeyRow, "scopes">, scope: V1Scope): boo
   return key.scopes.includes("*") || key.scopes.includes(scope);
 }
 
-/** Current window of the key's rate limit (cost 0: reads without counting). Never throws. */
+/** Current window of the key's rate limit (read-only: doesn't count a hit). Never throws. */
 async function rateLimitHeaders(apiKeyId: string): Promise<Record<string, string>> {
   try {
     // Same subject route() uses for API-key requests.
-    const r = await checkRateLimit(RATE_LIMIT, `key:${apiKeyId}`, 0);
+    const r = await peekRateLimit(RATE_LIMIT, `key:${apiKeyId}`);
     return {
       "X-RateLimit-Limit": String(r.limit),
       "X-RateLimit-Remaining": String(r.remaining),

@@ -8,15 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PLANS, type Plan } from "@/config/plans";
+import { minYearlyMonthsFree, PLANS, type Plan } from "@/config/plans";
 import { cn } from "@/lib/utils";
 import type { PlanId } from "@/types/domain";
+import { publicCheckoutHref } from "./checkout-intent";
 import { formatCredits, formatPrice } from "./format";
 import { useBillingActions } from "./use-billing-actions";
 
 export type BillingInterval = "month" | "year";
 
 export const PUBLIC_SIGNUP_HREF = "/login?next=/app/billing";
+/** Free plan: just sign up (the app opens on the dashboard). */
+const FREE_SIGNUP_HREF = "/login";
 
 export interface PlanCardsProps {
   /** "public": buttons link to sign-in (pricing page). "app": buttons start a checkout. */
@@ -31,13 +34,14 @@ export interface PlanCardsProps {
 
 const ORDER: PlanId[] = ["free", "starter", "pro", "studio"];
 
-/** Plan cards with a monthly / yearly toggle (yearly = 2 months free). */
+/** Plan cards with a monthly / yearly toggle (the yearly badge is derived from the plan prices). */
 export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "month", includeFree, className }: PlanCardsProps) {
   const [interval, setBillingInterval] = React.useState<BillingInterval>(defaultInterval);
   const { pending, checkout } = useBillingActions();
   const showFree = includeFree ?? mode === "public";
   const plans = ORDER.filter((id) => showFree || id !== "free").map((id) => PLANS[id]);
   const currentRank = ORDER.indexOf(currentPlanId);
+  const monthsFree = minYearlyMonthsFree();
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
@@ -55,9 +59,11 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
           </ToggleGroupItem>
           <ToggleGroupItem value="year" className="gap-2 px-4">
             Yearly
-            <Badge variant="success" className="hidden min-[380px]:inline-flex">
-              2 months free
-            </Badge>
+            {monthsFree > 0 && (
+              <Badge variant="success" className="hidden min-[380px]:inline-flex">
+                {monthsFree} {monthsFree === 1 ? "month" : "months"} free
+              </Badge>
+            )}
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
@@ -73,9 +79,14 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
           const key = `plan:${plan.id}:${interval}`;
           let action: React.ReactNode;
           if (mode === "public") {
+            // Paid plans continue straight to checkout (with this interval) after signing in.
+            const href =
+              plan.id === "free"
+                ? FREE_SIGNUP_HREF
+                : publicCheckoutHref({ type: "plan", planId: plan.id as Exclude<PlanId, "free">, interval });
             action = (
               <Button asChild className="w-full" variant={plan.popular ? "brand" : "outline"}>
-                <Link href={PUBLIC_SIGNUP_HREF}>{plan.id === "free" ? "Start free" : `Get ${plan.name}`}</Link>
+                <Link href={href}>{plan.id === "free" ? "Start free" : `Get ${plan.name}`}</Link>
               </Button>
             );
           } else if (isCurrent) {

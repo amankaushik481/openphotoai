@@ -1,7 +1,7 @@
 /** Admin job views + manual refunds. */
-import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
+import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { creditLedger, jobs, user } from "@/db/schema";
+import { jobs, user } from "@/db/schema";
 import { refundJob } from "@/server/credits/ledger";
 import { errors } from "@/server/http";
 import type { AIProviderName, JobStatus, JobType } from "@/types/domain";
@@ -93,17 +93,7 @@ export async function refundJobAdmin(
   if (job.charged - job.refunded <= 0) throw errors.conflict("Nothing left to refund on this job.");
 
   const text = note?.trim() ? `Admin refund: ${note.trim()}` : "Admin refund";
-  const refunded = await db.transaction(async (tx) => {
-    const result = await refundJob(jobId, { tag: "admin", note: text }, tx);
-    if (result.refunded > 0) {
-      // Attribute the entry written just above (same transaction) to the admin.
-      await tx
-        .update(creditLedger)
-        .set({ createdBy: adminId })
-        .where(and(eq(creditLedger.idempotencyKey, `job:${jobId}:refund:admin`), isNull(creditLedger.createdBy)));
-    }
-    return result.refunded;
-  });
+  const { refunded } = await refundJob(jobId, { tag: "admin", note: text, createdBy: adminId });
   if (refunded === 0) throw errors.conflict("This job was already refunded by an admin.");
 
   const [after] = await db.select({ refunded: jobs.creditsRefunded }).from(jobs).where(eq(jobs.id, jobId)).limit(1);

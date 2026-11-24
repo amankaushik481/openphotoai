@@ -7,10 +7,10 @@ const confirmDeletionRequest = z.object({ token: z.string().trim().min(1).max(20
 
 /**
  * Public: the emailed token is the credential (the user may open the link on another device).
- * Rate limited per IP — with its own bucket, so it doesn't share a counter with abuse reports.
+ * Rate limited per IP (its own limit, so it doesn't share a counter with abuse reports).
  */
 export const POST = route({ auth: "public" }, async ({ req }) => {
-  await rateLimit("reportsPerHourPerIp", `account-delete-confirm:${clientIp(req)}`);
+  await rateLimit("accountDeleteConfirmPerHourPerIp", `ip:${clientIp(req)}`);
   const { token } = await parseBody(req, confirmDeletionRequest);
   const { status } = await confirmAccountDeletion(token);
   return { ok: true, status };

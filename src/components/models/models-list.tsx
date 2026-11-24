@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useJob } from "@/hooks/use-job";
 import { MODELS_KEY } from "@/hooks/use-models";
+import { useT } from "@/i18n/react";
 import { fetcher } from "@/lib/api-client";
 import type { ModelView } from "@/server/models/types";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ export interface ModelsListProps {
 
 /** The user's models (cards with status + next step) and models shared with them. */
 export function ModelsList({ initialModels }: ModelsListProps) {
+  const t = useT();
   const { data, mutate } = useSWR<{ models: ModelView[] }>(MODELS_KEY, fetcher, {
     fallbackData: { models: initialModels },
     revalidateOnMount: true,
@@ -32,13 +34,13 @@ export function ModelsList({ initialModels }: ModelsListProps) {
     return (
       <EmptyState
         icon={<ScanFaceIcon />}
-        title="Create your first model"
-        description="Take a quick live selfie and add a few photos of yourself. Instant models are ready in seconds and free."
+        title={t("empty.firstModel")}
+        description={t("empty.firstModelBody")}
         action={
           <Button asChild variant="brand" size="lg">
             <Link href="/app/models/new">
               <PlusIcon />
-              Create a model
+              {t("empty.createModel")}
             </Link>
           </Button>
         }

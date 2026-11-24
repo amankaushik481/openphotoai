@@ -35,14 +35,18 @@ import {
 import { PackQuickPicker, PackShotSelect, PackSwatch } from "@/components/create/pack-quick-picker";
 import { PromptField } from "@/components/create/prompt-field";
 import { ReferencePicker, type ReferenceUpload } from "@/components/create/reference-picker";
+import { useDraftAllowance } from "@/components/create/use-draft-allowance";
 import { useGenerationSession } from "@/components/create/use-generation-session";
+import { useModelModes } from "@/components/create/use-model-modes";
+import { useT } from "@/i18n/react";
 import type { AspectRatio, IdentityModelDTO, Quality } from "@/types/domain";
 import type { PackSummary } from "@/types/pack";
 
 export interface CreateStudioProps {
   packs: PackSummary[];
-  /** Identity mode per owned model (instant models cost 2×). */
-  modelModes: Record<string, IdentityMode>;
+  /** Optional fallback: identity mode per model id (the models list's `mode` takes precedence). */
+  modelModes?: Record<string, IdentityMode>;
+  /** Server-rendered allowance, used until /api/me (`draftsRemaining`) loads. */
   drafts: { limit: number; remaining: number };
   initial?: { mode?: CreateMode; packId?: string; modelId?: string; prompt?: string };
 }
@@ -55,7 +59,8 @@ const MODES: { value: CreateMode; label: string; icon: typeof TypeIcon }[] = [
 
 const NEXT_PATH = "/app/create";
 
-export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudioProps) {
+export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial }: CreateStudioProps) {
+  const t = useT();
   const formId = React.useId();
   const resultsRef = React.useRef<HTMLElement>(null);
 
@@ -70,7 +75,7 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
   const [reference, setReference] = React.useState<ReferenceUpload | null>(null);
   const [aspectRatio, setAspectRatio] = React.useState<AspectRatio>("4:5");
   const [numImages, setNumImages] = React.useState(4);
-  const [draftsLeft, setDraftsLeft] = React.useState(drafts.remaining);
+  const { draftsLeft, spend: spendDraft, exhaust: exhaustDrafts } = useDraftAllowance(drafts.remaining);
   const [quality, setQuality] = React.useState<Quality>(drafts.remaining > 0 ? "draft" : "standard");
   const [seed, setSeed] = React.useState("");
   const [brandKitId, setBrandKitId] = React.useState<string | undefined>();
@@ -79,6 +84,10 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
 
   const session = useGenerationSession({ nextPath: NEXT_PATH });
   const { brandKits } = useBrandKits();
+  const { modes: modelModes, models } = useModelModes(fallbackModes);
+  // A `?model=` deep link to a model that isn't one of the user's own: let the picker choose instead.
+  const unknownModel = Boolean(modelId && !model && models && !models.some((m) => m.id === modelId && !m.shared));
+  if (unknownModel) setModelId(null);
   const identityMode = resolveIdentityMode(model ?? (modelId ? { id: modelId } : null), modelModes);
   const cost = generateCost({ quality, numImages, mode: identityMode });
   const selectedPack = packs.find((p) => p.slug === packId);
@@ -113,13 +122,13 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
     setError(null);
     try {
       await session.submit(built.body, jobTitle({ mode, prompt, pack: selectedPack, quality }));
-      if (quality === "draft") setDraftsLeft((n) => Math.max(0, n - 1));
+      if (quality === "draft") spendDraft();
       scrollToResults(resultsRef.current);
     } catch (err) {
       const friendly = describeApiError(err, { draft: quality === "draft", nextPath: NEXT_PATH });
       setError(friendly);
       if (friendly.code === "rate_limited" && quality === "draft") {
-        setDraftsLeft(0);
+        exhaustDrafts();
         setQuality("standard");
       }
     } finally {
@@ -296,8 +305,8 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
         {session.entries.length === 0 ? (
           <EmptyState
             icon={<SparklesIcon />}
-            title="Your photos will appear here"
-            description="Drafts are free and take seconds. The best shots are shown first; re-render your favorites at full quality."
+            title={t("empty.createResults")}
+            description={t("empty.createResultsBody")}
           />
         ) : (
           <ol className="flex flex-col gap-4">

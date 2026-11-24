@@ -26,11 +26,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { APP } from "@/config/app";
-import { api, ApiClientError } from "@/lib/api-client";
-import type { ApiKeyDTO } from "@/types/domain";
+import { api, apiErrorText } from "@/lib/api-client";
+import type { ApiKeyDTO, ApiKeyScope } from "@/types/domain";
 
 interface ApiKeysManagerProps {
   initialKeys: ApiKeyDTO[];
@@ -39,13 +41,30 @@ interface ApiKeysManagerProps {
   maxKeys: number;
 }
 
+/** Scope choices offered when creating a key (one per key keeps permissions easy to reason about). */
+const SCOPE_OPTIONS: { value: ApiKeyScope; label: string; hint: string }[] = [
+  { value: "*", label: "Full access", hint: "Read everything and create jobs and batches (spends credits)." },
+  { value: "read", label: "Read only", hint: "Models, jobs, batches, media, packs and credits. Can't spend credits." },
+  {
+    value: "generate",
+    label: "Generate only",
+    hint: "Create and cancel jobs and batches (spends credits), but can't read your gallery or job results.",
+  },
+];
+
+function scopeLabel(scopes: readonly ApiKeyScope[]): string {
+  if (scopes.includes("*")) return "Full access";
+  if (scopes.includes("read") && scopes.includes("generate")) return "Read + generate";
+  return SCOPE_OPTIONS.find((o) => scopes.includes(o.value))?.label ?? "No access";
+}
+
 function formatDate(iso: string | null): string {
   if (!iso) return "Never";
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 function errorMessage(err: unknown): string {
-  return err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.";
+  return apiErrorText(err);
 }
 
 export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: ApiKeysManagerProps) {
@@ -133,6 +152,7 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
               <TableRow>
                 <TableHead className="pl-6">Name</TableHead>
                 <TableHead>Key</TableHead>
+                <TableHead className="hidden sm:table-cell">Access</TableHead>
                 <TableHead className="hidden sm:table-cell">Last used</TableHead>
                 <TableHead className="hidden md:table-cell">Created</TableHead>
                 <TableHead className="pr-6 text-right">
@@ -146,6 +166,9 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
                   <TableCell className="max-w-40 truncate pl-6 font-medium">{k.name}</TableCell>
                   <TableCell>
                     <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{k.prefix}…</code>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge variant={k.scopes.includes("*") ? "secondary" : "outline"}>{scopeLabel(k.scopes)}</Badge>
                   </TableCell>
                   <TableCell className="hidden text-muted-foreground sm:table-cell">{formatDate(k.lastUsedAt)}</TableCell>
                   <TableCell className="hidden text-muted-foreground md:table-cell">{formatDate(k.createdAt)}</TableCell>
@@ -258,7 +281,9 @@ function CreateKeyDialog({
   onCreated: (apiKey: ApiKeyDTO) => void;
 }) {
   const nameId = useId();
+  const scopeId = useId();
   const [name, setName] = useState("");
+  const [scope, setScope] = useState<ApiKeyScope>("*");
   const [pending, setPending] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -270,6 +295,7 @@ function CreateKeyDialog({
       // Forget the secret as soon as the dialog closes: it is shown exactly once.
       setSecret(null);
       setName("");
+      setScope("*");
       setCopied(false);
     }
   }
@@ -280,7 +306,7 @@ function CreateKeyDialog({
     try {
       const res = await api<{ key: string; apiKey: ApiKeyDTO }>("/api/api-keys", {
         method: "POST",
-        body: { name: name.trim() },
+        body: { name: name.trim(), scopes: [scope] },
       });
       onCreated(res.apiKey);
       setSecret(res.key);
@@ -349,6 +375,34 @@ function CreateKeyDialog({
                 autoComplete="off"
               />
             </div>
+            <fieldset className="grid gap-2">
+              <legend id={scopeId} className="mb-2 text-sm leading-none font-medium">
+                Access
+              </legend>
+              <RadioGroup
+                value={scope}
+                onValueChange={(v) => setScope(v as ApiKeyScope)}
+                aria-labelledby={scopeId}
+                className="gap-2"
+              >
+                {SCOPE_OPTIONS.map((o) => {
+                  const id = `${scopeId}-${o.value === "*" ? "all" : o.value}`;
+                  return (
+                    <Label
+                      key={o.value}
+                      htmlFor={id}
+                      className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent/50"
+                    >
+                      <RadioGroupItem id={id} value={o.value} className="mt-0.5" />
+                      <span className="grid gap-0.5">
+                        <span className="text-sm font-medium">{o.label}</span>
+                        <span className="text-xs text-muted-foreground">{o.hint}</span>
+                      </span>
+                    </Label>
+                  );
+                })}
+              </RadioGroup>
+            </fieldset>
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} disabled={pending}>
                 Cancel
