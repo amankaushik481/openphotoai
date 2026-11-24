@@ -1,7 +1,5 @@
 # Build progress
 
-> ⚠️ Pushing to GitHub is currently blocked (the session's GitHub token has no write access to this repo). Work is committed locally and will be pushed once access is granted.
-
 Live status of the autonomous build. Updated after every wave.
 
 ## Phase 0 — research & contracts
@@ -77,4 +75,4 @@ Live status of the autonomous build. Updated after every wave.
 | Lighthouse mobile ≥ 90 on landing | ✅ median 95 over 5 runs (95/95/95/94/95; a11y, best practices, SEO 100). Before tuning: median 90 |
 | Docker compose re-verification after hardening | ✅ zero keys: auto-generated auth secret, sign-in → mock checkout → liveness consent → photos → instant model → job completed by the worker → image served from MinIO |
 | Final verification | ✅ typecheck, lint, packs:validate (64 packs), Vitest 1951 passed, Playwright 9/9, production build |
-| Push to GitHub | ⛔ blocked: session token has no write access to the repo (HTTP 403) |
+| Push to GitHub (`main`) | ✅ |
