@@ -5,7 +5,7 @@ import { updateBrandKitRequest } from "@/server/teams/schemas";
 type Params = { id: string };
 
 /** Update a brand kit (owner/admin of its team). */
-export const PATCH = route<Params, "user">({ auth: "user" }, async ({ req, user, params }) => {
+export const PATCH = route<Params, "user">({ auth: "user", rateLimit: "brandKitWritesPerHour" }, async ({ req, user, params }) => {
   const patch = await parseBody(req, updateBrandKitRequest);
   return { brandKit: await updateBrandKit(user.id, params.id, patch) };
 });

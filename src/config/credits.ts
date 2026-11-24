@@ -24,7 +24,7 @@ export const CREDIT_COSTS = {
   video5s: 10,
   video10s: 18,
   /** Per started 5 seconds of estimated speech. */
-  talkingVideoPer5s: 8,
+  talkingVideoPer5s: 12,
   promptHelper: 0,
 } as const;
 

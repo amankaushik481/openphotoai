@@ -58,7 +58,9 @@ export function createS3Storage(opts: S3StorageOptions): StorageProvider {
 
   return {
     name: "s3",
-    publiclyReachable: true,
+    // A localhost / private-network endpoint (e.g. the Docker Compose MinIO) can't be fetched by AI
+    // providers, so inputs are uploaded to the provider's own storage instead.
+    publiclyReachable: !opts.endpoint || !isPrivateEndpoint(opts.endpoint),
 
     async put(key: string, body: Uint8Array, o: PutOptions): Promise<void> {
       assertSafeKey(key);
@@ -147,4 +149,20 @@ export function createS3Storage(opts: S3StorageOptions): StorageProvider {
       return getSignedUrl(client, command, { expiresIn: w.expiresInSec, signingDate: new Date(w.signedAtSec * 1000) });
     },
   };
+}
+
+/** True for endpoints AI providers can't reach: localhost, loopback, private/link-local IPs, *.local, docker hosts. */
+export function isPrivateEndpoint(endpoint: string): boolean {
+  let host: string;
+  try {
+    host = new URL(endpoint).hostname.toLowerCase();
+  } catch {
+    return true;
+  }
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal")) return true;
+  if (host === "host.docker.internal" || !host.includes(".")) return true; // bare service names like "minio"
+  if (/^(127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(host)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return true;
+  if (host === "::1" || host.startsWith("[::1") || host.startsWith("fc") || host.startsWith("fd")) return true;
+  return false;
 }

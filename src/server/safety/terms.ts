@@ -71,7 +71,7 @@ export const SEXUAL_TERMS: readonly string[] = [
   "gentleman s club", "gentlemen s club", "nude beach", "nood", "shirtless woman", "shirtless women", "shirtless girl",
   "bare chested woman", "bare chest woman", "bare chested girl", "topless woman",
   // sexualized underwear (the pack validator bans these too)
-  "bra", "bras", "bralette", "bralettes", "brassiere", "briefs", "boxer briefs", "jockstrap", "jock strap",
+  "bra", "bralette", "brassiere", "briefs", "boxer briefs", "jockstrap", "jock strap",
   "garter belt", "garter belts", "garter", "garters", "suspender belt", "string bikini", "tiny bikini",
   "microbikini", "sling bikini", "pasties",
   // Spanish

@@ -18,8 +18,8 @@ core module that cannot be switched off. The product name is configurable: set `
   refunded automatically, and every debit and refund is in an append-only ledger.
 - **Fast.** Instant identity models are ready in seconds with no training cost; free draft previews re-render at full
   quality with the same seed.
-- **Looks like you, or you don't pay.** Every output gets a likeness score against your consent selfie; weak shots
-  are hidden and refunded (likeness guarantee).
+- **Looks like you, or you don't pay.** Every output gets a likeness score against your consent selfie; photos
+  below the likeness threshold are refunded and discarded, and weaker shots are hidden (likeness guarantee).
 - **Open.** MIT licensed, self-hostable, public REST API with an OpenAPI 3.1 spec, packs are plain JSON files, and
   AI / payment / email / storage / safety providers are swappable adapters.
 - **Safe by design.** Live consent selfie, face matching on every training photo, adults only, prompt and output
@@ -61,8 +61,8 @@ core module that cannot be switched off. The product name is configurable: set `
 
 - **Instant drafts**: free fast previews (30 a day after a first purchase, 5 a day before), then "Full quality"
   re-renders the same seed.
-- **Best-shots picker and likeness guarantee**: outputs are scored for likeness and quality, weak ones are hidden and
-  refunded.
+- **Best-shots picker and likeness guarantee**: outputs are scored for likeness and quality; weak ones are hidden,
+  and ones that don't look like you are refunded and discarded.
 - **Prompt helper**: "me on a yacht at sunset looking rich" becomes an optimized prompt (LLM, with a template
   fallback).
 - **Batch mode**: one pack → up to 50 images in one click with live progress.
@@ -80,7 +80,8 @@ core module that cannot be switched off. The product name is configurable: set `
   editable templates driven by `NEXT_PUBLIC_*` settings.
 - Sign-in with magic links or Google (Better Auth).
 - Stripe Checkout for subscriptions and one-time credit packs with inline prices (no products to create in Stripe),
-  customer portal, idempotent and out-of-order-safe webhooks. A built-in mock checkout works without Stripe.
+  customer portal, idempotent and out-of-order-safe webhooks, refund and chargeback handling. A built-in mock checkout
+  works without Stripe.
 - Plans with limits (identity models, batch size, concurrent jobs, API access, team seats). Defaults: Free, Starter
   $15, Pro $39, Studio $99 per month; credit packs of 100 / 500 / 1,500 ([src/config/plans.ts](src/config/plans.ts)).
 - Teams: seats, roles, shared brand kits and credit transfers (Studio plan).
@@ -88,6 +89,8 @@ core module that cannot be switched off. The product name is configurable: set `
   moderation queue.
 - Transactional emails (React Email): magic link, welcome, model ready, training failed, low credits, receipt,
   invites, deletion, suspension.
+- Optional one-click public demo (`DEMO_MODE`, mock providers only): throwaway accounts with a ready model and
+  credits, deleted after 24 hours.
 - i18n-ready (English shipped), optional PostHog analytics (off unless a key is set), dark mode.
 
 ### Safety (always on)

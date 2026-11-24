@@ -42,9 +42,9 @@ describe("talking video script stats", () => {
   it("counts words, estimated seconds and credits per started 5 s", () => {
     expect(scriptStats("")).toMatchObject({ words: 0, seconds: 0, tooShort: true, tooLong: false });
     // 10 words at 2.5 words/s = 4 s -> one 5 s block.
-    expect(scriptStats(words(10))).toMatchObject({ words: 10, seconds: 4, credits: 8, tooShort: false, tooLong: false });
+    expect(scriptStats(words(10))).toMatchObject({ words: 10, seconds: 4, credits: 12, tooShort: false, tooLong: false });
     // 13 words -> 6 s -> two blocks.
-    expect(scriptStats(words(13))).toMatchObject({ seconds: 6, credits: 16 });
+    expect(scriptStats(words(13))).toMatchObject({ seconds: 6, credits: 24 });
     expect(countWords("  hello   there\nfriend ")).toBe(3);
   });
 

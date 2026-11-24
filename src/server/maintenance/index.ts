@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { deletionRequests, emailOutbox, modelShares, rateLimits } from "@/db/schema";
 import { resumeStalledDeletions } from "@/server/account";
 import { deleteExpiredDemoUsers } from "@/server/demo/cleanup";
+import { pruneExpiredUploads } from "@/server/media/upload-retention";
 import { sendLowCreditReminders } from "./low-credits";
 
 export { isCronAuthorized } from "./cron-auth";
@@ -29,6 +30,8 @@ export interface MaintenanceResult {
   resumedDeletions: number;
   /** Demo accounts (DEMO_MODE) older than 24h, deleted now (bounded per run). */
   deletedDemoUsers: number;
+  /** Job-input uploads (references, garments, masks) past their retention, deleted now (bounded per run). */
+  prunedUploads: number;
 }
 
 export async function expirePendingModelShares(now: Date): Promise<number> {
@@ -75,6 +78,7 @@ export async function runMaintenance(now: Date = new Date()): Promise<Maintenanc
   const expiredDeletionRequests = await expirePendingDeletionRequests(now);
   const prunedRateLimits = await pruneRateLimitWindows(now);
   const prunedEmails = await pruneEmailOutbox(now);
+  const prunedUploads = await pruneExpiredUploads(now);
   // Before the emails: finishing a confirmed deletion matters more than a low-credit reminder.
   const resumedDeletions = await resumeStalledDeletions(now);
   const deletedDemoUsers = await deleteExpiredDemoUsers(now);
@@ -87,5 +91,6 @@ export async function runMaintenance(now: Date = new Date()): Promise<Maintenanc
     prunedEmails,
     resumedDeletions,
     deletedDemoUsers,
+    prunedUploads,
   };
 }

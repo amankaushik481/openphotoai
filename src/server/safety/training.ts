@@ -12,7 +12,7 @@ import { cosineSimilarity, isValidEmbedding } from "./embeddings";
 import { errorMessage, hashBytes, recordBlock } from "./events";
 import { isFiniteNumber, largestFace, summarizeFaces } from "./faces";
 import { PHOTO_ISSUES, SAFETY_POLICY, type IdentityMode } from "./policy";
-import { analyzeFaces, faceMatchThreshold, moderateImage } from "./providers";
+import { analyzeFaces, faceComparator, faceMatchThreshold, moderateImage } from "./providers";
 
 export interface TrainingPhotoSafety {
   face: FaceAnalysisSummary;
@@ -32,6 +32,7 @@ export async function analyzeTrainingPhotoSafety(
   bytes: Uint8Array,
   consentEmbedding: number[],
   ctx: SafetyContext,
+  opts: { consentSelfie?: () => Promise<Uint8Array> } = {},
 ): Promise<TrainingPhotoSafety> {
   if (!isValidEmbedding(consentEmbedding)) {
     throw new AppError("consent_required", "Take your live consent selfie before uploading photos.");
@@ -78,12 +79,39 @@ export async function analyzeTrainingPhotoSafety(
   }
 
   const faceMatchScore = matchScore(consentEmbedding, main.embedding);
-  if (faceMatchScore === null || faceMatchScore < matchThreshold) {
+  if (faceMatchScore === null || !(faceMatchScore >= matchThreshold)) {
     addIssue(PHOTO_ISSUES.face_mismatch);
     await recordBlock("face_mismatch", ctx, { ...base, score: faceMatchScore, threshold: matchThreshold });
+  } else if (opts.consentSelfie) {
+    // Providers with a stronger 1:1 comparison (Rekognition CompareFaces) must agree too (SAF-11).
+    const compared = await compareWithConsent(opts.consentSelfie, bytes);
+    if (compared.status === "error") {
+      addIssue(PHOTO_ISSUES.check_failed);
+      await recordBlock("reference_blocked", ctx, { ...base, stage: "compare_faces", categories: ["moderation_error"], error: compared.error });
+    } else if (compared.status === "mismatch") {
+      addIssue(PHOTO_ISSUES.face_mismatch);
+      await recordBlock("face_mismatch", ctx, { ...base, stage: "compare_faces", similarity: compared.similarity, threshold: COMPARE_FACES_MIN });
+    }
   }
 
   return { face, faceMatchScore, ageEstimate, issues };
+}
+
+/** Minimum Rekognition CompareFaces similarity (0..1) between the consent selfie and a training photo. */
+export const COMPARE_FACES_MIN = 0.9;
+
+type CompareResult = { status: "unsupported" | "match" } | { status: "mismatch"; similarity: number | null } | { status: "error"; error: string };
+
+/** 1:1 comparison with the consent selfie when the face provider offers one; "unsupported" otherwise. */
+async function compareWithConsent(loadSelfie: () => Promise<Uint8Array>, bytes: Uint8Array): Promise<CompareResult> {
+  try {
+    const compare = await faceComparator();
+    if (!compare) return { status: "unsupported" };
+    const { similarity } = await compare(await loadSelfie(), bytes);
+    return similarity !== null && similarity >= COMPARE_FACES_MIN ? { status: "match" } : { status: "mismatch", similarity };
+  } catch (err) {
+    return { status: "error", error: errorMessage(err) };
+  }
 }
 
 /** Cosine similarity, or null when the embeddings can't be compared (e.g. provider changed). */

@@ -55,7 +55,7 @@ extends `AsyncAIProvider`:
 | `cancel(ref)` | Best effort cancel at the provider. |
 | `parseWebhook(req)` | Verify the signature over `req.rawBody`, then return `{ eventId, requestId, status? }`. Include `status` when the payload carries the final result; otherwise the engine calls `getStatus()`. |
 | `uploadInput(bytes, type, name)` | Make bytes fetchable by the provider (its file storage). Used when OpenShoot's own storage isn't publicly reachable (local disk in development). |
-| `fetchOutput(url)` | Download an output. Use `fetchOutputBytes()` from `src/providers/ai/shared/fetch-output.ts` (https only, timeout, 100 MB cap). |
+| `fetchOutput(url)` | Download an output. Use `fetchOutputBytes()` from `src/providers/ai/shared/fetch-output.ts` (https only, redirects re-checked, internal hosts refused, timeout, 100 MB cap). |
 | `submitTraining` / `deleteModel(modelRef)` | Train an identity from a zip of photos; `ProviderOutput.modelRef` is whatever `submitGenerate` needs later (LoRA URL, model version…). `deleteModel` must remove the provider-side weights when the API allows it; it runs on model and account deletion. |
 | `promptHelper(input)` | Synchronous LLM call. Fall back to `buildTemplatePrompt()` (`src/providers/ai/shared/prompt-template.ts`) when the call fails. |
 

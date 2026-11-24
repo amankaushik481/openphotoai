@@ -150,6 +150,7 @@ describe("runMaintenance", () => {
       prunedEmails: 1,
       resumedDeletions: 2,
       deletedDemoUsers: 0,
+      prunedUploads: 0,
     });
     expect(resumeStalledDeletions).toHaveBeenCalledWith(NOW);
 
@@ -168,6 +169,7 @@ describe("runMaintenance", () => {
       prunedEmails: 0,
       resumedDeletions: 0,
       deletedDemoUsers: 0,
+      prunedUploads: 0,
     });
   });
 });

@@ -24,7 +24,7 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
 2. **Identity model** — two modes:
    - **Instant** (beats photoai): ready in seconds, no training cost; uses reference-based identity models.
    - **Trained** (best likeness): FLUX-family LoRA training via fal/Replicate; progress UI; "model ready" email.
-3. **Generate** from a prompt, a pack, or a style reference image. Aspect ratios, 1–8 images, seed control.
+3. **Generate** from a prompt, a pack, or a style reference image. Aspect ratios, 1–4 images per job, seed control.
 4. **Photo packs** — 40+ themed packs as JSON files in `packs/` (no code to add one). Public pack gallery pages
    double as SEO landing pages.
 5. **Pose / style copy** — upload any reference photo, get yourself in that pose and setting.
@@ -102,7 +102,7 @@ moderation queue + suspension + takedown contact; real deletion; rate limits on 
 | Try-on | 3 |
 | Together photo (per image) | 3 |
 | Video 5s / 10s | 10 / 18 |
-| Talking video (per started 5s of speech) | 8 |
+| Talking video (per started 5s of speech) | 12 |
 
 Plans (USD/month): Free (watermark until first purchase), Starter $15 (200 cr), Pro $39 (600 cr, API, batch 50),
 Studio $99 (2,000 cr, teams/brand kits). Packs: 100 cr $9, 500 cr $39, 1,500 cr $99. Yearly = 10× monthly.

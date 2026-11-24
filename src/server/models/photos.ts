@@ -134,6 +134,7 @@ export async function addTrainingPhoto(user: UserRow, modelId: string, raw: Uint
     bytes: normalized.bytes,
     consentEmbedding: model.consentEmbedding ?? [],
     existingPhashes: existing.map((p) => p.phash),
+    consentSelfie: model.consentSelfieKey ? () => getStorage().get(model.consentSelfieKey!) : undefined,
     ctx: { userId: user.id, modelId: model.id },
   });
   if (analysis.safetyRejected) throw safetyRejection(analysis.quality.issues, analysis.quality);

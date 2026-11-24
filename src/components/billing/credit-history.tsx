@@ -62,7 +62,7 @@ export function CreditHistory({ firstPage }: { firstPage: CreditsPage }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-xl border bg-card">
-        <Table>
+        <Table scrollLabel="Credit history table">
           <TableHeader>
             <TableRow>
               <TableHead className="pl-4">Date</TableHead>

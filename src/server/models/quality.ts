@@ -136,6 +136,8 @@ export interface AnalyzeTrainingPhotoInput {
   consentEmbedding: number[];
   /** pHashes of photos already in the training set (near-duplicate check). */
   existingPhashes?: readonly (string | null | undefined)[];
+  /** Loads the consent selfie, for face providers with a stronger 1:1 comparison (Rekognition CompareFaces). */
+  consentSelfie?: () => Promise<Uint8Array>;
   ctx: SafetyContext;
 }
 
@@ -153,11 +155,11 @@ export interface TrainingPhotoAnalysis {
 
 /** Analyze one training photo: technical quality + safety. Never stores anything itself. */
 export async function analyzeTrainingPhoto(input: AnalyzeTrainingPhotoInput): Promise<TrainingPhotoAnalysis> {
-  const { bytes, consentEmbedding, existingPhashes = [], ctx } = input;
+  const { bytes, consentEmbedding, existingPhashes = [], consentSelfie, ctx } = input;
   const [global, phash, safety] = await Promise.all([
     imageMetrics(bytes),
     perceptualHash(bytes),
-    analyzeTrainingPhotoSafety(bytes, consentEmbedding, ctx),
+    analyzeTrainingPhotoSafety(bytes, consentEmbedding, ctx, { consentSelfie }),
   ]);
 
   const primary = safety.face.primary;

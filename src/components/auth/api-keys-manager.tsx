@@ -148,7 +148,7 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
             </p>
           </CardContent>
         ) : (
-          <Table>
+          <Table scrollLabel="Your API keys">
             <TableHeader>
               <TableRow>
                 <TableHead className="pl-6">Name</TableHead>

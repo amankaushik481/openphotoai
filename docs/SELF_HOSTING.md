@@ -108,23 +108,27 @@ To use Replicate instead, see [Choosing fal or Replicate](#choosing-fal-or-repli
    - Events:
      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
      `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`,
-     `invoice.paid`, `invoice.payment_failed`, `charge.refunded`,
-     `charge.dispute.created`, `charge.dispute.funds_withdrawn`, `charge.dispute.closed`
+     `invoice.paid`, `invoice.payment_failed`, `charge.refunded`, `charge.dispute.created`,
+     `charge.dispute.closed` (`charge.dispute.funds_withdrawn` is optional). The list is `STRIPE_WEBHOOK_EVENTS` in
+     `src/providers/payment/stripe.ts`.
    - Copy its signing secret (`whsec_…`) into `STRIPE_WEBHOOK_SECRET`. Each endpoint (and each `stripe listen`
      session) has its own secret.
 3. Configure the Customer Portal (Settings → Billing → Customer portal) and save it once in test mode and once in
    live mode; the "Manage billing" button on `/app/billing` opens it. Plan changes go through the app's own
-   checkout, so leave plan switching in the portal turned off.
+   checkout, so turn off "customers can switch plans" (and pausing) in the portal.
 4. Prices come from [`src/config/plans.ts`](../src/config/plans.ts) as inline `price_data`; you don't need to create
    products. To use existing Stripe prices instead, set the optional `STRIPE_PRICE_<PLAN>_<MONTH|YEAR>` and
    `STRIPE_PRICE_CREDITS_<100|500|1500>` variables (see `.env.example`).
 5. The promotion-code box at checkout is off by default, because Stripe accepts every active promotion code in the
-   account there (including ones made for other products). Set `STRIPE_ALLOW_PROMOTION_CODES=true` to show it.
+   account there (including ones made for other products). Restrict your codes, then set
+   `STRIPE_ALLOW_PROMOTION_CODES=true` to show it.
 
 What the app does with these events: paid checkouts and invoices grant credits once each; zero-total invoices
-(trials, 100% coupons) grant none; refunds reverse a proportional share of the credits, and a full refund of a
-subscription invoice ends that subscription; a dispute (chargeback) reverses every credit the payment granted, ends
-its subscription and flags the account in the admin moderation queue, and a dispute you win restores the credits.
+(trials, 100% coupons) start the plan without credits; refunds reverse a proportional share of the credits, and a
+full refund of a subscription invoice ends that subscription (refund partially to keep it); a dispute (chargeback)
+reverses every credit the payment granted, ends its subscription and flags the account in the admin moderation
+queue; a dispute you win restores the credits but not the subscription. A negative balance blocks all jobs until it
+is settled. Remaining edge cases are listed in [KNOWN_ISSUES.md](KNOWN_ISSUES.md#payments--credits).
 
 Test locally first with the Stripe CLI:
 `stripe listen --forward-to localhost:3000/api/webhooks/payments/stripe` (use the secret it prints).
@@ -153,7 +157,7 @@ authorized redirect URI `https://<your-domain>/api/auth/callback/google`, and se
 | Path | Schedule | Does |
 |---|---|---|
 | `/api/cron/jobs` | every minute | syncs running jobs whose webhook was missed, fails and refunds stuck jobs |
-| `/api/cron/maintenance` | daily, 04:00 UTC | low-credit emails, expires invites and deletion links, resumes stalled account deletions, prunes rate-limit and email-outbox rows |
+| `/api/cron/maintenance` | daily, 04:00 UTC | low-credit emails, expires invites and deletion links, resumes stalled account deletions, deletes demo accounts older than 24 hours, prunes rate-limit and email-outbox rows |
 
 Generate a secret with `openssl rand -hex 32` and set it as `CRON_SECRET`; Vercel sends it as
 `Authorization: Bearer <CRON_SECRET>` automatically. Without it both endpoints refuse every call.
@@ -301,7 +305,8 @@ photos.example.com {
 
 nginx or Traefik work the same way. Set `TRUSTED_PROXY_HOPS=1` (2 if a CDN such as Cloudflare sits in front of
 the proxy). Otherwise client IPs are unknown and the per-IP rate limits (magic links, reports, deletion
-confirmations) are shared by every visitor. Keep the proxy's request body limit at 10 MB or more for photo uploads.
+confirmations) are shared by every visitor. Set the proxy's request body limit to about 10 MB (nginx:
+`client_max_body_size 10m`): photo uploads are capped at 8 MB by the app, and the proxy limit bounds everything else.
 
 ### Webhooks
 
@@ -419,7 +424,7 @@ later invalidates stored consent embeddings: affected users retake the consent s
       S3 and real Postgres, and prints no warnings.
 - [ ] Migrations applied (`pnpm db:migrate`, automatic in Docker).
 - [ ] Storage bucket is private and its endpoint is reachable from browsers and from the AI provider.
-- [ ] Stripe webhook endpoint registered with every event listed above; one live test purchase grants credits once;
+- [ ] Stripe webhook endpoint registered with the events listed above; one live test purchase grants credits once;
       Customer Portal saved in live mode.
 - [ ] Resend domain verified; a magic link arrives in a real inbox; `EMAIL_FROM` is on that domain.
 - [ ] Vercel: `CRON_SECRET` set and crons visible under Project → Settings → Cron Jobs; functions have ≥ 1024 MB.

@@ -131,7 +131,8 @@ Details worth knowing:
   at once. Jobs still `queued` after 10 minutes, or running past 2 hours (training: 6 hours), are failed by
   `pollStaleJobs()`.
 - **Refunds.** `failJob()` refunds whatever is left of the charge. Blocked outputs, missing outputs and outputs below
-  the likeness guarantee (`LIKENESS_GUARANTEE_THRESHOLD`, 0.45) are refunded proportionally. Refunds use ledger
+  the likeness guarantee (`LIKENESS_GUARANTEE_THRESHOLD`, 0.45) are refunded proportionally; refunded low-likeness
+  photos are discarded, not kept. Refunds use ledger
   idempotency keys per tag and are capped at the amount charged, so concurrent paths can never over-refund.
 - **Batches.** `createBatch()` creates one child job per image (up to 50, plan `maxBatch`), each charged
   individually, and stops early on `insufficient_credits`. A batch occupies one concurrency slot. The batch's
@@ -249,7 +250,8 @@ sequenceDiagram
   redelivered by the provider when they fail (HTTP 500) or are still being applied by another request (HTTP 409).
 - Refunds reverse a proportional share of the credits a payment granted, and a full refund of a subscription
   invoice ends the subscription. A dispute reverses everything the payment granted, ends its subscription and
-  records a `payment_disputed` moderation event; winning it restores the credits. A balance left negative blocks
+  records a `payment_disputed` moderation event; winning it restores the credits (not the subscription). Zero-total
+  invoices (trials, 100% coupons) start the plan without credits. A balance left negative blocks
   new jobs (free drafts included) until it is settled. `hasPaid` (no watermark) is recomputed from the payments
   still standing.
 - Subscriptions grant `monthlyCredits` per paid invoice (12× up front for yearly plans); credit packs grant once.
@@ -287,7 +289,7 @@ shared with them stay in their galleries (DECISIONS #29).
 | Task | Vercel | Docker / self-hosted |
 |---|---|---|
 | Finish jobs with missed webhooks, time out stuck jobs | `/api/cron/jobs` (every minute; daily on Hobby) | `pnpm worker` every 5 s |
-| Maintenance: low-credit emails, expire invites and deletion links, resume stalled deletions, prune rate limits and old outbox emails | `/api/cron/maintenance` (daily) | `pnpm worker` hourly |
+| Maintenance: low-credit emails, expire invites and deletion links, resume stalled deletions, delete demo accounts older than 24 h, prune rate limits and old outbox emails | `/api/cron/maintenance` (daily) | `pnpm worker` hourly |
 
 Both cron endpoints require `Authorization: Bearer <CRON_SECRET>` and refuse every call when it isn't set.
 

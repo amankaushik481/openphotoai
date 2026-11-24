@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { jobs } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { setProviderOverrides } from "@/providers/registry";
-import type { ProviderJobStatus } from "@/providers/types";
+import type { ProviderJobRef, ProviderJobStatus } from "@/providers/types";
 import { completeAfterResponse, syncRunningJobs } from "@/server/jobs/api";
 import { createJob, syncIntervalsSec, syncJob } from "@/server/jobs/engine";
 import type { JobInput } from "@/types/domain";
@@ -82,7 +82,7 @@ describe("provider poll throttle", () => {
   });
 
   it("rotates lazy batch syncs: least recently polled jobs first", async () => {
-    const getStatus = vi.fn(async (): Promise<ProviderJobStatus> => ({ state: "running" }));
+    const getStatus = vi.fn<(ref: ProviderJobRef) => Promise<ProviderJobStatus>>(async () => ({ state: "running" }));
     overrideMockAI({ getStatus });
     const rows = await db
       .insert(jobs)
@@ -103,7 +103,7 @@ describe("provider poll throttle", () => {
     await agePoll(rows[1]!.id, 1);
     const fresh = await db.select().from(jobs).where(eq(jobs.userId, u.id));
     await syncRunningJobs(fresh);
-    const polled = getStatus.mock.calls.map(([ref]) => (ref as { requestId: string }).requestId);
+    const polled = getStatus.mock.calls.map(([ref]) => ref.requestId);
     expect(polled).toHaveLength(10);
     expect(polled).not.toContain(rows[0]!.providerRequestId);
     expect(polled).not.toContain(rows[1]!.providerRequestId);

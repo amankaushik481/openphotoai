@@ -5,7 +5,7 @@
  */
 import { createHash } from "node:crypto";
 import { getFaceProvider, getModerationProvider } from "@/providers/registry";
-import type { DetectedFace, ModerationResult } from "@/providers/types";
+import type { DetectedFace, FaceProvider, ModerationResult } from "@/providers/types";
 import type { ModerationSnapshot } from "@/types/domain";
 import { hasHardBlockCategory } from "./policy";
 
@@ -79,6 +79,14 @@ export async function faceMatchThreshold(): Promise<number> {
 
 export async function faceProviderName(): Promise<string> {
   return getFaceProvider().name;
+}
+
+type CompareFaces = (source: Uint8Array, target: Uint8Array) => Promise<{ similarity: number | null }>;
+
+/** The face provider's 1:1 comparison (Rekognition CompareFaces: similarity 0..1), or null when it has none. */
+export async function faceComparator(): Promise<CompareFaces | null> {
+  const provider = getFaceProvider() as FaceProvider & { compareFaces?: CompareFaces };
+  return typeof provider.compareFaces === "function" ? (source, target) => provider.compareFaces!(source, target) : null;
 }
 
 /** Celebrity recognition when the moderation provider supports it; null when it does not. */

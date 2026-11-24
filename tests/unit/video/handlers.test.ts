@@ -186,7 +186,7 @@ describe("talking video handler", () => {
     // 30 words -> 12 s -> 3 blocks of 8 credits.
     const script = Array.from({ length: 30 }, (_, i) => `word${String.fromCharCode(97 + (i % 26))}`).join(" ");
     const job = await createJob(u, talking({ script: `  ${script}  `, voice: "deep_male" }));
-    expect(job.creditsCharged).toBe(24);
+    expect(job.creditsCharged).toBe(36);
     expect(safetyMock.assertTextAllowed).toHaveBeenCalledWith([script], expect.objectContaining({ userId: u.id }));
     // Paid 15 s; the provider may animate up to 1.5x that before refusing (PAY-2).
     expect(talk.mock.calls[0]![0]).toMatchObject({ script, voice: "deep_male", maxAudioSeconds: 23 });
@@ -197,7 +197,7 @@ describe("talking video handler", () => {
     expect(row).toMatchObject({ kind: "video", mimeType: "video/mp4", parentMediaId: photo.id, prompt: script });
     expect(row!.durationSec).toBeGreaterThan(0);
     expect(row!.thumbKey).toBeTruthy();
-    expect(await getBalance(u.id)).toBe(176);
+    expect(await getBalance(u.id)).toBe(164);
   });
 
   it("rejects scripts whose characters exceed ~60 s of speech, even without spaces (PAY-2)", async () => {
@@ -236,7 +236,7 @@ describe("talking video handler", () => {
   it("accepts a script right at the limit", async () => {
     const script = Array.from({ length: MAX_TALKING_WORDS }, () => "hi").join(" ");
     const job = await createJob(u, talking({ script }));
-    expect(job.creditsCharged).toBe(96);
+    expect(job.creditsCharged).toBe(144);
   });
 
   it("blocks unsafe scripts before charging", async () => {

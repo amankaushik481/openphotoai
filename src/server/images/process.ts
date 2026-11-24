@@ -72,10 +72,14 @@ export async function normalizeImage(input: Uint8Array, opts?: { maxSide?: numbe
   });
 }
 
-/** WebP thumbnail (default 512px longest side). */
+/**
+ * WebP thumbnail (default 512px longest side). Keeps the source's XMP, so thumbnails of generated
+ * media carry the same AI label (trainedAlgorithmicMedia) as the full image; inputs without XMP
+ * (normalized uploads) stay metadata-free.
+ */
 export async function makeThumbnail(input: Uint8Array, size = 512): Promise<Uint8Array> {
   return withImage(input, (open) =>
-    open().resize({ width: size, height: size, fit: "inside", withoutEnlargement: true }).webp({ quality: 78 }).toBuffer(),
+    open().resize({ width: size, height: size, fit: "inside", withoutEnlargement: true }).keepXmp().webp({ quality: 78 }).toBuffer(),
   );
 }
 

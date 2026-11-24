@@ -6,7 +6,7 @@ Start with the [project README](../README.md) for the overview and the 5-minute 
 
 | Doc | What's in it |
 |---|---|
-| [SELF_HOSTING.md](SELF_HOSTING.md) | Going live on Vercel (Neon/Supabase, R2, Stripe, Resend, crons) or Docker (Compose, reverse proxy, storage, backups); fal vs Replicate; safety providers; production checklist; upgrades; troubleshooting. |
+| [SELF_HOSTING.md](SELF_HOSTING.md) | Going live on Vercel (Neon/Supabase, R2, Stripe, Resend, crons) or Docker (Compose, reverse proxy, storage, backups); fal vs Replicate; safety providers; production checklist; upgrades; troubleshooting; the public demo mode. |
 | [`.env.example`](../.env.example) | Every environment variable: what it does, its default, where to get it. Validated by `src/lib/env.ts`. |
 | [API.md](API.md) | Public REST API (v1): authentication and scopes, create → poll → download, idempotency, rate limits, errors. The full reference is served at `/docs/api` and `/api/v1/openapi.json`. |
 
@@ -37,6 +37,7 @@ Start with the [project README](../README.md) for the overview and the 5-minute 
 
 | Doc | What's in it |
 |---|---|
+| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Review findings deliberately deferred, why, and the mitigation in place; the Stripe webhook event list and billing policies. |
 | [PROGRESS.md](PROGRESS.md) | Status of the build waves (research, foundation, features, integration, hardening). |
 | [reviews/security.md](reviews/security.md) | Security review: authorization, IDOR, webhooks, uploads, CSRF. |
 | [reviews/safety.md](reviews/safety.md) | Red-team review of the safety module. |

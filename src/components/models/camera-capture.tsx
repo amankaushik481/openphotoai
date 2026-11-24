@@ -218,6 +218,8 @@ export function CameraCapture({
   }, []);
 
   /** Guide the user through liveness step `index`, then capture its frame. */
+  // The next step is reached through a ref: a callback can't reference itself while being declared.
+  const runStepRef = React.useRef<(index: number) => void>(() => undefined);
   const runStep = React.useCallback(
     (index: number) => {
       const step = stepsRef.current[index];
@@ -231,7 +233,7 @@ export function CameraCapture({
           void grabFrame().then((blob) => {
             if (!blob) return failCapture();
             framesRef.current = [...framesRef.current, blob];
-            runStep(index + 1);
+            runStepRef.current(index + 1);
           });
         },
         LIVENESS_PROMPTS[step],
@@ -239,6 +241,9 @@ export function CameraCapture({
     },
     [countDown, failCapture, finishCapture, grabFrame, stepCountdownFrom],
   );
+  React.useEffect(() => {
+    runStepRef.current = runStep;
+  }, [runStep]);
 
   const shoot = React.useCallback(async () => {
     const blob = await grabFrame();

@@ -20,7 +20,7 @@ export function JobsTable({
 }) {
   const columns = 8 + (showUser ? 1 : 0) + (showActions ? 1 : 0);
   return (
-    <Table>
+    <Table scrollLabel="Jobs">
       <TableHeader>
         <TableRow>
           <TableHead scope="col">Created</TableHead>

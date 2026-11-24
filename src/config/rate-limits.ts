@@ -33,6 +33,8 @@ export const RATE_LIMITS = {
   exportsPerHour: { limit: 5, windowSec: 3600 },
   /** Share links created per user. */
   sharesPerHour: { limit: 100, windowSec: 3600 },
+  /** Brand-kit creates/updates per user: every write runs the text safety gate (no free filter oracle). */
+  brandKitWritesPerHour: { limit: 60, windowSec: 3600 },
   /** Public API, per key. */
   apiPerMinute: { limit: 120, windowSec: 60 },
 } as const;
