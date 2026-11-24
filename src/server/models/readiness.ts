@@ -9,8 +9,8 @@ import { trainingPhotos } from "@/db/schema";
 import type { IdentityModelRow, TrainingPhotoRow } from "@/db/types";
 import { SAFETY_POLICY } from "@/server/safety";
 import type { PhotoQualityReport, ReadinessDTO } from "@/types/domain";
+import { identityModeOf, type IdentityMode } from "./service";
 
-export type IdentityMode = "instant" | "trained";
 export type PoseBucket = keyof ReadinessDTO["variety"];
 
 /** |yaw| below this (and |pitch| below FRONTAL_MAX_PITCH) counts as facing the camera. */
@@ -150,6 +150,5 @@ export async function loadReadinessPhotos(model: Pick<IdentityModelRow, "id" | "
 /** Readiness of a model's current training set for `mode` (default: the model's own mode). */
 export async function getModelReadiness(model: IdentityModelRow, mode?: IdentityMode): Promise<ReadinessDTO> {
   const photos = await loadReadinessPhotos(model);
-  const resolved: IdentityMode = mode ?? (model.metadata?.mode === "instant" ? "instant" : "trained");
-  return computeReadiness(photos, { mode: resolved, consentVerified: model.consentVerifiedAt !== null });
+  return computeReadiness(photos, { mode: mode ?? identityModeOf(model), consentVerified: model.consentVerifiedAt !== null });
 }
