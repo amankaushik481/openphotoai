@@ -15,7 +15,11 @@ const nextConfig: NextConfig = {
     "@tensorflow/tfjs",
     "@tensorflow/tfjs-node",
     "@tensorflow/tfjs-backend-wasm",
+    "@tensorflow/tfjs-backend-cpu",
+    "@tensorflow/tfjs-core",
+    "@tensorflow/tfjs-converter",
     "nsfwjs",
+    "ffmpeg-static",
   ],
   // Packs are JSON data files read at runtime; make sure they ship with serverless bundles.
   outputFileTracingIncludes: {

@@ -23,6 +23,8 @@ export interface JobPlan {
   textsToModerate: string[];
   /** Persisted on jobs.output.plan; available to submit()/complete(). JSON-serializable. */
   data: Record<string, unknown>;
+  /** Optional credit cost override (e.g. instant-mode models cost more). Defaults to creditCost(input). */
+  credits?: number;
 }
 
 export interface SubmitArgs<T extends JobType> {

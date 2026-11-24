@@ -15,7 +15,7 @@ export const CREDIT_COSTS = {
   edit: 2,
   inpaint: 2,
   upscale2x: 2,
-  upscale4x: 3,
+  upscale4x: 5,
   faceRestore: 1,
   removeBackground: 1,
   tryOn: 3,
@@ -28,8 +28,18 @@ export const CREDIT_COSTS = {
   promptHelper: 0,
 } as const;
 
-/** Free drafts are capped per user per day to prevent abuse. */
-export const DRAFT_DAILY_LIMIT = 200;
+/**
+ * Free drafts are capped per user per day (drafts are faster, not much cheaper, at the provider).
+ * Users who never paid get a smaller allowance (see rate-limits draftsPerDay / draftsPerDayFree).
+ */
+export const DRAFT_DAILY_LIMIT = 30;
+export const DRAFT_DAILY_LIMIT_FREE = 5;
+
+/**
+ * Instant (reference-based) identity models run on a multi-reference edit model that costs
+ * ~2x a LoRA generation, so they cost more credits per image. Applied via JobPlan.credits.
+ */
+export const INSTANT_MODE_MULTIPLIER = 2;
 
 /** Words per second used to estimate talking-video duration from a script. */
 export const SPEECH_WORDS_PER_SEC = 2.5;

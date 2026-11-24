@@ -40,7 +40,7 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
     cancellations and (with a real face provider) low-likeness outputs.
 
 ### Beat photoai.com
-- **Instant drafts** — free low-res previews (daily cap), click "Full quality" to re-render the same seed.
+- **Instant drafts** — free fast previews (daily cap), click "Full quality" to re-render the same seed.
 - **Best-shots picker** — each output scored for likeness (face embedding vs your consent selfie) + quality;
   weak outputs hidden by default; **likeness guarantee** refunds outputs below the threshold.
 - **Prompt helper** — "me on a yacht at sunset looking rich" → optimized prompt (LLM; template fallback).
@@ -92,12 +92,12 @@ moderation queue + suspension + takedown contact; real deletion; rate limits on 
 |---|---|
 | Instant model | 0 |
 | Trained model | 40 |
-| Draft preview (per image, capped 200/day) | 0 |
-| Standard photo (per image) | 1 |
+| Draft preview (per image; 30/day after first purchase, 5/day before) | 0 |
+| Standard photo (per image; Instant-mode models ×2) | 1 |
 | High quality photo (per image) | 2 |
 | Pose copy / edit (per image) | 2 |
 | Brush inpaint | 2 |
-| Upscale 2× / 4× | 2 / 3 |
+| Upscale 2× / 4× | 2 / 5 |
 | Face restore / background removal | 1 |
 | Try-on | 3 |
 | Together photo (per image) | 3 |

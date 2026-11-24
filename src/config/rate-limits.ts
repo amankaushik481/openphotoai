@@ -4,7 +4,9 @@ export const RATE_LIMITS = {
   jobsPerMinute: { limit: 20, windowSec: 60 },
   jobsPerDay: { limit: 2000, windowSec: 86_400 },
   /** Free draft previews per user per day. */
-  draftsPerDay: { limit: 200, windowSec: 86_400 },
+  draftsPerDay: { limit: 30, windowSec: 86_400 },
+  /** Users who never paid. */
+  draftsPerDayFree: { limit: 5, windowSec: 86_400 },
   batchesPerHour: { limit: 10, windowSec: 3600 },
   uploadsPerMinute: { limit: 60, windowSec: 60 },
   promptHelperPerMinute: { limit: 20, windowSec: 60 },
