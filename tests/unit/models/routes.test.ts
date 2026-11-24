@@ -15,6 +15,7 @@ import { newId } from "@/lib/ids";
 import { setProviderOverrides } from "@/providers/registry";
 import { CONSENT_CHALLENGE_TTL_SEC } from "@/server/models/consent";
 import type { AddPhotoResponse, ConsentChallengeResponse, ModelDetailResponse, ModelView } from "@/server/models/types";
+import type { ApiErrorBody } from "@/types/domain";
 import { getStorage, storageKeys } from "@/server/storage";
 import { callRoute, createTestDb, createTestModel, createTestUser, sessionMock } from "../../helpers/factories";
 import { imageForm, reloadModel, selfie, useTempStorage } from "./helpers";
@@ -48,9 +49,13 @@ async function createModel(name = "Me"): Promise<ModelView> {
 }
 
 async function challenge(modelId: string): Promise<ConsentChallengeResponse> {
-  const res = await callRoute(challengeRoute, { url: `/api/models/${modelId}/consent/challenge`, method: "POST", params: { id: modelId } });
+  const res = await callRoute<ConsentChallengeResponse, { id: string }>(challengeRoute, {
+    url: `/api/models/${modelId}/consent/challenge`,
+    method: "POST",
+    params: { id: modelId },
+  });
   expect(res.status).toBe(200);
-  return res.json as ConsentChallengeResponse;
+  return res.json;
 }
 
 function postConsent(modelId: string, name: string, captureToken: string) {
@@ -68,7 +73,7 @@ async function consent(modelId: string, name = "alice-01") {
 }
 
 function upload(modelId: string, bytes: Uint8Array<ArrayBuffer>) {
-  return callRoute<AddPhotoResponse>(photosRoute, {
+  return callRoute<AddPhotoResponse & ApiErrorBody, { id: string }>(photosRoute, {
     url: `/api/models/${modelId}/photos`,
     params: { id: modelId },
     body: imageForm("file", bytes),
@@ -99,7 +104,7 @@ describe("models CRUD", () => {
     const renamed = await callRoute(patchModelRoute, { url: `/api/models/${model.id}`, method: "PATCH", params: { id: model.id }, body: { name: "  New name " } });
     expect(renamed.json.model.name).toBe("New name");
 
-    const detail = await callRoute<ModelDetailResponse>(getModelRoute, { url: `/api/models/${model.id}`, params: { id: model.id } });
+    const detail = await callRoute<ModelDetailResponse, { id: string }>(getModelRoute, { url: `/api/models/${model.id}`, params: { id: model.id } });
     expect(detail.status).toBe(200);
     expect(detail.json.photos).toEqual([]);
     expect(detail.json.readiness).toMatchObject({ accepted: 0, minRequired: 10, canTrain: false });
@@ -135,7 +140,7 @@ describe("models CRUD", () => {
     const list = await callRoute(listModelsRoute, { url: "/api/models" });
     expect(list.json.models).toEqual([expect.objectContaining({ id: theirs.id, shared: true, ownerName: "Bea" })]);
 
-    const detail = await callRoute<ModelDetailResponse>(getModelRoute, { url: `/api/models/${theirs.id}`, params: { id: theirs.id } });
+    const detail = await callRoute<ModelDetailResponse, { id: string }>(getModelRoute, { url: `/api/models/${theirs.id}`, params: { id: theirs.id } });
     expect(detail.status).toBe(200);
     expect(detail.json.model.shared).toBe(true);
     expect(detail.json.photos).toEqual([]);

@@ -14,7 +14,7 @@ import { syncJob } from "@/server/jobs/engine";
 import { deleteModelCompletely } from "@/server/models/service";
 import type { ModelView } from "@/server/models/types";
 import { getStorage, storageKeys } from "@/server/storage";
-import type { JobDTO } from "@/types/domain";
+import type { ApiErrorBody, JobDTO } from "@/types/domain";
 import { callRoute, createTestDb, createTestMedia, createTestModel, createTestUser, sessionMock } from "../../helpers/factories";
 import { ALICE, embeddingOf, reloadModel, selfie, useTempStorage } from "./helpers";
 
@@ -86,7 +86,7 @@ async function collectingModel(count: number, photoOverrides: Partial<typeof tra
 }
 
 function train(modelId: string, mode: "instant" | "trained") {
-  return callRoute<{ model: ModelView; job: JobDTO | null }>(trainRoute, {
+  return callRoute<{ model: ModelView; job: JobDTO | null } & ApiErrorBody, { id: string }>(trainRoute, {
     url: `/api/models/${modelId}/train`,
     params: { id: modelId },
     body: { mode },
