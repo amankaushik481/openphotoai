@@ -119,7 +119,8 @@ interface Palette {
 }
 
 function palette(payload: MockPayload, index: number): Palette {
-  const hue = (hash32(`${payload.p}|${payload.k}`) + index * 47) % 360;
+  // Output i of a job with seed s renders like output 0 of seed s+i (same seed ⇒ same picture).
+  const hue = hash32(`${payload.p}|${payload.s + index}`) % 360;
   return {
     bgA: hsl(hue, 58, 74),
     bgB: hsl(hue + 38, 46, 34),
@@ -131,7 +132,7 @@ function palette(payload: MockPayload, index: number): Palette {
 
 /** Abstract portrait: soft gradient, bokeh, glow and one silhouette per face. */
 function portraitSvg(payload: MockPayload, index: number, width: number, height: number, opts: { caption: boolean }): string {
-  const rand = mulberry32(hash32(`${payload.p}|${payload.s + index}|${index}`));
+  const rand = mulberry32(hash32(`${payload.p}|${payload.s + index}|layout`));
   const pal = palette(payload, index);
   const u = Math.min(width, height);
   const transparent = payload.k === "rmbg";

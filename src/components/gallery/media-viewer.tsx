@@ -247,11 +247,11 @@ export function MediaViewer({ media: initial, parent, childMedia, prevId, nextId
           <div className="flex flex-wrap gap-2">
             <MoveToFolderMenu
               currentFolderId={media.folderId}
-              onMove={(folderId, name) =>
-                void patch({ folderId }, folderId ? `Moved to “${name}”` : "Removed from folder").then(
-                  (ok) => ok && mutateFolders(),
-                )
-              }
+              onMove={async (folderId, name) => {
+                if (await patch({ folderId }, folderId ? `Moved to “${name}”` : "Removed from folder")) {
+                  void mutateFolders();
+                }
+              }}
               trigger={
                 <Button type="button" variant="ghost" size="sm">
                   <FolderInputIcon aria-hidden="true" />

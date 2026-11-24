@@ -125,7 +125,6 @@ export function parseDirectives(text: string): { flags: number; clean: string } 
 
 /** Single-line, control-char-free snippet of at most MAX_SNIPPET chars. */
 export function snippet(text: string, max = MAX_SNIPPET): string {
-  // eslint-disable-next-line no-control-regex -- strip control characters from user text
   const s = text.replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
   return s.length <= max ? s : `${s.slice(0, max - 1).trimEnd()}…`;
 }

@@ -4,15 +4,21 @@
  * user's own generated media). Completion uses the engine's default ingestion: `plan.prompt` becomes the media
  * prompt and outputs get `parentMediaId = job.sourceMediaId` (the edited photo).
  *
- * `loadImageSource`, `usableSourceModel` and `sourceIdentity` are shared with the inpaint handler.
+ * Photos of several people (together photos, and photos derived from them) have no single identity: they are edited
+ * without identity references and without likeness scoring (which would compare a random face).
+ *
+ * `loadImageSource`, `editSourceContext`, `sourceIdentity` and `cleanInstruction` are shared with inpaint.
  */
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { jobs, media } from "@/db/schema";
 import type { IdentityModelRow, MediaRow } from "@/db/types";
 import type { IdentityRef } from "@/providers/types";
 import { getImageProvider } from "@/providers/registry";
 import { AppError, errors } from "@/server/http";
 import { getOwnedMedia, providerInputUrl } from "@/server/media/service";
 import { getOwnedModel, identityModeOf, identityRefFor } from "@/server/models/service";
-import type { EDIT_KINDS, Subject } from "@/types/domain";
+import type { EDIT_KINDS } from "@/types/domain";
 import { defineHandler } from "./types";
 
 export type EditKind = (typeof EDIT_KINDS)[number];
@@ -29,6 +35,8 @@ export type EditPlanData = {
   sourceKey: string;
   sourceMime: string;
   parentMediaId: string;
+  /** Send the source model's identity to the provider (false for group photos / no usable model). */
+  useIdentity: boolean;
   scoreLikeness: boolean;
 };
 
@@ -59,6 +67,45 @@ export async function usableSourceModel(userId: string, modelId: string | null):
     if (err instanceof AppError && err.code === "not_found") return null;
     throw err;
   }
+}
+
+/** How many parent photos to walk back when looking for a together photo (edit chains are short). */
+const MAX_LINEAGE_DEPTH = 8;
+
+/**
+ * True when the photo descends from a together (multi_person) photo: walks `parentMediaId` back through
+ * derived jobs (edits, upscales, try-ons...) until an origin job (generate / pose copy / together).
+ */
+async function isGroupPhoto(userId: string, source: MediaRow): Promise<boolean> {
+  let mediaId: string | null = source.id;
+  for (let depth = 0; mediaId && depth < MAX_LINEAGE_DEPTH; depth++) {
+    const [row]: { parentMediaId: string | null; jobType: string | null }[] = await db
+      .select({ parentMediaId: media.parentMediaId, jobType: jobs.type })
+      .from(media)
+      .leftJoin(jobs, and(eq(jobs.id, media.jobId), eq(jobs.userId, userId)))
+      .where(and(eq(media.id, mediaId), eq(media.userId, userId)))
+      .limit(1);
+    if (!row) return false;
+    if (row.jobType === "multi_person") return true;
+    if (row.jobType === "generate" || row.jobType === "pose_copy") return false;
+    mediaId = row.parentMediaId;
+  }
+  return false;
+}
+
+export interface EditSourceContext {
+  /** The user's usable model the photo was made with (outputs keep it as their modelId). */
+  model: IdentityModelRow | null;
+  /** Several people: no identity references, no likeness scoring. */
+  group: boolean;
+  /** How the template refers to the subject(s). */
+  who: string;
+}
+
+export async function editSourceContext(userId: string, source: MediaRow): Promise<EditSourceContext> {
+  const [model, group] = await Promise.all([usableSourceModel(userId, source.modelId), isGroupPhoto(userId, source)]);
+  const who = group ? "the people in the photo" : model ? `the ${model.subject}` : "the person";
+  return { model, group, who };
 }
 
 /**
@@ -94,14 +141,14 @@ export function cleanInstruction(instruction: string, who: string): string {
 /**
  * Provider instruction for an edit kind. Each template names the one thing that changes and pins everything
  * else (identity first), so a "navy suit" edit can't drift the face, pose or background.
+ * `who` is how the subject is referred to, e.g. "the woman" (default "the person").
  */
-export function editPrompt(kind: EditKind, instruction: string, subject?: Subject): string {
-  const who = subject ? `the ${subject}` : "the person";
+export function editPrompt(kind: EditKind, instruction: string, who = "the person"): string {
   const what = cleanInstruction(instruction, who);
   switch (kind) {
     case "outfit":
       return (
-        `Change only the clothing ${who} is wearing to: ${what}. ` +
+        `Change only the clothing of ${who} to: ${what}. ` +
         "Keep the same face and identity, hairstyle, expression, body shape, pose, framing and background exactly as they are."
       );
     case "background":
@@ -123,7 +170,7 @@ export function editPrompt(kind: EditKind, instruction: string, subject?: Subjec
     case "custom":
       return (
         `${what.charAt(0).toUpperCase()}${what.slice(1)}. ` +
-        `Keep ${who}'s face and identity, and everything this instruction doesn't mention, exactly as it is.`
+        `Keep the face and identity of ${who}, and everything this instruction doesn't mention, exactly as it is.`
       );
   }
 }
@@ -136,15 +183,16 @@ export default defineHandler({
   async plan({ user, input }) {
     if (!cleanInstruction(input.instruction, "")) throw errors.validation("Describe the change you want.");
     const source = await loadImageSource(user.id, input.sourceMediaId);
-    const model = await usableSourceModel(user.id, source.modelId);
+    const { model, group, who } = await editSourceContext(user.id, source);
     const data: EditPlanData = {
-      prompt: editPrompt(input.edit, input.instruction, model?.subject),
+      prompt: editPrompt(input.edit, input.instruction, who),
       edit: input.edit,
       numImages: input.numImages,
       sourceKey: source.storageKey,
       sourceMime: source.mimeType,
       parentMediaId: source.id,
-      scoreLikeness: true,
+      useIdentity: Boolean(model) && !group,
+      scoreLikeness: !group,
     };
     return {
       // The job's model drives likeness scoring (+ the likeness guarantee) and the outputs' modelId.
@@ -158,7 +206,7 @@ export default defineHandler({
   async submit({ user, plan, submitOpts }) {
     const data = plan.data as EditPlanData;
     const [identity, sourceUrl] = await Promise.all([
-      sourceIdentity(user.id, plan.modelId, EDIT_IDENTITY_REFS),
+      data.useIdentity ? sourceIdentity(user.id, plan.modelId, EDIT_IDENTITY_REFS) : undefined,
       providerInputUrl(data.sourceKey, data.sourceMime),
     ]);
     return getImageProvider().submitEdit(

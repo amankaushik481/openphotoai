@@ -34,8 +34,8 @@ export default function FaqPage() {
           </p>
         </header>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[14rem_1fr] lg:gap-14">
-          <nav aria-label="FAQ categories" className="lg:sticky lg:top-24 lg:self-start">
+        <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
+          <nav aria-label="FAQ categories" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0">
               {categories.map((c) => (
                 <li key={c.id} className="shrink-0">

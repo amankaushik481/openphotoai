@@ -4,12 +4,19 @@ import type { InviteStatus } from "@/types/domain";
 import type { ReceivedInviteDTO, SentInviteDTO } from "./types";
 
 /** Pending or accepted rows past `expiresAt` are expired, whether or not the cron has run yet. */
-export function effectiveStatus(row: Pick<ModelShareRow, "status" | "expiresAt">, now: Date = new Date()): InviteStatus {
+export function effectiveStatus(
+  row: Pick<ModelShareRow, "status" | "expiresAt">,
+  now: Date = new Date(),
+): InviteStatus {
   if ((row.status === "pending" || row.status === "accepted") && row.expiresAt <= now) return "expired";
   return row.status;
 }
 
-export function displayName(name: string | null | undefined, email: string | null | undefined, fallback: string): string {
+export function displayName(
+  name: string | null | undefined,
+  email: string | null | undefined,
+  fallback: string,
+): string {
   return name?.trim() || email?.trim() || fallback;
 }
 

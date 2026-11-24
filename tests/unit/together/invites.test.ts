@@ -68,12 +68,16 @@ describe("createInvite", () => {
   });
 
   it("refuses to invite yourself (case-insensitive)", async () => {
-    await expect(createInvite(alice, { email: "ALICE@example.com" })).rejects.toMatchObject({ code: "validation_error" });
+    await expect(createInvite(alice, { email: "ALICE@example.com" })).rejects.toMatchObject({
+      code: "validation_error",
+    });
     expect(await db.select().from(modelShares)).toHaveLength(0);
   });
 
   it("moderates the message", async () => {
-    await expect(createInvite(alice, { email: "bob@example.com", message: "let's make a sexy photo" })).rejects.toMatchObject({
+    await expect(
+      createInvite(alice, { email: "bob@example.com", message: "let's make a sexy photo" }),
+    ).rejects.toMatchObject({
       code: "content_blocked",
     });
     expect(await db.select().from(modelShares)).toHaveLength(0);
@@ -97,7 +101,12 @@ describe("createInvite", () => {
       await insertShare({ requester: alice, status: "pending", email: `friend${i}@example.com` });
     }
     // Expired or answered invites don't count.
-    await insertShare({ requester: alice, status: "pending", email: "old@example.com", expiresAt: new Date(Date.now() - 1000) });
+    await insertShare({
+      requester: alice,
+      status: "pending",
+      email: "old@example.com",
+      expiresAt: new Date(Date.now() - 1000),
+    });
     await expect(createInvite(alice, { email: "one-more@example.com" })).rejects.toMatchObject({ code: "conflict" });
     // Re-sending an existing pending invite still works at the cap.
     await expect(createInvite(alice, { email: "friend3@example.com" })).resolves.toMatchObject({ resent: true });
@@ -156,9 +165,13 @@ describe("accept / decline", () => {
 
   it("requires a verified email", async () => {
     const { token } = await invite();
-    await expect(acceptInvite({ ...bob, emailVerified: false }, token, bobModel.id)).rejects.toMatchObject({
+    const unverified = { ...bob, emailVerified: false };
+    await expect(acceptInvite(unverified, token, bobModel.id)).rejects.toMatchObject({
       code: "forbidden",
     });
+    expect(await getInvitePreview(unverified, token)).toEqual({ state: "unverified" });
+    expect((await listInvites(unverified)).received).toEqual([]);
+    expect((await listInvites(bob)).received).toHaveLength(1);
   });
 
   it("requires one of the invitee's OWN ready models", async () => {
@@ -211,7 +224,10 @@ describe("accept / decline", () => {
     await expect(acceptInvite(alice, dto.id, bobModel.id)).rejects.toMatchObject({ code: "not_found" });
     expect(await getInvitePreview(eve, dto.id)).toEqual({ state: "not_found" });
     const preview = await getInvitePreview(bob, dto.id);
-    expect(preview).toMatchObject({ state: "pending", invite: { from: { name: "Alice", email: "alice@example.com" } } });
+    expect(preview).toMatchObject({
+      state: "pending",
+      invite: { from: { name: "Alice", email: "alice@example.com" } },
+    });
     await acceptInvite(bob, dto.id, bobModel.id);
     expect((await getShare(dto.id)).status).toBe("accepted");
   });
@@ -260,7 +276,12 @@ describe("listInvites", () => {
   it("lists sent and received invites with effective statuses", async () => {
     const accepted = await insertShare({ requester: alice, owner: bob, model: bobModel });
     const pending = await insertShare({ requester: eve, status: "pending", email: "BOB@example.com".toLowerCase() });
-    await insertShare({ requester: alice, status: "pending", email: "late@example.com", expiresAt: new Date(Date.now() - 1) });
+    await insertShare({
+      requester: alice,
+      status: "pending",
+      email: "late@example.com",
+      expiresAt: new Date(Date.now() - 1),
+    });
 
     const forAlice = await listInvites(alice);
     expect(forAlice.received).toEqual([]);
@@ -276,7 +297,10 @@ describe("listInvites", () => {
         [pending.share.id, "pending", "eve@example.com"],
       ]),
     );
-    expect(forBob.received.find((r) => r.id === accepted.share.id)!.model).toEqual({ id: bobModel.id, name: "Bob model" });
+    expect(forBob.received.find((r) => r.id === accepted.share.id)!.model).toEqual({
+      id: bobModel.id,
+      name: "Bob model",
+    });
 
     const forEve = await listInvites(eve);
     expect(forEve.received).toEqual([]);
@@ -285,7 +309,10 @@ describe("listInvites", () => {
 
   it("hides a deleted model's name from the requester", async () => {
     const { share } = await insertShare({ requester: alice, owner: bob, model: bobModel });
-    await db.update(identityModels).set({ deletedAt: new Date(), status: "deleting" }).where(eq(identityModels.id, bobModel.id));
+    await db
+      .update(identityModels)
+      .set({ deletedAt: new Date(), status: "deleting" })
+      .where(eq(identityModels.id, bobModel.id));
     const { sent } = await listInvites(alice);
     expect(sent.find((s) => s.id === share.id)!.partner).toEqual({ name: "Bob", modelId: null, modelName: null });
     expect(await listPartnerModels(alice.id)).toEqual([]);

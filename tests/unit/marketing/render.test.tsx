@@ -16,6 +16,7 @@ import PricingPage from "@/app/(marketing)/pricing/page";
 import DocsPage from "@/app/(marketing)/docs/page";
 import { APP } from "@/config/app";
 import { CREDIT_COSTS } from "@/config/credits";
+import { CREDIT_PACKS, PLANS } from "@/config/plans";
 import { listPacks } from "@/server/packs/registry";
 
 function count(html: string, re: RegExp): number {
@@ -39,12 +40,14 @@ describe("marketing pages render", () => {
     expect(jsonLd(html).length).toBeGreaterThan(0);
   });
 
-  it("pricing page: credit table rows and both billing intervals", () => {
+  it("pricing page: every plan, the interval toggle and every credit cost row", () => {
     const html = renderToStaticMarkup(<PricingPage />);
     expect(count(html, /<h1[\s>]/g)).toBe(1);
     for (const key of Object.keys(CREDIT_COSTS)) expect(html).toContain(`data-cost-key="${key}"`);
-    expect(html).toContain('aria-pressed="true"');
+    for (const plan of Object.values(PLANS)) expect(html).toContain(plan.name);
+    for (const pack of CREDIT_PACKS) expect(html).toContain(pack.name);
     expect(html).toContain("Monthly");
+    expect(html).toContain("Yearly");
   });
 
   it("faq page: FAQPage JSON-LD and native accordions", () => {

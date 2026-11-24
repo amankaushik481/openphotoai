@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheckIcon, InfinityIcon, MousePointerClickIcon, Undo2Icon } from "lucide-react";
 
-import { BillingIntervalSwitch } from "@/components/marketing/billing-interval-switch";
+import { CreditPackCards } from "@/components/billing/credit-pack-cards";
+import { PlanCards } from "@/components/billing/plan-cards";
 import { CreditCostTable } from "@/components/marketing/credit-cost-table";
 import { FaqList } from "@/components/marketing/faq-list";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
-import { MarketingCreditPackCards, MarketingPlanCards } from "@/components/marketing/plan-cards";
 import { ProviderCostNote } from "@/components/marketing/provider-cost-note";
 import { MarketingSection, SectionHeading } from "@/components/marketing/section-heading";
 import { APP } from "@/config/app";
-import { pricingFaqItems, yearlyMonthsFree } from "@/content/faq";
+import { DRAFT_DAILY_LIMIT, DRAFT_DAILY_LIMIT_FREE } from "@/config/credits";
+import { PLANS } from "@/config/plans";
+import { pricingFaqItems } from "@/content/faq";
 import { getLegalVariables } from "@/content/legal";
 import { buildBreadcrumbJsonLd } from "@/content/structured-data";
 
@@ -22,8 +24,8 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
-  const monthsFree = yearlyMonthsFree();
   const legal = getLegalVariables();
+  const hasFootnote = Object.values(PLANS).some((p) => p.highlights.some((h) => h.endsWith("*")));
   const promises = [
     { icon: InfinityIcon, text: "Credit-pack credits never expire" },
     { icon: Undo2Icon, text: "Failed and low-likeness shots refunded automatically" },
@@ -49,7 +51,7 @@ export default function PricingPage() {
             Pricing
           </p>
           <h1 id="pricing-title" className="mt-3 font-display text-5xl leading-[1.02] tracking-tight sm:text-7xl">
-            Honest pricing. <span className="text-brand-gradient italic">No asterisks.</span>
+            Honest pricing. <span className="text-brand-gradient italic">No fine print.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
             Pay monthly if you shoot often, or buy credits once and keep them forever. Every action shows its cost
@@ -70,12 +72,14 @@ export default function PricingPage() {
       </section>
 
       <section aria-label="Plans" className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
-        <BillingIntervalSwitch
-          yearlyNote={monthsFree > 0 ? `${monthsFree} months free` : undefined}
-          monthly={<MarketingPlanCards interval="monthly" />}
-          yearly={<MarketingPlanCards interval="yearly" />}
-        />
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <PlanCards mode="public" />
+        {hasFootnote && (
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            * Draft previews cost 0 credits and are capped at {DRAFT_DAILY_LIMIT_FREE} a day before your first purchase,{" "}
+            {DRAFT_DAILY_LIMIT} a day after.
+          </p>
+        )}
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           Plan credits roll over for {legal.rolloverMonths} month. Prices in USD; taxes may apply at checkout.
           Commercial use included on paid plans.
         </p>
@@ -89,7 +93,7 @@ export default function PricingPage() {
           lead="No subscription. Top up whenever you like; these credits never expire."
         />
         <div className="mt-10">
-          <MarketingCreditPackCards />
+          <CreditPackCards mode="public" />
         </div>
       </MarketingSection>
 

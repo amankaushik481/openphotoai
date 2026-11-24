@@ -223,9 +223,11 @@ describe("multi_person handler", () => {
     });
 
     it("unknown model ids are forbidden", async () => {
-      await expect(createJob(alice, together({ modelIds: [aliceModel.id, "mdl_doesnotexist"] }))).rejects.toMatchObject({
-        code: "forbidden",
-      });
+      await expect(createJob(alice, together({ modelIds: [aliceModel.id, "mdl_doesnotexist"] }))).rejects.toMatchObject(
+        {
+          code: "forbidden",
+        },
+      );
     });
   });
 

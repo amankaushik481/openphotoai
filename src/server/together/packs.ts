@@ -29,5 +29,8 @@ function socialScore(pack: Pick<PackSummary, "tags">): number {
 export async function listTogetherPacks(): Promise<PackSummary[]> {
   const packs = (await listPackSummaries()).filter(isTogetherPack);
   // Stable sort keeps the registry's own order within equal scores.
-  return packs.map((p, i) => ({ p, i, s: socialScore(p) })).sort((a, b) => b.s - a.s || a.i - b.i).map((x) => x.p);
+  return packs
+    .map((p, i) => ({ p, i, s: socialScore(p) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((x) => x.p);
 }

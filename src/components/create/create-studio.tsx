@@ -12,7 +12,7 @@ import { AspectRatioPicker } from "@/components/app/aspect-ratio-picker";
 import { CostHint } from "@/components/app/cost-hint";
 import { EmptyState } from "@/components/app/empty-state";
 import { ModelPicker } from "@/components/app/model-picker";
-import { BrandKitSelect } from "@/components/teams/brand-kit-select";
+import { BrandKitSelect, useBrandKits } from "@/components/teams/brand-kit-select";
 import { ApiErrorAlert } from "@/components/create/api-error-alert";
 import {
   CountPicker,
@@ -78,6 +78,7 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
   const [error, setError] = React.useState<FriendlyError | null>(null);
 
   const session = useGenerationSession({ nextPath: NEXT_PATH });
+  const { brandKits } = useBrandKits();
   const identityMode = resolveIdentityMode(model ?? (modelId ? { id: modelId } : null), modelModes);
   const cost = generateCost({ quality, numImages, mode: identityMode });
   const selectedPack = packs.find((p) => p.slug === packId);
@@ -236,7 +237,15 @@ export function CreateStudio({ packs, modelModes, drafts, initial }: CreateStudi
           <AspectRatioPicker value={aspectRatio} onValueChange={setAspectRatio} />
           <CountPicker value={numImages} onValueChange={setNumImages} />
           <QualityControl value={quality} onValueChange={setQuality} mode={identityMode} draftsLeft={draftsLeft} />
-          <BrandKitSelect value={brandKitId} onChange={setBrandKitId} />
+          <BrandKitSelect
+            value={brandKitId}
+            onChange={(id) => {
+              setBrandKitId(id);
+              // Single jobs use the request's ratio, so adopt the kit's (batches apply it server-side).
+              const kit = id ? brandKits?.find((k) => k.id === id) : undefined;
+              if (kit) setAspectRatio(kit.aspectRatio);
+            }}
+          />
           <details className="rounded-lg border px-3 py-2 text-sm">
             <summary className="cursor-pointer rounded-sm font-medium outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
               Advanced

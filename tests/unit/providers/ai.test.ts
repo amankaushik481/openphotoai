@@ -158,6 +158,11 @@ describe("mock AI provider identity + inputs", () => {
     const genUrl = succeeded(await ai.getStatus(gen)).images![0].url;
     const up = succeeded(await ai.getStatus(await ai.submitUpscale({ imageUrl: genUrl, scale: 2, faceRestore: false })));
     expect([up.images?.[0].width, up.images?.[0].height]).toEqual([1640, 2048]);
+    const thumb = async (url: string) =>
+      sharp((await ai.fetchOutput(url)).bytes).resize(41, 51, { fit: "fill" }).removeAlpha().raw().toBuffer();
+    const [a, b] = await Promise.all([thumb(genUrl), thumb(up.images![0].url)]);
+    const meanAbsDiff = a.reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0) / a.length;
+    expect(meanAbsDiff).toBeLessThan(12); // the upscale shows the same picture
     const multi = succeeded(
       await ai.getStatus(
         await ai.submitEdit({ mode: "multi_person", prompt: "two friends", imageUrls: [], identities: [{ ...identity, modelRef }, identity], numImages: 1 }),

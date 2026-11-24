@@ -31,14 +31,21 @@ export function InviteFriendCard({ id, onInvited }: InviteFriendCardProps) {
     setSending(true);
     setError(null);
     try {
-      const res = await api<{ invite: SentInviteDTO; resent: boolean; emailSent: boolean }>("/api/multi-person/invites", {
-        method: "POST",
-        body: { email: email.trim(), message: message.trim() || undefined },
-      });
+      const res = await api<{ invite: SentInviteDTO; resent: boolean; emailSent: boolean }>(
+        "/api/multi-person/invites",
+        {
+          method: "POST",
+          body: { email: email.trim(), message: message.trim() || undefined },
+        },
+      );
       if (!res.emailSent) {
         toast.warning("The invite was saved but the email didn't go out. Try sending it again in a minute.");
       } else {
-        toast.success(res.resent ? `Invite sent again to ${res.invite.inviteeEmail}.` : `Invite sent to ${res.invite.inviteeEmail}.`);
+        toast.success(
+          res.resent
+            ? `Invite sent again to ${res.invite.inviteeEmail}.`
+            : `Invite sent to ${res.invite.inviteeEmail}.`,
+        );
       }
       setEmail("");
       setMessage("");
@@ -101,7 +108,11 @@ export function InviteFriendCard({ id, onInvited }: InviteFriendCardProps) {
             </p>
           )}
           <Button type="submit" disabled={sending || !email.trim()} className="h-11">
-            {sending ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SendIcon aria-hidden="true" />}
+            {sending ? (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            ) : (
+              <SendIcon aria-hidden="true" />
+            )}
             Send invite
           </Button>
         </form>

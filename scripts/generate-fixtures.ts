@@ -12,7 +12,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 import { createMockFaceProvider } from "../src/providers/mock/face";
 import { decodeMarker, encodeMarker, type Marker } from "../src/providers/mock/markers";
 import { hash32, mulberry32 } from "../src/providers/mock/random";
@@ -230,7 +230,7 @@ ${[-1, 1]
 </g>`;
 }
 
-async function renderGarment(): Promise<sharp.Sharp> {
+async function renderGarment(): Promise<Sharp> {
   const W = 768;
   const H = 1024;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -245,7 +245,7 @@ async function renderGarment(): Promise<sharp.Sharp> {
   return sharp(raw, { raw: { width: W, height: H, channels: 3 } });
 }
 
-async function renderReferencePose(): Promise<sharp.Sharp> {
+async function renderReferencePose(): Promise<Sharp> {
   const W = 1024;
   const H = 1280;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -276,7 +276,7 @@ async function renderMask(): Promise<Uint8Array> {
 }
 
 /** Stamp the marker and encode (mozjpeg keeps the noisy selfies under the size budget). */
-async function finish(img: sharp.Sharp, marker: Partial<Marker>, quality = 80): Promise<Uint8Array> {
+async function finish(img: Sharp, marker: Partial<Marker>, quality = 80): Promise<Uint8Array> {
   const marked = await encodeMarker(img, marker);
   return new Uint8Array(await marked.jpeg({ quality, mozjpeg: true }).toBuffer());
 }

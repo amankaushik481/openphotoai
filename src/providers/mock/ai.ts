@@ -299,6 +299,9 @@ interface SourceInfo {
   marker: Marker | null;
   ar?: AspectRatio;
   longSide?: number;
+  /** Caption + seed of a mock output source, so derived images keep its composition. */
+  text?: string;
+  seed?: number;
 }
 
 function promptParts(prompt: string): { flags: number; text: string } {
@@ -323,12 +326,12 @@ function identityFields(source: SourceInfo, faces?: number): Pick<MockPayload, "
 function sameSizeJob(kind: MockKind, image: SourceInfo, flags: number, text: string, identity: SourceInfo = image): Omit<MockPayload, "r"> {
   return {
     k: kind,
-    p: text,
+    p: text || image.text || "",
     ar: image.ar ?? "4:5",
     n: 1,
     q: "standard",
     L: Math.min(MAX_UPSCALE_SIDE, image.longSide ?? LONG_SIDE.standard),
-    s: 0,
+    s: image.seed ?? 0,
     f: flags | (image.marker?.nsfw ? FLAG_NSFW : 0),
     ...identityFields(identity, image.marker?.faces),
   };
@@ -351,12 +354,13 @@ async function identitySource(ref: IdentityRef): Promise<SourceInfo> {
 async function sourceInfo(url: string | undefined): Promise<SourceInfo> {
   const parsed = url ? parseMockUrl(url) : null;
   if (!parsed) return { marker: null };
-  if (parsed.type === "image" || parsed.type === "video") {
+  if (parsed.type !== "input") {
     const p = parsed.payload;
-    return { marker: outputMarker(p), ar: p.ar, longSide: p.L };
+    return { marker: outputMarker(p), ar: p.ar, longSide: p.L, text: p.p, seed: p.s + parsed.index };
   }
   const entry = getMockInput(parsed.sha);
   if (!entry) return { marker: null };
+  const seed = Number.parseInt(parsed.sha.slice(0, 8), 16) % 1_000_000;
   try {
     const sharp = (await import("sharp")).default;
     const meta = await sharp(entry.bytes).metadata();
@@ -366,16 +370,17 @@ async function sourceInfo(url: string | undefined): Promise<SourceInfo> {
       marker: await decodeMarker(entry.bytes),
       ar: width && height ? closestAspectRatio(width, height) : undefined,
       longSide: width && height ? Math.max(width, height) : undefined,
+      seed,
     };
   } catch {
-    return { marker: null };
+    return { marker: null, seed };
   }
 }
 
 /** Identity of the first marked photo inside a training zip uploaded via uploadInput(). */
 async function zipIdentity(url: string): Promise<string | null> {
   const parsed = parseMockUrl(url);
-  if (parsed?.type !== "input") return null;
+  if (!parsed || parsed.type !== "input") return null;
   const entry = getMockInput(parsed.sha);
   if (!entry) return null;
   try {

@@ -67,8 +67,9 @@ export async function createInvite(
     throw errors.validation("You can't invite yourself. To combine two of your own models, just pick both.");
   }
   const message = input.message?.trim() || null;
-  if (message) await assertTextAllowed([message], { userId: user.id });
+  // Rate-limit first: every attempt (including blocked messages) counts, so moderation can't be spammed.
   await assertInviteRateLimit(user.id);
+  if (message) await assertTextAllowed([message], { userId: user.id });
 
   const token = newToken();
   const tokenHash = hashInviteToken(token);
@@ -81,7 +82,13 @@ export async function createInvite(
     const pending = await tx
       .select()
       .from(modelShares)
-      .where(and(eq(modelShares.requesterUserId, user.id), eq(modelShares.status, "pending"), gt(modelShares.expiresAt, now)));
+      .where(
+        and(
+          eq(modelShares.requesterUserId, user.id),
+          eq(modelShares.status, "pending"),
+          gt(modelShares.expiresAt, now),
+        ),
+      );
 
     const existing = pending.find((r) => r.inviteeEmail === email);
     if (existing) {
@@ -149,7 +156,10 @@ export async function listInvites(user: UserRow): Promise<InviteListDTO> {
       .leftJoin(identityModels, eq(identityModels.id, modelShares.modelId))
       .where(
         and(
-          or(eq(modelShares.inviteeEmail, email), eq(modelShares.ownerUserId, user.id)),
+          // Invites addressed by email are only shown to accounts that proved they own that address.
+          user.emailVerified
+            ? or(eq(modelShares.inviteeEmail, email), eq(modelShares.ownerUserId, user.id))
+            : eq(modelShares.ownerUserId, user.id),
           ne(modelShares.requesterUserId, user.id),
         ),
       )
@@ -161,7 +171,12 @@ export async function listInvites(user: UserRow): Promise<InviteListDTO> {
     sent: sentRows.map((r) =>
       toSentInviteDTO(
         r.share,
-        { ownerName: r.ownerName, ownerEmail: r.ownerEmail, modelName: r.modelName, modelDeleted: r.modelDeletedAt !== null },
+        {
+          ownerName: r.ownerName,
+          ownerEmail: r.ownerEmail,
+          modelName: r.modelName,
+          modelDeleted: r.modelDeletedAt !== null,
+        },
         now,
       ),
     ),
@@ -229,6 +244,7 @@ export async function getInvitePreview(user: UserRow, ref: string): Promise<Invi
   if (!row) return { state: "not_found" };
   if (row.requesterUserId === user.id) return { state: "own_invite", inviteeEmail: row.inviteeEmail };
   if (!isInvitee(user, row)) return { state: "wrong_account", invitedEmail: maskEmail(row.inviteeEmail) };
+  if (!user.emailVerified && row.ownerUserId !== user.id) return { state: "unverified" };
   const invite = await toReceived(row);
   return invite.status === "pending" ? { state: "pending", invite } : { state: "closed", invite };
 }

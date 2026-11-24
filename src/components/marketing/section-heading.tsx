@@ -45,7 +45,7 @@ export function MarketingSection({
   return (
     <section
       aria-labelledby={labelledBy}
-      className={cn("mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 sm:py-28", className)}
+      className={cn("mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24", className)}
     >
       {children}
     </section>

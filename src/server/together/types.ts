@@ -46,6 +46,8 @@ export type InvitePreview =
   | { state: "not_found" }
   /** Signed in with a different email than the invited one (masked). */
   | { state: "wrong_account"; invitedEmail: string }
+  /** Signed in with the invited email, which isn't verified yet. */
+  | { state: "unverified" }
   /** The requester opened their own invite link. */
   | { state: "own_invite"; inviteeEmail: string }
   /** Already answered, withdrawn or expired. */

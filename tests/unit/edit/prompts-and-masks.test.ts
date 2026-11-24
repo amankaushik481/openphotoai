@@ -15,15 +15,15 @@ import { describePng, maskPng } from "./helpers";
 
 describe("edit prompt templates", () => {
   const cases: Record<EditKind, RegExp> = {
-    outfit: /^Change only the clothing the man is wearing to: a navy suit\. Keep the same face and identity/,
+    outfit: /^Change only the clothing of the man to: a navy suit\. Keep the same face and identity/,
     background: /^Replace only the background with: a navy suit\. Keep the man exactly as they are \(face and identity/,
     hair: /^Change only the hairstyle of the man to: a navy suit\. Keep the same face and identity/,
     expression: /^Change only the facial expression of the man to: a navy suit\. Keep the same identity and facial features/,
-    custom: /^A navy suit\. Keep the man's face and identity, and everything this instruction doesn't mention/,
+    custom: /^A navy suit\. Keep the face and identity of the man, and everything this instruction doesn't mention/,
   };
 
   it.each(EDIT_KINDS)("%s: changes only what was asked and pins the identity", (kind) => {
-    const prompt = editPrompt(kind, "  a navy   suit. ", "man");
+    const prompt = editPrompt(kind, "  a navy   suit. ", "the man");
     expect(prompt).toMatch(cases[kind]);
     expect(prompt).toMatch(/identity/);
     expect(prompt).not.toMatch(/\s{2}/);
@@ -33,6 +33,9 @@ describe("edit prompt templates", () => {
     expect(editPrompt("hair", "short fade haircut")).toContain("hairstyle of the person to: short fade haircut.");
     expect(editPrompt("background", "studio grey backdrop")).toContain("match the lighting on them to the new background");
     expect(editPrompt("outfit", "navy suit")).toContain("background exactly as they are");
+    expect(editPrompt("outfit", "matching white shirts", "the people in the photo")).toMatch(
+      /^Change only the clothing of the people in the photo to: matching white shirts\./,
+    );
   });
 
   it("cleans instructions: placeholders, whitespace and trailing punctuation", () => {
@@ -42,7 +45,7 @@ describe("edit prompt templates", () => {
   });
 
   it("describes the repainted area for inpainting", () => {
-    expect(inpaintPrompt("a red scarf.", "woman")).toBe(
+    expect(inpaintPrompt("a red scarf.", "the woman")).toBe(
       "a red scarf, seamlessly blended into the rest of the photo with matching lighting, perspective, colour and grain, photorealistic",
     );
     expect(inpaintPrompt("{subject} wearing a hat")).toMatch(/^the person wearing a hat, /);

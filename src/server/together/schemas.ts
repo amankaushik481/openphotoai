@@ -3,7 +3,12 @@ import { z } from "zod";
 import { MAX_INVITE_MESSAGE_LENGTH } from "./constants";
 
 export const createInviteRequest = z.object({
-  email: z.string().trim().toLowerCase().max(254).pipe(z.email({ message: "Enter a valid email address." })),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(254)
+    .pipe(z.email({ message: "Enter a valid email address." })),
   message: z
     .string()
     .trim()

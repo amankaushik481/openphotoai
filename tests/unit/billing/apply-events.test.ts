@@ -259,6 +259,11 @@ describe("subscriptions", () => {
   });
 });
 
+/** Revenue as the admin reports compute it: paid rows − fully refunded originals + negative refund rows. */
+async function revenueCents(userId: string): Promise<number> {
+  return (await readPayments(userId)).reduce((sum, p) => sum + (p.status === "paid" || p.amountCents < 0 ? p.amountCents : 0), 0);
+}
+
 describe("refunds", () => {
   it("full refund reverses all credits (balance may go negative) and marks the payment refunded", async () => {
     const u = await createTestUser();
@@ -272,20 +277,57 @@ describe("refunds", () => {
     expect((await readUser(u.id)).credits).toBe(-450);
     const reversal = (await readLedger(u.id)).find((l) => l.reason === "purchase_reversal");
     expect(reversal).toMatchObject({ delta: -500, balanceAfter: -450 });
-    expect((await readPayments(u.id))[0]).toMatchObject({ status: "refunded" });
+    const rows = await readPayments(u.id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ status: "refunded", amountCents: 3900 });
+    expect(await revenueCents(u.id)).toBe(0);
   });
 
-  it("partial refunds are prorated and cumulative refunds only reverse the remainder", async () => {
+  it("partial refunds add negative refund rows and prorate the credit reversal", async () => {
+    const u = await createTestUser();
+    await applyPaymentEvent("mock", packCheckout(u.id));
+    const partial = buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 1950, fullyRefunded: false });
+    await applyPaymentEvent("mock", partial);
+    expect((await readUser(u.id)).credits).toBe(250);
+
+    const rows = await readPayments(u.id);
+    expect(rows.find((p) => p.providerPaymentId === "cs_pack_1")).toMatchObject({ status: "paid", amountCents: 3900 });
+    expect(rows.find((p) => p.amountCents < 0)).toMatchObject({
+      providerPaymentId: `cs_pack_1:refund:${partial.eventId}`,
+      amountCents: -1950,
+      status: "refunded",
+      kind: "credit_pack",
+      productId: "credits_500",
+      credits: -250,
+      userId: u.id,
+    });
+    expect(await revenueCents(u.id)).toBe(1950);
+
+    // Stripe reports the cumulative amount: a second partial refund only records the new part.
+    await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 2950, fullyRefunded: false }));
+    expect((await readPayments(u.id)).filter((p) => p.amountCents < 0).map((p) => p.amountCents).sort()).toEqual([-1000, -1950]);
+    expect(await revenueCents(u.id)).toBe(950);
+  });
+
+  it("a full refund after partial ones records the remainder without double-counting", async () => {
     const u = await createTestUser();
     await applyPaymentEvent("mock", packCheckout(u.id));
     await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 1950, fullyRefunded: false }));
-    expect((await readUser(u.id)).credits).toBe(250);
-    expect((await readPayments(u.id))[0]).toMatchObject({ status: "paid" });
-
     await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 3900, fullyRefunded: true }));
+
     expect((await readUser(u.id)).credits).toBe(0);
     expect((await readLedger(u.id)).filter((l) => l.reason === "purchase_reversal").map((l) => l.delta)).toEqual([-250, -250]);
-    expect((await readPayments(u.id))[0]).toMatchObject({ status: "refunded" });
+    expect((await readPayments(u.id)).map((p) => p.amountCents).sort((a, b) => a - b)).toEqual([-1950, -1950, 3900]);
+    expect(await revenueCents(u.id)).toBe(0);
+  });
+
+  it("an older partial refund arriving late changes nothing", async () => {
+    const u = await createTestUser();
+    await applyPaymentEvent("mock", packCheckout(u.id));
+    await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 2000, fullyRefunded: false }));
+    await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "cs_pack_1", amountRefundedCents: 1000, fullyRefunded: false }));
+    expect((await readPayments(u.id)).filter((p) => p.amountCents < 0).map((p) => p.amountCents)).toEqual([-2000]);
+    expect((await readLedger(u.id)).filter((l) => l.reason === "purchase_reversal").map((l) => l.delta)).toEqual([-256]);
   });
 
   it("refunds subscription invoices by invoice id", async () => {
@@ -293,6 +335,7 @@ describe("refunds", () => {
     await applyPaymentEvent("mock", invoicePaid({ userId: u.id, interval: "year", amountCents: 39000 }));
     await applyPaymentEvent("mock", buildMockEvent("payment.refunded", { paymentId: "in_1", amountRefundedCents: 39000, fullyRefunded: true }));
     expect((await readUser(u.id)).credits).toBe(0);
+    expect((await readPayments(u.id))[0]).toMatchObject({ status: "refunded", amountCents: 39000, kind: "subscription" });
   });
 
   it("a refund for a payment we haven't recorded yet is retried later", async () => {

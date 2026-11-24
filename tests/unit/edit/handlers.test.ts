@@ -12,7 +12,7 @@ import poseCopyHandler, { DEFAULT_POSE_DIRECTION, POSE_IDENTITY_REFS } from "@/s
 import { createJob, syncJob, toJobDTO } from "@/server/jobs/engine";
 import { getStorage } from "@/server/storage";
 import { editJobInput, inpaintJobInput, poseCopyJobInput, type JobInput } from "@/types/domain";
-import { createTestDb, createTestModel, createTestUser } from "../../helpers/factories";
+import { createTestDb, createTestJob, createTestModel, createTestUser } from "../../helpers/factories";
 import { BLOCKED_WORD, overrideMockAI, pngBytes, resetSafety, safetyMock, useTempStorage } from "../jobs/fixtures";
 import { createMaskUpload, createReferenceUpload, createStoredMedia, describePng, maskPng } from "./helpers";
 
@@ -120,6 +120,32 @@ describe("edit handler", () => {
       expect(plan.modelId).toBeNull();
       expect(plan.data.prompt).toContain("the person");
     }
+  });
+
+  it("edits together photos (and photos derived from them) without identity or likeness scoring", async () => {
+    const { edits } = recordingProvider();
+    const friend = await createTestModel(u.id);
+    const together = await createTestJob(u.id, {
+      modelId: model.id,
+      status: "succeeded",
+      input: { type: "multi_person", modelIds: [model.id, friend.id], prompt: "two friends at a cafe" } as JobInput,
+    });
+    const groupPhoto = await createStoredMedia(u.id, { modelId: model.id, jobId: together.id });
+    const upscaleJob = await createTestJob(u.id, {
+      status: "succeeded",
+      input: { type: "upscale", sourceMediaId: groupPhoto.id, scale: 2, faceRestore: true } as JobInput,
+    });
+    const derived = await createStoredMedia(u.id, { modelId: model.id, jobId: upscaleJob.id, parentMediaId: groupPhoto.id });
+
+    for (const source of [groupPhoto, derived]) {
+      const plan = await editHandler.plan({ user: u, input: editInput({ sourceMediaId: source.id, instruction: "matching white shirts" }) });
+      expect(plan.modelId).toBe(model.id);
+      expect(plan.data).toMatchObject({ useIdentity: false, scoreLikeness: false });
+      expect(plan.data.prompt).toContain("the people in the photo");
+    }
+    const job = await createJob(u, editInput({ sourceMediaId: derived.id }));
+    expect(edits[0]!.identity).toBeUndefined();
+    expect((await syncJob(job.id)).status).toBe("succeeded");
   });
 
   it("rejects an instruction that is only punctuation", async () => {

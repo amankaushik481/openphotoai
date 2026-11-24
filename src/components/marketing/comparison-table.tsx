@@ -43,31 +43,34 @@ export function ComparisonTable() {
         <table className="w-full border-collapse text-left text-sm">
           <caption className="sr-only">{APP.name} compared with typical AI photo apps</caption>
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th scope="col" className="w-[34%] px-4 py-3.5 font-medium text-muted-foreground sm:px-6">
+            <tr className="border-b bg-muted/50 max-sm:grid max-sm:grid-cols-2">
+              <th scope="col" className="w-[34%] px-4 py-3.5 font-medium text-muted-foreground max-sm:hidden sm:px-6">
                 <span className="sr-only">Topic</span>
               </th>
-              <th scope="col" className="px-3 py-3.5 font-semibold sm:px-6">
-                <span className="text-brand-gradient">{APP.name}</span>
+              <th scope="col" className="px-4 py-3.5 font-semibold sm:px-6">
+                <span className="inline-flex items-center gap-2">
+                  <span aria-hidden="true" className="size-2 rounded-full bg-brand-gradient" />
+                  {APP.name}
+                </span>
               </th>
-              <th scope="col" className="px-3 py-3.5 font-medium text-muted-foreground sm:px-6">
+              <th scope="col" className="px-4 py-3.5 font-medium text-muted-foreground sm:px-6">
                 Typical AI photo apps
               </th>
             </tr>
           </thead>
           <tbody>
             {rows().map((row) => (
-              <tr key={row.topic} className="border-b last:border-0">
-                <th scope="row" className="px-4 py-4 align-top font-medium sm:px-6">
+              <tr key={row.topic} className="border-b last:border-0 max-sm:grid max-sm:grid-cols-2">
+                <th scope="row" className="px-4 py-4 align-top font-medium max-sm:col-span-2 max-sm:pb-1.5 sm:px-6">
                   {row.topic}
                 </th>
-                <td className="px-3 py-4 align-top sm:px-6">
+                <td className="px-4 py-4 align-top max-sm:pt-1.5 sm:px-6">
                   <span className="flex items-start gap-2">
                     <CheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
                     {row.us}
                   </span>
                 </td>
-                <td className="px-3 py-4 align-top text-muted-foreground sm:px-6">
+                <td className="px-4 py-4 align-top text-muted-foreground max-sm:pt-1.5 sm:px-6">
                   <span className="flex items-start gap-2">
                     <MinusIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
                     {row.typical}

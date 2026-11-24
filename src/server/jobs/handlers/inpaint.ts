@@ -11,8 +11,7 @@ import { getImageProvider } from "@/providers/registry";
 import { errors } from "@/server/http";
 import { getOwnedUpload, providerInputUrl } from "@/server/media/service";
 import { getStorage, storageKeys } from "@/server/storage";
-import type { Subject } from "@/types/domain";
-import { cleanInstruction, loadImageSource, sourceIdentity, usableSourceModel } from "./edit";
+import { cleanInstruction, editSourceContext, loadImageSource, sourceIdentity } from "./edit";
 import { defineHandler } from "./types";
 
 /** A mask's aspect ratio may differ from the photo's by at most this fraction. */
@@ -49,6 +48,8 @@ export type InpaintPlanData = {
   /** The stored mask must be resized / flattened before submission. */
   normalizeMask: boolean;
   parentMediaId: string;
+  /** Send the source model's identity (false for group photos / no usable model). */
+  useIdentity: boolean;
   scoreLikeness: boolean;
 };
 
@@ -113,8 +114,8 @@ export function normalizedMaskKey(userId: string, maskUploadId: string, size: Di
 }
 
 /** Prompt for the repainted area; the rest of the photo is untouched by the mask. */
-export function inpaintPrompt(prompt: string, subject?: Subject): string {
-  const what = cleanInstruction(prompt, subject ? `the ${subject}` : "the person");
+export function inpaintPrompt(prompt: string, who = "the person"): string {
+  const what = cleanInstruction(prompt, who);
   return `${what}, seamlessly blended into the rest of the photo with matching lighting, perspective, colour and grain, photorealistic`;
 }
 
@@ -166,9 +167,9 @@ export default defineHandler({
     }
     if (mask.coverage <= 0) throw errors.validation("The mask is empty. Brush over the area you want to change.");
 
-    const model = await usableSourceModel(user.id, source.modelId);
+    const { model, group, who } = await editSourceContext(user.id, source);
     const data: InpaintPlanData = {
-      prompt: inpaintPrompt(input.prompt, model?.subject),
+      prompt: inpaintPrompt(input.prompt, who),
       sourceKey: source.storageKey,
       sourceMime: source.mimeType,
       maskUploadId: upload.id,
@@ -177,7 +178,8 @@ export default defineHandler({
       height: target.height,
       normalizeMask: mask.hasAlpha || mask.width !== target.width || mask.height !== target.height,
       parentMediaId: source.id,
-      scoreLikeness: true,
+      useIdentity: Boolean(model) && !group,
+      scoreLikeness: !group,
     };
     return { modelId: model?.id ?? null, sourceMediaId: source.id, textsToModerate: [input.prompt], data };
   },
@@ -186,7 +188,7 @@ export default defineHandler({
     const data = plan.data as InpaintPlanData;
     // Inpainting uses the trained LoRA (or the subject's description), never reference photos.
     const [identity, imageUrl, maskUrl] = await Promise.all([
-      sourceIdentity(user.id, plan.modelId, 0),
+      data.useIdentity ? sourceIdentity(user.id, plan.modelId, 0) : undefined,
       providerInputUrl(data.sourceKey, data.sourceMime),
       preparedMaskUrl(user.id, data),
     ]);

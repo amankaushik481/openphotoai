@@ -34,7 +34,11 @@ const pack: Pack = {
       promptMan: "photo of {subject} at a cafe terrace wearing a navy blazer",
       promptWoman: "photo of {subject} at a cafe terrace wearing a silk scarf",
     },
-    { title: "Diner", prompt: "cinematic still of {subject} alone in a diner booth, {possessive} coffee", aspectRatio: "16:9" },
+    {
+      title: "Diner",
+      prompt: "cinematic still of {subject} alone in a diner booth, {possessive} coffee",
+      aspectRatio: "16:9",
+    },
     { title: "Beach", prompt: "{subject} walking on the beach at sunset, golden light" },
     { title: "Park", prompt: "{subject} in a park, {pronoun} smile at the camera" },
     { title: "Rooftop", prompt: "{subject} on a rooftop at night, city lights" },
@@ -98,7 +102,11 @@ describe("two-person prompt rendering", () => {
     expect(packs.length).toBeGreaterThan(0);
     for (const p of packs) {
       for (let i = 0; i < p.prompts.length; i++) {
-        for (const people of [couple, [ben, cal] as const, [ana, { triggerWord: "ohwxdee", subject: "woman" }] as const]) {
+        for (const people of [
+          couple,
+          [ben, cal] as const,
+          [ana, { triggerWord: "ohwxdee", subject: "woman" }] as const,
+        ]) {
           const { prompt } = renderTwoPersonPackPrompt(p, i, people);
           expect(prompt).toContain(people[0].triggerWord);
           expect(prompt).toContain(people[1].triggerWord);

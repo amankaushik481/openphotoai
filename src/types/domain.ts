@@ -431,6 +431,8 @@ export interface IdentityModelDTO {
   name: string;
   subject: Subject;
   status: ModelStatus;
+  /** "instant" (reference-based) or "trained" (LoRA). From identity_models.metadata.mode; defaults to "trained". */
+  mode: "instant" | "trained";
   triggerWord: string;
   coverUrl: string | null;
   photoCount: number;

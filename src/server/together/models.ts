@@ -39,9 +39,12 @@ export async function listPartnerModels(userId: string, now: Date = new Date()):
     )
     .orderBy(desc(modelShares.respondedAt));
 
-  const seen = new Set<string>();
-  const unique = rows.filter((r) => r.model.userId !== userId && !seen.has(r.model.id) && seen.add(r.model.id));
-  return Promise.all(unique.map(async (r) => ({ ...(await toModelDTO(r.model, userId)), shareId: r.shareId })));
+  // One entry per model (the same model can be shared through several accepted invites).
+  const byModel = new Map<string, (typeof rows)[number]>();
+  for (const r of rows) if (r.model.userId !== userId && !byModel.has(r.model.id)) byModel.set(r.model.id, r);
+  return Promise.all(
+    [...byModel.values()].map(async (r) => ({ ...(await toModelDTO(r.model, userId)), shareId: r.shareId })),
+  );
 }
 
 /**

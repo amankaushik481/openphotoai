@@ -40,8 +40,8 @@ async function sharedModels(userId: string): Promise<IdentityModelRow[]> {
       ),
     )
     .orderBy(desc(identityModels.createdAt));
-  const seen = new Set<string>();
-  return rows.map((r) => r.model).filter((m) => !seen.has(m.id) && seen.add(m.id));
+  // Several accepted invites can share the same model: list it once.
+  return [...new Map(rows.map((r) => [r.model.id, r.model])).values()];
 }
 
 /** The user's own models (newest first) followed by models shared with them. */

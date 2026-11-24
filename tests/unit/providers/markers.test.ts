@@ -1,9 +1,9 @@
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 import { describe, expect, it } from "vitest";
 import { decodeMarker, encodeMarker, MOCK_IDENTITIES, type Marker } from "@/providers/mock/markers";
 import { OTHER_FIXTURE_MARKERS, readFixture, readSelfie, SELFIE_MARKERS } from "../../fixtures";
 
-async function texturedPhoto(width = 1024, height = 1280): Promise<sharp.Sharp> {
+async function texturedPhoto(width = 1024, height = 1280): Promise<Sharp> {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9ac"/><stop offset="1" stop-color="#543"/></linearGradient></defs>
     <rect width="100%" height="100%" fill="url(#g)"/><ellipse cx="50%" cy="45%" rx="20%" ry="25%" fill="#e0ac83"/></svg>`;

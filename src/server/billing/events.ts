@@ -519,7 +519,7 @@ async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outco
         eq(creditLedger.reason, "purchase_reversal"),
       ),
     );
-  const toReverse = share - reversed;
+  const toReverse = Math.max(0, share - reversed);
   if (toReverse > 0) {
     await applyCredit(
       {
@@ -533,7 +533,57 @@ async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outco
       ctx.tx,
     );
   }
-  if (e.fullyRefunded && payment.status !== "refunded") {
+  await recordRefund(ctx, payment, e, toReverse);
+}
+
+/**
+ * Money side of a refund, in the shape the admin revenue reports expect
+ * (revenue = paid rows − fully refunded rows + negative refund rows):
+ *  - full refund (nothing refunded before): the original row becomes "refunded", amount stays positive;
+ *  - partial refund: a new row with a NEGATIVE amount for what this event refunded, status "refunded",
+ *    providerPaymentId `<original>:refund:<eventId>`;
+ *  - a full refund that completes earlier partial refunds: the remainder is another negative row (the
+ *    original stays "paid"), so no amount is subtracted twice.
+ */
+async function recordRefund(
+  ctx: Ctx,
+  payment: PaymentRow,
+  e: EventOf<"payment.refunded">,
+  creditsReversed: number,
+): Promise<void> {
+  if (payment.status === "refunded") return;
+  const prefix = `${payment.providerPaymentId}:refund:`;
+  const [{ refundedCents }] = await ctx.tx
+    .select({ refundedCents: sql<number>`coalesce(-sum(${payments.amountCents}), 0)`.mapWith(Number) })
+    .from(payments)
+    .where(
+      and(
+        eq(payments.userId, payment.userId),
+        eq(payments.provider, ctx.provider),
+        sql`starts_with(${payments.providerPaymentId}, ${prefix})`,
+      ),
+    );
+
+  if (e.fullyRefunded && refundedCents === 0) {
     await ctx.tx.update(payments).set({ status: "refunded" }).where(eq(payments.id, payment.id));
+    return;
   }
+  // `amountRefundedCents` is cumulative: this event refunded what isn't recorded yet.
+  const target = e.fullyRefunded ? payment.amountCents : Math.min(e.amountRefundedCents, payment.amountCents);
+  const refundCents = target - refundedCents;
+  if (refundCents <= 0) return;
+  await ctx.tx
+    .insert(payments)
+    .values({
+      userId: payment.userId,
+      provider: ctx.provider,
+      providerPaymentId: `${prefix}${e.eventId}`,
+      kind: payment.kind,
+      productId: payment.productId,
+      amountCents: -refundCents,
+      currency: payment.currency,
+      credits: -creditsReversed,
+      status: "refunded",
+    })
+    .onConflictDoNothing({ target: [payments.provider, payments.providerPaymentId] });
 }

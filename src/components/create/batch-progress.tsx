@@ -61,7 +61,7 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
   const [downloading, setDownloading] = React.useState(false);
 
   const media = React.useMemo(
-    () => collectJobMedia(jobs).map((m) => (m.id in favorites ? { ...m, isFavorite: favorites[m.id]! } : m)),
+    () => collectJobMedia(jobs).map((m) => (Object.hasOwn(favorites, m.id) ? { ...m, isFavorite: favorites[m.id]! } : m)),
     [jobs, favorites],
   );
   const { shown, hidden } = React.useMemo(() => splitBestShots(media), [media]);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { CircleAlertIcon, MailWarningIcon, UsersRoundIcon } from "lucide-react";
 
@@ -24,10 +25,10 @@ function Notice({
   description,
   children,
 }: {
-  icon: React.ReactNode;
-  title: React.ReactNode;
-  description: React.ReactNode;
-  children?: React.ReactNode;
+  icon: ReactNode;
+  title: ReactNode;
+  description: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <Card>
@@ -56,9 +57,15 @@ function closedCopy(invite: ReceivedInviteDTO): { title: string; description: st
           : `You accepted ${invite.from.name}'s invite.`,
       };
     case "declined":
-      return { title: "You declined this invite", description: `Ask ${invite.from.name} for a new one if you changed your mind.` };
+      return {
+        title: "You declined this invite",
+        description: `Ask ${invite.from.name} for a new one if you changed your mind.`,
+      };
     case "revoked":
-      return { title: "This invite is no longer active", description: `${invite.from.name} withdrew it, or sharing was stopped.` };
+      return {
+        title: "This invite is no longer active",
+        description: `${invite.from.name} withdrew it, or sharing was stopped.`,
+      };
     default:
       return { title: "This invite has expired", description: `Ask ${invite.from.name} to send you a new one.` };
   }
@@ -100,6 +107,17 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         >
           <SignOutButton variant="brand" redirectTo={`/login?next=${encodeURIComponent(path)}`}>
             Switch account
+          </SignOutButton>
+        </Notice>
+      )}
+      {preview.state === "unverified" && (
+        <Notice
+          icon={<MailWarningIcon />}
+          title="Verify your email first"
+          description={`Sign in with a link sent to ${user.email} to confirm the address, then open this invite again.`}
+        >
+          <SignOutButton variant="brand" redirectTo={`/login?next=${encodeURIComponent(path)}`}>
+            Sign in again
           </SignOutButton>
         </Notice>
       )}

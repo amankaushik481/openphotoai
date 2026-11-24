@@ -66,7 +66,7 @@ export function GenerationResult({
   const [canceling, setCanceling] = React.useState(false);
 
   const media = React.useMemo(
-    () => job.media.map((m) => (m.id in favorites ? { ...m, isFavorite: favorites[m.id]! } : m)),
+    () => job.media.map((m) => (Object.hasOwn(favorites, m.id) ? { ...m, isFavorite: favorites[m.id]! } : m)),
     [job.media, favorites],
   );
   const { shown, hidden } = React.useMemo(() => splitBestShots(media), [media]);

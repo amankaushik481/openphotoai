@@ -41,7 +41,10 @@ export function PersonPicker({
 }: PersonPickerProps) {
   const descriptionId = React.useId();
   return (
-    <fieldset className={cn("flex min-w-0 flex-col gap-2", className)} aria-describedby={description ? descriptionId : undefined}>
+    <fieldset
+      className={cn("flex min-w-0 flex-col gap-2", className)}
+      aria-describedby={description ? descriptionId : undefined}
+    >
       <legend className="mb-1 text-sm font-medium">{legend}</legend>
       {description && (
         <p id={descriptionId} className="-mt-1 text-xs text-muted-foreground">

@@ -43,7 +43,9 @@ describe("POST /api/multi-person/invites", () => {
   it("validates the body", async () => {
     sessionMock.setUser(alice);
     expect((await callRoute(inviteRoute, { body: { email: "not-an-email" } })).status).toBe(400);
-    expect((await callRoute(inviteRoute, { body: { email: "bob@example.com", message: "x".repeat(501) } })).status).toBe(400);
+    expect(
+      (await callRoute(inviteRoute, { body: { email: "bob@example.com", message: "x".repeat(501) } })).status,
+    ).toBe(400);
     expect((await callRoute(inviteRoute, { body: { email: "alice@example.com" } })).status).toBe(400);
   });
 
@@ -51,7 +53,11 @@ describe("POST /api/multi-person/invites", () => {
     sessionMock.setUser(alice);
     const res = await callRoute(inviteRoute, { body: { email: " Bob@Example.com ", message: "Photos together?" } });
     expect(res.status).toBe(200);
-    expect(res.json.invite).toMatchObject({ inviteeEmail: "bob@example.com", status: "pending", message: "Photos together?" });
+    expect(res.json.invite).toMatchObject({
+      inviteeEmail: "bob@example.com",
+      status: "pending",
+      message: "Photos together?",
+    });
     expect(res.json.resent).toBe(false);
     expect(JSON.stringify(res.json)).not.toMatch(/token/i);
 

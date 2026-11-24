@@ -11,3 +11,4 @@
 - [ ] next build + standalone trace check (ffmpeg, safety models), dev run, Playwright full journey + safety e2e.
 - [ ] docker compose up (web image build; Docker Hub rate limits seen earlier).
 - [ ] ledger: optional createdBy on refundJob (admin refund attribution) — admin currently patches the row in-tx.
+- [ ] create page: use IdentityModelDTO.mode (added) instead of server-side map; MeDTO.draftsRemaining; ui/slider thumb aria-label; Idempotency-Key on POST /api/batches.

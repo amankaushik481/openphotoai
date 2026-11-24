@@ -111,12 +111,13 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
           </h2>
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-muted-foreground">
             <li>
-              {invite.from.name} can combine the model you choose with their own models to create photos of the two of you
-              together. They can&apos;t use it on its own.
+              {invite.from.name} can combine the model you choose with their own models to create photos of the two of
+              you together. They can&apos;t use it on its own.
             </li>
             <li>The photos are created and stored in their account, and our safety rules apply to every one.</li>
             <li>
-              You can stop sharing at any time. New photos are blocked right away; photos already created stay with them.
+              You can stop sharing at any time. New photos are blocked right away; photos already created stay with
+              them.
             </li>
             <li>Sharing is one way: you don&apos;t get access to their model unless they accept an invite from you.</li>
           </ul>
@@ -157,7 +158,12 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
         )}
       </CardContent>
       <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button variant="outline" className="h-11 w-full sm:w-auto" disabled={busy !== null} onClick={() => respond("decline")}>
+        <Button
+          variant="outline"
+          className="h-11 w-full sm:w-auto"
+          disabled={busy !== null}
+          onClick={() => respond("decline")}
+        >
           {busy === "decline" && <LoaderCircleIcon className="animate-spin" aria-hidden="true" />}
           Decline
         </Button>

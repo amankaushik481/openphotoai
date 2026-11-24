@@ -43,7 +43,13 @@ function newIdempotencyKey(): string {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function TogetherComposer({ ownModels, partnerModels, packs, onJobCreated, inviteAnchor }: TogetherComposerProps) {
+export function TogetherComposer({
+  ownModels,
+  partnerModels,
+  packs,
+  onJobCreated,
+  inviteAnchor,
+}: TogetherComposerProps) {
   const { mutate: mutateMe } = useMe();
   const readyOwn = React.useMemo(() => ownModels.filter((m) => m.status === "ready"), [ownModels]);
   // The user's picks; validated against the current (server-refreshed) options below.
@@ -231,7 +237,12 @@ export function TogetherComposer({ ownModels, partnerModels, packs, onJobCreated
                 className="shadow-none"
               >
                 {COUNTS.map((n) => (
-                  <ToggleGroupItem key={n} value={String(n)} className="h-11 min-w-11 tabular-nums" aria-label={`${n} photos`}>
+                  <ToggleGroupItem
+                    key={n}
+                    value={String(n)}
+                    className="h-11 min-w-11 tabular-nums"
+                    aria-label={`${n} photos`}
+                  >
                     {n}
                   </ToggleGroupItem>
                 ))}
@@ -256,7 +267,11 @@ export function TogetherComposer({ ownModels, partnerModels, packs, onJobCreated
             )}
           </div>
           <Button type="submit" variant="brand" size="lg" disabled={!input || submitting}>
-            {submitting ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" />}
+            {submitting ? (
+              <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+            ) : (
+              <SparklesIcon aria-hidden="true" />
+            )}
             {numImages === 1 ? "Create photo" : `Create ${numImages} photos`}
           </Button>
         </CardFooter>
