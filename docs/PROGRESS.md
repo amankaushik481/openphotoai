@@ -74,6 +74,7 @@ Live status of the autonomous build. Updated after every wave.
 | Screenshots (docs/screenshots) | ✅ |
 | E2E re-run after hardening (9/9 specs × 3 runs) | ✅ |
 | Real-Postgres deadlock found + fixed (concurrent paid jobs) | ✅ |
-| Lighthouse mobile ≥ 90 on landing | 🔧 tuning (measured 89–95 before tuning) |
-| Docker compose re-verification after hardening | ⏳ |
+| Lighthouse mobile ≥ 90 on landing | ✅ median 95 over 5 runs (95/95/95/94/95; a11y, best practices, SEO 100). Before tuning: median 90 |
+| Docker compose re-verification after hardening | ✅ zero keys: auto-generated auth secret, sign-in → mock checkout → liveness consent → photos → instant model → job completed by the worker → image served from MinIO |
+| Final verification | ✅ typecheck, lint, packs:validate (64 packs), Vitest 1951 passed, Playwright 9/9, production build |
 | Push to GitHub | ⛔ blocked: session token has no write access to the repo (HTTP 403) |
