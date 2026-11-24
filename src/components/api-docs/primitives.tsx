@@ -74,15 +74,7 @@ export function CodeBlock({ code, label, language }: { code: string; label: stri
 }
 
 /** Simple responsive table (horizontal scroll on small screens). */
-export function DocTable({
-  caption,
-  head,
-  children,
-}: {
-  caption: string;
-  head: string[];
-  children: React.ReactNode;
-}) {
+export function DocTable({ caption, head, children }: { caption: string; head: string[]; children: React.ReactNode }) {
   return (
     <div className="overflow-x-auto rounded-lg border">
       <table className="w-full text-left text-sm">

@@ -143,7 +143,11 @@ export const v1Operations = {
       description: "Discriminated by `type`.",
       examples: createJobExamples,
     },
-    response: { description: "The created job (or the original job for a replayed Idempotency-Key).", schema: obj({ job: ref("Job") }), example: { job: runningJobExample } },
+    response: {
+      description: "The created job (or the original job for a replayed Idempotency-Key).",
+      schema: obj({ job: ref("Job") }),
+      example: { job: runningJobExample },
+    },
     errors: [400, 402, 404, 409, 422, 502],
   },
   listJobs: {
@@ -281,7 +285,11 @@ export const v1Operations = {
     description: "One photo or video with fresh signed URLs.",
     scope: "read",
     pathParams: ID_PARAM("Media"),
-    response: { description: "The media item.", schema: obj({ media: ref("Media") }), example: { media: mediaExample } },
+    response: {
+      description: "The media item.",
+      schema: obj({ media: ref("Media") }),
+      example: { media: mediaExample },
+    },
     errors: [404],
   },
   listPacks: {
@@ -292,7 +300,11 @@ export const v1Operations = {
     summary: "List photo packs",
     description: "Every themed photo pack. Pass a pack's `slug` as `packId` when creating jobs or batches.",
     scope: "read",
-    response: { description: "All packs.", schema: obj({ packs: list("PackSummary") }), example: { packs: [packExample] } },
+    response: {
+      description: "All packs.",
+      schema: obj({ packs: list("PackSummary") }),
+      example: { packs: [packExample] },
+    },
     errors: [],
   },
   getCredits: {
@@ -326,7 +338,10 @@ export const v1Operations = {
     summary: "OpenAPI document",
     description: "This API's OpenAPI 3.1 document. No API key needed.",
     scope: null,
-    response: { description: "OpenAPI 3.1 document.", schema: { type: "object", description: "OpenAPI 3.1 document." } },
+    response: {
+      description: "OpenAPI 3.1 document.",
+      schema: { type: "object", description: "OpenAPI 3.1 document." },
+    },
     errors: [],
   },
 } satisfies Record<string, V1Operation>;
@@ -334,7 +349,10 @@ export const v1Operations = {
 export type V1OperationName = keyof typeof v1Operations;
 
 export const V1_TAGS: { name: V1Tag; description: string }[] = [
-  { name: "Jobs", description: "Generate, edit, upscale and animate photos. Every job charges credits and refunds failures." },
+  {
+    name: "Jobs",
+    description: "Generate, edit, upscale and animate photos. Every job charges credits and refunds failures.",
+  },
   { name: "Batches", description: "One pack → up to 50 images in one call." },
   { name: "Media", description: "Your gallery: generated photos and videos with signed download URLs." },
   { name: "Models", description: "Your identity models (create and train them in the web app)." },

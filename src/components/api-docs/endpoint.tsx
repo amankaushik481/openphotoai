@@ -57,7 +57,9 @@ function Parameters({ params }: { params: ParameterObject[] }) {
             </td>
             <td className="min-w-[14rem] px-3 py-2 text-muted-foreground">
               {p.description && <InlineMarkdown text={p.description} />}
-              {extra.length > 0 && <span className="mt-0.5 block text-xs text-muted-foreground/80">{extra.join(" · ")}</span>}
+              {extra.length > 0 && (
+                <span className="mt-0.5 block text-xs text-muted-foreground/80">{extra.join(" · ")}</span>
+              )}
             </td>
           </tr>
         );
@@ -86,7 +88,10 @@ function RequestBody({ doc, op }: { doc: OpenApiDocument; op: OperationObject })
             return (
               <details key={name} id={`${op.operationId}-${String(type)}`} className="group rounded-lg border">
                 <summary className="cursor-pointer list-none px-3 py-2 text-sm [&::-webkit-details-marker]:hidden">
-                  <span aria-hidden="true" className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90">
+                  <span
+                    aria-hidden="true"
+                    className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90"
+                  >
                     ›
                   </span>
                   <code className="font-mono text-xs font-semibold">type: &quot;{String(type)}&quot;</code>

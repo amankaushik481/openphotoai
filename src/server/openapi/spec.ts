@@ -45,7 +45,11 @@ export function errorStatusOf(code: ApiErrorCode): number {
 /* ───────────────────────────── Zod → JSON Schema ───────────────────────────── */
 
 function fromZod(schema: z.ZodType, docs: Record<string, string> = {}): JsonSchema {
-  const json = z.toJSONSchema(schema, { io: "input", target: "draft-2020-12", unrepresentable: "any" }) as JsonSchema & {
+  const json = z.toJSONSchema(schema, {
+    io: "input",
+    target: "draft-2020-12",
+    unrepresentable: "any",
+  }) as JsonSchema & {
     $schema?: string;
   };
   delete json.$schema;
@@ -136,17 +140,64 @@ const RATE_HEADERS: Record<string, HeaderObject> = {
   "Retry-After": { description: "Seconds to wait before retrying.", schema: { type: "integer" } },
 };
 
-const ERROR_RESPONSES: Record<ErrorStatus, { name: string; description: string; code: ApiErrorCode; message: string }> = {
-  400: { name: "ValidationError", description: "Invalid body, query or header (`validation_error`).", code: "validation_error", message: "Invalid request body." },
-  401: { name: "Unauthorized", description: "Missing, invalid or revoked API key (`unauthorized`).", code: "unauthorized", message: "Invalid or revoked API key." },
-  402: { name: "InsufficientCredits", description: "Not enough credits (`insufficient_credits`, details `{ needed, balance }`).", code: "insufficient_credits", message: "This needs 4 credits; you have 1." },
-  403: { name: "Forbidden", description: "Key lacks the required scope (`forbidden`), plan without API access or over a plan limit (`plan_limit`), or account suspended (`suspended`).", code: "plan_limit", message: "Your plan doesn't include API access. Upgrade to Pro or Studio to use API keys." },
-  404: { name: "NotFound", description: "The resource doesn't exist or isn't yours (`not_found`).", code: "not_found", message: "Job not found." },
-  409: { name: "Conflict", description: "The resource is in the wrong state, e.g. the model isn't ready (`conflict`).", code: "conflict", message: "\"Me\" isn't ready yet." },
-  422: { name: "ContentBlocked", description: "Blocked by the safety rules (`content_blocked`) or missing consent (`consent_required`).", code: "content_blocked", message: "This request was blocked by our safety rules." },
-  429: { name: "RateLimited", description: "Too many requests (`rate_limited`, details `{ retryAfterSec }`).", code: "rate_limited", message: "Too many requests. Try again in 12s." },
-  502: { name: "ProviderError", description: "The AI provider failed; credits were refunded (`provider_error`).", code: "provider_error", message: "The AI provider couldn't start this job. Your credits were refunded." },
-};
+const ERROR_RESPONSES: Record<ErrorStatus, { name: string; description: string; code: ApiErrorCode; message: string }> =
+  {
+    400: {
+      name: "ValidationError",
+      description: "Invalid body, query or header (`validation_error`).",
+      code: "validation_error",
+      message: "Invalid request body.",
+    },
+    401: {
+      name: "Unauthorized",
+      description: "Missing, invalid or revoked API key (`unauthorized`).",
+      code: "unauthorized",
+      message: "Invalid or revoked API key.",
+    },
+    402: {
+      name: "InsufficientCredits",
+      description: "Not enough credits (`insufficient_credits`, details `{ needed, balance }`).",
+      code: "insufficient_credits",
+      message: "This needs 4 credits; you have 1.",
+    },
+    403: {
+      name: "Forbidden",
+      description:
+        "Key lacks the required scope (`forbidden`), plan without API access or over a plan limit (`plan_limit`), or account suspended (`suspended`).",
+      code: "plan_limit",
+      message: "Your plan doesn't include API access. Upgrade to Pro or Studio to use API keys.",
+    },
+    404: {
+      name: "NotFound",
+      description: "The resource doesn't exist or isn't yours (`not_found`).",
+      code: "not_found",
+      message: "Job not found.",
+    },
+    409: {
+      name: "Conflict",
+      description: "The resource is in the wrong state, e.g. the model isn't ready (`conflict`).",
+      code: "conflict",
+      message: '"Me" isn\'t ready yet.',
+    },
+    422: {
+      name: "ContentBlocked",
+      description: "Blocked by the safety rules (`content_blocked`) or missing consent (`consent_required`).",
+      code: "content_blocked",
+      message: "This request was blocked by our safety rules.",
+    },
+    429: {
+      name: "RateLimited",
+      description: "Too many requests (`rate_limited`, details `{ retryAfterSec }`).",
+      code: "rate_limited",
+      message: "Too many requests. Try again in 12s.",
+    },
+    502: {
+      name: "ProviderError",
+      description: "The AI provider failed; credits were refunded (`provider_error`).",
+      code: "provider_error",
+      message: "The AI provider couldn't start this job. Your credits were refunded.",
+    },
+  };
 
 function errorResponses(): Record<string, ResponseObject> {
   const out: Record<string, ResponseObject> = {};
@@ -180,7 +231,13 @@ function curlSample(op: V1Operation, baseUrl: string): string {
 function buildOperation(op: V1Operation, baseUrl: string): OperationObject {
   const parameters: OperationObject["parameters"] = [];
   for (const [name, description] of Object.entries(op.pathParams ?? {})) {
-    parameters.push({ name, in: "path", required: true, description, schema: { type: "string", minLength: 1, maxLength: 64 } });
+    parameters.push({
+      name,
+      in: "path",
+      required: true,
+      description,
+      schema: { type: "string", minLength: 1, maxLength: 64 },
+    });
   }
   if (op.query) {
     const json = fromZod(op.query.schema, op.query.docs);
@@ -196,7 +253,10 @@ function buildOperation(op: V1Operation, baseUrl: string): OperationObject {
 
   const okHeaders = op.scope
     ? Object.fromEntries(
-        ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"].map((h) => [h, { $ref: `#/components/headers/${h}` }]),
+        ["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"].map((h) => [
+          h,
+          { $ref: `#/components/headers/${h}` },
+        ]),
       )
     : undefined;
   const responses: OperationObject["responses"] = {
@@ -254,7 +314,7 @@ function description(): string {
     "",
     "**Jobs** are asynchronous: create one, then poll `GET /jobs/{id}` every 2-5 s until its status is `succeeded`, `failed`, `canceled` or `blocked`. Credits are refunded automatically for failures and blocked outputs.",
     "",
-    "**Errors** always look like `{ \"error\": { \"code\", \"message\", \"details?\" } }`.",
+    '**Errors** always look like `{ "error": { "code", "message", "details?" } }`.',
   ].join("\n");
 }
 

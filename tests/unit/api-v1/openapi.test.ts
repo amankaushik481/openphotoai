@@ -84,7 +84,8 @@ describe("document structure", () => {
       expect(o["x-required-scope"]).toBe(op.scope);
       if (op.scope) {
         expect(o.security).toEqual([{ ApiKeyAuth: [op.scope] }]);
-        for (const status of ["401", "403", "429"]) expect(o.responses[status], `${op.operationId} ${status}`).toBeDefined();
+        for (const status of ["401", "403", "429"])
+          expect(o.responses[status], `${op.operationId} ${status}`).toBeDefined();
         expect((o.responses["200"] as ResponseObject).headers?.["X-RateLimit-Remaining"]).toBeDefined();
       } else {
         expect(o.security).toEqual([]);
@@ -143,7 +144,10 @@ describe("route coverage", () => {
   it("documents every v1 route file + method, and nothing else", async () => {
     const onDisk: string[] = [];
     for (const file of routeFiles) {
-      const template = `/${path.relative(root, path.dirname(file)).split(path.sep).join("/")}`.replace(/\[(\w+)\]/g, "{$1}");
+      const template = `/${path.relative(root, path.dirname(file)).split(path.sep).join("/")}`.replace(
+        /\[(\w+)\]/g,
+        "{$1}",
+      );
       const mod = (await import(file)) as Record<string, unknown>;
       for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) {
         if (typeof mod[method] !== "function") continue;
@@ -159,7 +163,8 @@ describe("route coverage", () => {
 
   it("is mirrored in docs/API.md", () => {
     const md = readFileSync(path.resolve(process.cwd(), "docs/API.md"), "utf8");
-    for (const op of ops) expect(md, `${op.method} ${op.path}`).toContain(`${op.method.toUpperCase()} /api/v1${op.path}`);
+    for (const op of ops)
+      expect(md, `${op.method} ${op.path}`).toContain(`${op.method.toUpperCase()} /api/v1${op.path}`);
   });
 });
 
@@ -169,7 +174,10 @@ describe("examples", () => {
       const zod = op.body!.schema === "CreateJobRequest" ? createJobRequest : createBatchRequest;
       for (const [name, ex] of Object.entries(op.body!.examples)) {
         expect(zod.safeParse(ex.value).success, `${op.operationId}/${name}`).toBe(true);
-        expect(validate(ex.value, { $ref: `#/components/schemas/${op.body!.schema}` }, doc, { strict: true }), name).toEqual([]);
+        expect(
+          validate(ex.value, { $ref: `#/components/schemas/${op.body!.schema}` }, doc, { strict: true }),
+          name,
+        ).toEqual([]);
       }
     }
   });
@@ -202,7 +210,10 @@ describe("DTO schemas match real DTOs", () => {
     for (const value of instances) expect(validate(value, s, doc, { strict: true }), name).toEqual([]);
     const seen = new Set(instances.flatMap((v) => Object.keys(v as object)));
     const documented = Object.keys(s.properties ?? {});
-    expect(documented.filter((k) => !seen.has(k) && s.required?.includes(k)), `${name}: required but never produced`).toEqual([]);
+    expect(
+      documented.filter((k) => !seen.has(k) && s.required?.includes(k)),
+      `${name}: required but never produced`,
+    ).toEqual([]);
     expect(documented.length, name).toBeGreaterThan(0);
   }
 
@@ -222,8 +233,16 @@ describe("DTO schemas match real DTOs", () => {
       modelId: model.id,
       scores: { overall: 0.8, likeness: 0.9, quality: 0.7 },
     });
-    const plain = await createTestMedia(owner.id, { kind: "video", mimeType: "video/mp4", thumbKey: null, durationSec: 5 });
-    const [batch] = await db.insert(batches).values({ userId: owner.id, modelId: model.id, packId: "linkedin-headshots", total: 3 }).returning();
+    const plain = await createTestMedia(owner.id, {
+      kind: "video",
+      mimeType: "video/mp4",
+      thumbKey: null,
+      durationSec: 5,
+    });
+    const [batch] = await db
+      .insert(batches)
+      .values({ userId: owner.id, modelId: model.id, packId: "linkedin-headshots", total: 3 })
+      .returning();
     await grantCredits(owner.id, 25, "purchase", "test-grant", "Pack");
     const packs = await listPackSummaries();
 
@@ -251,23 +270,54 @@ describe("DTO schemas match real DTOs", () => {
         quality: {
           score: 80,
           issues: [{ code: "blurry", severity: "warning", message: "A bit soft.", fix: "Hold still." }],
-          metrics: { width: 1024, height: 1024, sharpness: 120, brightness: 128, contrast: 50, faceAreaRatio: 0.1, yaw: 5, pitch: -2 },
+          metrics: {
+            width: 1024,
+            height: 1024,
+            sharpness: 120,
+            brightness: 128,
+            contrast: 50,
+            faceAreaRatio: 0.1,
+            yaw: 5,
+            pitch: -2,
+          },
         },
       },
-      { modelId: model.id, userId: owner.id, storageKey: `users/${owner.id}/models/${model.id}/b.jpg`, width: 800, height: 800 },
+      {
+        modelId: model.id,
+        userId: owner.id,
+        storageKey: `users/${owner.id}/models/${model.id}/b.jpg`,
+        width: 800,
+        height: 800,
+      },
     ]);
     const detail = await getModelDetail(owner.id, model.id);
     expect(detail.photos).toHaveLength(2);
     const detailSchema = operation(v1Operations.getModel).responses["200"] as ResponseObject;
-    expect(validate(JSON.parse(JSON.stringify(detail)), detailSchema.content!["application/json"]!.schema, doc, { strict: true })).toEqual([]);
+    expect(
+      validate(JSON.parse(JSON.stringify(detail)), detailSchema.content!["application/json"]!.schema, doc, {
+        strict: true,
+      }),
+    ).toEqual([]);
     expectInSync("TrainingPhoto", detail.photos);
-    expectInSync("PhotoQualityReport", detail.photos.flatMap((p) => (p.quality ? [p.quality] : [])));
-    expectInSync("PhotoIssue", detail.photos.flatMap((p) => p.quality?.issues ?? []));
+    expectInSync(
+      "PhotoQualityReport",
+      detail.photos.flatMap((p) => (p.quality ? [p.quality] : [])),
+    );
+    expectInSync(
+      "PhotoIssue",
+      detail.photos.flatMap((p) => p.quality?.issues ?? []),
+    );
     expectInSync("Readiness", [detail.readiness, detail.readinessByMode.instant]);
 
     const page = await listMedia(owner.id, listMediaQuery.parse({}));
-    const mediaSchema = (operation(v1Operations.listMedia).responses["200"] as ResponseObject).content!["application/json"]!.schema;
-    const body = { media: await Promise.all(page.media.map(toMediaDTO)), nextCursor: page.nextCursor, hiddenCount: page.hiddenCount };
+    const mediaSchema = (operation(v1Operations.listMedia).responses["200"] as ResponseObject).content![
+      "application/json"
+    ]!.schema;
+    const body = {
+      media: await Promise.all(page.media.map(toMediaDTO)),
+      nextCursor: page.nextCursor,
+      hiddenCount: page.hiddenCount,
+    };
     expect(validate(JSON.parse(JSON.stringify(body)), mediaSchema, doc, { strict: true })).toEqual([]);
   });
 });

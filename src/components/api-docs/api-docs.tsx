@@ -44,7 +44,11 @@ function groupByTag(doc: OpenApiDocument): { tag: string; description: string; e
     (Object.entries(item) as [HttpMethod, OperationObject][]).map(([method, op]) => ({ path, method, op })),
   );
   return doc.tags
-    .map((t) => ({ tag: t.name, description: t.description, endpoints: entries.filter((e) => e.op.tags[0] === t.name) }))
+    .map((t) => ({
+      tag: t.name,
+      description: t.description,
+      endpoints: entries.filter((e) => e.op.tags[0] === t.name),
+    }))
     .filter((g) => g.endpoints.length > 0);
 }
 
@@ -132,8 +136,8 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
           <p className="text-sm font-medium text-primary">API reference · v{spec.info.version}</p>
           <h1 className="mt-2 font-display text-5xl tracking-tight sm:text-6xl">{spec.info.title}</h1>
           <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Create photos, edits and videos of yourself from your own code: the same jobs, packs and credits as the
-            web app, over a small JSON REST API.
+            Create photos, edits and videos of yourself from your own code: the same jobs, packs and credits as the web
+            app, over a small JSON REST API.
           </p>
           <div className="mt-6 flex flex-wrap gap-2 text-sm">
             <a
@@ -164,8 +168,8 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
             <Prose>
               <p>
                 Base URL: <C>{baseUrl}</C>. Requests and responses are JSON (UTF-8); dates are ISO 8601 strings; ids are
-                opaque strings like <C>job_…</C>. Lists are newest first and paginated with an opaque{" "}
-                <C>nextCursor</C> — pass it back as <C>?cursor=</C> until it is <C>null</C>.
+                opaque strings like <C>job_…</C>. Lists are newest first and paginated with an opaque <C>nextCursor</C>{" "}
+                — pass it back as <C>?cursor=</C> until it is <C>null</C>.
               </p>
               <p>
                 Identity models are created and trained in the web app (consent selfie + photos). Everything you can
@@ -233,8 +237,8 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
               <p>
                 Jobs are asynchronous. <C>POST /jobs</C> validates the request, runs the safety checks, charges the
                 credits and submits the job, then returns it (usually <C>running</C>). Poll <C>GET /jobs/{"{id}"}</C>{" "}
-                every 2–5 seconds — each poll also checks the AI provider when the job&apos;s last check is stale, so polling
-                alone drives a job to completion. Photos typically take 5–30 seconds, videos a few minutes.
+                every 2–5 seconds — each poll also checks the AI provider when the job&apos;s last check is stale, so
+                polling alone drives a job to completion. Photos typically take 5–30 seconds, videos a few minutes.
               </p>
               <p>
                 <strong className="text-foreground">Webhooks:</strong> outgoing webhooks to your server aren&apos;t
@@ -282,15 +286,16 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
             <Prose>
               <p>
                 Each key may make {apiLimit.limit} requests per {apiLimit.windowSec} seconds. Every response carries{" "}
-                <C>X-RateLimit-Limit</C>, <C>X-RateLimit-Remaining</C> and <C>X-RateLimit-Reset</C> (Unix seconds).
-                Over a limit you get <C>429 rate_limited</C> with a <C>Retry-After</C> header — wait that many seconds.
+                <C>X-RateLimit-Limit</C>, <C>X-RateLimit-Remaining</C> and <C>X-RateLimit-Reset</C> (Unix seconds). Over
+                a limit you get <C>429 rate_limited</C> with a <C>Retry-After</C> header — wait that many seconds.
               </p>
               <p>
                 Job creation also counts toward per-account limits shared with the web app:{" "}
-                {RATE_LIMITS.jobsPerMinute.limit} jobs per minute, {RATE_LIMITS.jobsPerDay.limit.toLocaleString("en-US")}{" "}
-                per day, {RATE_LIMITS.batchesPerHour.limit} batches per hour, {RATE_LIMITS.draftsPerDay.limit} free
-                drafts per day ({RATE_LIMITS.draftsPerDayFree.limit} before your first purchase), plus your plan&apos;s
-                concurrent-job limit (<C>403 plan_limit</C>).
+                {RATE_LIMITS.jobsPerMinute.limit} jobs per minute,{" "}
+                {RATE_LIMITS.jobsPerDay.limit.toLocaleString("en-US")} per day, {RATE_LIMITS.batchesPerHour.limit}{" "}
+                batches per hour, {RATE_LIMITS.draftsPerDay.limit} free drafts per day (
+                {RATE_LIMITS.draftsPerDayFree.limit} before your first purchase), plus your plan&apos;s concurrent-job
+                limit (<C>403 plan_limit</C>).
               </p>
             </Prose>
           </section>
@@ -305,7 +310,13 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
                 label="Error body"
                 language="json"
                 code={JSON.stringify(
-                  { error: { code: "insufficient_credits", message: "This needs 4 credits; you have 1.", details: { needed: 4, balance: 1 } } },
+                  {
+                    error: {
+                      code: "insufficient_credits",
+                      message: "This needs 4 credits; you have 1.",
+                      details: { needed: 4, balance: 1 },
+                    },
+                  },
                   null,
                   2,
                 )}
@@ -338,7 +349,14 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
                 <p className="mt-1 text-sm text-muted-foreground">{g.description}</p>
                 <div className="mt-6 space-y-10">
                   {g.endpoints.map((e) => (
-                    <Endpoint key={e.op.operationId} doc={spec} path={e.path} method={e.method} op={e.op} basePath={V1_BASE_PATH} />
+                    <Endpoint
+                      key={e.op.operationId}
+                      doc={spec}
+                      path={e.path}
+                      method={e.method}
+                      op={e.op}
+                      basePath={V1_BASE_PATH}
+                    />
                   ))}
                 </div>
               </div>
@@ -351,7 +369,12 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
               {schemaNames.map((name) => {
                 const schema = spec.components.schemas[name]!;
                 return (
-                  <section key={name} id={schemaAnchor(name)} aria-labelledby={`${schemaAnchor(name)}-title`} className="scroll-mt-24">
+                  <section
+                    key={name}
+                    id={schemaAnchor(name)}
+                    aria-labelledby={`${schemaAnchor(name)}-title`}
+                    className="scroll-mt-24"
+                  >
                     <h3 id={`${schemaAnchor(name)}-title`} className="font-mono text-lg font-semibold">
                       {name}
                     </h3>
@@ -368,7 +391,10 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
                           return (
                             <span key={target}>
                               {i > 0 && ", "}
-                              <a href={`#${schemaAnchor(target)}`} className="font-mono text-xs text-primary hover:underline">
+                              <a
+                                href={`#${schemaAnchor(target)}`}
+                                className="font-mono text-xs text-primary hover:underline"
+                              >
                                 {target}
                               </a>
                             </span>

@@ -73,60 +73,68 @@ export const MediaScoresSchema = dto<MediaScores>(
   ["likeness", "quality"],
 );
 
-export const MediaSchema = dto<MediaDTO>("A generated photo or video. URLs are signed and expire; re-fetch the media to refresh them.", {
-  id: id("med", "Media"),
-  kind: enumOf(["image", "video"], "Media kind."),
-  url: str("Signed URL of the full-size file (expires).", { format: "uri" }),
-  thumbUrl: str("Signed URL of a thumbnail (the full file when no thumbnail exists).", { format: "uri" }),
-  downloadUrl: str("Signed URL that downloads the file as an attachment (no auth header needed).", { format: "uri" }),
-  mimeType: str("MIME type, e.g. image/jpeg or video/mp4."),
-  width: nullable(int("Width in pixels.")),
-  height: nullable(int("Height in pixels.")),
-  durationSec: nullable({ type: "number", description: "Video duration in seconds." }),
-  prompt: nullable(str("Prompt that produced the media.")),
-  packId: nullable(str("Pack slug, when generated from a pack.")),
-  modelId: nullable(str("Identity model used.")),
-  jobId: nullable(str("Job that produced the media.")),
-  parentMediaId: nullable(str("Source media for edits, upscales and videos.")),
-  folderId: nullable(str("Gallery folder.")),
-  isDraft: bool("Free low-cost preview; re-render it at full quality with `fromDraftMediaId`."),
-  isFavorite: bool("Marked as favorite."),
-  hidden: bool("Hidden by the best-shots picker (still downloadable)."),
-  watermarked: bool("Carries a visible watermark (free plan before the first purchase)."),
-  scores: nullable(ref("MediaScores")),
-  createdAt: dateTime("Creation time."),
-});
+export const MediaSchema = dto<MediaDTO>(
+  "A generated photo or video. URLs are signed and expire; re-fetch the media to refresh them.",
+  {
+    id: id("med", "Media"),
+    kind: enumOf(["image", "video"], "Media kind."),
+    url: str("Signed URL of the full-size file (expires).", { format: "uri" }),
+    thumbUrl: str("Signed URL of a thumbnail (the full file when no thumbnail exists).", { format: "uri" }),
+    downloadUrl: str("Signed URL that downloads the file as an attachment (no auth header needed).", { format: "uri" }),
+    mimeType: str("MIME type, e.g. image/jpeg or video/mp4."),
+    width: nullable(int("Width in pixels.")),
+    height: nullable(int("Height in pixels.")),
+    durationSec: nullable({ type: "number", description: "Video duration in seconds." }),
+    prompt: nullable(str("Prompt that produced the media.")),
+    packId: nullable(str("Pack slug, when generated from a pack.")),
+    modelId: nullable(str("Identity model used.")),
+    jobId: nullable(str("Job that produced the media.")),
+    parentMediaId: nullable(str("Source media for edits, upscales and videos.")),
+    folderId: nullable(str("Gallery folder.")),
+    isDraft: bool("Free low-cost preview; re-render it at full quality with `fromDraftMediaId`."),
+    isFavorite: bool("Marked as favorite."),
+    hidden: bool("Hidden by the best-shots picker (still downloadable)."),
+    watermarked: bool("Carries a visible watermark (free plan before the first purchase)."),
+    scores: nullable(ref("MediaScores")),
+    createdAt: dateTime("Creation time."),
+  },
+);
 
 export const JobInputSchema: JsonSchema = {
   type: "object",
   description:
-    "The validated job input: the request body with defaults applied (see CreateJobRequest). Training jobs have `type: \"train\"`.",
+    'The validated job input: the request body with defaults applied (see CreateJobRequest). Training jobs have `type: "train"`.',
   required: ["type"],
   properties: { type: enumOf(JOB_TYPES, "Job type.") },
   additionalProperties: true,
 };
 
-export const JobSchema = dto<JobDTO>("A generation job. Credits are charged up front and refunded automatically on failure.", {
-  id: id("job", "Job"),
-  type: enumOf(JOB_TYPES, "Job type."),
-  status: enumOf(
-    JOB_STATUSES,
-    "`queued` → `running` → `succeeded`, or `failed` / `canceled` / `blocked` (credits refunded).",
-  ),
-  progress: int("Progress 0-100 (best effort).", { minimum: 0, maximum: 100 }),
-  error: nullable(str("Human-readable failure reason.")),
-  errorCode: nullable(str("Machine-readable failure code, e.g. `provider_error`, `content_blocked`, `canceled`, `timeout`.")),
-  creditsCharged: int("Credits charged when the job was created.", { minimum: 0 }),
-  creditsRefunded: int("Credits refunded so far (failures, blocked or missing outputs).", { minimum: 0 }),
-  modelId: nullable(str("Identity model used.")),
-  packId: nullable(str("Pack slug.")),
-  batchId: nullable(str("Batch the job belongs to.")),
-  input: ref("JobInput"),
-  media: { type: "array", items: ref("Media"), description: "Results, best shots first (visible before hidden)." },
-  blockedCount: int("Outputs discarded by the safety filter (never stored).", { minimum: 0 }),
-  createdAt: dateTime("Creation time."),
-  completedAt: nullable(dateTime("When the job reached a terminal status.")),
-});
+export const JobSchema = dto<JobDTO>(
+  "A generation job. Credits are charged up front and refunded automatically on failure.",
+  {
+    id: id("job", "Job"),
+    type: enumOf(JOB_TYPES, "Job type."),
+    status: enumOf(
+      JOB_STATUSES,
+      "`queued` → `running` → `succeeded`, or `failed` / `canceled` / `blocked` (credits refunded).",
+    ),
+    progress: int("Progress 0-100 (best effort).", { minimum: 0, maximum: 100 }),
+    error: nullable(str("Human-readable failure reason.")),
+    errorCode: nullable(
+      str("Machine-readable failure code, e.g. `provider_error`, `content_blocked`, `canceled`, `timeout`."),
+    ),
+    creditsCharged: int("Credits charged when the job was created.", { minimum: 0 }),
+    creditsRefunded: int("Credits refunded so far (failures, blocked or missing outputs).", { minimum: 0 }),
+    modelId: nullable(str("Identity model used.")),
+    packId: nullable(str("Pack slug.")),
+    batchId: nullable(str("Batch the job belongs to.")),
+    input: ref("JobInput"),
+    media: { type: "array", items: ref("Media"), description: "Results, best shots first (visible before hidden)." },
+    blockedCount: int("Outputs discarded by the safety filter (never stored).", { minimum: 0 }),
+    createdAt: dateTime("Creation time."),
+    completedAt: nullable(dateTime("When the job reached a terminal status.")),
+  },
+);
 
 export const BatchSchema = dto<BatchDTO>("A batch: one pack → many single-image generate jobs.", {
   id: id("bat", "Batch"),
@@ -217,7 +225,12 @@ export const TrainingPhotoSchema = dto<TrainingPhotoDTO>("A training selfie of o
   thumbUrl: str("Signed thumbnail URL (expires).", { format: "uri" }),
   status: enumOf(PHOTO_STATUSES, "`accepted` photos are used for training."),
   quality: nullable(ref("PhotoQualityReport")),
-  faceMatchScore: nullable({ type: "number", minimum: 0, maximum: 1, description: "Similarity to the consent selfie." }),
+  faceMatchScore: nullable({
+    type: "number",
+    minimum: 0,
+    maximum: 1,
+    description: "Similarity to the consent selfie.",
+  }),
   createdAt: dateTime("Upload time."),
 });
 

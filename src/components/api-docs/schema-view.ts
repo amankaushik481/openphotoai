@@ -40,10 +40,23 @@ export function typeParts(s: JsonSchema): TypePart[] {
   return joinParts(
     types.map((t): TypePart[] => {
       if (t !== "array") return [{ text: t }];
-      if (s.prefixItems) return [{ text: `[${s.prefixItems.map((p) => typeParts(p).map((x) => x.text).join("")).join(", ")}]` }];
+      if (s.prefixItems)
+        return [
+          {
+            text: `[${s.prefixItems
+              .map((p) =>
+                typeParts(p)
+                  .map((x) => x.text)
+                  .join(""),
+              )
+              .join(", ")}]`,
+          },
+        ];
       if (!s.items) return [{ text: "array" }];
       const inner = typeParts(s.items);
-      return inner.length === 1 ? [{ ...inner[0]!, text: `${inner[0]!.text}[]` }] : [{ text: "(" }, ...inner, { text: ")[]" }];
+      return inner.length === 1
+        ? [{ ...inner[0]!, text: `${inner[0]!.text}[]` }]
+        : [{ text: "(" }, ...inner, { text: ")[]" }];
     }),
   );
 }

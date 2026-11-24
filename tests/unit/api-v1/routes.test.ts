@@ -255,8 +255,24 @@ describe("models", () => {
     const pendingModel = await createTestModel(friend.id, { name: "Pending" });
     const expiresAt = new Date(Date.now() + 86_400_000);
     await db.insert(modelShares).values([
-      { requesterUserId: u.id, inviteeEmail: friend.email, ownerUserId: friend.id, modelId: sharedModel.id, status: "accepted", tokenHash: "h1", expiresAt },
-      { requesterUserId: u.id, inviteeEmail: friend.email, ownerUserId: friend.id, modelId: pendingModel.id, status: "pending", tokenHash: "h2", expiresAt },
+      {
+        requesterUserId: u.id,
+        inviteeEmail: friend.email,
+        ownerUserId: friend.id,
+        modelId: sharedModel.id,
+        status: "accepted",
+        tokenHash: "h1",
+        expiresAt,
+      },
+      {
+        requesterUserId: u.id,
+        inviteeEmail: friend.email,
+        ownerUserId: friend.id,
+        modelId: pendingModel.id,
+        status: "pending",
+        tokenHash: "h2",
+        expiresAt,
+      },
     ]);
 
     const res = await call("listModels");
@@ -298,8 +314,12 @@ describe("media", () => {
     expect(all.json.hiddenCount).toBe(1);
     const withHidden = await call("listMedia", { query: "showHidden=true" });
     expect(withHidden.json.media[0].id).toBe(hidden.id);
-    expect((await call("listMedia", { query: "kind=video" })).json.media.map((m: { id: string }) => m.id)).toEqual([m2.id]);
-    expect((await call("listMedia", { query: "favorite=1" })).json.media.map((m: { id: string }) => m.id)).toEqual([m1.id]);
+    expect((await call("listMedia", { query: "kind=video" })).json.media.map((m: { id: string }) => m.id)).toEqual([
+      m2.id,
+    ]);
+    expect((await call("listMedia", { query: "favorite=1" })).json.media.map((m: { id: string }) => m.id)).toEqual([
+      m1.id,
+    ]);
 
     const page1 = await call("listMedia", { query: "limit=2" });
     expect(page1.json.media).toHaveLength(2);

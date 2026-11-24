@@ -23,7 +23,15 @@ export const v1ListJobsQuery = z.object({
     .string()
     .max(2000)
     .optional()
-    .transform((v) => (v ? v.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 50) : undefined)),
+    .transform((v) =>
+      v
+        ? v
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 50)
+        : undefined,
+    ),
 });
 export type V1ListJobsQuery = Assignable<ListJobsQuery, z.output<typeof v1ListJobsQuery>>;
 

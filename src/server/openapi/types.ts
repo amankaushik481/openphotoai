@@ -112,9 +112,6 @@ export interface OpenApiDocument {
     responses: Record<string, ResponseObject>;
     parameters: Record<string, ParameterObject>;
     headers: Record<string, HeaderObject>;
-    securitySchemes: Record<
-      string,
-      { type: "http"; scheme: "bearer"; bearerFormat?: string; description?: string }
-    >;
+    securitySchemes: Record<string, { type: "http"; scheme: "bearer"; bearerFormat?: string; description?: string }>;
   };
 }

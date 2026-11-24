@@ -11,7 +11,10 @@ export function resolvePointer(doc: unknown, pointer: string): unknown {
     .slice(2)
     .split("/")
     .map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"))
-    .reduce<unknown>((node, key) => (node && typeof node === "object" ? (node as Record<string, unknown>)[key] : undefined), doc);
+    .reduce<unknown>(
+      (node, key) => (node && typeof node === "object" ? (node as Record<string, unknown>)[key] : undefined),
+      doc,
+    );
 }
 
 function typeOf(value: unknown): string {
@@ -48,10 +51,12 @@ export function validate(
   const errors: string[] = [];
   if (schema.type) {
     const types = Array.isArray(schema.type) ? schema.type : [schema.type];
-    if (!types.some((t) => matchesType(value, t))) return [`${path}: expected ${types.join("|")}, got ${typeOf(value)}`];
+    if (!types.some((t) => matchesType(value, t)))
+      return [`${path}: expected ${types.join("|")}, got ${typeOf(value)}`];
   }
   if (schema.enum && !schema.enum.includes(value)) errors.push(`${path}: ${JSON.stringify(value)} not in enum`);
-  if (schema.const !== undefined && value !== schema.const) errors.push(`${path}: expected const ${JSON.stringify(schema.const)}`);
+  if (schema.const !== undefined && value !== schema.const)
+    errors.push(`${path}: expected const ${JSON.stringify(schema.const)}`);
   if (typeof value === "number") {
     if (schema.minimum !== undefined && value < schema.minimum) errors.push(`${path}: below minimum`);
     if (schema.maximum !== undefined && value > schema.maximum) errors.push(`${path}: above maximum`);

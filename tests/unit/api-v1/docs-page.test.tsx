@@ -24,7 +24,8 @@ describe("/docs/api", () => {
       expect(html).toContain(op.summary);
     }
     for (const code of API_ERROR_CODES) expect(html).toContain(code);
-    for (const name of Object.keys(buildOpenApiSpec().components.schemas)) expect(html).toContain(`id="schema-${name}"`);
+    for (const name of Object.keys(buildOpenApiSpec().components.schemas))
+      expect(html).toContain(`id="schema-${name}"`);
     for (const section of ["authentication", "quickstart", "jobs", "idempotency", "rate-limits", "errors"]) {
       expect(html).toContain(`id="${section}"`);
     }
@@ -49,11 +50,16 @@ describe("/docs/api", () => {
 
 describe("schema-view helpers", () => {
   it("labels types readably", () => {
-    const text = (s: Parameters<typeof typeParts>[0]) => typeParts(s).map((p) => p.text).join("");
+    const text = (s: Parameters<typeof typeParts>[0]) =>
+      typeParts(s)
+        .map((p) => p.text)
+        .join("");
     expect(text({ $ref: "#/components/schemas/Job" })).toBe("Job");
     expect(text({ type: ["string", "null"] })).toBe("string | null");
     expect(text({ type: "array", items: { $ref: "#/components/schemas/Media" } })).toBe("Media[]");
-    expect(text({ anyOf: [{ $ref: "#/components/schemas/MediaScores" }, { type: "null" }] })).toBe("MediaScores | null");
+    expect(text({ anyOf: [{ $ref: "#/components/schemas/MediaScores" }, { type: "null" }] })).toBe(
+      "MediaScores | null",
+    );
     expect(text({ type: "string", enum: ["a", "b"] })).toBe('"a" | "b"');
     expect(text({ type: "array", prefixItems: [{ type: "string" }, { type: "string" }] })).toBe("[string, string]");
     const rows = propertyRows({

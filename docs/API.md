@@ -9,7 +9,7 @@ credits as the web app. The full, always-current reference lives on your instanc
 Base URL: `https://<your-instance>/api/v1`. JSON in and out, ISO 8601 dates, opaque string ids (`job_…`, `med_…`).
 Lists are newest first and paginated with `nextCursor` → `?cursor=` until it is `null`.
 
-Identity models are created and trained in the web app (live consent selfie + photos); everything you make *with*
+Identity models are created and trained in the web app (live consent selfie + photos); everything you make _with_
 them is available over the API.
 
 ## Authentication
@@ -18,11 +18,11 @@ them is available over the API.
 2. Create a key at `/app/api-keys`. It is shown once; only its SHA-256 hash is stored.
 3. Send it as a Bearer token: `Authorization: Bearer os_live_...`
 
-| Scope | Grants |
-|---|---|
-| `*` | Everything (default for new keys) |
-| `read` | GET endpoints: models, jobs, batches, media, packs, credits |
-| `generate` | Creating and canceling jobs and batches (spends credits) |
+| Scope      | Grants                                                      |
+| ---------- | ----------------------------------------------------------- |
+| `*`        | Everything (default for new keys)                           |
+| `read`     | GET endpoints: models, jobs, batches, media, packs, credits |
+| `generate` | Creating and canceling jobs and batches (spends credits)    |
 
 Missing / invalid / revoked key → `401 unauthorized`. Key without the needed scope → `403 forbidden`.
 Account on a plan without API access → `403 plan_limit`. Suspended account → `403 suspended`.
@@ -82,7 +82,12 @@ const model = models.find((m) => m.status === "ready");
 let { job } = await api("/jobs", {
   method: "POST",
   headers: { "Idempotency-Key": randomUUID() },
-  body: JSON.stringify({ type: "generate", modelId: model.id, prompt: "professional headshot of {subject}", numImages: 2 }),
+  body: JSON.stringify({
+    type: "generate",
+    modelId: model.id,
+    prompt: "professional headshot of {subject}",
+    numImages: 2,
+  }),
 });
 while (!TERMINAL.includes(job.status)) {
   await new Promise((r) => setTimeout(r, 3000));
@@ -147,14 +152,14 @@ alone drives a job to completion. For many jobs use `GET /jobs?ids=a,b,c` or `GE
 **Outgoing webhooks to your server aren't available in v1** — poll instead. Signed media URLs expire; re-fetch the job
 or `GET /media/{id}` for fresh ones.
 
-| Status | Meaning |
-|---|---|
-| `queued` | Accepted and charged; not yet submitted to the provider |
-| `running` | Submitted; `progress` is a best-effort percentage |
-| `succeeded` | Done; results in `media` (best shots first) |
-| `failed` | Provider/processing failure; credits refunded, `error` explains |
-| `canceled` | Canceled; credits refunded |
-| `blocked` | Every output blocked by the safety filter; credits refunded |
+| Status      | Meaning                                                         |
+| ----------- | --------------------------------------------------------------- |
+| `queued`    | Accepted and charged; not yet submitted to the provider         |
+| `running`   | Submitted; `progress` is a best-effort percentage               |
+| `succeeded` | Done; results in `media` (best shots first)                     |
+| `failed`    | Provider/processing failure; credits refunded, `error` explains |
+| `canceled`  | Canceled; credits refunded                                      |
+| `blocked`   | Every output blocked by the safety filter; credits refunded     |
 
 Partial refunds happen automatically for outputs the safety filter blocked (`blockedCount`) or the provider didn't
 return. See `creditsCharged` / `creditsRefunded` on the job, or `GET /credits`.
@@ -180,40 +185,40 @@ still in flight. Keys are scoped to your account and don't expire; use a fresh k
 
 Every error has the same body: `{ "error": { "code": "...", "message": "...", "details": ... } }`.
 
-| Code | Status | Meaning |
-|---|---|---|
-| `unauthorized` | 401 | Missing, invalid or revoked API key |
-| `forbidden` | 403 | Key lacks the endpoint's scope, or you may not use this resource |
-| `not_found` | 404 | Doesn't exist or isn't yours |
-| `validation_error` | 400 | Invalid body / query / header; `details` lists the issues |
-| `insufficient_credits` | 402 | Not enough credits; `details: { needed, balance }` |
-| `rate_limited` | 429 | Too many requests; wait `Retry-After` seconds |
-| `content_blocked` | 422 | Blocked by the safety rules |
-| `consent_required` | 422 | The identity needs a verified consent first |
-| `conflict` | 409 | Wrong state, e.g. the model isn't ready |
-| `payload_too_large` | 413 | Body too large |
-| `provider_error` | 502 | The AI provider failed; credits refunded; safe to retry |
-| `plan_limit` | 403 | Plan doesn't allow it (API access, batch size, concurrency, key count) |
-| `suspended` | 403 | Account suspended |
-| `internal` | 500 | Unexpected error; retry with backoff |
+| Code                   | Status | Meaning                                                                |
+| ---------------------- | ------ | ---------------------------------------------------------------------- |
+| `unauthorized`         | 401    | Missing, invalid or revoked API key                                    |
+| `forbidden`            | 403    | Key lacks the endpoint's scope, or you may not use this resource       |
+| `not_found`            | 404    | Doesn't exist or isn't yours                                           |
+| `validation_error`     | 400    | Invalid body / query / header; `details` lists the issues              |
+| `insufficient_credits` | 402    | Not enough credits; `details: { needed, balance }`                     |
+| `rate_limited`         | 429    | Too many requests; wait `Retry-After` seconds                          |
+| `content_blocked`      | 422    | Blocked by the safety rules                                            |
+| `consent_required`     | 422    | The identity needs a verified consent first                            |
+| `conflict`             | 409    | Wrong state, e.g. the model isn't ready                                |
+| `payload_too_large`    | 413    | Body too large                                                         |
+| `provider_error`       | 502    | The AI provider failed; credits refunded; safe to retry                |
+| `plan_limit`           | 403    | Plan doesn't allow it (API access, batch size, concurrency, key count) |
+| `suspended`            | 403    | Account suspended                                                      |
+| `internal`             | 500    | Unexpected error; retry with backoff                                   |
 
 ## Endpoints
 
-| Endpoint | Scope | Description |
-|---|---|---|
-| `GET /api/v1/models` | read | Your identity models + models shared with you → `{ models }` |
-| `GET /api/v1/models/{id}` | read | `?mode=instant\|trained` → `{ model, photos, readiness, readinessByMode }` (shared models: no photos) |
-| `POST /api/v1/jobs` | generate | Create a job (`Idempotency-Key` supported) → `{ job }` |
-| `GET /api/v1/jobs` | read | `?status&type&limit&cursor` or `?ids=a,b` → `{ jobs, nextCursor }` |
-| `GET /api/v1/jobs/{id}` | read | Job status + results (lazy provider sync) → `{ job }` |
-| `POST /api/v1/jobs/{id}/cancel` | generate | Cancel + refund → `{ job }` |
-| `POST /api/v1/batches` | generate | One pack → up to 50 images → `{ batch, jobs, requested, stoppedReason }` |
-| `GET /api/v1/batches/{id}` | read | Batch progress → `{ batch, jobs }` |
-| `GET /api/v1/media` | read | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media, nextCursor, hiddenCount? }` |
-| `GET /api/v1/media/{id}` | read | One photo/video with fresh signed URLs → `{ media }` |
-| `GET /api/v1/packs` | read | All photo packs → `{ packs }` |
-| `GET /api/v1/credits` | read | `?cursor&limit` → `{ balance, ledger, nextCursor }` |
-| `GET /api/v1/openapi.json` | public | OpenAPI 3.1 document |
+| Endpoint                        | Scope    | Description                                                                                                      |
+| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/models`            | read     | Your identity models + models shared with you → `{ models }`                                                     |
+| `GET /api/v1/models/{id}`       | read     | `?mode=instant\|trained` → `{ model, photos, readiness, readinessByMode }` (shared models: no photos)            |
+| `POST /api/v1/jobs`             | generate | Create a job (`Idempotency-Key` supported) → `{ job }`                                                           |
+| `GET /api/v1/jobs`              | read     | `?status&type&limit&cursor` or `?ids=a,b` → `{ jobs, nextCursor }`                                               |
+| `GET /api/v1/jobs/{id}`         | read     | Job status + results (lazy provider sync) → `{ job }`                                                            |
+| `POST /api/v1/jobs/{id}/cancel` | generate | Cancel + refund → `{ job }`                                                                                      |
+| `POST /api/v1/batches`          | generate | One pack → up to 50 images → `{ batch, jobs, requested, stoppedReason }`                                         |
+| `GET /api/v1/batches/{id}`      | read     | Batch progress → `{ batch, jobs }`                                                                               |
+| `GET /api/v1/media`             | read     | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media, nextCursor, hiddenCount? }` |
+| `GET /api/v1/media/{id}`        | read     | One photo/video with fresh signed URLs → `{ media }`                                                             |
+| `GET /api/v1/packs`             | read     | All photo packs → `{ packs }`                                                                                    |
+| `GET /api/v1/credits`           | read     | `?cursor&limit` → `{ balance, ledger, nextCursor }`                                                              |
+| `GET /api/v1/openapi.json`      | public   | OpenAPI 3.1 document                                                                                             |
 
 Response bodies are identical to the web app's session API (`/api/jobs`, `/api/batches`, …) and use the DTOs in
 `src/types/domain.ts` (`JobDTO`, `MediaDTO`, `BatchDTO`, `IdentityModelDTO`, `TrainingPhotoDTO`, `ReadinessDTO`,
