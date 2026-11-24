@@ -16,11 +16,12 @@ import {
   VOICE_ORDER,
 } from "@/components/video/video-options";
 import { jobErrorText } from "@/components/video/post-job";
-import { CREDIT_COSTS, creditCost } from "@/config/credits";
+import { CREDIT_COSTS, creditCost, estimateSpeechSeconds, maxTalkingAudioSeconds } from "@/config/credits";
 import { ApiClientError } from "@/lib/api-client";
 import { createJobRequest, VOICES } from "@/types/domain";
 
-const words = (n: number) => Array.from({ length: n }, (_, i) => `w${i}`).join(" ");
+// Letters only: digits are priced as spoken numbers by the estimator.
+const words = (n: number) => Array.from({ length: n }, (_, i) => `w${String.fromCharCode(97 + (i % 26))}`).join(" ");
 
 describe("video cost", () => {
   it("prices 5 s and 10 s clips from the credit table", () => {
@@ -60,6 +61,37 @@ describe("talking video script stats", () => {
     const req = buildTalkingVideoRequest({ sourceMediaId: "med_1", script, voice: "calm_male" });
     expect(req.script).toBe(script.trim());
     expect(scriptStats(script).credits).toBe(creditCost(req));
+  });
+});
+
+describe("talking video speech estimate (PAY-2: words and characters)", () => {
+  const talking = (script: string) => ({ type: "talking_video" as const, sourceMediaId: "m", script, voice: "neutral" as const });
+
+  it("prices scripts without spaces by their characters", () => {
+    // 600 CJK characters were priced as one word (1 s, 8 credits); they take ~2 minutes to say.
+    expect(estimateSpeechSeconds("こんにちは".repeat(120))).toBe(120);
+    expect(estimateSpeechSeconds("你好世界".repeat(15))).toBe(12);
+    expect(estimateSpeechSeconds("1234567890".repeat(60))).toBe(200);
+    // Separators don't hide words: "a-b-c-…" is 300 spoken letters.
+    expect(estimateSpeechSeconds(Array.from({ length: 300 }, () => "a").join("-"))).toBe(120);
+    expect(creditCost(talking("こんにちは".repeat(60)))).toBe(12 * CREDIT_COSTS.talkingVideoPer5s);
+  });
+
+  it("flags the same scripts as too long in the editor", () => {
+    expect(scriptStats("こんにちは".repeat(120))).toMatchObject({ seconds: 120, tooLong: true });
+    expect(scriptStats("こんにちは".repeat(60))).toMatchObject({ seconds: 60, tooLong: false });
+  });
+
+  it("keeps ordinary English priced by words", () => {
+    expect(estimateSpeechSeconds("Hi, I'm Sam. Welcome to my channel, don't forget to subscribe!")).toBe(5);
+    expect(estimateSpeechSeconds(words(MAX_TALKING_WORDS))).toBe(60);
+  });
+
+  it("caps the provider audio at the paid duration plus tolerance", () => {
+    expect(maxTalkingAudioSeconds(1)).toBe(8);
+    expect(maxTalkingAudioSeconds(12)).toBe(23);
+    expect(maxTalkingAudioSeconds(60)).toBe(90);
+    expect(maxTalkingAudioSeconds(500)).toBe(90);
   });
 });
 

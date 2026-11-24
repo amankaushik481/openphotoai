@@ -6,6 +6,7 @@ import { ClapperboardIcon, MicIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MediaPicker } from "@/components/app/media-picker";
 import { PageHeader } from "@/components/app/page-header";
+import { scrollBehavior } from "@/lib/a11y";
 import type { JobDTO, MediaDTO } from "@/types/domain";
 import { PhotoToVideoForm } from "./photo-to-video-form";
 import { SourcePhoto } from "./source-photo";
@@ -54,7 +55,7 @@ export function VideoStudio({ initialSource, initialTab, sourceMissing = false }
 
   const onCreated = (job: JobDTO) => {
     setJobs((prev) => [job, ...prev.filter((j) => j.id !== job.id)].slice(0, MAX_SESSION_JOBS));
-    requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+    requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" }));
   };
 
   const openPicker = () => setPickerOpen(true);

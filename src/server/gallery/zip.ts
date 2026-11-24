@@ -8,7 +8,7 @@ import type { NextRequest } from "next/server";
 import { APP } from "@/config/app";
 import type { MediaRow } from "@/db/types";
 import type { StorageProvider } from "@/providers/types";
-import { errors } from "@/server/http";
+import { AppError, BODY_LIMITS, errors, readFormDataLimited, readTextLimited } from "@/server/http";
 import { extForMime } from "@/server/media/service";
 import { getStorage } from "@/server/storage";
 import { MAX_BULK_IDS } from "./dto";
@@ -130,8 +130,9 @@ export async function readDownloadIds(req: NextRequest): Promise<string[]> {
     if (!sameOrigin(req)) throw errors.forbidden();
     let form: FormData;
     try {
-      form = await req.formData();
-    } catch {
+      form = await readFormDataLimited(req, BODY_LIMITS.json);
+    } catch (err) {
+      if (err instanceof AppError) throw err;
       throw errors.validation("Invalid form body.");
     }
     const ids = form
@@ -143,9 +144,10 @@ export async function readDownloadIds(req: NextRequest): Promise<string[]> {
     if (!parsed.success) throw errors.validation(`Select between 1 and ${MAX_BULK_IDS} items.`, parsed.error.issues);
     return parsed.data.ids;
   }
+  const text = await readTextLimited(req, BODY_LIMITS.json);
   let raw: unknown;
   try {
-    raw = await req.json();
+    raw = JSON.parse(text);
   } catch {
     throw errors.validation("Body must be valid JSON.");
   }

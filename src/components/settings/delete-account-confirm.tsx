@@ -105,7 +105,9 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
           <StatusIcon tone="success">
             <CircleCheckIcon className="size-6" aria-hidden />
           </StatusIcon>
-          <CardTitle className="text-xl">Your account and all data were deleted</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            Your account and all data were deleted
+          </CardTitle>
           <CardDescription>
             We sent a final confirmation to your email address. You&apos;ve been signed out on this device.
           </CardDescription>
@@ -127,7 +129,9 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
           <StatusIcon tone="warning">
             <TriangleAlertIcon className="size-6" aria-hidden />
           </StatusIcon>
-          <CardTitle className="text-xl">{expired ? "This link has expired" : "This link doesn't work"}</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            {expired ? "This link has expired" : "This link doesn't work"}
+          </CardTitle>
           <CardDescription>
             {expired
               ? "Deletion links are valid for 24 hours. Nothing was deleted — request a new link from Settings."
@@ -154,7 +158,9 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
         <StatusIcon tone="danger">
           {busy ? <LoaderCircleIcon className="size-6 animate-spin" aria-hidden /> : <Trash2Icon className="size-6" aria-hidden />}
         </StatusIcon>
-        <CardTitle className="text-xl">{busy ? "Deleting your account…" : "Delete your account permanently"}</CardTitle>
+        <CardTitle as="h1" className="text-xl">
+          {busy ? "Deleting your account…" : "Delete your account permanently"}
+        </CardTitle>
         <CardDescription>
           {busy
             ? "Keep this page open. It usually takes a few seconds."

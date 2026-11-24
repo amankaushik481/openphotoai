@@ -348,7 +348,8 @@ describe("refunds", () => {
 describe("retries", () => {
   it("invoice.paid for an unknown account fails retryably, then succeeds once the account is known", async () => {
     const u = await createTestUser();
-    const invoice = invoicePaid({ customerId: "cus_late" });
+    // A recent event: unmatched events are retried for ORPHAN_GRACE_MS before they are given up.
+    const invoice = invoicePaid({ customerId: "cus_late", createdAt: new Date() });
     const failure = await applyPaymentEvent("mock", invoice).catch((err: unknown) => err);
     expect(failure).toBeInstanceOf(RetryablePaymentEventError);
     expect((failure as RetryablePaymentEventError).status).toBe(500);
@@ -376,11 +377,12 @@ describe("retries", () => {
     expect(await receipts(u.email)).toHaveLength(1);
   });
 
-  it("treats an in-flight claim as a duplicate, but re-claims one that went stale", async () => {
+  it("answers in_progress (not duplicate) for an in-flight claim, and re-claims one that went stale (PAY-5)", async () => {
     const u = await createTestUser();
     const event = packCheckout(u.id);
     await db.insert(webhookEvents).values({ source: "payment:mock", eventId: event.eventId, type: event.type });
-    expect(await applyPaymentEvent("mock", event)).toEqual({ status: "duplicate" });
+    expect(await applyPaymentEvent("mock", event)).toEqual({ status: "in_progress" });
+    expect((await readUser(u.id)).credits).toBe(0);
 
     await db
       .update(webhookEvents)

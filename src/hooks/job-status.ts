@@ -1,7 +1,22 @@
 /** Pure job-polling helpers shared by useJob/useJobs/useBatch (no React; unit-tested). */
-import { TERMINAL_JOB_STATUSES, type BatchStatus, type JobDTO, type JobStatus } from "@/types/domain";
+import { TERMINAL_JOB_STATUSES, type BatchStatus, type JobDTO, type JobStatus, type JobType } from "@/types/domain";
 
+/** Poll interval while a job is young (most image jobs finish within it). */
 export const JOB_POLL_INTERVAL_MS = 1500;
+/** Backoff by job age: fast for FAST_PHASE_MS, then MEDIUM_POLL_INTERVAL_MS until MEDIUM_PHASE_MS, then slow. */
+const FAST_PHASE_MS = 15_000;
+const MEDIUM_PHASE_MS = 120_000;
+const MEDIUM_POLL_INTERVAL_MS = 4_000;
+const SLOW_POLL_INTERVAL_MS = 10_000;
+/** Training takes ~20 minutes; the model page also refreshes when the job ends. */
+const TRAIN_MEDIUM_POLL_INTERVAL_MS = 5_000;
+const TRAIN_SLOW_POLL_INTERVAL_MS = 15_000;
+/** Video jobs take minutes. */
+const VIDEO_MIN_POLL_INTERVAL_MS = 5_000;
+const VIDEO_TYPES: ReadonlySet<JobType> = new Set<JobType>(["video", "talking_video"]);
+
+/** Fields used to pace polling (`type` / `createdAt` are optional so partial job shapes still poll). */
+export type PolledJob = Pick<JobDTO, "status"> & Partial<Pick<JobDTO, "type" | "createdAt">>;
 
 export function isTerminalStatus(status: JobStatus | null | undefined): boolean {
   return status != null && TERMINAL_JOB_STATUSES.includes(status);
@@ -12,16 +27,41 @@ export function allJobsTerminal(jobs: ReadonlyArray<Pick<JobDTO, "status">>): bo
   return jobs.every((j) => isTerminalStatus(j.status));
 }
 
-/** SWR `refreshInterval` for a single job: poll until terminal; don't poll before the first load. */
-export function jobPollInterval(job: Pick<JobDTO, "status"> | null | undefined): number {
-  if (!job) return 0;
-  return isTerminalStatus(job.status) ? 0 : JOB_POLL_INTERVAL_MS;
+/**
+ * How long to wait before the next poll of an in-flight job: fast while it is young, then backing off
+ * (every poll can drive a provider status call and re-render thumbnails, and viewers multiply it).
+ */
+export function pollDelayMs(job: Partial<Pick<JobDTO, "type" | "createdAt">>, nowMs: number = Date.now()): number {
+  const created = job.createdAt ? Date.parse(job.createdAt) : Number.NaN;
+  const age = Number.isFinite(created) ? Math.max(0, nowMs - created) : 0;
+  const phase = age < FAST_PHASE_MS ? "fast" : age < MEDIUM_PHASE_MS ? "medium" : "slow";
+  if (phase === "fast") return JOB_POLL_INTERVAL_MS;
+  if (job.type === "train") return phase === "medium" ? TRAIN_MEDIUM_POLL_INTERVAL_MS : TRAIN_SLOW_POLL_INTERVAL_MS;
+  const delay = phase === "medium" ? MEDIUM_POLL_INTERVAL_MS : SLOW_POLL_INTERVAL_MS;
+  return job.type && VIDEO_TYPES.has(job.type) ? Math.max(delay, VIDEO_MIN_POLL_INTERVAL_MS) : delay;
 }
 
-/** SWR `refreshInterval` for a list of jobs. */
-export function jobsPollInterval(jobs: ReadonlyArray<Pick<JobDTO, "status">> | null | undefined): number {
+/** SWR `refreshInterval` for a single job: poll until terminal; don't poll before the first load. */
+export function jobPollInterval(job: PolledJob | null | undefined, nowMs?: number): number {
+  if (!job) return 0;
+  return isTerminalStatus(job.status) ? 0 : pollDelayMs(job, nowMs);
+}
+
+/** SWR `refreshInterval` for a list of jobs: paced by the most urgent in-flight job. */
+export function jobsPollInterval(jobs: ReadonlyArray<PolledJob> | null | undefined, nowMs?: number): number {
   if (!jobs || jobs.length === 0) return 0;
-  return allJobsTerminal(jobs) ? 0 : JOB_POLL_INTERVAL_MS;
+  const delays = jobs.filter((j) => !isTerminalStatus(j.status)).map((j) => pollDelayMs(j, nowMs));
+  return delays.length ? Math.min(...delays) : 0;
+}
+
+/** SWR `refreshInterval` for a batch: paced by the batch's age until it and all its jobs are terminal. */
+export function batchPollInterval(
+  batch: { status: BatchStatus; createdAt?: string } | null | undefined,
+  jobs: ReadonlyArray<Pick<JobDTO, "status">>,
+  nowMs?: number,
+): number {
+  if (!batch || isBatchTerminal(batch.status, jobs)) return 0;
+  return pollDelayMs({ type: "generate", createdAt: batch.createdAt }, nowMs);
 }
 
 export function isBatchTerminal(

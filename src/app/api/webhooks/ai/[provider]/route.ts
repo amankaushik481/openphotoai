@@ -1,4 +1,4 @@
-import { errors, route } from "@/server/http";
+import { BODY_LIMITS, errors, readTextLimited, route } from "@/server/http";
 import { handleAIWebhook } from "@/server/jobs/engine";
 import type { AIProviderName } from "@/types/domain";
 
@@ -14,6 +14,7 @@ export const maxDuration = 60;
 export const POST = route<{ provider: string }, "public">({ auth: "public" }, async ({ req, params }) => {
   const provider = PROVIDERS.find((p) => p === params.provider);
   if (!provider) throw errors.notFound("Webhook");
-  const rawBody = await req.text();
+  // Capped while streaming: the body is read in full before the signature check.
+  const rawBody = await readTextLimited(req, BODY_LIMITS.webhook);
   return handleAIWebhook(provider, { headers: req.headers, rawBody, url: req.url });
 });

@@ -2,6 +2,10 @@
 
 import * as React from "react";
 import {
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
   BrushIcon,
   EraserIcon,
   HandIcon,
@@ -111,8 +115,9 @@ const clampBrush = (n: number) => Math.min(BRUSH_MAX, Math.max(BRUSH_MIN, n));
 
 /**
  * Brush mask painter over a photo: paint / erase with mouse, pen or touch, undo/redo/clear, pinch or
- * Ctrl+wheel to zoom, two fingers / hand tool / wheel to pan. Keyboard: [ ] brush size, B/E/H tools,
- * +/−/0 zoom, arrows pan, Ctrl+Z / Ctrl+Shift+Z undo/redo. `ref.exportMask()` returns the black/white PNG.
+ * Ctrl+wheel to zoom, two fingers / hand tool / wheel / pan buttons to pan. Keyboard: arrows move a brush
+ * reticle (Shift+arrows paint, Space stamps), [ ] brush size, B/E/H tools, +/−/0 zoom, arrows pan with the
+ * hand tool, Ctrl+Z / Ctrl+Shift+Z undo/redo. `ref.exportMask()` returns the black/white PNG.
  */
 export function MaskPainter({ imageUrl, width, height, alt, disabled = false, onPaintChange, ref, className }: MaskPainterProps) {
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -142,6 +147,11 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
   React.useEffect(() => {
     live.current = { history, view, tool, brush, work, onPaintChange };
   });
+
+  // Keyboard painting (WCAG 2.1.1): a reticle in canvas coordinates moved with the arrow keys.
+  const [keyCursor, setKeyCursor] = React.useState<Point | null>(null);
+  const [focusVisible, setFocusVisible] = React.useState(false);
+  const [keyStatus, setKeyStatus] = React.useState("");
 
   const pointers = React.useRef(new Map<number, Point>());
   const stroke = React.useRef<{ pointerId: number; stroke: Stroke; last: Point } | null>(null);
@@ -321,6 +331,63 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
 
   /* ───────── keyboard ───────── */
 
+  /** Paint (or erase) a dab, or a segment when `from` is given, at canvas points; one undo step. */
+  const keyboardStroke = (to: Point, from?: Point) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const mode: StrokeMode = live.current.tool === "erase" ? "erase" : "paint";
+    const size = screenToCanvasLength(live.current.brush, canvas.getBoundingClientRect().width, canvas.width);
+    const points = from ? [from, to] : [to];
+    drawDabs(ctx, mode, size, from ? interpolateStroke(from, to, dabSpacing(size)) : [to]);
+    commit({ kind: "stroke", stroke: { mode, size, points } });
+    setKeyStatus(mode === "erase" ? "Erased" : "Painted");
+  };
+
+  /** Arrows move the reticle (Shift paints along the way); Space/Enter stamps one dab. */
+  const onCursorKey = (key: string, shift: boolean): boolean => {
+    const canvas = canvasRef.current;
+    const size = live.current.work;
+    if (!canvas || !size) return false;
+    const start = keyCursor ?? { x: size.width / 2, y: size.height / 2 };
+    if (key === " " || key === "enter") {
+      setKeyCursor(start);
+      keyboardStroke(start);
+      return true;
+    }
+    const dir: Record<string, Point> = {
+      arrowleft: { x: -1, y: 0 },
+      arrowright: { x: 1, y: 0 },
+      arrowup: { x: 0, y: -1 },
+      arrowdown: { x: 0, y: 1 },
+    };
+    const d = dir[key];
+    if (!d) return false;
+    // Half a brush per press, in canvas pixels.
+    const step = screenToCanvasLength(Math.max(4, live.current.brush / 2), canvas.getBoundingClientRect().width, canvas.width);
+    const next = {
+      x: Math.min(size.width, Math.max(0, start.x + d.x * step)),
+      y: Math.min(size.height, Math.max(0, start.y + d.y * step)),
+    };
+    setKeyCursor(next);
+    if (shift) keyboardStroke(next, start);
+    return true;
+  };
+
+  // Place the reticle in viewport pixels; follows zoom/pan via the canvas' on-screen rect.
+  const reticleRef = React.useRef<HTMLSpanElement>(null);
+  React.useLayoutEffect(() => {
+    const el = reticleRef.current;
+    const canvas = canvasRef.current;
+    const vp = viewportRef.current;
+    if (!el || !keyCursor || !canvas || !vp || !work) return;
+    const c = canvas.getBoundingClientRect();
+    const v = vp.getBoundingClientRect();
+    const x = c.left - v.left + (keyCursor.x / work.width) * c.width;
+    const y = c.top - v.top + (keyCursor.y / work.height) * c.height;
+    el.style.transform = `translate(${x - brush / 2}px, ${y - brush / 2}px)`;
+  }, [keyCursor, view, brush, work, focusVisible]);
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (disabled) return;
     const mod = e.metaKey || e.ctrlKey;
@@ -332,6 +399,11 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
       return;
     }
     if (mod || e.altKey) return;
+    setFocusVisible(true);
+    if (live.current.tool !== "move" && onCursorKey(key, e.shiftKey)) {
+      e.preventDefault();
+      return;
+    }
     const handled: Record<string, () => void> = {
       "[": () => setBrush((b) => clampBrush(b - BRUSH_STEP)),
       "]": () => setBrush((b) => clampBrush(b + BRUSH_STEP)),
@@ -394,6 +466,12 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         aria-disabled={disabled || undefined}
         tabIndex={disabled ? -1 : 0}
         onKeyDown={onKeyDown}
+        onFocus={(e) => {
+          const visible = e.currentTarget.matches(":focus-visible");
+          setFocusVisible(visible);
+          if (visible && !keyCursor && work) setKeyCursor({ x: work.width / 2, y: work.height / 2 });
+        }}
+        onBlur={() => setFocusVisible(false)}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={(e) => endPointer(e, false)}
@@ -402,13 +480,16 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         onPointerLeave={() => setHovering(false)}
         onContextMenu={(e) => e.preventDefault()}
         className={cn(
-          "relative mx-auto w-full touch-none overflow-hidden rounded-xl bg-muted outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/60",
+          // Phones: cap the height so the page can still be scrolled beside/below the canvas; with the
+          // move tool at 100% a one-finger drag scrolls the page instead of being captured.
+          "relative mx-auto w-full overflow-hidden rounded-xl bg-muted select-none [--painter-max-h:55dvh] sm:[--painter-max-h:70dvh]",
+          tool === "move" && view.scale === 1 ? "touch-pan-y" : "touch-none",
           tool === "move" ? "cursor-grab active:cursor-grabbing" : showRing ? "cursor-none" : "cursor-crosshair",
           disabled && "pointer-events-none opacity-70",
         )}
         style={{
           aspectRatio: natural ? `${natural.width} / ${natural.height}` : "4 / 5",
-          maxWidth: natural ? `calc(70dvh * ${natural.width / natural.height})` : undefined,
+          maxWidth: natural ? `calc(var(--painter-max-h) * ${natural.width / natural.height})` : undefined,
         }}
       >
         <div
@@ -448,16 +529,28 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
             style={{ width: brush, height: brush }}
           />
         )}
+        {focusVisible && keyCursor && tool !== "move" && !disabled && (
+          <span
+            ref={reticleRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute top-0 left-0 rounded-full border-2 border-dashed border-white shadow-[0_0_0_2px_rgb(0_0_0/0.6)]"
+            style={{ width: brush, height: brush }}
+          />
+        )}
         {!painted && (
           <span className="pointer-events-none absolute inset-x-0 bottom-3 mx-auto w-fit rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
             Brush over the area to change
           </span>
         )}
       </div>
+      <p className="sr-only" aria-live="polite">
+        {keyStatus}
+      </p>
       <p id={hintId} className="sr-only">
-        Drag to paint the area to repaint. Shortcuts: B paint, E erase, H move, open and close bracket change the
-        brush size, plus and minus zoom, 0 resets the zoom, arrow keys move around, Control Z undoes and Control
-        Shift Z redoes.
+        Drag or tap to paint the area to repaint. Keyboard: arrow keys move the brush cursor, Shift plus arrows
+        paint along the way, Space paints one dab. Shortcuts: B paint, E erase, H move (then arrow keys move
+        around), open and close bracket change the brush size, plus and minus zoom, 0 resets the zoom, Control Z
+        undoes and Control Shift Z redoes.
       </p>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -527,6 +620,23 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
             <RotateCcwIcon />
           </Button>
         </div>
+        {/* Single-pointer alternative to dragging / two-finger panning (WCAG 2.5.7). */}
+        {view.scale > 1 && (
+          <div role="group" aria-label="Move the zoomed photo" className="flex items-center gap-1">
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(KEY_PAN_PX, 0)} disabled={disabled} aria-label="Show more on the left">
+              <ArrowLeftIcon />
+            </Button>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(0, KEY_PAN_PX)} disabled={disabled} aria-label="Show more above">
+              <ArrowUpIcon />
+            </Button>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(0, -KEY_PAN_PX)} disabled={disabled} aria-label="Show more below">
+              <ArrowDownIcon />
+            </Button>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(-KEY_PAN_PX, 0)} disabled={disabled} aria-label="Show more on the right">
+              <ArrowRightIcon />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

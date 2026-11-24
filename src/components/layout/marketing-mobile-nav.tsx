@@ -43,7 +43,7 @@ export function MarketingMobileNav() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={close}
-                className="flex h-11 items-center gap-2 rounded-md px-3 text-base font-medium hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="flex h-11 items-center gap-2 rounded-md px-3 text-base font-medium hover:bg-accent"
               >
                 <GithubIcon className="size-4" />
                 {t(link.labelKey)}
@@ -53,7 +53,7 @@ export function MarketingMobileNav() {
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className="flex h-11 items-center rounded-md px-3 text-base font-medium hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="flex h-11 items-center rounded-md px-3 text-base font-medium hover:bg-accent"
               >
                 {t(link.labelKey)}
               </Link>

@@ -85,7 +85,7 @@ export function DashboardOverview() {
             <li key={href}>
               <Link
                 href={href}
-                className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 shadow-xs transition-colors outline-none hover:border-primary/40 hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:flex-row sm:items-center"
+                className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 shadow-xs transition-colors hover:border-primary/40 hover:bg-accent/40 sm:flex-row sm:items-center"
               >
                 <span
                   aria-hidden="true"

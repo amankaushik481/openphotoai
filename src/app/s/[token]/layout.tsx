@@ -6,7 +6,7 @@ import { SkipLink } from "@/components/layout/skip-link";
 import { APP } from "@/config/app";
 
 const footerLink =
-  "rounded-sm transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none";
+  "rounded-sm transition-colors hover:text-foreground";
 
 /** Minimal public shell for shared media: brand, a way to try the app, legal + takedown contact. */
 export default function SharedLayout({ children }: Readonly<{ children: React.ReactNode }>) {

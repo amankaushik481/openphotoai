@@ -80,7 +80,7 @@ export function KpiCard({
       href={href}
       className={cn(
         classes,
-        "transition-colors outline-none hover:border-primary/40 hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "transition-colors hover:border-primary/40 hover:bg-accent/40",
       )}
     >
       <dl>{body}</dl>
@@ -110,7 +110,7 @@ export function NextPageLink({
     <div className="flex justify-end px-4 pt-4 sm:px-6">
       <Link
         href={`${pathname}?${params.toString()}`}
-        className="rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline"
       >
         Next page →
       </Link>
@@ -128,7 +128,7 @@ export function PeriodLinks({ pathname, days, options = [7, 30, 90] }: { pathnam
           href={`${pathname}?days=${d}`}
           aria-current={d === days ? "page" : undefined}
           className={cn(
-            "rounded-md px-3 py-1.5 font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "rounded-md px-3 py-1.5 font-medium transition-colors",
             d === days ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >

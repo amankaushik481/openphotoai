@@ -24,11 +24,14 @@ import {
 import { checkOutputImage, checkOutputVideo, likenessScore, recordModerationEvent } from "@/server/safety";
 import { getStorage, signedUrl, storageKeys } from "@/server/storage";
 import { expectedOutputs } from "@/server/jobs/costs";
+import { mapLimit } from "@/server/jobs/util";
 import type { MediaDTO, ModerationSnapshot } from "@/types/domain";
 import { buildScores, pickBestShots, qualityFromMetrics } from "./scoring";
 
 /** Provider input URLs must outlive queueing + processing at the provider. */
 const PROVIDER_INPUT_URL_TTL_SEC = 2 * 60 * 60;
+/** Output downloads in flight per ingest. */
+const DOWNLOAD_CONCURRENCY = 3;
 
 const EXT_BY_MIME: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -127,6 +130,8 @@ export async function providerInputUrl(storageKey: string, contentType?: string)
 export interface IngestResult {
   mediaIds: string[];
   blockedCount: number;
+  /** Outputs refunded under the likeness guarantee and therefore not kept. */
+  discardedCount?: number;
 }
 
 export interface IngestImagesOptions {
@@ -189,7 +194,8 @@ async function safeLikeness(bytes: Uint8Array, embedding: number[]): Promise<num
 /**
  * Store provider outputs as media: download -> safety check (blocked outputs are discarded,
  * never stored) -> likeness/quality scores -> AI label metadata -> watermark (free tier) ->
- * thumbnail -> storage -> media rows. Applies the best-shots picker (hides weak outputs).
+ * thumbnail -> storage -> media rows. Applies the best-shots picker (hides weak outputs) and the
+ * likeness guarantee (refunds and discards paid outputs that don't look like the person).
  */
 export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: IngestImagesOptions): Promise<IngestResult> {
   const provider = providerFor(job);
@@ -203,14 +209,18 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
   const prepared: PreparedImage[] = [];
   const written: string[] = [];
   try {
+    // Downloads are network-bound: fetch them in parallel (bounded); the CPU-bound steps below stay sequential.
+    // Outputs the provider's own safety checker flagged are never downloaded.
+    const downloads = await mapLimit(images, DOWNLOAD_CONCURRENCY, async (image) =>
+      image.nsfw === true ? null : (await provider.fetchOutput(image.url)).bytes,
+    );
     for (const [index, image] of images.entries()) {
-      // The provider's own safety checker flagged it: never download or store it.
-      if (image.nsfw === true) {
+      const bytes = downloads[index];
+      if (image.nsfw === true || !bytes) {
         blockedCount++;
         await recordModerationEvent("output_blocked", ctx, { source: "provider", provider: provider.name, index });
         continue;
       }
-      const { bytes } = await provider.fetchOutput(image.url);
       const moderation = await checkOutputImage(bytes, ctx);
       if (!moderation.allowed) {
         blockedCount++;
@@ -227,10 +237,11 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
       const id = newId("med");
       const key = storageKeys.media(job.userId, id, extForMime(labeled.mimeType));
       const thumbKey = storageKeys.mediaThumb(job.userId, id);
-      await storage.put(key, labeled.bytes, { contentType: labeled.mimeType });
-      written.push(key);
-      await storage.put(thumbKey, thumb, { contentType: "image/webp" });
-      written.push(thumbKey);
+      written.push(key, thumbKey);
+      await Promise.all([
+        storage.put(key, labeled.bytes, { contentType: labeled.mimeType }),
+        storage.put(thumbKey, thumb, { contentType: "image/webp" }),
+      ]);
 
       prepared.push({
         index,
@@ -248,9 +259,18 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
       });
     }
 
-    const scores = prepared.map((p) => buildScores(p.likeness, p.quality));
+    // Likeness guarantee: outputs that don't look like the person are refunded. A refunded photo is
+    // discarded, not kept hidden: anything the user can see they can unhide, download, share or
+    // edit, which would make low-likeness prompts a source of free photos. Free outputs (drafts)
+    // aren't refunded, so a low-likeness draft is only hidden.
+    const perImage = Math.floor(job.creditsCharged / Math.max(expectedOutputs(job.input), images.length));
+    const lowLikeness = pickBestShots(prepared.map((p) => buildScores(p.likeness, p.quality))).map((d) => d.lowLikeness);
+    const discarded = perImage > 0 ? prepared.filter((_, i) => lowLikeness[i]) : [];
+    const keptImages = prepared.filter((p) => !discarded.includes(p));
+
+    const scores = keptImages.map((p) => buildScores(p.likeness, p.quality));
     const decisions = pickBestShots(scores);
-    const rows: NewMediaRow[] = prepared.map((p, i) => ({
+    const rows: NewMediaRow[] = keptImages.map((p, i) => ({
       id: p.id,
       userId: job.userId,
       jobId: job.id,
@@ -275,19 +295,15 @@ export async function ingestImages(job: JobRow, images: ProviderImage[], opts?: 
     }));
     if (rows.length) await db.insert(media).values(rows);
 
-    // Likeness guarantee: outputs that don't look like the person are hidden and refunded.
-    const perImage = Math.floor(job.creditsCharged / Math.max(expectedOutputs(job.input), images.length));
-    if (perImage > 0) {
-      for (const [i, d] of decisions.entries()) {
-        if (!d.lowLikeness) continue;
-        await refundJob(job.id, {
-          amount: perImage,
-          tag: `likeness:${prepared[i]!.index}`,
-          note: "Likeness guarantee: this photo didn't look enough like you.",
-        });
-      }
+    for (const p of discarded) {
+      await refundJob(job.id, {
+        amount: perImage,
+        tag: `likeness:${p.index}`,
+        note: "Likeness guarantee: this photo didn't look enough like you, so we discarded it.",
+      });
     }
-    return { mediaIds: prepared.map((p) => p.id), blockedCount };
+    await deleteKeys(discarded.flatMap((p) => [p.key, p.thumbKey]));
+    return { mediaIds: keptImages.map((p) => p.id), blockedCount, discardedCount: discarded.length };
   } catch (err) {
     await deleteKeys(written);
     throw err;

@@ -80,7 +80,7 @@ export default async function PackPage({ params }: Params) {
             <li>
               <Link
                 href="/packs"
-                className="rounded-sm hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="rounded-sm hover:text-foreground"
               >
                 Packs
               </Link>
@@ -91,7 +91,7 @@ export default async function PackPage({ params }: Params) {
             <li>
               <Link
                 href={`/packs?category=${pack.category}`}
-                className="rounded-sm hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="rounded-sm hover:text-foreground"
               >
                 {category.label}
               </Link>

@@ -62,7 +62,7 @@ export function PersonPicker({
                 key={model.id}
                 className={cn(
                   "relative flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border bg-card px-3 py-2 transition-colors",
-                  "hover:bg-accent/50 has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50",
+                  "hover:bg-accent/50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
                   checked && "border-primary bg-brand-soft/40",
                   disabled && "cursor-not-allowed opacity-60 hover:bg-card",
                 )}

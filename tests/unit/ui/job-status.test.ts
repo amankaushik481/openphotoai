@@ -3,13 +3,15 @@ import {
   JOB_POLL_INTERVAL_MS,
   aggregateProgress,
   allJobsTerminal,
+  batchPollInterval,
   countJobsByStatus,
   isBatchTerminal,
   isTerminalStatus,
   jobPollInterval,
   jobsPollInterval,
+  pollDelayMs,
 } from "@/hooks/job-status";
-import { JOB_STATUSES, TERMINAL_JOB_STATUSES, type JobStatus } from "@/types/domain";
+import { JOB_STATUSES, TERMINAL_JOB_STATUSES, type JobStatus, type JobType } from "@/types/domain";
 
 const j = (status: JobStatus, progress = 0) => ({ status, progress });
 
@@ -50,5 +52,40 @@ describe("job polling helpers", () => {
   it("counts jobs by status", () => {
     const counts = countJobsByStatus([j("running"), j("running"), j("failed")]);
     expect(counts).toMatchObject({ running: 2, failed: 1, succeeded: 0 });
+  });
+});
+
+describe("poll backoff", () => {
+  const NOW = Date.parse("2026-03-01T12:00:00Z");
+  const ago = (sec: number) => new Date(NOW - sec * 1000).toISOString();
+  const job = (type: JobType, ageSec: number, status: JobStatus = "running") => ({ status, type, createdAt: ago(ageSec) });
+
+  it("polls young jobs fast and backs off as they age", () => {
+    expect(pollDelayMs(job("generate", 5), NOW)).toBe(1500);
+    expect(pollDelayMs(job("generate", 30), NOW)).toBe(4000);
+    expect(pollDelayMs(job("generate", 600), NOW)).toBe(10_000);
+    // Clock skew (job "in the future") counts as brand new.
+    expect(pollDelayMs(job("generate", -30), NOW)).toBe(1500);
+  });
+
+  it("paces long-running job types slower", () => {
+    expect(pollDelayMs(job("train", 5), NOW)).toBe(1500);
+    expect(pollDelayMs(job("train", 60), NOW)).toBe(5000);
+    expect(pollDelayMs(job("train", 900), NOW)).toBe(15_000);
+    expect(pollDelayMs(job("video", 60), NOW)).toBe(5000);
+    expect(pollDelayMs(job("talking_video", 600), NOW)).toBe(10_000);
+  });
+
+  it("uses the most urgent in-flight job for lists and stops when all are terminal", () => {
+    expect(jobsPollInterval([job("generate", 600), job("generate", 3)], NOW)).toBe(1500);
+    expect(jobsPollInterval([job("generate", 600), job("generate", 3, "succeeded")], NOW)).toBe(10_000);
+    expect(jobPollInterval(job("generate", 600, "failed"), NOW)).toBe(0);
+  });
+
+  it("paces batches by the batch age", () => {
+    expect(batchPollInterval({ status: "running", createdAt: ago(5) }, [j("running")], NOW)).toBe(1500);
+    expect(batchPollInterval({ status: "running", createdAt: ago(300) }, [j("succeeded")], NOW)).toBe(10_000);
+    expect(batchPollInterval({ status: "completed", createdAt: ago(5) }, [j("succeeded")], NOW)).toBe(0);
+    expect(batchPollInterval(undefined, [], NOW)).toBe(0);
   });
 });

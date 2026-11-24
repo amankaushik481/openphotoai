@@ -98,7 +98,7 @@ export function BeforeAfter({
           e.preventDefault();
           setPos(next);
         }}
-        className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-white bg-black/45 text-white shadow-lg backdrop-blur-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+        className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-white bg-black/45 text-white shadow-lg backdrop-blur-sm focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-hidden"
         style={{ left: `${pos}%` }}
       >
         <ChevronsLeftRightIcon aria-hidden="true" className="size-5" />

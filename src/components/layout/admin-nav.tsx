@@ -22,7 +22,8 @@ export function AdminNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex h-11 items-center gap-2 border-b-2 px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  // Inset focus outline: the scrolling nav would clip an outer one.
+                  "inline-flex h-11 items-center gap-2 border-b-2 px-3 text-sm font-medium transition-colors [--focus-offset:-2px]",
                   active
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground",

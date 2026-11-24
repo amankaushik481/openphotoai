@@ -14,6 +14,15 @@
  *   cell4  flags                   blue channel high bits: 0x20 nsfw, 0x40 blurry hint (unused),
  *                                  0x80 public figure  (decoded as round(blue / 32))
  *
+ * Optional head pose (only when `marker.pose` is set; images without it keep the 5-cell layout):
+ *
+ *   cell5  cyan (0,255,255)        pose present
+ *   cell6  yaw                     grey = 128 + 2·yaw   (yaw ∈ [-63, 63], negative = subject's own left)
+ *   cell7  pitch                   grey = 128 + 2·pitch (pitch ∈ [-63, 63], positive = looking up)
+ *
+ * The mock face provider reports this pose instead of the pixel-derived one, so test fixtures and the
+ * e2e fake camera can satisfy the active-liveness head-pose challenge deterministically.
+ *
  * Decoding averages the inner half of each cell; the presence check allows ±24 per channel.
  * Images without a marker decode to `null`; callers fall back to DEFAULT_MARKER
  * (1 face, age 30, identity "default", no flags).
@@ -36,6 +45,12 @@ export const MOCK_IDENTITIES = [
 ] as const;
 export type MockIdentity = (typeof MOCK_IDENTITIES)[number] | "default";
 
+/** Head pose in degrees (same convention as `DetectedFace`). */
+export interface MarkerPose {
+  yaw: number;
+  pitch: number;
+}
+
 export interface Marker {
   identity: MockIdentity;
   /** Age in years (0..255). */
@@ -46,6 +61,8 @@ export interface Marker {
   /** Reserved hint; the mock face provider does not use it (blur is measured from pixels). */
   blurry: boolean;
   publicFigure: boolean;
+  /** Optional explicit head pose (cells 5-7). */
+  pose?: MarkerPose;
 }
 
 export const DEFAULT_MARKER: Readonly<Marker> = Object.freeze({
@@ -58,12 +75,18 @@ export const DEFAULT_MARKER: Readonly<Marker> = Object.freeze({
 });
 
 export const MARKER_CELL_COUNT = 5;
+/** Extra cells (sentinel, yaw, pitch) appended when the marker carries a pose. */
+export const POSE_CELL_COUNT = 3;
+/** Largest |yaw| / |pitch| a pose cell can encode. */
+export const MAX_MARKER_POSE = 63;
 /** Cell side as a fraction of the image width. */
 export const MARKER_CELL_RATIO = 0.06;
 /** Per-channel tolerance for the presence (magenta) check. */
 export const MARKER_TOLERANCE = 24;
 
 const MAGENTA: Rgb = [255, 0, 255];
+const CYAN: Rgb = [0, 255, 255];
+const POSE_SCALE = 2;
 const GREY: Rgb = [128, 128, 128];
 const FLAG_NSFW = 1;
 const FLAG_BLURRY = 2;
@@ -92,7 +115,7 @@ export function isMockIdentity(label: string): label is MockIdentity {
 /** Merge a partial marker with the defaults and clamp values into the encodable range. */
 export function normalizeMarker(marker: Partial<Marker> = {}): Marker {
   const m = { ...DEFAULT_MARKER, ...marker };
-  return {
+  const normalized: Marker = {
     identity: isMockIdentity(m.identity) ? m.identity : "default",
     age: clampInt(m.age, 0, 255),
     faces: clampInt(m.faces, 0, MAX_FACES),
@@ -100,11 +123,18 @@ export function normalizeMarker(marker: Partial<Marker> = {}): Marker {
     blurry: Boolean(m.blurry),
     publicFigure: Boolean(m.publicFigure),
   };
+  if (m.pose) {
+    normalized.pose = {
+      yaw: clampInt(m.pose.yaw, -MAX_MARKER_POSE, MAX_MARKER_POSE),
+      pitch: clampInt(m.pose.pitch, -MAX_MARKER_POSE, MAX_MARKER_POSE),
+    };
+  }
+  return normalized;
 }
 
 export function isDefaultMarker(marker: Marker): boolean {
   const m = normalizeMarker(marker);
-  return (Object.keys(DEFAULT_MARKER) as (keyof Marker)[]).every((k) => m[k] === DEFAULT_MARKER[k]);
+  return !m.pose && (Object.keys(DEFAULT_MARKER) as (keyof Marker)[]).every((k) => m[k] === DEFAULT_MARKER[k]);
 }
 
 /** Geometry + colour of every cell for an image of the given width. */
@@ -119,6 +149,11 @@ export function markerCells(width: number, marker: Partial<Marker> = {}): Marker
     [0, m.faces * FACE_STEP, 0],
     [0, 0, flags * FLAG_STEP],
   ];
+  if (m.pose) {
+    const yaw = 128 + m.pose.yaw * POSE_SCALE;
+    const pitch = 128 + m.pose.pitch * POSE_SCALE;
+    colours.push(CYAN, [yaw, yaw, yaw], [pitch, pitch, pitch]);
+  }
   return colours.map((rgb, i) => ({ left: i * size, top: 0, size, rgb }));
 }
 
@@ -190,21 +225,49 @@ export async function decodeMarker(bytes: Uint8Array): Promise<Marker | null> {
     if (!isGrey || !onlyGreen || !onlyBlue) return null;
 
     const flags = Math.round(flagsCell.mean[2] / FLAG_STEP) & 7;
-    return {
+    const decoded: Marker = {
       identity: identityFromRgb(identityCell.mean),
       // The age cell is neutral grey (red = green = blue = age); reading luma ignores chroma bleed.
-      age: Math.round(0.299 * ageCell.mean[0] + 0.587 * ageCell.mean[1] + 0.114 * ageCell.mean[2]),
+      age: Math.round(luma(ageCell.mean)),
       faces: clampInt(Math.round(facesCell.mean[1] / FACE_STEP), 0, MAX_FACES),
       nsfw: (flags & FLAG_NSFW) !== 0,
       blurry: (flags & FLAG_BLURRY) !== 0,
       publicFigure: (flags & FLAG_PUBLIC_FIGURE) !== 0,
     };
+    const pose = await decodePose(bytes, width, height, side);
+    if (pose) decoded.pose = pose;
+    return decoded;
   } catch {
     return null;
   }
 }
 
 /* ───────────── helpers ───────────── */
+
+/** Pose cells (5-7) when present: a flat cyan sentinel followed by two neutral grey cells. */
+async function decodePose(bytes: Uint8Array, width: number, height: number, side: number): Promise<MarkerPose | null> {
+  if (side * (MARKER_CELL_COUNT + POSE_CELL_COUNT) > width || side > height) return null;
+  const sharp = (await import("sharp")).default;
+  const { data, info } = await sharp(bytes, { autoOrient: true })
+    .extract({ left: side * MARKER_CELL_COUNT, top: 0, width: side * POSE_CELL_COUNT, height: side })
+    .flatten({ background: "#ffffff" })
+    .toColourspace("srgb")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const [sentinel, yawCell, pitchCell] = Array.from({ length: POSE_CELL_COUNT }, (_, i) => cellStats(data, info, i * side, side));
+  const isCyan = sentinel.mean.every((v, c) => Math.abs(v - CYAN[c]) <= MARKER_TOLERANCE) && Math.max(...sentinel.std) <= 30;
+  if (!isCyan || !isNeutral(yawCell.mean) || !isNeutral(pitchCell.mean)) return null;
+  const toAngle = (rgb: Rgb) => clampInt((luma(rgb) - 128) / POSE_SCALE, -MAX_MARKER_POSE, MAX_MARKER_POSE);
+  return { yaw: toAngle(yawCell.mean), pitch: toAngle(pitchCell.mean) };
+}
+
+function isNeutral([r, g, b]: Rgb): boolean {
+  return Math.max(r, g, b) - Math.min(r, g, b) <= MARKER_TOLERANCE;
+}
+
+function luma([r, g, b]: Rgb): number {
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}
 
 /** Mean + std-dev per RGB channel over the inner half of one cell (avoids resize/chroma bleed at edges). */
 function cellStats(

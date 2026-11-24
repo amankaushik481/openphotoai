@@ -266,7 +266,7 @@ function BrandKitForm({
       </section>
 
       {blocked && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" role="alert">
           <ShieldAlertIcon aria-hidden="true" />
           <AlertDescription>{blocked}</AlertDescription>
         </Alert>

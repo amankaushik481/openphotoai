@@ -39,7 +39,9 @@ function Notice({
         >
           {icon}
         </div>
-        <CardTitle className="text-xl">{title}</CardTitle>
+        <CardTitle as="h1" className="text-xl">
+          {title}
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       {children && <CardFooter className="flex-col gap-2 sm:flex-row sm:justify-center">{children}</CardFooter>}

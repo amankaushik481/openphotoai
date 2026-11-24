@@ -24,9 +24,16 @@ const SECTIONS = [
 
 const ENV_ROWS: [string, string][] = [
   ["NEXT_PUBLIC_APP_URL", "Public URL of your deployment (used in emails, auth callbacks and signed links)."],
-  ["BETTER_AUTH_SECRET", "Long random string that signs sessions (`openssl rand -hex 32`)."],
+  [
+    "BETTER_AUTH_SECRET",
+    "Long random string (32+ characters) that signs sessions (`openssl rand -hex 32`). The Docker image generates one if unset.",
+  ],
   ["DATABASE_URL", "Any Postgres 14+ connection string (Docker, Neon, Supabase, RDS…)."],
-  ["MOCK_PROVIDERS", "Set to `false` in production."],
+  [
+    "MOCK_PROVIDERS",
+    "Local/demo only: set to `false` in production. A real AI provider requires real payments and email.",
+  ],
+  ["TRUSTED_PROXY_HOPS", "Number of reverse proxies in front of the app (1 behind nginx/Caddy; automatic on Vercel)."],
   [
     "AI_PROVIDER + FAL_KEY",
     "`fal` (default) with a fal.ai key, or `replicate` with REPLICATE_API_TOKEN and REPLICATE_OWNER.",
@@ -120,14 +127,14 @@ export default function DocsPage() {
               href={APP.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
             >
               <GithubIcon className="size-4" />
               Source on GitHub
             </a>
             <Link
               href="/docs/api"
-              className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-sm font-medium shadow-xs transition-colors hover:bg-accent"
             >
               <BookOpenIcon aria-hidden="true" className="size-4" />
               API reference
@@ -142,7 +149,7 @@ export default function DocsPage() {
                 <li key={s.id}>
                   <a
                     href={`#${s.id}`}
-                    className="block rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                    className="block rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     {s.title}
                   </a>

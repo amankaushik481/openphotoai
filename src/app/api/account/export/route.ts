@@ -2,7 +2,7 @@ import { exportAccountData, exportFileName } from "@/server/account/export";
 import { route } from "@/server/http";
 
 /** The user's data as a JSON download (file URLs inside are signed for 24 hours). */
-export const GET = route({ auth: "user" }, async ({ user }) => {
+export const GET = route({ auth: "user", rateLimit: "exportsPerHour" }, async ({ user }) => {
   const data = await exportAccountData(user.id);
   return new Response(JSON.stringify(data, null, 2), {
     headers: {

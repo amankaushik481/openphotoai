@@ -5,13 +5,16 @@ import useSWR, { type SWRConfiguration } from "swr";
 import { ApiClientError, api, fetcher } from "@/lib/api-client";
 import type { BatchDTO, JobDTO } from "@/types/domain";
 import {
-  JOB_POLL_INTERVAL_MS,
   allJobsTerminal,
+  batchPollInterval,
   isBatchTerminal,
   isTerminalStatus,
   jobPollInterval,
   jobsPollInterval,
 } from "./job-status";
+
+/** GET /api/jobs accepts up to 50 ids per request. */
+const IDS_PER_REQUEST = 50;
 
 /** Don't hammer the API for errors that won't fix themselves. */
 function shouldRetry(err: unknown): boolean {
@@ -57,7 +60,7 @@ export interface UseJobOptions {
   fallbackJob?: JobDTO;
 }
 
-/** Poll GET /api/jobs/:id every 1.5s until the job reaches a terminal status. */
+/** Poll GET /api/jobs/:id until the job reaches a terminal status (1.5s at first, backing off with age). */
 export function useJob(jobId: string | null | undefined, options: UseJobOptions = {}) {
   const { data, error, isLoading, mutate } = useSWR<{ job: JobDTO }>(
     jobId ? `/api/jobs/${jobId}` : null,
@@ -83,8 +86,8 @@ export function useJob(jobId: string | null | undefined, options: UseJobOptions 
 }
 
 /**
- * Poll several jobs at once. Terminal jobs are cached and not re-fetched; only in-flight
- * jobs hit the API on each tick.
+ * Poll several jobs at once with one `GET /api/jobs?ids=…` per tick. Terminal jobs are cached and
+ * not re-fetched; only in-flight jobs are requested.
  */
 export function useJobs(ids: readonly string[], options: { onAllTerminal?: (jobs: JobDTO[]) => void } = {}) {
   const terminalCache = React.useRef(new Map<string, JobDTO>());
@@ -92,16 +95,24 @@ export function useJobs(ids: readonly string[], options: { onAllTerminal?: (jobs
 
   const { data, error, isLoading, mutate } = useSWR<JobDTO[]>(
     key,
-    async () =>
-      Promise.all(
-        ids.map(async (id) => {
-          const cached = terminalCache.current.get(id);
-          if (cached) return cached;
-          const { job } = await api<{ job: JobDTO }>(`/api/jobs/${id}`);
-          if (isTerminalStatus(job.status)) terminalCache.current.set(id, job);
-          return job;
-        }),
-      ),
+    async () => {
+      const pending = ids.filter((id) => !terminalCache.current.has(id));
+      const fetched = new Map<string, JobDTO>();
+      for (let i = 0; i < pending.length; i += IDS_PER_REQUEST) {
+        const chunk = pending.slice(i, i + IDS_PER_REQUEST);
+        const qs = new URLSearchParams({ ids: chunk.join(","), limit: String(chunk.length) });
+        const { jobs } = await api<{ jobs: JobDTO[] }>(`/api/jobs?${qs.toString()}`);
+        for (const job of jobs) fetched.set(job.id, job);
+      }
+      const result: JobDTO[] = [];
+      for (const id of ids) {
+        const job = terminalCache.current.get(id) ?? fetched.get(id);
+        if (!job) continue; // deleted / not visible: dropped from the list
+        if (isTerminalStatus(job.status)) terminalCache.current.set(id, job);
+        result.push(job);
+      }
+      return result;
+    },
     { ...baseConfig, refreshInterval: (latest) => jobsPollInterval(latest) },
   );
 
@@ -124,8 +135,7 @@ export function useBatch(batchId: string | null | undefined, options: { onTermin
     fetcher,
     {
       ...baseConfig,
-      refreshInterval: (latest) =>
-        latest && !isBatchTerminal(latest.batch.status, latest.jobs) ? JOB_POLL_INTERVAL_MS : 0,
+      refreshInterval: (latest) => (latest ? batchPollInterval(latest.batch, latest.jobs) : 0),
     },
   );
   const jobs = React.useMemo(() => data?.jobs ?? [], [data]);

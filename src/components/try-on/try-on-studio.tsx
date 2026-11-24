@@ -15,6 +15,7 @@ import { TryOnResult } from "@/components/try-on/try-on-result";
 import type { GarmentUpload, TryOnCategory } from "@/components/try-on/types";
 import { useJob } from "@/hooks/use-job";
 import { useMe } from "@/hooks/use-me";
+import { scrollBehavior } from "@/lib/a11y";
 import { ApiClientError, api } from "@/lib/api-client";
 import type { JobDTO, JobInput, MediaDTO } from "@/types/domain";
 
@@ -84,7 +85,7 @@ export function TryOnStudio({ initialPerson, personNotFound = false }: TryOnStud
     setGarment(null);
     // Wait for the steps to re-render, then move focus to the garment step.
     requestAnimationFrame(() => {
-      garmentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      garmentRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
       garmentRef.current?.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
     });
   }

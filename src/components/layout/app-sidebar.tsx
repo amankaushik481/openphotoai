@@ -52,7 +52,7 @@ export function AppSidebar({ isAdmin, className }: { isAdmin: boolean; className
           href={APP.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+          className="inline-flex items-center gap-2 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           <GithubIcon className="size-3.5" />
           {t("app.openSource")}
@@ -69,7 +69,7 @@ function SidebarLink({ item, active, label }: { item: NavItem; active: boolean; 
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
+        "group flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
         active
           ? "bg-sidebar-accent text-sidebar-accent-foreground"
           : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",

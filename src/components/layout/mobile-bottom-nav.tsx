@@ -13,11 +13,13 @@ import {
   isNavActive,
   type NavItem,
 } from "@/components/layout/app-nav";
+import { useBottomChromeHeight } from "@/components/layout/use-bottom-chrome";
 import { useT } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 
+// rem-sized label (not px) so the bar scales with the user's text size; its height is measured below.
 const tabClass =
-  "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50";
+  "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-1.5 text-[0.6875rem] leading-4 font-medium transition-colors";
 
 export function MobileBottomNav({ isAdmin, className }: { isAdmin: boolean; className?: string }) {
   const pathname = usePathname();
@@ -25,13 +27,18 @@ export function MobileBottomNav({ isAdmin, className }: { isAdmin: boolean; clas
   const [open, setOpen] = React.useState(false);
   const more = isAdmin ? [...MOBILE_MORE_NAV, ADMIN_LINK] : MOBILE_MORE_NAV;
   const moreActive = more.some((item) => isNavActive(pathname, item));
+  const navRef = React.useRef<HTMLElement>(null);
+  // Sticky bars, page padding and scroll-padding stack on top of the real bar height (--bottom-nav-h).
+  useBottomChromeHeight(navRef, "--bottom-nav-h");
 
   return (
     <nav
+      ref={navRef}
+      data-bottom-nav=""
       aria-label={t("nav.mainNavigation")}
       className={cn("glass fixed inset-x-0 bottom-0 z-40 border-t border-border/70 pb-safe", className)}
     >
-      <ul className="mx-auto flex max-w-lg items-stretch gap-1 px-2 pt-1.5">
+      <ul className="mx-auto flex max-w-lg items-stretch gap-1 pt-1.5 pr-[max(0.5rem,env(safe-area-inset-right))] pl-[max(0.5rem,env(safe-area-inset-left))]">
         {MOBILE_PRIMARY_NAV.map((item) => (
           <li key={item.href} className="flex flex-1">
             <TabLink item={item} active={isNavActive(pathname, item)} label={t(item.labelKey)} />
@@ -62,7 +69,7 @@ export function MobileBottomNav({ isAdmin, className }: { isAdmin: boolean; clas
                         onClick={() => setOpen(false)}
                         aria-current={active ? "page" : undefined}
                         className={cn(
-                          "flex h-20 flex-col items-center justify-center gap-2 rounded-xl border text-xs font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                          "flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border p-2 text-center text-xs font-medium transition-colors",
                           active ? "border-primary/40 bg-brand-soft text-brand-soft-foreground" : "bg-card hover:bg-accent",
                         )}
                       >

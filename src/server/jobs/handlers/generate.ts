@@ -14,6 +14,7 @@ import { getOwnedMedia, getOwnedUpload, providerInputUrl } from "@/server/media/
 import { getOwnedModel, identityModeOf, identityRefFor, type IdentityMode } from "@/server/models/service";
 import { expandPlaceholders, getPack, renderFreePrompt, renderPackPrompt } from "@/server/packs/registry";
 import type { AspectRatio, Quality } from "@/types/domain";
+import { assembledTexts } from "../assembled-text";
 import { brandKitPrompt, getUsableBrandKit } from "../brand-kits";
 import { defineHandler } from "./types";
 
@@ -52,6 +53,7 @@ export default defineHandler({
     const identity = { triggerWord: model.triggerWord, subject: model.subject };
     const identityMode = identityModeOf(model);
     const textsToModerate: string[] = [];
+    let assembled: string[] = [];
     let packId: string | null = null;
     let data: GeneratePlanData;
 
@@ -92,28 +94,39 @@ export default defineHandler({
       let negativePrompt: string | undefined;
       let packTitle: string | undefined;
       let packPromptIndex: number | undefined;
+      // Curated pack text stays out of the assembled check (only its tail is kept, see assembled-text.ts).
+      let curated: string | null = null;
+      const userParts: string[] = [];
       if (input.packId) {
         const pack = await getPack(input.packId);
         if (!pack) throw errors.notFound("Pack");
         packPromptIndex = input.packPromptIndex ?? randomInt(pack.prompts.length);
         const rendered = renderPackPrompt(pack, packPromptIndex, identity);
         ({ prompt, negativePrompt, title: packTitle } = rendered);
+        curated = prompt;
         packId = pack.slug;
         if (input.prompt) {
-          prompt = `${prompt}, ${expandPlaceholders(input.prompt, identity)}`;
+          const extra = expandPlaceholders(input.prompt, identity);
+          prompt = `${prompt}, ${extra}`;
+          userParts.push(extra);
           textsToModerate.push(input.prompt);
         }
       } else {
         // The input schema guarantees a prompt when there is no pack / draft.
         const userPrompt = input.prompt ?? "";
         prompt = renderFreePrompt(userPrompt, identity);
+        userParts.push(prompt);
         textsToModerate.push(userPrompt);
       }
 
       if (input.brandKitId) {
         const fragment = brandKitPrompt(await getUsableBrandKit(user.id, input.brandKitId));
-        if (fragment) prompt = `${prompt}, ${fragment}`;
+        if (fragment) {
+          prompt = `${prompt}, ${fragment}`;
+          userParts.push(fragment);
+        }
       }
+      assembled = assembledTexts({ curated, parts: userParts, triggerWords: [model.triggerWord] });
 
       let referenceKey: string | undefined;
       let referenceMime: string | undefined;
@@ -144,6 +157,7 @@ export default defineHandler({
       packId,
       sourceMediaId: input.fromDraftMediaId ?? null,
       textsToModerate,
+      assembledTexts: assembled,
       data,
       // Instant (reference-based) models run on a pricier multi-reference model; drafts stay free.
       credits: identityMode === "instant" ? creditCost(input) * INSTANT_MODE_MULTIPLIER : undefined,

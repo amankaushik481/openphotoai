@@ -23,7 +23,7 @@ export function FaqList({
     <div className={cn("divide-y rounded-2xl border bg-card shadow-xs", className)}>
       {items.map((item) => (
         <details key={item.id} id={item.id} className="group scroll-mt-24 px-5 sm:px-6">
-          <summary className="-mx-2 flex cursor-pointer list-none items-start justify-between gap-4 rounded-md px-2 py-5 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+          <summary className="-mx-2 flex cursor-pointer list-none items-start justify-between gap-4 rounded-md px-2 py-5 [&::-webkit-details-marker]:hidden">
             <Heading className="text-base font-medium text-pretty">{item.question}</Heading>
             <ChevronDownIcon
               aria-hidden="true"

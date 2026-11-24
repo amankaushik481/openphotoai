@@ -53,6 +53,7 @@ export function persistedSecret(file) {
     if (err && err.code === "EEXIST") {
       const raced = readSecretFile(file);
       if (raced) return { secret: raced, created: false };
+      throw new Error(`${file} exists but doesn't hold a valid secret; delete it to generate a new one`);
     }
     throw err;
   }

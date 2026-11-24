@@ -28,8 +28,18 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-title" className={cn("leading-none font-semibold", className)} {...props} />;
+type CardTitleElement = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "div";
+
+/**
+ * A card's title is a section heading: `h2` by default. Pass `as` to fit the page outline
+ * (`h1` for a standalone card page, `h3` under an h2 section, `p`/`div` when it isn't a heading).
+ */
+function CardTitle({
+  as: Comp = "h2",
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement> & { as?: CardTitleElement; ref?: React.Ref<HTMLHeadingElement> }) {
+  return <Comp data-slot="card-title" className={cn("leading-none font-semibold", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {

@@ -52,7 +52,10 @@ describe("GET /api/files/[...key]", () => {
     const res = await call(await signed("users/u1/media/m1.jpg"));
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/jpeg");
-    expect(res.headers.get("cache-control")).toBe("private, max-age=3600");
+    // Immutable objects behind a stable (bucketed) URL: cacheable until the URL expires (1-2h).
+    const maxAge = Number(/^private, max-age=(\d+), immutable$/.exec(res.headers.get("cache-control") ?? "")?.[1]);
+    expect(maxAge).toBeGreaterThanOrEqual(3599);
+    expect(maxAge).toBeLessThanOrEqual(7200);
     expect(res.headers.get("content-length")).toBe("100");
     expect(res.headers.get("accept-ranges")).toBe("bytes");
     expect(res.headers.get("content-disposition")).toBeNull();

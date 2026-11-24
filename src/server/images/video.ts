@@ -17,6 +17,8 @@ const FFMPEG_TIMEOUT_MS = 60_000;
 const FFMPEG_ENCODE_TIMEOUT_MS = 5 * 60_000;
 const MAX_STDERR = 64 * 1024;
 const MAX_FRAMES = 30;
+/** Hard cap for moderation sampling (one ffmpeg pass; each frame is classified). */
+const MAX_SAMPLE_FRAMES = 64;
 
 function resolveFfmpeg(): string {
   if (!ffmpegPath || !existsSync(/* turbopackIgnore: true */ ffmpegPath)) {
@@ -132,6 +134,47 @@ export async function extractFrames(
     }
     if (frames.length === 0) throw new AppError("validation_error", "We couldn't read this video.");
     return { ...probe, frames };
+  });
+}
+
+/**
+ * Frames covering the WHOLE clip (output moderation): one every 1/fps seconds from t=0 (evenly spread
+ * at a lower rate when that would exceed `maxFrames`), plus the very last decodable frame. Throws when
+ * the video can't be read or fewer samples decode than the duration requires, so callers fail closed.
+ */
+export async function extractSampleFrames(
+  video: Uint8Array,
+  opts: { fps: number; maxFrames: number },
+): Promise<{ durationSec: number; width: number; height: number; frames: Uint8Array[] }> {
+  const bin = resolveFfmpeg();
+  const max = Math.min(Math.max(Math.floor(opts.maxFrames), 2), MAX_SAMPLE_FRAMES);
+  return withTempDir(async (dir) => {
+    const input = tempFile(dir, "input");
+    await fs.writeFile(/* turbopackIgnore: true */ input, video);
+    const probe = parseFfmpegProbe(await inspect(bin, input));
+    if (!probe) throw new AppError("validation_error", "We couldn't read this video.");
+
+    const duration = probe.durationSec > 0 ? probe.durationSec : 0;
+    const rate = duration > 0 ? Math.min(opts.fps, (max - 1) / duration) : opts.fps;
+    const quiet = ["-hide_banner", "-nostdin", "-loglevel", "error", "-y"];
+    const sampled = await runFfmpeg(bin, [
+      ...quiet, "-i", input, "-vf", `fps=${rate.toFixed(6)}`, "-frames:v", String(max - 1),
+      "-q:v", "3", "-f", "image2", tempFile(dir, "sample-%04d.jpg"),
+    ]);
+    if (sampled.code !== 0) throw new Error(`video frame sampling failed: ${sampled.stderr.slice(-300)}`);
+    const names = (await fs.readdir(/* turbopackIgnore: true */ dir)).filter((n) => /^sample-\d{4}\.jpg$/.test(n)).sort();
+    const frames = await Promise.all(names.map((n) => fs.readFile(/* turbopackIgnore: true */ tempFile(dir, n))));
+    const expected = duration > 0 ? Math.min(max - 1, Math.max(1, Math.floor(duration * rate))) : 1;
+    if (frames.filter((f) => f.length > 0).length < expected) {
+      throw new Error(`only ${frames.length} of ${expected} sampled video frames decoded`);
+    }
+
+    // The final frame, wherever it falls (fps sampling can stop up to 1/rate s before the end).
+    const lastPath = tempFile(dir, "last.jpg");
+    const last = await runFfmpeg(bin, [...quiet, "-sseof", "-1", "-i", input, "-update", "1", "-q:v", "3", "-f", "image2", lastPath]);
+    const lastBytes = last.code === 0 ? await fs.readFile(/* turbopackIgnore: true */ lastPath).catch(() => null) : null;
+    if (!lastBytes || lastBytes.length === 0) throw new Error("the last frame of the video could not be decoded");
+    return { ...probe, frames: [...frames, lastBytes].map((b) => new Uint8Array(b)) };
   });
 }
 

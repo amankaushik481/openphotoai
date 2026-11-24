@@ -36,7 +36,7 @@ const QUICK_ACTIONS: readonly QuickAction[] = [
 /** Compact one-click enhancements for the gallery viewer: upscale 2×, restore face, remove background. */
 export function EnhanceQuickActions({ media, onJobCreated, className }: EnhanceQuickActionsProps) {
   return (
-    <div role="group" aria-label="Quick enhancements" className={cn("flex items-center gap-1", className)}>
+    <div role="group" aria-label="Quick enhancements" className={cn("flex flex-wrap items-center gap-1", className)}>
       {QUICK_ACTIONS.map((spec) => (
         // Keyed by photo so a running job's spinner doesn't follow the viewer to the next photo.
         <QuickActionButton key={`${media.id}:${spec.action}`} media={media} spec={spec} onJobCreated={onJobCreated} />
@@ -68,7 +68,9 @@ function QuickActionButton({
     onTerminal: (job) => {
       const output = job.media[0];
       if (job.status === "succeeded" && output) {
+        // Toasts with an action stay until dismissed, so keyboard/screen-reader users can reach it.
         toast.success(spec.done, {
+          duration: Infinity,
           action: { label: "Open", onClick: () => router.push(`/app/gallery/${output.id}`) },
         });
       } else {
@@ -78,7 +80,9 @@ function QuickActionButton({
     onError: (error) =>
       toast.error(
         error.message,
-        error.buyCredits ? { action: { label: "Buy credits", onClick: () => router.push("/app/billing") } } : undefined,
+        error.buyCredits
+          ? { duration: Infinity, action: { label: "Buy credits", onClick: () => router.push("/app/billing") } }
+          : undefined,
       ),
   });
 
@@ -95,12 +99,19 @@ function QuickActionButton({
           aria-label={availability.reason ? `${spec.label}: ${availability.reason}` : tooltip}
           aria-disabled={blocked || undefined}
           aria-busy={busy || undefined}
-          className={cn(!availability.available && "cursor-not-allowed opacity-50")}
+          // Touch has no hover tooltip: show the name and credit cost before a tap starts a paid job.
+          className={cn(
+            "pointer-coarse:w-auto pointer-coarse:px-2.5",
+            !availability.available && "cursor-not-allowed opacity-50",
+          )}
           onClick={() => {
             if (!blocked) void run(enhanceRequest(spec.action, media.id));
           }}
         >
           {busy ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <spec.Icon aria-hidden="true" />}
+          <span aria-hidden="true" className="hidden text-xs pointer-coarse:inline">
+            {label}
+          </span>
         </Button>
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>

@@ -196,7 +196,7 @@ export function PromptField({
                 onClick={() => applySuggestion(s)}
                 title={s.text}
                 aria-label={s.kind === "append" ? `Add “${s.text}” to the prompt` : `Use suggested prompt: ${s.text}`}
-                className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors outline-none hover:border-primary/40 hover:bg-brand-soft/60 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60"
               >
                 {s.kind === "append" ? (
                   <PlusIcon aria-hidden="true" className="size-3 shrink-0 text-primary" />

@@ -27,6 +27,7 @@ import {
   type TwoPeople,
 } from "@/server/together/prompts";
 import type { AspectRatio } from "@/types/domain";
+import { assembledTexts as assembleTexts } from "../assembled-text";
 import { defineHandler } from "./types";
 
 const MAX_SEED = 2_147_483_647;
@@ -64,6 +65,8 @@ export default defineHandler({
 
     const people: TwoPeople = [models[0]!, models[1]!];
     const textsToModerate: string[] = [];
+    const userParts: string[] = [];
+    let curated: string | null = null;
     let prompt: string;
     let packId: string | null = null;
     let packTitle: string | undefined;
@@ -74,16 +77,21 @@ export default defineHandler({
       if (!pack) throw errors.notFound("Pack");
       const rendered = renderTwoPersonPackPrompt(pack, randomInt(pack.prompts.length), people);
       ({ prompt, title: packTitle, index: packPromptIndex } = rendered);
+      curated = prompt;
       packId = pack.slug;
       if (input.prompt) {
         const extra = expandTwoPersonPlaceholders(input.prompt, people);
-        if (extra) prompt = `${prompt}, ${extra}`;
+        if (extra) {
+          prompt = `${prompt}, ${extra}`;
+          userParts.push(extra);
+        }
         textsToModerate.push(input.prompt);
       }
     } else {
       // The input schema guarantees a prompt when there is no pack.
       const userPrompt = input.prompt ?? "";
       prompt = renderTwoPersonPrompt(userPrompt, people);
+      userParts.push(prompt);
       textsToModerate.push(userPrompt);
     }
 
@@ -100,7 +108,8 @@ export default defineHandler({
       packPromptIndex,
     };
     // The job (and its media) belongs to the requester's own model; the partner's stays theirs.
-    return { modelId: own.id, packId, textsToModerate, data };
+    const assembledTexts = assembleTexts({ curated, parts: userParts, triggerWords: models.map((m) => m.triggerWord) });
+    return { modelId: own.id, packId, textsToModerate, assembledTexts, data };
   },
 
   async submit({ user, plan, submitOpts }) {

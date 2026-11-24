@@ -170,17 +170,44 @@ describe("createS3Storage", () => {
   it("presigns GET URLs with expiry and an optional attachment disposition", async () => {
     const storage = createS3Storage(OPTS);
     const url = await storage.getSignedUrl("users/u1/media/m1.jpg");
-    expect(url).toBe("https://bucket.example.com/users/u1/media/m1.jpg?X-Amz-Expires=3600");
-    expect(fake.presign[0]!.command.input).toEqual({ Bucket: "openshoot", Key: "users/u1/media/m1.jpg" });
+    // Signed at the start of the hour, valid for one window + the 1h TTL.
+    expect(url).toBe("https://bucket.example.com/users/u1/media/m1.jpg?X-Amz-Expires=7200");
+    expect(fake.presign[0]!.command.input).toEqual({
+      Bucket: "openshoot",
+      Key: "users/u1/media/m1.jpg",
+      ResponseCacheControl: "private, max-age=3600, immutable",
+    });
 
     await storage.getSignedUrl("users/u1/media/m1.jpg", { downloadName: "photo.jpg", expiresInSec: 120 });
-    expect(fake.presign[1]!.options).toEqual({ expiresIn: 120 });
+    expect(fake.presign[1]!.options).toMatchObject({ expiresIn: 240 });
     expect(fake.presign[1]!.command.input.ResponseContentDisposition).toBe(
       `attachment; filename="photo.jpg"; filename*=UTF-8''photo.jpg`,
     );
 
     await storage.getSignedUrl("users/u1/media/m1.jpg", { expiresInSec: 30 * 24 * 3600 });
-    expect(fake.presign[2]!.options).toEqual({ expiresIn: 7 * 24 * 3600 });
+    expect(fake.presign[2]!.options).toMatchObject({ expiresIn: 7 * 24 * 3600 });
+  });
+
+  it("signs against a time bucket so URLs are stable (cacheable) within the window", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      const storage = createS3Storage(OPTS);
+      vi.setSystemTime(new Date("2026-01-01T10:05:00Z"));
+      await storage.getSignedUrl("users/u1/media/m1.jpg");
+      vi.setSystemTime(new Date("2026-01-01T10:59:59Z"));
+      await storage.getSignedUrl("users/u1/media/m1.jpg");
+      vi.setSystemTime(new Date("2026-01-01T11:00:00Z"));
+      await storage.getSignedUrl("users/u1/media/m1.jpg");
+      const dates = fake.presign.map((p) => (p.options as { signingDate: Date }).signingDate.toISOString());
+      expect(dates).toEqual(["2026-01-01T10:00:00.000Z", "2026-01-01T10:00:00.000Z", "2026-01-01T11:00:00.000Z"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stores objects as immutable unless the caller sets Cache-Control", async () => {
+    await createS3Storage(OPTS).put("users/u1/media/m2.jpg", new Uint8Array([1]), { contentType: "image/jpeg" });
+    expect(fake.sent[0]!.input.CacheControl).toBe("private, max-age=31536000, immutable");
   });
 
   it("validates keys before calling S3", async () => {

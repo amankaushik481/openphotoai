@@ -16,7 +16,8 @@ export interface PaymentWebhookResult {
 
 /**
  * Responses: 200 for processed / duplicate / ignored events, 400 for a bad signature or body,
- * 500 when the event must be redelivered (the failure is recorded in webhook_events).
+ * 409 while another request is still processing the same event, 500 when the event must be
+ * redelivered (the failure is recorded in webhook_events). Every non-2xx makes the provider retry.
  */
 export async function handlePaymentWebhook(provider: PaymentProviderName, req: WebhookRequest): Promise<PaymentWebhookResult> {
   const payment = getPaymentProvider();
@@ -32,6 +33,9 @@ export async function handlePaymentWebhook(provider: PaymentProviderName, req: W
   }
 
   const result = await applyPaymentEvent(provider, event);
+  if (result.status === "in_progress") {
+    throw errors.conflict("This event is still being processed. Retry later.");
+  }
   if (result.status === "duplicate") return { received: true, duplicate: true };
   if (result.status === "ignored") return { received: true, ignored: true };
   return { received: true };

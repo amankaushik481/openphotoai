@@ -136,8 +136,10 @@ describe("local storage: signed URLs", () => {
     expect(u.origin).toBe("http://localhost:3000");
     expect(u.pathname).toBe("/api/files/users/u1/media/m%201.jpg");
     expect(key).toBe("users/u1/media/m 1.jpg");
+    // Bucketed expiry: valid for at least the TTL (1h) and at most TTL + one signing window.
     expect(Number(exp) - before).toBeGreaterThanOrEqual(3599);
-    expect(Number(exp) - before).toBeLessThanOrEqual(3601);
+    expect(Number(exp) - before).toBeLessThanOrEqual(7201);
+    expect(Number(exp) % 3600).toBe(0);
     expect(dl).toBeNull();
     expect(storage.verifySignature(key, exp, sig, dl)).toBe(true);
     expect(verifyLocalFileSignature(key, exp, sig, dl, { secret: SECRET })).toBe(true);

@@ -26,6 +26,8 @@ export interface GalleryToolbarProps {
   selecting: boolean;
   onSelectingChange: (on: boolean) => void;
   onOpenFolders: () => void;
+  /** The "Select" toggle: focus returns here when selection mode ends from elsewhere. */
+  selectToggleRef?: React.Ref<HTMLButtonElement>;
 }
 
 const ALL = "all";
@@ -39,6 +41,7 @@ export function GalleryToolbar({
   selecting,
   onSelectingChange,
   onOpenFolders,
+  selectToggleRef,
 }: GalleryToolbarProps) {
   const { models } = useModels();
   const hiddenSwitchId = React.useId();
@@ -131,6 +134,7 @@ export function GalleryToolbar({
             <span className="max-w-28 truncate">{folderName ?? "Folders"}</span>
           </Button>
           <Button
+            ref={selectToggleRef}
             type="button"
             variant={selecting ? "secondary" : "outline"}
             size="sm"

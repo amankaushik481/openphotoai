@@ -11,6 +11,42 @@ function safetyModelFiles(root: string): string[] {
   ];
 }
 
+/**
+ * Route globs (picomatch, matched against the route path, e.g. `/api/jobs/[id]`) of the functions that
+ * need the heavy runtime files. Keep in sync with the code paths that use them:
+ *  - INGEST: job polling / webhooks / cron complete jobs and ingest outputs (download -> NSFW + likeness
+ *    models -> ffmpeg for videos). POST /api/jobs also plans `train` jobs (face checks).
+ *  - SAFETY: uploads and identity-model routes run face detection / NSFW on user photos (no video).
+ */
+const INGEST_ROUTES = "/api/{jobs,batches,v1/jobs,v1/batches,webhooks/ai,cron/jobs}{,/**}";
+const SAFETY_ROUTES = "/api/{uploads,v1/uploads,models/*/consent,models/*/photos,models/*/train}{,/**}";
+const FFMPEG_FILES = ["./node_modules/ffmpeg-static/ffmpeg", "./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg"];
+const SAFETY_MODEL_FILES = [...safetyModelFiles("./node_modules"), ...safetyModelFiles("./node_modules/.pnpm/node_modules")];
+
+/**
+ * sharp ships both glibc and musl builds of libvips (~18 MB each). Only the build host's flavor can run
+ * in the deployment (Vercel and the Docker image are glibc), so drop the other one from every trace.
+ */
+function otherLibcSharpFiles(): string[] {
+  if (process.platform !== "linux") return [];
+  const header = (process.report?.getReport() as { header?: { glibcVersionRuntime?: string } } | undefined)?.header;
+  const musl = !header?.glibcVersionRuntime;
+  const other = musl ? "linux" : "linuxmusl";
+  return [`node_modules/**/@img/sharp-libvips-${other}-*/**`, `node_modules/**/@img/sharp-${other}-*/**`];
+}
+
+/**
+ * Files no production function needs:
+ *  - PGlite (~20 MB) is the zero-setup dev/test database; production uses Postgres (docs/DECISIONS.md #6).
+ *    src/db loads it lazily only for `pglite:` URLs. Set OPENSHOOT_TRACE_PGLITE=true at build time to
+ *    deploy with an embedded database anyway.
+ *  - The other libc's sharp binaries.
+ */
+const EXCLUDE_EVERYWHERE = [
+  ...(process.env.OPENSHOOT_TRACE_PGLITE === "true" ? [] : ["node_modules/**/@electric-sql/pglite/**"]),
+  ...otherLibcSharpFiles(),
+];
+
 const nextConfig: NextConfig = {
   // We use classic dynamic/static rendering (no Cache Components): most of the app is
   // per-user and dynamic; the marketing pages are statically rendered. See docs/DECISIONS.md.
@@ -32,24 +68,27 @@ const nextConfig: NextConfig = {
     "nsfwjs",
     "ffmpeg-static",
   ],
-  // Packs are JSON data files read at runtime; make sure they ship with serverless bundles.
+  // Function sizes: every route used to carry ffmpeg (76 MB) + the safety models (~17 MB). They are now
+  // scoped to the routes that run them (verify after a build: `node scripts/trace-sizes.mjs`).
   outputFileTracingIncludes: {
-    "/**": [
-      "./packs/**/*.json",
-      "./drizzle/**/*",
-      // ffmpeg binary used to sample video frames for moderation + thumbnails.
-      "./node_modules/ffmpeg-static/ffmpeg",
-      "./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg",
-      // Local safety models are loaded by computed paths (see docs/SAFETY_PROVIDERS.md §6).
-      ...safetyModelFiles("./node_modules"),
-      ...safetyModelFiles("./node_modules/.pnpm/node_modules"),
-    ],
+    // Packs are JSON data files read at runtime; make sure they ship with serverless bundles.
+    "/**": ["./packs/**/*.json", "./drizzle/**/*"],
+    // ffmpeg binary used to moderate, label and thumbnail video outputs.
+    [INGEST_ROUTES]: FFMPEG_FILES,
+    // Local safety models are loaded by computed paths (see docs/SAFETY_PROVIDERS.md §6).
+    [`{${INGEST_ROUTES},${SAFETY_ROUTES}}`]: SAFETY_MODEL_FILES,
+  },
+  outputFileTracingExcludes: {
+    "/**": EXCLUDE_EVERYWHERE,
+    "next-server": EXCLUDE_EVERYWHERE,
+    // Routes that never ingest outputs still import ffmpeg-static through shared modules; drop its binary.
+    [`!${INGEST_ROUTES}`]: ["node_modules/**/ffmpeg-static/ffmpeg"],
   },
   images: {
-    // User media is served through signed URLs from our own API / S3; avoid the
-    // image optimizer for private media (it would cache signed URLs).
-    unoptimized: false,
-    remotePatterns: [{ protocol: "https", hostname: "**" }],
+    // All user media is rendered with <img> from signed URLs; the only next/image user is the (static)
+    // pack cover. Disabling the optimizer closes `/_next/image?url=…` as an open resizing proxy.
+    unoptimized: true,
+    remotePatterns: [],
   },
   turbopack: {
     rules: {
@@ -63,6 +102,7 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "10mb" },
   },
   async headers() {
+    const https = (process.env.NEXT_PUBLIC_APP_URL ?? "").startsWith("https://");
     return [
       {
         source: "/:path*",
@@ -71,7 +111,16 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
+          // Browsers only honour HSTS over https; sent when the public URL is https.
+          ...(https ? [{ key: "Strict-Transport-Security", value: "max-age=31536000" }] : []),
         ],
+      },
+      {
+        // Pages only: API routes set their own (e.g. /api/files: `default-src 'none'; sandbox`).
+        // Baseline directives that can't break rendering; a nonce-based script-src would make every
+        // page dynamic (see docs/KNOWN_ISSUES.md "Security").
+        source: "/:path((?!api/).*)",
+        headers: [{ key: "Content-Security-Policy", value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'" }],
       },
     ];
   },

@@ -1,4 +1,4 @@
-import { clientIp, parseBody, route } from "@/server/http";
+import { clientIp, forwardedChain, parseBody, route } from "@/server/http";
 import { acceptInvite, acceptInviteRequest } from "@/server/together";
 
 /**
@@ -7,9 +7,11 @@ import { acceptInvite, acceptInviteRequest } from "@/server/together";
  */
 export const POST = route<{ token: string }, "user">({ auth: "user" }, async ({ req, user, params }) => {
   const { modelId } = await parseBody(req, acceptInviteRequest);
+  const ip = clientIp(req);
   await acceptInvite(user, params.token, modelId, {
-    ipAddress: clientIp(req),
+    ipAddress: ip === "unknown" ? null : ip,
     userAgent: req.headers.get("user-agent"),
+    forwarded: forwardedChain(req),
   });
   return { ok: true };
 });

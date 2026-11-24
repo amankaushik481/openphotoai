@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import type { StorageProvider } from "@/providers/types";
 import { createLocalStorage } from "@/providers/storage/local";
 import { createS3Storage } from "@/providers/storage/s3";
+import { signingWindow } from "@/providers/storage/url-window";
 
 export const storageKeys = {
   userPrefix: (userId: string) => `users/${userId}/`,
@@ -64,7 +65,29 @@ export function setStorageForTesting(provider: StorageProvider | null): void {
   if (provider === null) cached = null;
 }
 
-/** Signed read URL for the browser (default 1h). */
+/** Signed URLs memoized per provider instance (a test override or a new provider starts empty). */
+const URL_CACHE_MAX = 10_000;
+const urlCaches = new WeakMap<StorageProvider, Map<string, Promise<string>>>();
+
+/**
+ * Signed read URL for the browser (default 1h). URLs are deterministic within a signing window
+ * (see url-window.ts), so each one is computed once per window and reused: polls that return the same
+ * media over and over don't re-sign (S3 presigning costs ~1ms of CPU per URL).
+ */
 export async function signedUrl(key: string, opts?: { expiresInSec?: number; downloadName?: string }): Promise<string> {
-  return getStorage().getSignedUrl(key, opts);
+  const storage = getStorage();
+  const w = signingWindow(opts?.expiresInSec);
+  if (w.windowSec === 0) return storage.getSignedUrl(key, opts);
+
+  const cache = urlCaches.get(storage) ?? new Map<string, Promise<string>>();
+  urlCaches.set(storage, cache);
+  // The window start is part of the key: a cached URL is always valid for >= ttl from now.
+  const cacheKey = `${w.signedAtSec}\u0000${w.ttlSec}\u0000${opts?.downloadName ?? ""}\u0000${key}`;
+  const hit = cache.get(cacheKey);
+  if (hit) return hit;
+  const pending = storage.getSignedUrl(key, opts);
+  if (cache.size >= URL_CACHE_MAX) cache.delete(cache.keys().next().value!);
+  cache.set(cacheKey, pending);
+  pending.catch(() => cache.delete(cacheKey));
+  return pending;
 }

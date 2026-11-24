@@ -126,7 +126,7 @@ export function PackQuickPicker({ packs, value, onValueChange, className }: Pack
                 setActive(0);
               }}
               onKeyDown={onKeyDown}
-              className="h-11 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground md:text-sm"
+              className="h-11 w-full rounded-md bg-transparent text-base [--focus-offset:-2px] placeholder:text-muted-foreground md:text-sm"
             />
           </div>
           <ul id={listId} role="listbox" aria-label="Packs" className="max-h-80 overflow-y-auto p-1">

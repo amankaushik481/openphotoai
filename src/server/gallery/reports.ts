@@ -63,10 +63,14 @@ async function resolveTarget(input: CreateReportRequest): Promise<ReportTarget> 
   return { shareLinkId: null, mediaId: null, targetUserId: null };
 }
 
-/** Store a report and notify the takedown inbox (+ acknowledge the reporter when they left an email). */
+/**
+ * Store a report and notify the takedown inbox. Only a signed-in reporter gets an acknowledgement,
+ * at their verified account address: the form's free-text `email` is kept as a contact for the
+ * moderators but never mailed, so the public form can't be used to send mail to third parties.
+ */
 export async function createReport(
   input: CreateReportRequest,
-  ctx: { reporterUserId?: string | null } = {},
+  ctx: { reporterUserId?: string | null; reporterAccountEmail?: string | null } = {},
 ): Promise<ReportRow> {
   const target = await resolveTarget(input);
   const [row] = await db
@@ -82,7 +86,9 @@ export async function createReport(
   const report = row!;
   await Promise.all([
     sendEmailSafe("report_received", APP.takedownEmail, { reportId: report.id }),
-    input.email ? sendEmailSafe("report_received", input.email, { reportId: report.id }) : null,
+    ctx.reporterUserId && ctx.reporterAccountEmail
+      ? sendEmailSafe("report_received", ctx.reporterAccountEmail, { reportId: report.id })
+      : null,
   ]);
   return report;
 }

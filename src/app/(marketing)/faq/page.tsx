@@ -41,7 +41,7 @@ export default function FaqPage() {
                 <li key={c.id} className="shrink-0">
                   <a
                     href={`#${c.id}`}
-                    className="inline-flex h-9 items-center rounded-full border bg-card px-4 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none lg:w-full lg:rounded-md lg:border-0 lg:bg-transparent lg:px-3 lg:hover:bg-accent"
+                    className="inline-flex h-9 items-center rounded-full border bg-card px-4 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground [--focus-offset:-2px] lg:w-full lg:rounded-md lg:border-0 lg:bg-transparent lg:px-3 lg:hover:bg-accent"
                   >
                     {c.title}
                   </a>

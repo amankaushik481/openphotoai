@@ -1,9 +1,10 @@
 /** Request helpers shared by the jobs/batches route handlers (session API + public API v1). */
 import { timingSafeEqual } from "node:crypto";
+import { after } from "next/server";
 import type { JobRow } from "@/db/types";
 import { env } from "@/lib/env";
 import { errors } from "@/server/http";
-import { syncJob } from "./engine";
+import { syncJob, type DeferCompletion } from "./engine";
 import { errorMessage, mapLimit } from "./util";
 
 const MAX_IDEMPOTENCY_KEY_LENGTH = 200;
@@ -23,14 +24,47 @@ export function readIdempotencyKey(req: Request): string | null {
 }
 
 /**
- * Lazily sync running jobs (polling fallback for pages that watch many jobs, e.g. a batch).
- * syncJob throttles per job, so frequent polling doesn't hammer the provider.
+ * For user-facing polls: run job completions (output download + safety models + storage, seconds per
+ * output) after the response is sent (`after` from next/server), one at a time per request, so a poll
+ * never waits on ingestion and one request can't start many ingestions at once. The next poll sees the
+ * result. Outside a request scope (scripts, unit tests) it declines and the sync completes inline.
  */
-export async function syncRunningJobs(rows: JobRow[]): Promise<JobRow[]> {
-  const running = rows.filter((r) => r.status === "running").slice(0, MAX_LAZY_SYNC);
+export function completeAfterResponse(): DeferCompletion {
+  const queue: Array<() => Promise<unknown>> = [];
+  let scheduled = false;
+  return (task) => {
+    if (!scheduled) {
+      try {
+        after(async () => {
+          for (let next = queue.shift(); next; next = queue.shift()) {
+            await next().catch((err: unknown) => console.error("[jobs] deferred completion failed:", err));
+          }
+        });
+      } catch {
+        return false;
+      }
+      scheduled = true;
+    }
+    queue.push(task);
+    return true;
+  };
+}
+
+/**
+ * Lazily sync running jobs (polling fallback for pages that watch many jobs, e.g. a batch).
+ * syncJob throttles per job, so frequent polling doesn't hammer the provider; the least recently
+ * polled jobs go first so every job of a large batch gets its turn.
+ */
+export async function syncRunningJobs(rows: JobRow[], opts?: { deferCompletion?: DeferCompletion }): Promise<JobRow[]> {
+  const polledAt = (r: JobRow) => r.lastPolledAt?.getTime() ?? 0;
+  const running = rows
+    .filter((r) => r.status === "running")
+    .sort((a, b) => polledAt(a) - polledAt(b))
+    .slice(0, MAX_LAZY_SYNC);
   if (!running.length) return rows;
+  const deferCompletion = opts?.deferCompletion ?? completeAfterResponse();
   const synced = await mapLimit(running, 4, (job) =>
-    syncJob(job.id).catch((err) => {
+    syncJob(job.id, { deferCompletion }).catch((err) => {
       console.warn(`[jobs] lazy sync failed for ${job.id}:`, errorMessage(err));
       return job;
     }),

@@ -20,6 +20,27 @@ export class ProviderRequestError extends Error {
   }
 }
 
+/**
+ * Text-to-speech produced more audio than the talking video paid for (`maxAudioSeconds`): the
+ * per-second avatar step is not started. Not retryable; the job handler shows it as a validation error.
+ */
+export class AudioTooLongError extends ProviderRequestError {
+  readonly audioSeconds: number;
+  readonly maxSeconds: number;
+
+  constructor(args: { provider: string; endpoint?: string; audioSeconds: number; maxSeconds: number }) {
+    super({
+      provider: args.provider,
+      endpoint: args.endpoint,
+      retryable: false,
+      message: `Speech audio is ${args.audioSeconds.toFixed(1)}s, longer than the ${args.maxSeconds}s allowed for this job.`,
+    });
+    this.name = "AudioTooLongError";
+    this.audioSeconds = args.audioSeconds;
+    this.maxSeconds = args.maxSeconds;
+  }
+}
+
 /** Status codes worth retrying: timeouts, conflicts, rate limits and server errors. */
 export function isRetryableStatus(status: number | undefined): boolean {
   if (status === undefined) return true;

@@ -66,6 +66,12 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
             )}
           </ToggleGroupItem>
         </ToggleGroup>
+        {/* Narrow phones: the badge doesn't fit in the toggle, so state the saving on its own line. */}
+        {monthsFree > 0 && (
+          <p className="text-xs font-medium text-success min-[380px]:hidden">
+            Yearly: {monthsFree} {monthsFree === 1 ? "month" : "months"} free
+          </p>
+        )}
       </div>
 
       <div
@@ -112,7 +118,17 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
               </Button>
             );
           }
-          return <PlanCard key={plan.id} plan={plan} interval={interval} isCurrent={isCurrent} action={action} />;
+          return (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              interval={interval}
+              isCurrent={isCurrent}
+              action={action}
+              // The app page nests plans under a "Plans" h2; the public page's section has no heading.
+              titleAs={mode === "app" ? "h3" : "h2"}
+            />
+          );
         })}
       </div>
 
@@ -130,11 +146,13 @@ function PlanCard({
   interval,
   isCurrent,
   action,
+  titleAs,
 }: {
   plan: Plan;
   interval: BillingInterval;
   isCurrent: boolean;
   action: React.ReactNode;
+  titleAs: "h2" | "h3";
 }) {
   const yearly = interval === "year" && plan.id !== "free";
   const perMonthCents = yearly ? Math.round(plan.yearlyPriceCents / 12) : plan.monthlyPriceCents;
@@ -147,7 +165,7 @@ function PlanCard({
     >
       <CardHeader className="gap-2">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle id={titleId} className="text-lg">
+          <CardTitle as={titleAs} id={titleId} className="text-lg">
             {plan.name}
           </CardTitle>
           {isCurrent ? <Badge variant="soft">Your plan</Badge> : plan.popular ? <Badge variant="brand">Most popular</Badge> : null}

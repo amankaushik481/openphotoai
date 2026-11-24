@@ -25,7 +25,9 @@ export default async function SuspendedPage() {
           <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <ShieldAlert className="size-6" aria-hidden />
           </div>
-          <CardTitle className="text-xl">Your account is suspended</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            Your account is suspended
+          </CardTitle>
           <CardDescription>
             While suspended you can&apos;t sign in, generate photos or use the API. Your photos and models are not
             shared with anyone.

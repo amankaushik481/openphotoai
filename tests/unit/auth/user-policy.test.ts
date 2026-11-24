@@ -31,7 +31,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  for (const k of ["ADMIN_EMAILS", "SIGNUP_BONUS_CREDITS", "EMAIL_PROVIDER", "RESEND_API_KEY"]) {
+  for (const k of ["ADMIN_EMAILS", "SIGNUP_BONUS_CREDITS", "EMAIL_PROVIDER", "RESEND_API_KEY", "TRUSTED_PROXY_HOPS"]) {
     if (saved[k] === undefined) delete process.env[k];
     else process.env[k] = saved[k];
   }
@@ -118,22 +118,36 @@ describe("magic link helpers", () => {
     expect(url).toBe("https://shoot.example.com/verify?token=abc&callbackURL=%2Fapp&errorCallbackURL=%2Flogin");
   });
 
-  it("reads the client IP from proxy headers", () => {
-    expect(ipFromHeaders(new Headers({ "x-forwarded-for": "1.2.3.4, 10.0.0.1" }))).toBe("1.2.3.4");
+  it("reads the client IP from the trusted proxy chain only (SEC-4)", () => {
+    // No trusted proxy (default outside Vercel): forwarded headers are client-controlled.
+    expect(ipFromHeaders(new Headers({ "x-forwarded-for": "1.2.3.4, 10.0.0.1" }))).toBeNull();
+    process.env.TRUSTED_PROXY_HOPS = "1";
+    resetEnvCache();
+    // One proxy appended the real peer on the right; the left entry was sent by the client.
+    expect(ipFromHeaders(new Headers({ "x-forwarded-for": "1.2.3.4, 10.0.0.1" }))).toBe("10.0.0.1");
     expect(ipFromHeaders(new Headers({ "x-real-ip": "5.6.7.8" }))).toBe("5.6.7.8");
     expect(ipFromHeaders(new Headers())).toBeNull();
   });
 
-  it("rate limits by IP with a real email provider and maps the error to a 429 APIError", async () => {
+  it("rate limits by recipient and IP with a real email provider and maps the error to a 429 APIError", async () => {
     process.env.EMAIL_PROVIDER = "resend";
     process.env.RESEND_API_KEY = "re_test_dummy";
+    process.env.TRUSTED_PROXY_HOPS = "1";
     resetEnvCache();
-    const headers = new Headers({ "x-forwarded-for": "9.9.9.9" });
-    await enforceMagicLinkRateLimit(headers);
+    const headers = new Headers({ "x-forwarded-for": "6.6.6.6, 9.9.9.9" });
+    await enforceMagicLinkRateLimit(headers, "Victim@Example.com");
     expect(rateLimit).toHaveBeenCalledWith("magicLinkPerHourPerIp", "ip:9.9.9.9");
+    const [name, subject] = vi.mocked(rateLimit).mock.calls[0]!;
+    expect(name).toBe("magicLinkPerHourPerEmail");
+    // Hashed + case-insensitive: the limiter never stores the address.
+    expect(subject).toMatch(/^email:[0-9a-f]{32}$/);
+    expect(subject).not.toContain("victim");
+    vi.mocked(rateLimit).mockClear();
+    await enforceMagicLinkRateLimit(new Headers(), "victim@example.com");
+    expect(vi.mocked(rateLimit).mock.calls).toEqual([["magicLinkPerHourPerEmail", subject]]);
 
     vi.mocked(rateLimit).mockRejectedValueOnce(errors.rateLimited(120));
-    await expect(enforceMagicLinkRateLimit(headers)).rejects.toMatchObject({ statusCode: 429 });
+    await expect(enforceMagicLinkRateLimit(headers, "victim@example.com")).rejects.toMatchObject({ statusCode: 429 });
   });
 
   it("skips the IP limit in mock email mode and when the IP is unknown", async () => {

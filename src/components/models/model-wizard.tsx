@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ApiClientError } from "@/lib/api-client";
 import type { ModelDetailResponse, ModelView } from "@/server/models/types";
 import type { JobDTO, ModelStatus, Subject } from "@/types/domain";
+import { scrollBehavior } from "@/lib/a11y";
 import { cn } from "@/lib/utils";
 import { ConsentStep } from "./consent-step";
 import { ModeStep } from "./mode-step";
@@ -66,7 +67,7 @@ export function ModelWizard({ initial }: ModelWizardProps) {
     setStep(next);
     // Move focus to the new step's heading for keyboard + screen-reader users.
     requestAnimationFrame(() => headingRef.current?.focus());
-    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: scrollBehavior() });
   }, []);
 
   // Training can finish while the page is open (the model polls while training).
@@ -112,7 +113,7 @@ export function ModelWizard({ initial }: ModelWizardProps) {
             Step {Math.min(current + 1, STEPS.length)} of {STEPS.length}: {STEPS[Math.max(0, current)]?.label}
           </p>
         </nav>
-        <h1 ref={headingRef} tabIndex={-1} className="font-display text-3xl leading-tight tracking-tight outline-none sm:text-4xl">
+        <h1 ref={headingRef} tabIndex={-1} className="font-display text-3xl leading-tight tracking-tight focus:outline-hidden sm:text-4xl">
           {title}
         </h1>
       </div>
@@ -236,7 +237,7 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
             <label
               key={s.value}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg border-2 p-3 text-center transition-colors has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50",
+                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg border-2 p-3 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
                 subject === s.value ? "border-primary bg-brand-soft/40" : "border-border hover:border-primary/40",
               )}
             >
@@ -257,7 +258,10 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
       </fieldset>
 
       {error && (
-        <Alert variant={error instanceof ApiClientError && error.code === "plan_limit" ? "warning" : "destructive"}>
+        <Alert
+          role="alert"
+          variant={error instanceof ApiClientError && error.code === "plan_limit" ? "warning" : "destructive"}
+        >
           <CircleAlertIcon aria-hidden="true" />
           <AlertTitle>Couldn&apos;t create the model</AlertTitle>
           <AlertDescription>
@@ -292,7 +296,7 @@ function DoneStep({ model }: { model: ModelView }) {
             <PartyPopperIcon aria-hidden="true" className="size-12" />
           </span>
         )}
-        <span className="absolute -right-1 -bottom-1 flex size-10 items-center justify-center rounded-full border-4 border-background bg-success text-white">
+        <span className="absolute -right-1 -bottom-1 flex size-10 items-center justify-center rounded-full border-4 border-background bg-success text-success-foreground">
           <CheckIcon aria-hidden="true" className="size-5" />
         </span>
       </div>

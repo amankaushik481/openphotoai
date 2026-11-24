@@ -35,7 +35,7 @@ export default async function DevEmailsPage() {
             <li key={email.id}>
               <Link
                 href={`/dev/emails/${email.id}`}
-                className="flex flex-col gap-1 px-4 py-3 hover:bg-zinc-50 focus-visible:bg-zinc-50 focus-visible:outline-none dark:hover:bg-zinc-900 dark:focus-visible:bg-zinc-900 sm:flex-row sm:items-center sm:gap-4"
+                className="flex flex-col gap-1 px-4 py-3 hover:bg-zinc-50 focus-visible:bg-zinc-50 [--focus-offset:-2px] dark:hover:bg-zinc-900 dark:focus-visible:bg-zinc-900 sm:flex-row sm:items-center sm:gap-4"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{email.subject}</span>

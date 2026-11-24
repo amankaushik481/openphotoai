@@ -11,11 +11,11 @@ import { buildVariants, compileTerms, findTerms, matchKey } from "./normalize";
 
 const FIGURES = [
   // ── US politics ──
-  "Donald Trump|trump|donald j trump", "Melania Trump", "Ivanka Trump", "Donald Trump Jr", "Eric Trump", "Barron Trump",
-  "JD Vance|j d vance", "Joe Biden|biden", "Jill Biden", "Hunter Biden", "Kamala Harris", "Barack Obama|obama",
+  "Donald Trump|trump|donald j trump|drumpf|trunp|donald trunp|trumpf", "Melania Trump", "Ivanka Trump|ivanka", "Donald Trump Jr", "Eric Trump", "Barron Trump",
+  "JD Vance|j d vance", "Joe Biden|biden|sleepy joe", "Jill Biden", "Hunter Biden", "Kamala Harris|kamala", "Barack Obama|obama|obamna",
   "Michelle Obama", "Hillary Clinton", "Bill Clinton", "Chelsea Clinton", "George W Bush|george bush", "Mike Pence",
   "Nancy Pelosi|pelosi", "Bernie Sanders", "Alexandria Ocasio-Cortez|ocasio cortez|aoc", "Marco Rubio",
-  "Ron DeSantis|desantis", "Gavin Newsom", "Robert F Kennedy Jr|rfk jr|robert kennedy jr", "Elon Musk|elon",
+  "Ron DeSantis|desantis", "Gavin Newsom", "Robert F Kennedy Jr|rfk jr|robert kennedy jr", "Elon Musk|elon|musk|elon mask",
   "Pete Hegseth|hegseth", "Tulsi Gabbard", "Mitch McConnell", "Chuck Schumer", "Ted Cruz", "Nikki Haley",
   "Vivek Ramaswamy", "Tim Walz", "Pete Buttigieg|buttigieg", "Marjorie Taylor Greene", "Kristi Noem",
   "Karoline Leavitt", "John Fetterman", "Rudy Giuliani|giuliani", "Michael Bloomberg", "Zohran Mamdani|mamdani",
@@ -27,10 +27,10 @@ const FIGURES = [
   "Jordan Bardella", "Olaf Scholz", "Friedrich Merz", "Angela Merkel|merkel", "Giorgia Meloni|meloni",
   "Sergio Mattarella", "Silvio Berlusconi|berlusconi", "Pedro Sanchez", "Viktor Orban|orban",
   "Ursula von der Leyen", "Antonio Guterres", "Mark Rutte", "Christine Lagarde", "Donald Tusk", "Andrzej Duda",
-  "Alexander Lukashenko|lukashenko", "Vladimir Putin|putin", "Dmitry Medvedev", "Sergey Lavrov",
+  "Alexander Lukashenko|lukashenko", "Vladimir Putin|putin|pootin", "Dmitry Medvedev", "Sergey Lavrov",
   "Alexei Navalny|navalny", "Volodymyr Zelensky|zelensky|zelenskyy|zelenskiy", "Olena Zelenska",
   // ── Royals ──
-  "King Charles|king charles iii|prince charles", "Queen Camilla", "Queen Elizabeth|queen elizabeth ii",
+  "King Charles|king charles iii|prince charles|charles iii", "Queen Camilla", "Queen Elizabeth|queen elizabeth ii",
   "Prince William", "Kate Middleton|catherine middleton|princess of wales|princess kate", "Prince Harry",
   "Meghan Markle|markle|duchess of sussex", "Prince George", "Princess Charlotte", "Prince Louis", "Prince Andrew",
   "Prince Philip", "Princess Diana|lady diana|diana spencer", "King Felipe|felipe vi", "Queen Letizia",
@@ -58,7 +58,7 @@ const FIGURES = [
   "Adolf Hitler|hitler", "Joseph Stalin|stalin", "Benito Mussolini|mussolini", "Vladimir Lenin|lenin",
   "Osama bin Laden|bin laden", "Saddam Hussein", "Muammar Gaddafi|gaddafi|qaddafi|kadafi",
   // ── Business & tech ──
-  "Mark Zuckerberg|zuckerberg", "Jeff Bezos|bezos", "Bill Gates", "Melinda French Gates|melinda gates",
+  "Mark Zuckerberg|zuckerberg|zuck", "Jeff Bezos|bezos", "Bill Gates", "Melinda French Gates|melinda gates",
   "Steve Jobs", "Tim Cook", "Sundar Pichai|pichai", "Satya Nadella|nadella", "Sam Altman", "Jensen Huang",
   "Larry Page", "Sergey Brin", "Larry Ellison", "Warren Buffett|buffett", "Jack Dorsey", "Jack Ma", "Peter Thiel",
   "Dario Amodei", "Demis Hassabis", "Lisa Su", "Michael Dell", "Marc Benioff", "Richard Branson", "Mark Cuban",
@@ -67,7 +67,7 @@ const FIGURES = [
   // ── Film & TV ──
   "Tom Cruise", "Brad Pitt", "Angelina Jolie", "Leonardo DiCaprio|dicaprio", "Johnny Depp", "Amber Heard",
   "Scarlett Johansson", "Jennifer Lawrence", "Jennifer Aniston", "Jennifer Lopez|jlo|j lo", "Margot Robbie",
-  "Ryan Reynolds", "Ryan Gosling", "Blake Lively", "Dwayne Johnson|dwayne the rock johnson", "Will Smith",
+  "Ryan Reynolds", "Ryan Gosling", "Blake Lively", "Dwayne Johnson|dwayne the rock johnson|dwayne the rock", "Will Smith",
   "Jada Pinkett Smith", "Denzel Washington", "Morgan Freeman", "Tom Hanks", "Robert Downey Jr|robert downey",
   "Chris Hemsworth", "Chris Evans", "Chris Pratt", "Keanu Reeves", "Emma Watson", "Emma Stone", "Natalie Portman",
   "Anne Hathaway", "Meryl Streep", "Nicole Kidman", "Julia Roberts", "Sandra Bullock", "Gal Gadot", "Zendaya",
@@ -75,7 +75,7 @@ const FIGURES = [
   "Jenna Ortega", "Millie Bobby Brown", "Pedro Pascal", "Henry Cavill", "Jason Momoa", "Vin Diesel", "Kevin Hart",
   "Samuel L Jackson|samuel jackson", "Robert De Niro|de niro", "Al Pacino", "Keira Knightley", "Kate Winslet",
   "Charlize Theron", "Salma Hayek", "Penelope Cruz", "Sofia Vergara", "Priyanka Chopra", "Deepika Padukone",
-  "Shah Rukh Khan", "Aishwarya Rai", "Amitabh Bachchan", "Salman Khan", "Ranveer Singh", "Alia Bhatt",
+  "Shah Rukh Khan|srk", "Aishwarya Rai", "Amitabh Bachchan", "Salman Khan", "Ranveer Singh", "Alia Bhatt",
   "Katrina Kaif", "Jackie Chan", "Bruce Lee", "Benedict Cumberbatch", "Daniel Radcliffe", "Idris Elba",
   "Michael B Jordan", "Cillian Murphy", "Hugh Jackman", "Mark Wahlberg", "Matt Damon", "Ben Affleck",
   "George Clooney", "Jason Statham", "Arnold Schwarzenegger|schwarzenegger", "Sylvester Stallone|stallone",
@@ -91,7 +91,7 @@ const FIGURES = [
   "Kate Moss", "Heidi Klum", "Tyra Banks", "Gisele Bundchen", "Adriana Lima", "Emily Ratajkowski", "Hailey Bieber",
   "Miranda Kerr", "Selena Gomez",
   // ── Music ──
-  "Taylor Swift", "Beyonce|beyonce knowles", "Rihanna", "Lady Gaga", "Ariana Grande", "Billie Eilish|eilish",
+  "Taylor Swift|tay tay|swifty", "Beyonce|beyonce knowles|queen bey", "Rihanna", "Lady Gaga", "Ariana Grande", "Billie Eilish|eilish",
   "Dua Lipa", "Justin Bieber|bieber", "Ed Sheeran|sheeran", "Harry Styles", "Drake", "Kanye West|kanye",
   "Jay-Z|jayz", "Eminem", "Snoop Dogg", "Travis Scott", "Bad Bunny", "Shakira", "Adele", "Katy Perry",
   "Miley Cyrus", "Nicki Minaj", "Cardi B", "Doja Cat", "Olivia Rodrigo", "Sabrina Carpenter", "Chappell Roan",
@@ -141,9 +141,12 @@ function compiledNames() {
   return compiled;
 }
 
-/** Canonical names of the public figures mentioned in `text` (evasion-robust, see normalize.ts). */
-export function findPublicFigures(text: string): string[] {
-  const matches = findTerms(buildVariants(text), compiledNames());
+/**
+ * Canonical names of the public figures mentioned in `text` (evasion-robust, see normalize.ts).
+ * `exceptions` are known-safe phrases blanked out first (e.g. "musk perfume").
+ */
+export function findPublicFigures(text: string, exceptions: readonly RegExp[] = []): string[] {
+  const matches = findTerms(buildVariants(text, exceptions), compiledNames());
   const names = new Set<string>();
   for (const m of matches) {
     const key = matchKey(m);

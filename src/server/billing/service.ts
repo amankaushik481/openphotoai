@@ -23,12 +23,22 @@ function providerFailure(err: unknown): never {
   throw errors.provider("The payment provider is unavailable right now. Please try again in a minute.");
 }
 
-/** The user's subscriptions that currently grant plan benefits, best first. */
+/**
+ * The user's subscriptions that currently grant plan benefits, best first. Only those at the
+ * configured provider count: leftover test-mode (mock) subscriptions never entitle anyone after
+ * the switch to Stripe.
+ */
 export async function listEntitledSubscriptions(userId: string): Promise<SubscriptionRow[]> {
   return db
     .select()
     .from(subscriptions)
-    .where(and(eq(subscriptions.userId, userId), inArray(subscriptions.status, [...ENTITLED_STATUSES])))
+    .where(
+      and(
+        eq(subscriptions.userId, userId),
+        eq(subscriptions.provider, env.paymentProvider),
+        inArray(subscriptions.status, [...ENTITLED_STATUSES]),
+      ),
+    )
     .orderBy(desc(subscriptions.updatedAt));
 }
 

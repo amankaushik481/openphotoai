@@ -27,7 +27,7 @@ export default async function PackPage({ params }: Props) {
     <>
       <Link
         href="/app/packs"
-        className="-ml-1 mb-4 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="-ml-1 mb-4 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeftIcon aria-hidden="true" className="size-4" />
         All packs

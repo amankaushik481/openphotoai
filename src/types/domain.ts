@@ -96,6 +96,8 @@ export const MODERATION_EVENT_KINDS = [
   "multi_person_unauthorized",
   "report_actioned",
   "account_suspended",
+  /** A chargeback was opened (or closed) on one of the user's payments: review the account. */
+  "payment_disputed",
 ] as const;
 export type ModerationEventKind = (typeof MODERATION_EVENT_KINDS)[number];
 

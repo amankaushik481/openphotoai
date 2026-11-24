@@ -24,8 +24,11 @@ const ROBOTS: Metadata["robots"] = {
   nocache: true,
   googleBot: { index: false, follow: false },
 };
-/** Social previews fetch the image once; give them longer than the 1h page URLs. */
-const PREVIEW_TTL_SEC = 7 * 24 * 3600;
+/**
+ * Social previews fetch (and cache) the image when the link is posted. Keep the signed URL short:
+ * it stays valid after the share is revoked, so its lifetime bounds how long revocation lags.
+ */
+const PREVIEW_TTL_SEC = 3600;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { token } = await params;
@@ -89,9 +92,7 @@ function SharedItem({
         preload="metadata"
         className={className}
         aria-label="AI-generated video"
-      >
-        <track kind="captions" />
-      </video>
+      />
     );
   }
   return (
@@ -159,7 +160,7 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
+                  className="block [--focus-offset:-5px] focus-visible:outline-background focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
                   aria-label={`Open photo ${i + 1} in full size`}
                 >
                   <SharedItem item={item} priority={i < 2} className="h-auto w-full" />

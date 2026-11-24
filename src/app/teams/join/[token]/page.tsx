@@ -29,7 +29,9 @@ export default async function JoinTeamPage({ params }: { params: Promise<{ token
             <IconBubble tone="muted">
               <LinkIcon className="size-6" aria-hidden="true" />
             </IconBubble>
-            <CardTitle className="text-xl">This invite link doesn&apos;t work</CardTitle>
+            <CardTitle as="h1" className="text-xl">
+              This invite link doesn&apos;t work
+            </CardTitle>
             <CardDescription>
               It was already used, replaced by a newer invite, or revoked. Ask your team owner to send a new one.
             </CardDescription>
@@ -54,7 +56,9 @@ export default async function JoinTeamPage({ params }: { params: Promise<{ token
           <IconBubble tone="brand">
             <UsersIcon className="size-6" aria-hidden="true" />
           </IconBubble>
-          <CardTitle className="text-xl">Join {invite.teamName}</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            Join {invite.teamName}
+          </CardTitle>
           <CardDescription>
             {invite.inviterName} invited you to {invite.teamName} on {APP.name}. You&apos;ll be able to use the
             team&apos;s brand kits. Your photos and models stay private.

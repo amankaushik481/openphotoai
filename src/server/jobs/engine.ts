@@ -35,7 +35,7 @@ import { AppError, errors } from "@/server/http";
 import { deleteJobMedia, deleteMediaByIds, ingestImages, ingestVideos } from "@/server/media/service";
 import { getOwnedModel } from "@/server/models/service";
 import { getPack } from "@/server/packs/registry";
-import { rateLimit } from "@/server/rate-limit";
+import { peekRateLimit, rateLimit } from "@/server/rate-limit";
 import { assertTextAllowed } from "@/server/safety";
 import {
   generateJobInput,
@@ -58,6 +58,31 @@ import { errorMessage, isNonRetryable, isUniqueViolation, mapLimit } from "./uti
 
 /** Minimum seconds between provider status polls for one job (unless forced). */
 export const SYNC_MIN_INTERVAL_SEC = 3;
+/**
+ * With provider webhooks configured, polling is only the fallback for missed webhooks: poll each job at
+ * most this often, however many viewers poll it (training: even less often, it runs ~20 minutes).
+ */
+export const SYNC_MIN_INTERVAL_WEBHOOKS_SEC = 20;
+export const TRAIN_SYNC_MIN_INTERVAL_WEBHOOKS_SEC = 60;
+
+/** Per-job provider poll throttle `{ base, train }` in seconds. */
+export function syncIntervalsSec(webhooksEnabled: boolean = env.webhooksEnabled): { base: number; train: number } {
+  return webhooksEnabled
+    ? { base: SYNC_MIN_INTERVAL_WEBHOOKS_SEC, train: TRAIN_SYNC_MIN_INTERVAL_WEBHOOKS_SEC }
+    : { base: SYNC_MIN_INTERVAL_SEC, train: SYNC_MIN_INTERVAL_SEC };
+}
+
+/**
+ * Hands a job's completion (output download + safety models + storage, seconds per output) to the caller
+ * to run later, e.g. after the HTTP response. Returns false when it can't, and the sync runs it inline.
+ */
+export type DeferCompletion = (task: () => Promise<unknown>) => boolean;
+
+export interface SyncJobOptions {
+  /** Ignore the per-job poll throttle (webhook notifications). */
+  force?: boolean;
+  deferCompletion?: DeferCompletion;
+}
 /** How long a finalization lease is valid before another worker may take over. */
 export const FINALIZE_LEASE_SEC = 300;
 /** Completion (download + ingest) attempts before the job is failed and refunded. */
@@ -90,6 +115,7 @@ const MSG = {
   providerCanceled: "The job was canceled by the AI provider. Your credits were refunded.",
   timeout: "This job took too long and timed out. Your credits were refunded.",
   ingest: "We couldn't process the results. Your credits were refunded.",
+  lowLikeness: "None of the results looked enough like you, so we discarded them. Your credits were refunded.",
 } as const;
 
 export interface CreateJobOptions {
@@ -127,8 +153,36 @@ function planDataOf(job: JobRow): Record<string, unknown> {
   return plan && typeof plan === "object" ? (plan as Record<string, unknown>) : {};
 }
 
-function isDraftInput(input: JobInput): boolean {
-  return input.type === "generate" && input.quality === "draft";
+/** Free draft images this job asks for (0 for anything that isn't a draft). */
+function draftImages(input: JobInput): number {
+  return input.type === "generate" && input.quality === "draft" ? input.numImages : 0;
+}
+
+/**
+ * Free drafts are capped per image per day (smaller allowance for users who never paid). A request
+ * bigger than what's left is refused without spending the rest of the allowance.
+ */
+async function consumeFreeDrafts(user: UserRow, images: number): Promise<void> {
+  const name = user.hasPaid ? "draftsPerDay" : "draftsPerDayFree";
+  const subject = `user:${user.id}`;
+  const { remaining } = await peekRateLimit(name, subject);
+  if (remaining > 0 && remaining < images) {
+    throw errors.validation(
+      `Only ${remaining} free ${remaining === 1 ? "draft" : "drafts"} left today. Ask for ${remaining} or fewer, or switch to Standard quality.`,
+      { draftsRemaining: remaining },
+    );
+  }
+  await rateLimit(name, subject, images);
+}
+
+/** A refund or chargeback left the balance negative: nothing runs, not even free drafts, until it's settled. */
+function assertBalanceNotNegative(user: UserRow): void {
+  if (user.credits >= 0) return;
+  throw new AppError(
+    "insufficient_credits",
+    `Your credit balance is ${user.credits} after a refund or chargeback. Buy credits to continue.`,
+    { needed: -user.credits, balance: user.credits },
+  );
 }
 
 /** Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). */
@@ -163,6 +217,7 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
     const existing = await findByIdempotencyKey(user.id, idempotencyKey);
     if (existing) return existing;
   }
+  assertBalanceNotNegative(user);
 
   const subject = `user:${user.id}`;
   if (!opts?.skipRateLimit) {
@@ -174,9 +229,13 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
   const plan = await handler.plan({ user, input: parsed });
   const texts = plan.textsToModerate.map((t) => t?.trim()).filter((t): t is string => Boolean(t));
   if (texts.length) await assertTextAllowed(texts, { userId: user.id, modelId: plan.modelId ?? undefined });
+  // Then the final assembled text as a whole (fragments that are fine alone can join into a blocked phrase).
+  const assembled = (plan.assembledTexts ?? []).map((t) => t?.trim()).filter((t): t is string => Boolean(t));
+  if (assembled.length) await assertTextAllowed(assembled, { userId: user.id, modelId: plan.modelId ?? undefined });
 
-  // Free drafts are capped per day (smaller allowance for users who never paid).
-  if (isDraftInput(parsed)) await rateLimit(user.hasPaid ? "draftsPerDay" : "draftsPerDayFree", subject);
+  // Free drafts are capped per image per day (smaller allowance for users who never paid).
+  const drafts = draftImages(parsed);
+  if (drafts > 0) await consumeFreeDrafts(user, drafts);
   if (!opts?.batchId) await assertConcurrency(user);
 
   const credits = plan.credits ?? creditCost(parsed);
@@ -415,7 +474,11 @@ export async function toJobDTO(job: JobRow): Promise<JobDTO> {
 }
 
 /** Load a job owned by the user; lazily syncs with the provider if it is stale. */
-export async function getJobForUser(userId: string, jobId: string, opts?: { sync?: boolean }): Promise<JobRow> {
+export async function getJobForUser(
+  userId: string,
+  jobId: string,
+  opts?: { sync?: boolean; deferCompletion?: DeferCompletion },
+): Promise<JobRow> {
   const [job] = await db
     .select()
     .from(jobs)
@@ -424,7 +487,7 @@ export async function getJobForUser(userId: string, jobId: string, opts?: { sync
   if (!job) throw errors.notFound("Job");
   if ((opts?.sync ?? true) && job.status === "running") {
     try {
-      return await syncJob(job.id);
+      return await syncJob(job.id, { deferCompletion: opts?.deferCompletion });
     } catch (err) {
       console.warn(`[jobs] lazy sync failed for ${job.id}:`, errorMessage(err));
     }
@@ -434,9 +497,17 @@ export async function getJobForUser(userId: string, jobId: string, opts?: { sync
 
 /* ───────────────────────────── sync / complete ───────────────────────────── */
 
-/** Poll the provider for a running job and apply the result. Safe to call concurrently. */
-export async function syncJob(jobId: string, opts?: { force?: boolean }): Promise<JobRow> {
-  const interval = opts?.force ? 0 : SYNC_MIN_INTERVAL_SEC;
+/** SQL: no unexpired finalization lease (nobody is ingesting this job's outputs right now). */
+const noActiveLease = sql`(${jobs.output} -> 'finalizing' is null or (${jobs.output} -> 'finalizing' ->> 'at')::timestamptz < now() - make_interval(secs => ${FINALIZE_LEASE_SEC}::int))`;
+
+/**
+ * Poll the provider for a running job and apply the result. Safe to call concurrently: the claim on
+ * `last_polled_at` throttles provider calls per job (however many viewers poll it), and jobs whose outputs
+ * are being ingested right now are not polled at all.
+ */
+export async function syncJob(jobId: string, opts?: SyncJobOptions): Promise<JobRow> {
+  const { base, train } = opts?.force ? { base: 0, train: 0 } : syncIntervalsSec();
+  const interval = sql`make_interval(secs => case when ${jobs.type} = 'train' then ${train}::int else ${base}::int end)`;
   const [claimed] = await db
     .update(jobs)
     .set({ lastPolledAt: sql`now()` })
@@ -444,7 +515,8 @@ export async function syncJob(jobId: string, opts?: { force?: boolean }): Promis
       and(
         eq(jobs.id, jobId),
         eq(jobs.status, "running"),
-        or(isNull(jobs.lastPolledAt), sql`${jobs.lastPolledAt} <= now() - make_interval(secs => ${interval}::int)`),
+        or(isNull(jobs.lastPolledAt), sql`${jobs.lastPolledAt} <= now() - ${interval}`),
+        noActiveLease,
       ),
     )
     .returning();
@@ -459,6 +531,8 @@ export async function syncJob(jobId: string, opts?: { force?: boolean }): Promis
     console.warn(`[jobs] getStatus failed for ${jobId}:`, errorMessage(err));
     return claimed;
   }
+  // Ingestion is slow (downloads, safety models, re-encodes): let user-facing polls answer right away.
+  if (status.state === "succeeded" && opts?.deferCompletion?.(() => applyProviderStatus(claimed, status))) return claimed;
   return applyProviderStatus(claimed, status);
 }
 
@@ -523,6 +597,7 @@ async function defaultComplete(job: JobRow, output: ProviderOutput, plan: Record
   const seed = typeof plan.seed === "number" ? plan.seed : output.seed;
   const mediaIds: string[] = [];
   let blockedCount = 0;
+  let discardedCount = 0;
   if (output.images?.length) {
     const r = await ingestImages(job, output.images, {
       isDraft: plan.isDraft === true,
@@ -532,13 +607,19 @@ async function defaultComplete(job: JobRow, output: ProviderOutput, plan: Record
     });
     mediaIds.push(...r.mediaIds);
     blockedCount += r.blockedCount;
+    discardedCount += r.discardedCount ?? 0;
   }
   if (output.videos?.length) {
     const r = await ingestVideos(job, output.videos, { prompt });
     mediaIds.push(...r.mediaIds);
     blockedCount += r.blockedCount;
   }
-  return { mediaIds, blockedCount, extra: { ...(prompt ? { finalPrompt: prompt } : {}), ...(seed !== undefined ? { seed } : {}) } };
+  return {
+    mediaIds,
+    blockedCount,
+    discardedCount,
+    extra: { ...(prompt ? { finalPrompt: prompt } : {}), ...(seed !== undefined ? { seed } : {}) },
+  };
 }
 
 async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow> {
@@ -571,13 +652,17 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
 
   const kept = result.mediaIds.length;
   const blocked = result.blockedCount;
+  // Refunded (and discarded) by ingestion under the likeness guarantee: neither kept nor missing.
+  const discarded = result.discardedCount ?? 0;
   if (kept === 0 && blocked > 0) return failJob(job.id, MSG.allBlocked, "content_blocked", "blocked");
+  if (kept === 0 && discarded > 0) return failJob(job.id, MSG.lowLikeness, "low_likeness");
   if (kept === 0 && !handler.complete) return failJob(job.id, MSG.noOutput, "provider_error");
 
   // Proportional refunds for blocked (and, by default ingestion, missing) outputs.
-  const expected = handler.complete ? kept + blocked : Math.max(expectedOutputs(leased.input), kept + blocked);
+  const produced = kept + blocked + discarded;
+  const expected = handler.complete ? produced : Math.max(expectedOutputs(leased.input), produced);
   const perOutput = leased.creditsCharged / Math.max(1, expected);
-  const missing = Math.max(0, expected - kept - blocked);
+  const missing = Math.max(0, expected - produced);
   if (blocked > 0 && Math.floor(perOutput * blocked) > 0) {
     await refundJob(job.id, { amount: Math.floor(perOutput * blocked), tag: "blocked", note: "Blocked by safety filter" });
   }

@@ -108,7 +108,7 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
             <DialogTitle>Thanks — we received your report</DialogTitle>
             <DialogDescription>
               Our team reviews every report. Reports about non-consensual or harmful content are handled first.
-              {email.trim() ? " We emailed you a reference number." : ""} For urgent takedowns, email{" "}
+              {email.trim() ? " We'll use your email if we need to follow up." : ""} For urgent takedowns, email{" "}
               <a
                 href={`mailto:${APP.takedownEmail}`}
                 className="font-medium text-foreground underline underline-offset-4"
@@ -192,7 +192,7 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
             </div>
 
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" role="alert">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}

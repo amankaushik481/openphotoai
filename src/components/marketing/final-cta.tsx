@@ -25,11 +25,11 @@ export function FinalCta({
         <h2 id="cta-title" className="font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl">
           {title}
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base text-pretty text-white/90 sm:text-lg">{lead}</p>
+        <p className="mx-auto mt-4 max-w-xl text-base text-pretty text-white sm:text-lg">{lead}</p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href={primaryHref}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white px-6 text-base font-semibold text-neutral-950 shadow-sm transition hover:bg-white/90 focus-visible:ring-[3px] focus-visible:ring-white/60 focus-visible:outline-none sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white px-6 text-base font-semibold text-neutral-950 shadow-sm transition hover:bg-white/90 focus-visible:outline-white sm:w-auto"
           >
             {primaryLabel}
             <ArrowRightIcon aria-hidden="true" className="size-4" />
@@ -38,10 +38,11 @@ export function FinalCta({
             href={APP.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/50 px-6 text-base font-medium text-white transition hover:bg-white/10 focus-visible:ring-[3px] focus-visible:ring-white/60 focus-visible:outline-none sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/50 px-6 text-base font-medium text-white transition hover:bg-white/10 focus-visible:outline-white sm:w-auto"
           >
             <GithubIcon className="size-4" />
             Self-host it
+            <span className="sr-only">(opens in a new tab)</span>
           </a>
         </div>
       </div>

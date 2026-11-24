@@ -28,6 +28,23 @@ const MAINTENANCE_INTERVAL_MS = (() => {
 const { pollStaleJobs } = await import("@/server/jobs/engine");
 const { runMaintenance } = await import("@/server/maintenance");
 const { closeDb } = await import("@/db");
+const { env } = await import("@/lib/env");
+
+// Load the local safety models in the background now, so the first ingested output doesn't pay init.
+if (env.faceProvider === "local" || env.moderationProvider === "local") {
+  void (async () => {
+    const started = Date.now();
+    const [face, moderation] = await Promise.all([
+      import("@/providers/safety/local-face"),
+      import("@/providers/safety/local-moderation"),
+    ]);
+    await Promise.all([
+      env.faceProvider === "local" ? face.warmupLocalFaceProvider() : undefined,
+      env.moderationProvider === "local" ? moderation.warmupLocalModerationProvider() : undefined,
+    ]);
+    log.info(`safety models ready (${Date.now() - started}ms)`);
+  })().catch((err: unknown) => log.warn(`safety model warmup failed (loaded on first use instead): ${errorMessage(err)}`));
+}
 
 const maintenance = createPeriodicTask({
   intervalMs: MAINTENANCE_INTERVAL_MS,

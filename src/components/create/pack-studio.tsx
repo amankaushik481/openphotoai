@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { AspectRatioPicker } from "@/components/app/aspect-ratio-picker";
 import { CostHint } from "@/components/app/cost-hint";
 import { ModelPicker } from "@/components/app/model-picker";
-import { packGradient } from "@/components/app/pack-card";
+import { packGradient, packTextScrim } from "@/components/app/pack-card";
 import { BrandKitSelect } from "@/components/teams/brand-kit-select";
 import { ApiErrorAlert } from "@/components/create/api-error-alert";
 import {
@@ -298,7 +298,11 @@ function PackHero({ pack }: { pack: PackDetail }) {
       className="grain relative overflow-hidden rounded-2xl text-white shadow-sm"
       style={{ backgroundImage: packGradient(pack.colors) }}
     >
-      <div className="flex flex-col gap-4 bg-gradient-to-t from-black/45 via-black/15 to-transparent p-5 sm:flex-row sm:items-end sm:gap-6 sm:p-8">
+      {/* Scrim sized to the pack's lightest color keeps the white text ≥ 5:1 (light packs get more). */}
+      <div
+        className="flex flex-col gap-4 bg-gradient-to-t from-black/45 via-black/15 to-transparent p-5 sm:flex-row sm:items-end sm:gap-6 sm:p-8"
+        style={{ backgroundColor: `rgb(0 0 0 / ${packTextScrim(pack.colors)})` }}
+      >
         <span aria-hidden="true" className="text-6xl drop-shadow-sm sm:text-7xl">
           {pack.emoji ?? "📸"}
         </span>

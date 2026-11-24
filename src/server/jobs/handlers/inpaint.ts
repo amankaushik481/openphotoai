@@ -12,6 +12,7 @@ import { errors } from "@/server/http";
 import { getOwnedUpload, providerInputUrl } from "@/server/media/service";
 import { getStorage, storageKeys } from "@/server/storage";
 import { cleanInstruction, editSourceContext, loadImageSource, sourceIdentity } from "./edit";
+import { assembledTexts } from "../assembled-text";
 import { defineHandler } from "./types";
 
 /** A mask's aspect ratio may differ from the photo's by at most this fraction. */
@@ -181,7 +182,13 @@ export default defineHandler({
       useIdentity: Boolean(model) && !group,
       scoreLikeness: !group,
     };
-    return { modelId: model?.id ?? null, sourceMediaId: source.id, textsToModerate: [input.prompt], data };
+    return {
+      modelId: model?.id ?? null,
+      sourceMediaId: source.id,
+      textsToModerate: [input.prompt],
+      assembledTexts: assembledTexts({ parts: [data.prompt], triggerWords: [model?.triggerWord] }),
+      data,
+    };
   },
 
   async submit({ user, plan, submitOpts }) {

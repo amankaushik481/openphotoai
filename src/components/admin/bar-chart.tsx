@@ -147,7 +147,7 @@ export function BarChart({ id, title, data, format, valueLabel = "Total", partLa
       </p>
 
       <details className="group/details text-sm">
-        <summary className="w-fit cursor-pointer rounded-sm text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none">
+        <summary className="w-fit cursor-pointer rounded-sm text-xs font-medium text-primary underline-offset-4 hover:underline">
           Show data table
         </summary>
         <div className="mt-2 max-h-64 overflow-auto rounded-md border">

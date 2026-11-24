@@ -35,7 +35,7 @@ export function Logo({
       href={href}
       aria-label={showName ? undefined : APP.name}
       className={cn(
-        "inline-flex items-center gap-2 rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "inline-flex items-center gap-2 rounded-md",
         className,
       )}
     >

@@ -2,12 +2,15 @@
  * Talking video handler: one of the user's own generated photos + a script + a voice -> a lip-synced
  * video (the provider runs TTS, then avatar animation). The script goes through the prompt safety
  * filter (engine: assertTextAllowed on `textsToModerate`) and is capped at MAX_TALKING_SECONDS of
- * estimated speech. Completion uses the engine's default video ingestion.
+ * estimated speech (`estimateSpeechSeconds`: words and characters, so CJK / digit scripts count).
+ * The provider also refuses TTS audio longer than the paid duration (`maxAudioSeconds`) before
+ * starting the per-second avatar step. Completion uses the engine's default video ingestion.
  */
 import { and, eq } from "drizzle-orm";
 import { MAX_TALKING_SECONDS, MAX_TALKING_WORDS } from "@/config/credits";
-import { estimateSpeechSeconds } from "@/config/credits";
+import { estimateSpeechSeconds, maxTalkingAudioSeconds } from "@/config/credits";
 import { db } from "@/db";
+import { AudioTooLongError } from "@/providers/ai/shared/errors";
 import { jobs, media } from "@/db/schema";
 import type { MediaRow } from "@/db/types";
 import { getVideoProvider } from "@/providers/registry";
@@ -90,6 +93,21 @@ export default defineHandler({
   async submit({ plan, submitOpts }) {
     const data = plan.data as TalkingVideoPlanData;
     const imageUrl = await providerInputUrl(data.sourceKey, data.sourceMime);
-    return getVideoProvider().submitTalkingVideo({ imageUrl, script: data.script, voice: data.voice }, submitOpts);
+    // Providers that report the TTS duration refuse to animate more speech than this job paid for.
+    const maxAudioSeconds = maxTalkingAudioSeconds(data.estimatedSeconds);
+    try {
+      return await getVideoProvider().submitTalkingVideo(
+        { imageUrl, script: data.script, voice: data.voice, maxAudioSeconds },
+        submitOpts,
+      );
+    } catch (err) {
+      if (err instanceof AudioTooLongError) {
+        throw errors.validation(
+          `Your script runs longer when spoken (${Math.round(err.audioSeconds)}s) than estimated. Shorten it and try again — your credits were refunded.`,
+          { audioSeconds: err.audioSeconds, maxSeconds: err.maxSeconds },
+        );
+      }
+      throw err;
+    }
   },
 });

@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             <Button asChild variant="ghost" size="sm">
               <Link href="/app">
                 <ArrowLeftIcon />
-                <span className="hidden sm:inline">{t("admin.backToApp")}</span>
+                <span className="sr-only sm:not-sr-only">{t("admin.backToApp")}</span>
               </Link>
             </Button>
             <UserMenu user={shellUser} />

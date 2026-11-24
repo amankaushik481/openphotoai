@@ -2,7 +2,7 @@ import { createShare, createShareRequest, listShares, listSharesQuery, toShareDT
 import { parseBody, parseQuery, route } from "@/server/http";
 
 /** `{ mediaId? | folderId?, expiresInDays? }` → `{ share: { id, token, url, ... } }` */
-export const POST = route({ auth: "user" }, async ({ req, user }) => {
+export const POST = route({ auth: "user", rateLimit: "sharesPerHour" }, async ({ req, user }) => {
   const body = await parseBody(req, createShareRequest);
   return { share: toShareDTO(await createShare(user.id, body)) };
 });

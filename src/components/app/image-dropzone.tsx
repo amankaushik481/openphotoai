@@ -319,7 +319,8 @@ export function ImageDropzone<T = unknown>({
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
           className={cn(
-            "flex w-full flex-col items-center justify-center gap-2 rounded-[inherit] text-center outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            // Inset focus outline: the dropzone clips overflow.
+            "flex w-full flex-col items-center justify-center gap-2 rounded-[inherit] text-center [--focus-offset:-4px]",
             compact ? "px-4 py-6" : "px-6 py-10 sm:py-14",
           )}
         >
@@ -375,7 +376,7 @@ function UploadTile<T>({
         <div className="absolute inset-0 flex items-center justify-center">
           {busy && <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-white drop-shadow" />}
           {item.status === "done" && (
-            <span className="flex size-7 items-center justify-center rounded-full bg-success text-white shadow">
+            <span className="flex size-7 items-center justify-center rounded-full bg-success text-success-foreground shadow">
               <CheckIcon aria-hidden="true" className="size-4" />
             </span>
           )}

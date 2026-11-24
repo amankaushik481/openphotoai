@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnhancePanel } from "@/components/enhance/enhance-panel";
 import type { MediaDTO } from "@/types/domain";
+import { scrollBehavior } from "@/lib/a11y";
 import { cn } from "@/lib/utils";
 import { BeforeAfter } from "./before-after";
 import { BrushPanel } from "./brush-panel";
@@ -69,7 +70,7 @@ export function EditStudio({ media, initialTab = "edit" }: EditStudioProps) {
   const showCompare = (m: MediaDTO) => {
     setChosenId(m.id);
     if (tab === "brush") setTab("edit");
-    previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    previewRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
   };
 
   const box = {

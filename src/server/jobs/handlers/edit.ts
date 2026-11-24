@@ -19,6 +19,7 @@ import { AppError, errors } from "@/server/http";
 import { getOwnedMedia, providerInputUrl } from "@/server/media/service";
 import { getOwnedModel, identityModeOf, identityRefFor } from "@/server/models/service";
 import type { EDIT_KINDS } from "@/types/domain";
+import { assembledTexts } from "../assembled-text";
 import { defineHandler } from "./types";
 
 export type EditKind = (typeof EDIT_KINDS)[number];
@@ -199,6 +200,8 @@ export default defineHandler({
       modelId: model?.id ?? null,
       sourceMediaId: source.id,
       textsToModerate: [input.instruction],
+      // The instruction inside its template ("Change only the clothing of the woman to: nothing").
+      assembledTexts: assembledTexts({ parts: [data.prompt], triggerWords: [model?.triggerWord] }),
       data,
     };
   },

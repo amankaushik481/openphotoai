@@ -273,6 +273,7 @@ const paymentEventSchema = z.discriminatedUnion("type", [
     planId: paidPlanIdSchema.optional(),
     interval: intervalSchema.optional(),
     userId: z.string().min(1).optional(),
+    totalCents: z.number().int().optional(),
   }),
   z.object({
     ...eventBase,
@@ -287,6 +288,24 @@ const paymentEventSchema = z.discriminatedUnion("type", [
     paymentId: z.string().min(1),
     amountRefundedCents: z.number().int().nonnegative(),
     fullyRefunded: z.boolean(),
+    subscriptionId: z.string().min(1).optional(),
+  }),
+  z.object({
+    ...eventBase,
+    type: z.literal("payment.disputed"),
+    paymentId: z.string().min(1),
+    disputeId: z.string().min(1),
+    amountCents: z.number().int().nonnegative(),
+    reason: z.string().optional(),
+    subscriptionId: z.string().min(1).optional(),
+  }),
+  z.object({
+    ...eventBase,
+    type: z.literal("payment.dispute_closed"),
+    paymentId: z.string().min(1),
+    disputeId: z.string().min(1),
+    won: z.boolean(),
+    status: z.string().min(1),
   }),
   z.object({ ...eventBase, type: z.literal("ignored"), rawType: z.string() }),
 ]);

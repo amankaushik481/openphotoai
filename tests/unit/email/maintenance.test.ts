@@ -149,6 +149,7 @@ describe("runMaintenance", () => {
       prunedRateLimits: 1,
       prunedEmails: 1,
       resumedDeletions: 2,
+      deletedDemoUsers: 0,
     });
     expect(resumeStalledDeletions).toHaveBeenCalledWith(NOW);
 
@@ -166,6 +167,7 @@ describe("runMaintenance", () => {
       prunedRateLimits: 0,
       prunedEmails: 0,
       resumedDeletions: 0,
+      deletedDemoUsers: 0,
     });
   });
 });

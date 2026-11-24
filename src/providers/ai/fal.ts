@@ -18,7 +18,7 @@ import type {
   TrainingProvider,
   VideoProvider,
 } from "@/providers/types";
-import { ProviderRequestError } from "@/providers/ai/shared/errors";
+import { AudioTooLongError, ProviderRequestError } from "@/providers/ai/shared/errors";
 import { fetchOutputBytes } from "@/providers/ai/shared/fetch-output";
 import { parsePromptHelperOutput } from "@/providers/ai/shared/prompt-helper";
 import { buildTemplatePrompt } from "@/providers/ai/shared/prompt-template";
@@ -247,6 +247,7 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
       // Step 1 (synchronous): text-to-speech. Step 2: queue the lip-sync avatar job and return its ref.
       const ttsEndpoint = MODELS.fal.tts.id;
       let audioUrl: string | undefined;
+      let durationMs: number | undefined;
       try {
         const client = await getClient();
         const { data } = await client.subscribe(ttsEndpoint, {
@@ -256,6 +257,7 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
           tags: { app: "openshoot", capability: "tts" },
         });
         audioUrl = data?.audio?.url;
+        durationMs = data?.duration_ms;
       } catch (err) {
         throw toProviderError(err, ttsEndpoint);
       }
@@ -265,6 +267,15 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
           endpoint: ttsEndpoint,
           retryable: false,
           message: "Text-to-speech returned no audio.",
+        });
+      }
+      // The avatar model bills per second of audio: never animate more speech than the job paid for.
+      if (input.maxAudioSeconds !== undefined && typeof durationMs === "number" && durationMs > input.maxAudioSeconds * 1000) {
+        throw new AudioTooLongError({
+          provider: "fal",
+          endpoint: ttsEndpoint,
+          audioSeconds: durationMs / 1000,
+          maxSeconds: input.maxAudioSeconds,
         });
       }
       return submit("talkingVideo", buildAvatarInput(input.imageUrl, audioUrl), submitOpts);

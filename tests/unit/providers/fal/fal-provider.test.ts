@@ -450,6 +450,19 @@ describe("video", () => {
     ).rejects.toMatchObject({ retryable: false });
     expect(client.queue.submit).not.toHaveBeenCalled();
   });
+
+  it("refuses to animate speech longer than the job paid for (PAY-2), using the TTS duration", async () => {
+    const provider = createFalProvider({ apiKey: API_KEY });
+    client.subscribe.mockResolvedValueOnce({ data: { audio: { url: "https://cdn.test/a.mp3" }, duration_ms: 95_000 }, requestId: "t" });
+    await expect(
+      provider.submitTalkingVideo({ imageUrl: "https://cdn.test/f.jpg", script: "こんにちは", voice: "neutral", maxAudioSeconds: 90 }),
+    ).rejects.toMatchObject({ name: "AudioTooLongError", retryable: false, audioSeconds: 95, maxSeconds: 90 });
+    expect(client.queue.submit).not.toHaveBeenCalled();
+
+    client.subscribe.mockResolvedValueOnce({ data: { audio: { url: "https://cdn.test/a.mp3" }, duration_ms: 89_000 }, requestId: "t" });
+    await provider.submitTalkingVideo({ imageUrl: "https://cdn.test/f.jpg", script: "Hello", voice: "neutral", maxAudioSeconds: 90 });
+    expect(client.queue.submit).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("safety checker is always on", () => {

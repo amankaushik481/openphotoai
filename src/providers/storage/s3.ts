@@ -135,13 +135,16 @@ export function createS3Storage(opts: S3StorageOptions): StorageProvider {
     async getSignedUrl(key: string, o?: { expiresInSec?: number; downloadName?: string }): Promise<string> {
       assertSafeKey(key);
       const [{ s3, client }, { getSignedUrl }] = await Promise.all([sdk(), import("@aws-sdk/s3-request-presigner")]);
-      const expiresIn = Math.min(Math.max(Math.floor(o?.expiresInSec ?? DEFAULT_TTL_SEC), 1), MAX_TTL_SEC);
+      // Signed at the start of a time window, so every URL for this object within the window is identical
+      // and the browser can cache the image (see url-window.ts). Keys are immutable: cache for the TTL.
+      const w = signingWindow(o?.expiresInSec);
       const command = new s3.GetObjectCommand({
         Bucket,
         Key: key,
+        ResponseCacheControl: signedObjectCacheControl(w.ttlSec),
         ...(o?.downloadName ? { ResponseContentDisposition: attachmentDisposition(o.downloadName) } : {}),
       });
-      return getSignedUrl(client, command, { expiresIn });
+      return getSignedUrl(client, command, { expiresIn: w.expiresInSec, signingDate: new Date(w.signedAtSec * 1000) });
     },
   };
 }

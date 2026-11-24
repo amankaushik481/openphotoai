@@ -207,7 +207,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
                 <PackShotSelect slug={selectedPack.slug} value={packPromptIndex} onValueChange={setPackPromptIndex} />
                 <Link
                   href={`/app/packs/${selectedPack.slug}`}
-                  className="flex items-center gap-3 rounded-lg border border-dashed p-3 text-sm transition-colors outline-none hover:border-primary/40 hover:bg-accent/40 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className="flex items-center gap-3 rounded-lg border border-dashed p-3 text-sm transition-colors hover:border-primary/40 hover:bg-accent/40"
                 >
                   <PackSwatch pack={selectedPack} className="size-8 text-base" />
                   <span className="min-w-0 flex-1">
@@ -256,7 +256,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
             }}
           />
           <details className="rounded-lg border px-3 py-2 text-sm">
-            <summary className="cursor-pointer rounded-sm font-medium outline-none select-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+            <summary className="cursor-pointer rounded-sm font-medium select-none">
               Advanced
             </summary>
             <div className="mt-3 flex flex-col gap-2 pb-1">

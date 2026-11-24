@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRightIcon, BadgeCheckIcon, Undo2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DemoLoginButton } from "@/components/demo/demo-login-button";
 import { GithubIcon } from "@/components/layout/icons";
 import { PortraitArt, type PortraitHair } from "@/components/marketing/portrait-art";
 import { APP } from "@/config/app";
@@ -49,7 +50,7 @@ export function Hero() {
             href={APP.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-7 inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            className="mb-7 inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs transition-colors hover:text-foreground"
           >
             <GithubIcon className="size-3.5" />
             Open source · MIT · self-hostable
@@ -66,13 +67,15 @@ export function Hero() {
             Take a live selfie, add a few photos, and get studio-quality headshots, dating photos, travel shots and
             videos that actually look like you. Shots that miss on likeness are refunded automatically.
           </p>
-          <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
             <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
               <Link href="/login">
                 Create your photos
                 <ArrowRightIcon />
               </Link>
             </Button>
+            {/* Static page: the island asks the server whether DEMO_MODE is on and stays hidden otherwise. */}
+            <DemoLoginButton probe />
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
               <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer">
                 <GithubIcon className="size-4" />

@@ -63,8 +63,10 @@ export function MediaCard({
     />
   );
 
+  // Two-tone inset indicator (ring outside, background-colored outline inside) stays visible on any photo;
+  // inset because the tile clips overflow.
   const layerClass =
-    "absolute inset-0 block size-full rounded-[inherit] outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset";
+    "absolute inset-0 block size-full rounded-[inherit] [--focus-offset:-5px] focus-visible:outline-background focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset";
 
   let layer: React.ReactNode;
   if (selectable) {
@@ -150,10 +152,13 @@ export function MediaCard({
         <button
           type="button"
           aria-pressed={media.isFavorite}
-          aria-label={media.isFavorite ? t("media.unfavorite") : t("media.favorite")}
+          // Fixed name; `aria-pressed` carries the state ("Favorite, toggle button, pressed").
+          aria-label={t("media.favorite")}
           onClick={() => onToggleFavorite(media, !media.isFavorite)}
           className={cn(
-            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-opacity outline-none hover:bg-black/55 focus-visible:ring-[3px] focus-visible:ring-white/70",
+            // Two-tone focus (background ring + ring-colored outline) reads on light and dark photos.
+            // Touch: invisible 44px hit area around the 32px button.
+            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-opacity hover:bg-black/55 focus-visible:ring-2 focus-visible:ring-background pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5",
             !media.isFavorite &&
               "pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100",
           )}

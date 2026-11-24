@@ -118,6 +118,8 @@ export async function acceptInvite(user: UserRow, token: string): Promise<{ team
   if (normalizeEmail(user.email) !== normalizeEmail(invite.member.email)) {
     throw errors.forbidden("This invite was sent to a different email address. Sign in with that address to join.");
   }
+  // The address match only proves ownership once the email is verified (magic link / Google-verified).
+  if (!user.emailVerified) throw errors.forbidden("Verify your email address before joining a team.");
 
   return db.transaction(async (tx) => {
     const [alreadyMember] = await tx

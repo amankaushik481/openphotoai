@@ -24,7 +24,7 @@ export function CreditBadge({ className }: { className?: string }) {
       href="/app/billing"
       aria-label={`${label} — ${t("credits.buy")}`}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm font-medium tabular-nums shadow-xs transition-colors outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm font-medium tabular-nums shadow-xs transition-colors hover:bg-accent",
         user.credits === 0 && "border-warning/50",
         className,
       )}

@@ -9,7 +9,7 @@ import { MARKETING_LINKS } from "@/components/layout/marketing-nav";
 import { t } from "@/i18n";
 
 const linkClass =
-  "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50";
+  "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
 
 /** Static (no session read) so marketing pages stay statically rendered. */
 export function MarketingHeader() {

@@ -73,7 +73,7 @@ export function DangerZoneCard({ email }: { email: string }) {
       <CardContent className="grid gap-4">
         <DeletionScope />
         {sent && (
-          <Alert variant="brand">
+          <Alert variant="brand" role="status">
             <MailCheckIcon aria-hidden />
             <AlertTitle>We emailed you a confirmation link</AlertTitle>
             <AlertDescription>

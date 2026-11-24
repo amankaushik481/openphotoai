@@ -13,6 +13,7 @@ import { db } from "@/db";
 import { account, session, user, verification } from "@/db/schema";
 import { env } from "@/lib/env";
 import { newId } from "@/lib/ids";
+import { CLIENT_IP_HEADER } from "@/server/http";
 import { enforceMagicLinkRateLimit, toVerifyPageUrl } from "./magic-link";
 import { admitSignIn, onUserCreated, prepareNewUser, type SignInBlock } from "./user-policy";
 
@@ -67,7 +68,13 @@ function createAuth() {
     database: drizzleAdapter(db, { provider: "pg", schema: { user, session, account, verification } }),
     advanced: {
       database: { generateId: ({ model }) => newId(ID_PREFIX[model] ?? model.slice(0, 3)) },
+      // Only the IP our auth route resolved with the trusted-proxy rules (clientIpFromHeaders); the
+      // route strips any client-sent copy. Unknown IP => Better Auth's shared per-path bucket.
+      ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
     },
+    // Profile edits go through PATCH /api/me (validated, length-capped). Better Auth's update-user
+    // would accept any `image` URL (rendered to teammates) and an unbounded `name` (used in emails).
+    disabledPaths: ["/update-user"],
     emailAndPassword: { enabled: false },
     socialProviders: googleEnabled
       ? {
@@ -79,8 +86,10 @@ function createAuth() {
         }
       : undefined,
     account: {
-      // Google verifies emails, so a magic-link account and a Google login with the same email are one user.
-      accountLinking: { enabled: true, trustedProviders: ["google"] },
+      // A magic-link account and a Google login with the same email are one user, but only when Google
+      // reports the email as verified (Better Auth's default check; no `trustedProviders`, which would
+      // skip it and let an unverified Google identity claiming someone's address take over the account).
+      accountLinking: { enabled: true },
     },
     user: { additionalFields: userAdditionalFields },
     session: {
@@ -120,7 +129,7 @@ function createAuth() {
         // Only while links go to the dev mailbox (never a production fallback for a missing RESEND_API_KEY).
         rateLimit: env.devMailboxEnabled ? DEV_MAILBOX_MAGIC_LINK_RATE_LIMIT : undefined,
         sendMagicLink: async ({ email, url }, ctx) => {
-          await enforceMagicLinkRateLimit(requestHeaders(ctx));
+          await enforceMagicLinkRateLimit(requestHeaders(ctx), email);
           const { sendEmail } = await import("@/server/email"); // lazy: keeps provider SDKs off the auth path
           await sendEmail("magic_link", email, { url: toVerifyPageUrl(url, appUrl) });
         },

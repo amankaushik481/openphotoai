@@ -19,6 +19,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { newId } from "@/lib/ids";
 import type {
   ApiKeyScope,
@@ -86,7 +87,11 @@ export const user = pgTable(
     lowCreditsNotifiedAt: timestamp({ withTimezone: true }),
     deletedAt: timestamp({ withTimezone: true }),
   },
-  (t) => [uniqueIndex("user_email_idx").on(t.email)],
+  (t) => [
+    uniqueIndex("user_email_idx").on(t.email),
+    // Admin user list (newest first, keyset on created_at + id).
+    index("user_created_idx").on(t.createdAt, t.id),
+  ],
 );
 
 export const session = pgTable(
@@ -210,7 +215,11 @@ export const trainingPhotos = pgTable(
     ageEstimate: real(),
     createdAt: createdAt(),
   },
-  (t) => [index("training_photos_model_idx").on(t.modelId)],
+  (t) => [
+    index("training_photos_model_idx").on(t.modelId),
+    // FK (ON DELETE CASCADE from user): without it every user deletion scans the table.
+    index("training_photos_user_idx").on(t.userId),
+  ],
 );
 
 /** Audit trail for consent: live selfie captures and multi-person consents. */
@@ -230,7 +239,7 @@ export const consentRecords = pgTable(
     evidence: jsonb().$type<Record<string, unknown>>().notNull().default({}),
     createdAt: createdAt(),
   },
-  (t) => [index("consent_records_user_idx").on(t.userId)],
+  (t) => [index("consent_records_user_idx").on(t.userId), index("consent_records_model_idx").on(t.modelId)],
 );
 
 /**
@@ -260,6 +269,7 @@ export const modelShares = pgTable(
     index("model_shares_requester_idx").on(t.requesterUserId),
     index("model_shares_owner_idx").on(t.ownerUserId),
     uniqueIndex("model_shares_token_idx").on(t.tokenHash),
+    index("model_shares_model_idx").on(t.modelId),
   ],
 );
 
@@ -285,7 +295,12 @@ export const batches = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [index("batches_user_idx").on(t.userId)],
+  (t) => [
+    index("batches_user_idx").on(t.userId),
+    index("batches_model_idx").on(t.modelId).where(sql`${t.modelId} is not null`),
+    // repairStaleBatches (every cron tick / worker pass) only looks at running batches.
+    index("batches_running_idx").on(t.updatedAt).where(sql`${t.status} = 'running'`),
+  ],
 );
 
 /**
@@ -337,6 +352,14 @@ export const jobs = pgTable(
     index("jobs_batch_idx").on(t.batchId),
     uniqueIndex("jobs_provider_request_idx").on(t.provider, t.providerRequestId),
     uniqueIndex("jobs_idempotency_idx").on(t.userId, t.idempotencyKey),
+    // FK (ON DELETE SET NULL from identity_models): model deletion would scan all jobs.
+    index("jobs_model_idx").on(t.modelId).where(sql`${t.modelId} is not null`),
+    // Plan concurrency check (assertConcurrency): a user's active jobs, without walking their history.
+    index("jobs_active_user_idx").on(t.userId).where(sql`${t.status} in ('queued', 'running')`),
+    // Admin job list / stats: newest first across all users.
+    index("jobs_created_idx").on(t.createdAt, t.id),
+    // Keyset pagination of a user's jobs: matches `createdMs` in src/server/jobs/queries.ts.
+    index("jobs_user_created_ms_idx").on(t.userId, sql`date_trunc('milliseconds', ${t.createdAt}, 'UTC')`, t.id),
   ],
 );
 
@@ -401,6 +424,12 @@ export const media = pgTable(
     index("media_user_idx").on(t.userId, t.createdAt),
     index("media_job_idx").on(t.jobId),
     index("media_folder_idx").on(t.folderId),
+    // FK (ON DELETE SET NULL from identity_models): model deletion would scan all media.
+    index("media_model_idx").on(t.modelId).where(sql`${t.modelId} is not null`),
+    // Viewer "versions" (children of a photo).
+    index("media_parent_idx").on(t.parentMediaId).where(sql`${t.parentMediaId} is not null`),
+    // Gallery keyset pagination + viewer prev/next: matches `createdMs` in src/server/gallery/media.ts.
+    index("media_user_created_ms_idx").on(t.userId, sql`date_trunc('milliseconds', ${t.createdAt}, 'UTC')`, t.id),
   ],
 );
 
@@ -445,7 +474,13 @@ export const shareLinks = pgTable(
     revokedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("share_links_token_idx").on(t.token), index("share_links_user_idx").on(t.userId)],
+  (t) => [
+    uniqueIndex("share_links_token_idx").on(t.token),
+    index("share_links_user_idx").on(t.userId),
+    // FKs (ON DELETE CASCADE): deleting media / folders checks share_links once per deleted row.
+    index("share_links_media_idx").on(t.mediaId).where(sql`${t.mediaId} is not null`),
+    index("share_links_folder_idx").on(t.folderId).where(sql`${t.folderId} is not null`),
+  ],
 );
 
 /* ───────────────────────────── Safety / moderation ───────────────────────────── */
@@ -473,7 +508,14 @@ export const reports = pgTable(
     resolvedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },
-  (t) => [index("reports_status_idx").on(t.status)],
+  (t) => [
+    index("reports_status_idx").on(t.status),
+    // FKs (ON DELETE SET NULL): media / share link / user deletions check reports once per deleted row.
+    index("reports_media_idx").on(t.mediaId).where(sql`${t.mediaId} is not null`),
+    index("reports_share_link_idx").on(t.shareLinkId).where(sql`${t.shareLinkId} is not null`),
+    index("reports_target_user_idx").on(t.targetUserId).where(sql`${t.targetUserId} is not null`),
+    index("reports_reporter_user_idx").on(t.reporterUserId).where(sql`${t.reporterUserId} is not null`),
+  ],
 );
 
 /** Every safety decision that blocked something (for the admin moderation queue + audits). */
@@ -491,7 +533,12 @@ export const moderationEvents = pgTable(
     reviewed: boolean().notNull().default(false),
     createdAt: createdAt(),
   },
-  (t) => [index("moderation_events_user_idx").on(t.userId), index("moderation_events_kind_idx").on(t.kind)],
+  (t) => [
+    index("moderation_events_user_idx").on(t.userId),
+    index("moderation_events_kind_idx").on(t.kind),
+    // Admin review queue + dashboard count: unreviewed events, newest first.
+    index("moderation_events_unreviewed_idx").on(t.createdAt, t.id).where(sql`${t.reviewed} = false`),
+  ],
 );
 
 /* ───────────────────────────── Credits & billing ───────────────────────────── */
@@ -523,6 +570,8 @@ export const creditLedger = pgTable(
   (t) => [
     index("credit_ledger_user_idx").on(t.userId, t.createdAt),
     uniqueIndex("credit_ledger_idempotency_idx").on(t.idempotencyKey),
+    // Admin stats (activity over a period, all users).
+    index("credit_ledger_created_idx").on(t.createdAt),
   ],
 );
 
@@ -574,7 +623,12 @@ export const payments = pgTable(
     status: text().$type<"paid" | "refunded" | "failed">().notNull(),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("payments_provider_idx").on(t.provider, t.providerPaymentId), index("payments_user_idx").on(t.userId)],
+  (t) => [
+    uniqueIndex("payments_provider_idx").on(t.provider, t.providerPaymentId),
+    index("payments_user_idx").on(t.userId),
+    // Admin revenue list / stats (newest first, period filters).
+    index("payments_created_idx").on(t.createdAt, t.id),
+  ],
 );
 
 /** Idempotency log for ALL inbound webhooks (payments + AI providers). */
@@ -624,7 +678,11 @@ export const rateLimits = pgTable(
     windowStart: timestamp({ withTimezone: true }).notNull(),
     count: integer().notNull().default(0),
   },
-  (t) => [primaryKey({ columns: [t.key, t.windowStart] })],
+  (t) => [
+    primaryKey({ columns: [t.key, t.windowStart] }),
+    // Daily prune of old windows (the primary key leads with `key`).
+    index("rate_limits_window_idx").on(t.windowStart),
+  ],
 );
 
 /* ───────────────────────────── Teams & brand kits ───────────────────────────── */
@@ -708,7 +766,11 @@ export const emailOutbox = pgTable(
     error: text(),
     createdAt: createdAt(),
   },
-  (t) => [index("email_outbox_to_idx").on(t.to, t.createdAt)],
+  (t) => [
+    index("email_outbox_to_idx").on(t.to, t.createdAt),
+    // Daily prune by age.
+    index("email_outbox_created_idx").on(t.createdAt),
+  ],
 );
 
 /** Account deletion is confirmed by email before it is executed. */

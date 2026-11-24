@@ -73,6 +73,10 @@ export async function coverKeyFor(model: Pick<IdentityModelRow, "id" | "userId">
   return best ? (best.thumbKey ?? best.storageKey) : null;
 }
 
+function sameInstant(a: Date | null, b: Date | null): boolean {
+  return a !== null && b !== null && a.getTime() === b.getTime();
+}
+
 function uploadBlocked(model: IdentityModelRow): AppError | null {
   switch (model.status) {
     case "collecting":
@@ -145,26 +149,41 @@ export async function addTrainingPhoto(user: UserRow, modelId: string, raw: Uint
   ]);
 
   try {
-    const [row] = await db
-      .insert(trainingPhotos)
-      .values({
-        id,
-        modelId: model.id,
-        userId: user.id,
-        storageKey: key,
-        thumbKey,
-        width: normalized.width,
-        height: normalized.height,
-        bytes: normalized.bytes.byteLength,
-        phash: analysis.phash,
-        status: analysis.status,
-        quality: analysis.quality,
-        face: analysis.face,
-        faceMatchScore: analysis.faceMatchScore,
-        ageEstimate: analysis.ageEstimate,
-      })
-      .returning();
-    return { photo: row!, model };
+    const row = await db.transaction(async (tx) => {
+      // Same row lock as the consent path: the photo was scored against `model.consentEmbedding`, so it
+      // may only be stored while that consent is still the current one (the timestamp is its version).
+      const [locked] = await tx
+        .select({ status: identityModels.status, consentVerifiedAt: identityModels.consentVerifiedAt })
+        .from(identityModels)
+        .where(and(eq(identityModels.id, model.id), eq(identityModels.userId, user.id)))
+        .for("update");
+      if (!locked || !sameInstant(locked.consentVerifiedAt, model.consentVerifiedAt)) {
+        throw errors.conflict("Your consent selfie changed while this photo was being checked. Upload the photo again.");
+      }
+      const stillBlocked = uploadBlocked({ ...model, status: locked.status });
+      if (stillBlocked) throw stillBlocked;
+      const [inserted] = await tx
+        .insert(trainingPhotos)
+        .values({
+          id,
+          modelId: model.id,
+          userId: user.id,
+          storageKey: key,
+          thumbKey,
+          width: normalized.width,
+          height: normalized.height,
+          bytes: normalized.bytes.byteLength,
+          phash: analysis.phash,
+          status: analysis.status,
+          quality: analysis.quality,
+          face: analysis.face,
+          faceMatchScore: analysis.faceMatchScore,
+          ageEstimate: analysis.ageEstimate,
+        })
+        .returning();
+      return inserted!;
+    });
+    return { photo: row, model };
   } catch (err) {
     await Promise.allSettled([storage.delete(key), storage.delete(thumbKey)]);
     throw err;

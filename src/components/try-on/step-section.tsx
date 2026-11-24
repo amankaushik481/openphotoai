@@ -27,13 +27,13 @@ export function StepSection({ step, title, description, done = false, className,
           aria-hidden="true"
           className={cn(
             "flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-            done ? "bg-success text-white" : "bg-brand-soft text-brand-soft-foreground",
+            done ? "bg-success text-success-foreground" : "bg-brand-soft text-brand-soft-foreground",
           )}
         >
           {done ? <CheckIcon className="size-4" /> : step}
         </span>
         <div className="flex min-w-0 flex-col gap-0.5">
-          <h2 id={headingId} tabIndex={-1} className="font-semibold outline-none">
+          <h2 id={headingId} tabIndex={-1} className="font-semibold focus:outline-hidden">
             <span className="sr-only">{`Step ${step}${done ? " (done)" : ""}: `}</span>
             {title}
           </h2>

@@ -4,7 +4,9 @@
  * Guarantees:
  *  - Idempotent: every event is claimed in `webhook_events` (source `payment:<provider>`, eventId)
  *    before it is applied; a processed event is a duplicate. Effects + "processed" mark commit in
- *    one transaction, so a failure leaves nothing half-applied.
+ *    one transaction, so a failure leaves nothing half-applied. A delivery of an event another
+ *    request has claimed but not finished is "in_progress" (→ HTTP 409, the provider redelivers);
+ *    a claim older than STALE_CLAIM is assumed crashed and taken over.
  *  - Retry-safe: a failure is recorded in `webhook_events.error` and rethrown (→ HTTP 500); the
  *    provider's redelivery re-claims the row and applies it. `RetryablePaymentEventError` marks
  *    "not yet" situations (e.g. invoice.paid before we can tell whose subscription it is).
@@ -12,10 +14,18 @@
  *    "canceled" is terminal and "incomplete" never overwrites a later state.
  *  - Credits: one ledger entry per checkout (`payment:<checkoutId>`) / invoice (`invoice:<id>`);
  *    refunds remove a prorated share of what that payment granted (balance may go negative).
+ *    Invoices with a zero total (trials, 100% coupons) grant no credits.
+ *  - Refunds + chargebacks: a full refund or a dispute of a subscription invoice ends that
+ *    subscription; `hasPaid` is recomputed from the payments still standing. A dispute reverses
+ *    every credit the payment granted, records a negative `<paymentId>:dispute:<disputeId>`
+ *    payment row and flags the account (`payment_disputed` moderation event); a dispute we win
+ *    restores the credits and removes the row.
+ *  - Orphans: events for deleted accounts or for payments that aren't ours are acknowledged with a
+ *    note; "not known yet" cases are retried for ORPHAN_GRACE_MS, then acknowledged.
  */
-import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db, type Tx } from "@/db";
-import { creditLedger, payments, subscriptions, user, webhookEvents } from "@/db/schema";
+import { creditLedger, moderationEvents, payments, subscriptions, user, webhookEvents } from "@/db/schema";
 import type { PaymentRow, SubscriptionRow } from "@/db/types";
 import { env } from "@/lib/env";
 import type { PaymentEvent } from "@/providers/types";
@@ -43,7 +53,11 @@ export class RetryablePaymentEventError extends AppError {
   }
 }
 
-export type ApplyPaymentEventStatus = "processed" | "duplicate" | "ignored";
+/**
+ * `duplicate`: already processed. `in_progress`: another request holds a fresh claim on it and hasn't
+ * finished; the caller must answer with a retryable status so the provider redelivers it.
+ */
+export type ApplyPaymentEventStatus = "processed" | "duplicate" | "in_progress" | "ignored";
 export interface ApplyPaymentEventResult {
   status: ApplyPaymentEventStatus;
   /** Set when the event was processed but had no effect (e.g. stale or for a deleted account). */
@@ -57,6 +71,13 @@ const CREDIT_GRANTING_REASONS = new Set(["subscription_create", "subscription_cy
 /** A claimed-but-unfinished event older than this is assumed crashed and may be re-claimed. */
 const STALE_CLAIM = sql`interval '5 minutes'`;
 const MAX_ERROR_LENGTH = 500;
+/**
+ * How long an event that can't be matched yet (unknown payment / account / plan) is retried before
+ * it is acknowledged with a note: Stripe would otherwise retry foreign or orphaned events for days.
+ */
+export const ORPHAN_GRACE_MS = 24 * 60 * 60 * 1000;
+/** `payments.providerPaymentId` of a chargeback row: `<original id>:dispute:<disputeId>`. */
+const DISPUTE_ROW = ":dispute:";
 
 type AfterCommit = () => Promise<unknown>;
 interface Ctx {
@@ -75,7 +96,7 @@ function errorText(err: unknown): string {
 
 /**
  * Apply one payment event exactly once. Returns "duplicate" for an event that was already
- * processed (or is being processed right now by another request).
+ * processed and "in_progress" for one another request is processing right now.
  */
 export async function applyPaymentEvent(
   provider: PaymentProviderName,
@@ -95,7 +116,12 @@ export async function applyPaymentEvent(
       setWhere: sql`${webhookEvents.processedAt} is null and (${webhookEvents.error} is not null or ${webhookEvents.receivedAt} < now() - ${STALE_CLAIM})`,
     })
     .returning({ eventId: webhookEvents.eventId });
-  if (!claimed.length) return { status: "duplicate" };
+  if (!claimed.length) {
+    // Only a finished event is a duplicate. A fresh claim may still fail or die mid-way: answering
+    // 2xx would make the provider stop redelivering, losing the event for good.
+    const [row] = await db.select({ processedAt: webhookEvents.processedAt }).from(webhookEvents).where(where).limit(1);
+    return row?.processedAt ? { status: "duplicate" } : { status: "in_progress" };
+  }
 
   const after: AfterCommit[] = [];
   let outcome: Outcome;
@@ -137,7 +163,21 @@ function applyEvent(ctx: Ctx, event: Exclude<PaymentEvent, { type: "ignored" }>)
       return onSubscriptionChanged(ctx, event, true);
     case "payment.refunded":
       return onRefund(ctx, event);
+    case "payment.disputed":
+      return onDisputeOpened(ctx, event);
+    case "payment.dispute_closed":
+      return onDisputeClosed(ctx, event);
   }
+}
+
+/**
+ * An event we can't match to our data. Within ORPHAN_GRACE_MS it may just be early (the event that
+ * creates the payment / account link hasn't been applied yet): retry. Later it never will be
+ * (deleted account, another product's payment): acknowledge with a note so the provider stops.
+ */
+function orphan(e: { createdAt: Date }, note: string): Outcome {
+  if (Date.now() - e.createdAt.getTime() < ORPHAN_GRACE_MS) throw new RetryablePaymentEventError(note);
+  return { note: `${note}; giving up` };
 }
 
 /* ───────────────────────────── lookups ───────────────────────────── */
@@ -177,20 +217,60 @@ async function findSubscription(ctx: Ctx, subscriptionId: string): Promise<Subsc
   return row;
 }
 
-/** Remember the provider customer (needed for the billing portal and customer-only events). */
+/**
+ * Remember the provider customer (needed for the billing portal and customer-only events). An
+ * existing, different customer is never replaced from an event: the portal and later checkouts
+ * must keep using the account's own customer.
+ */
 async function saveCustomer(ctx: Ctx, userId: string, customerId: string | null | undefined, paid = false): Promise<void> {
-  const set: Partial<typeof user.$inferInsert> = {};
-  if (customerId) set.stripeCustomerId = customerId;
-  if (paid) set.hasPaid = true;
-  if (Object.keys(set).length) await ctx.tx.update(user).set(set).where(eq(user.id, userId));
+  if (!customerId && !paid) return;
+  await ctx.tx
+    .update(user)
+    .set({
+      ...(customerId ? { stripeCustomerId: sql`coalesce(${user.stripeCustomerId}, ${customerId})` } : {}),
+      ...(paid ? { hasPaid: true } : {}),
+    })
+    .where(eq(user.id, userId));
 }
 
-/** user.plan = best plan among the user's entitled subscriptions, else "free". */
+/**
+ * user.hasPaid = some payment still holds money: status "paid", amount > 0, and its partial-refund
+ * and chargeback rows (`<id>:refund:…` / `<id>:dispute:…`, negative amounts) don't cancel it out.
+ */
+async function recomputeHasPaid(ctx: Ctx, userId: string): Promise<boolean> {
+  const rows = await ctx.tx
+    .select({ id: payments.providerPaymentId, provider: payments.provider, status: payments.status, amountCents: payments.amountCents })
+    .from(payments)
+    .where(eq(payments.userId, userId));
+  const adjustment = /^(.+?):(?:refund|dispute):/;
+  const net = new Map<string, number>();
+  for (const r of rows) {
+    const original = adjustment.exec(r.id)?.[1];
+    if (original === undefined && (r.status !== "paid" || r.amountCents <= 0)) continue;
+    const key = `${r.provider}:${original ?? r.id}`;
+    net.set(key, (net.get(key) ?? 0) + r.amountCents);
+  }
+  // Adjustment rows of an original that doesn't count (fully refunded) only ever subtract.
+  const hasPaid = [...net.values()].some((cents) => cents > 0);
+  await ctx.tx.update(user).set({ hasPaid }).where(eq(user.id, userId));
+  return hasPaid;
+}
+
+/** user.plan = best plan among the user's entitled subscriptions (at the configured provider), else "free". */
 async function recomputeUserPlan(ctx: Ctx, userId: string): Promise<PlanId> {
+  // Lock the user first so concurrent events for two of their subscriptions can't each store a plan
+  // computed from a stale view of the other (lock order stays subscription → user).
+  await ctx.tx.select({ id: user.id }).from(user).where(eq(user.id, userId)).for("update");
   const rows = await ctx.tx
     .select({ planId: subscriptions.planId })
     .from(subscriptions)
-    .where(and(eq(subscriptions.userId, userId), inArray(subscriptions.status, [...ENTITLED_STATUSES])));
+    .where(
+      and(
+        eq(subscriptions.userId, userId),
+        eq(subscriptions.provider, ctx.provider),
+        inArray(subscriptions.status, [...ENTITLED_STATUSES]),
+      ),
+    );
   const plan = rows
     .map((r) => r.planId)
     .filter(isPaidPlanId)
@@ -279,7 +359,8 @@ async function onCreditPackPurchase(ctx: Ctx, e: EventOf<"checkout.completed">):
     },
     ctx.tx,
   );
-  await saveCustomer(ctx, buyer.id, e.customerId, true);
+  // A free (100%-off) pack is a gift, not a payment: it doesn't lift free-tier limits like watermarks.
+  await saveCustomer(ctx, buyer.id, e.customerId, e.amountCents > 0);
   if (payment.created) {
     queueReceipt(ctx, buyer, {
       description: `${pack.name} credit pack`,
@@ -355,39 +436,73 @@ async function onSubscriptionCheckout(ctx: Ctx, e: EventOf<"checkout.completed">
   await recomputeUserPlan(ctx, buyer.id);
 
   // Switching plans = a new subscription; end the previous one so the user isn't billed twice.
-  const keep = e.subscriptionId;
-  const provider = ctx.provider;
-  ctx.after.push(() => cancelSupersededSubscriptions(provider, buyer.id, keep));
+  const superseded = await supersededSubscriptions(ctx, buyer.id, e.subscriptionId, e.createdAt);
+  if (superseded.length) queueProviderCancel(ctx, superseded);
 }
 
-async function cancelSupersededSubscriptions(provider: PaymentProviderName, userId: string, keepSubscriptionId: string) {
-  const others = await db
-    .select({ id: subscriptions.providerSubscriptionId })
+/**
+ * The user's subscriptions a completed checkout replaces: the other entitled ones whose newest
+ * provider event is older than the checkout. Nothing when the checkout's own subscription is no
+ * longer entitled. So a late or retried checkout.completed (Stripe retries for days) never cancels
+ * a subscription that was bought, renewed or changed after it.
+ */
+async function supersededSubscriptions(ctx: Ctx, userId: string, subscriptionId: string, checkoutAt: Date): Promise<string[]> {
+  const rows = await ctx.tx
+    .select({ id: subscriptions.providerSubscriptionId, status: subscriptions.status, lastEventAt: subscriptions.lastEventAt })
     .from(subscriptions)
-    .where(
-      and(
-        eq(subscriptions.userId, userId),
-        eq(subscriptions.provider, provider),
-        ne(subscriptions.providerSubscriptionId, keepSubscriptionId),
-        inArray(subscriptions.status, [...ENTITLED_STATUSES]),
-      ),
-    );
-  if (!others.length) return;
-  const { getPaymentProvider } = await import("@/providers/registry");
-  const payment = getPaymentProvider();
-  if (payment.name !== provider) return;
-  for (const { id } of others) await payment.cancelSubscription(id);
+    .where(and(eq(subscriptions.userId, userId), eq(subscriptions.provider, ctx.provider)));
+  const own = rows.find((r) => r.id === subscriptionId);
+  if (!own || !ENTITLED_STATUSES.includes(own.status)) return [];
+  return rows
+    .filter((r) => r.id !== subscriptionId && ENTITLED_STATUSES.includes(r.status) && r.lastEventAt < checkoutAt)
+    .map((r) => r.id);
+}
+
+/** Cancel subscriptions at the provider once the transaction committed (no-op if the provider changed). */
+function queueProviderCancel(ctx: Ctx, subscriptionIds: string[]): void {
+  const provider = ctx.provider;
+  ctx.after.push(async () => {
+    const { getPaymentProvider } = await import("@/providers/registry");
+    const payment = getPaymentProvider();
+    if (payment.name !== provider) return;
+    for (const id of subscriptionIds) await payment.cancelSubscription(id);
+  });
+}
+
+/**
+ * End a subscription now (full refund / chargeback of its invoice): canceled locally right away, so
+ * the plan drops whatever the provider says, and at the provider after commit so it bills no more.
+ * The caller must hold the payment lock only (lock order: subscription → user).
+ */
+async function endSubscription(ctx: Ctx, subscriptionId: string | undefined, at: Date): Promise<boolean> {
+  if (!subscriptionId) return false;
+  const sub = await findSubscription(ctx, subscriptionId);
+  if (!sub || sub.status === "canceled") return false;
+  await ctx.tx
+    .update(subscriptions)
+    .set({ status: "canceled", cancelAtPeriodEnd: false, lastEventAt: at > sub.lastEventAt ? at : sub.lastEventAt })
+    .where(eq(subscriptions.id, sub.id));
+  queueProviderCancel(ctx, [subscriptionId]);
+  return true;
 }
 
 async function onInvoicePaid(ctx: Ctx, e: EventOf<"invoice.paid">): Promise<Outcome> {
   const sub = await findSubscription(ctx, e.subscriptionId);
   const payer = await resolveUser(ctx.tx, { userId: e.userId ?? sub?.userId, customerId: e.customerId });
-  if (!payer) throw new RetryablePaymentEventError(`invoice ${e.invoiceId}: account not known yet`);
+  if (!payer) {
+    // Our metadata names a user that no longer exists: the account was deleted (its subscription
+    // cancellation must have failed). That can never resolve.
+    if (e.userId) return { note: `invoice ${e.invoiceId}: user ${e.userId} not found (deleted account?)` };
+    return orphan(e, `invoice ${e.invoiceId}: account not known`);
+  }
   const planId = e.planId ?? (sub && isPaidPlanId(sub.planId) ? sub.planId : undefined);
-  if (!planId) throw new RetryablePaymentEventError(`invoice ${e.invoiceId}: plan not known yet`);
+  if (!planId) return orphan(e, `invoice ${e.invoiceId}: plan not known`);
   const interval: BillingInterval = e.interval ?? sub?.interval ?? "month";
 
-  const credits = CREDIT_GRANTING_REASONS.has(e.billingReason) ? planGrantCredits(planId, interval) : 0;
+  // Trials and 100%-off invoices (total 0) start a period without payment: plan benefits follow the
+  // subscription status, but credits only come with money.
+  const total = e.totalCents ?? e.amountCents;
+  const credits = CREDIT_GRANTING_REASONS.has(e.billingReason) && total > 0 ? planGrantCredits(planId, interval) : 0;
   const description = planDescription(planId, interval);
   const payment = await recordPayment(ctx, {
     userId: payer.id,
@@ -411,7 +526,7 @@ async function onInvoicePaid(ctx: Ctx, e: EventOf<"invoice.paid">): Promise<Outc
       ctx.tx,
     );
   }
-  await saveCustomer(ctx, payer.id, e.customerId, true);
+  await saveCustomer(ctx, payer.id, e.customerId, e.amountCents > 0);
   await upsertPaidSubscription(ctx, {
     userId: payer.id,
     subscriptionId: e.subscriptionId,
@@ -475,7 +590,8 @@ async function onSubscriptionChanged(
   const owner = await resolveUser(ctx.tx, { userId: s.userId, customerId: s.customerId });
   if (!owner) {
     if (deleted) return { note: "deleted subscription for an unknown account" };
-    throw new RetryablePaymentEventError(`subscription ${s.subscriptionId}: account not known yet`);
+    if (s.userId) return { note: `subscription ${s.subscriptionId}: user ${s.userId} not found (deleted account?)` };
+    return orphan(e, `subscription ${s.subscriptionId}: account not known`);
   }
   await ctx.tx
     .insert(subscriptions)
@@ -496,19 +612,17 @@ async function onSubscriptionChanged(
   await recomputeUserPlan(ctx, owner.id);
 }
 
-async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outcome> {
-  const [payment] = await ctx.tx
+async function lockPayment(ctx: Ctx, providerPaymentId: string): Promise<PaymentRow | undefined> {
+  const [row] = await ctx.tx
     .select()
     .from(payments)
-    .where(and(eq(payments.provider, ctx.provider), eq(payments.providerPaymentId, e.paymentId)))
+    .where(and(eq(payments.provider, ctx.provider), eq(payments.providerPaymentId, providerPaymentId)))
     .for("update");
-  if (!payment) throw new RetryablePaymentEventError(`refund for unknown payment ${e.paymentId}`);
+  return row;
+}
 
-  // `amountRefundedCents` is the cumulative refunded amount; reverse the matching share of credits.
-  const share =
-    e.fullyRefunded || payment.amountCents <= 0
-      ? payment.credits
-      : Math.min(payment.credits, Math.round((payment.credits * e.amountRefundedCents) / payment.amountCents));
+/** Net credits taken back from a payment so far (refunds + chargebacks − chargebacks we won). */
+async function reversedCredits(ctx: Ctx, payment: PaymentRow): Promise<number> {
   const [{ reversed }] = await ctx.tx
     .select({ reversed: sql<number>`coalesce(-sum(${creditLedger.delta}), 0)`.mapWith(Number) })
     .from(creditLedger)
@@ -519,6 +633,38 @@ async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outco
         eq(creditLedger.reason, "purchase_reversal"),
       ),
     );
+  return reversed;
+}
+
+/** Cents refunded so far through partial-refund rows (`<id>:refund:<eventId>`, negative amounts). */
+async function partiallyRefundedCents(ctx: Ctx, payment: PaymentRow): Promise<number> {
+  const prefix = `${payment.providerPaymentId}:refund:`;
+  const [{ refundedCents }] = await ctx.tx
+    .select({ refundedCents: sql<number>`coalesce(-sum(${payments.amountCents}), 0)`.mapWith(Number) })
+    .from(payments)
+    .where(
+      and(
+        eq(payments.userId, payment.userId),
+        eq(payments.provider, ctx.provider),
+        sql`starts_with(${payments.providerPaymentId}, ${prefix})`,
+      ),
+    );
+  return refundedCents;
+}
+
+async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outcome> {
+  const payment = await lockPayment(ctx, e.paymentId);
+  // Unknown after the grace period: the account was deleted (payments cascade) or it isn't ours.
+  if (!payment) return orphan(e, `refund for unknown payment ${e.paymentId}`);
+  // A full refund of a subscription invoice gives the period's money back: the plan ends with it.
+  const ended = payment.kind === "subscription" && e.fullyRefunded && (await endSubscription(ctx, e.subscriptionId, e.createdAt));
+
+  // `amountRefundedCents` is the cumulative refunded amount; reverse the matching share of credits.
+  const share =
+    e.fullyRefunded || payment.amountCents <= 0
+      ? payment.credits
+      : Math.min(payment.credits, Math.round((payment.credits * e.amountRefundedCents) / payment.amountCents));
+  const reversed = await reversedCredits(ctx, payment);
   const toReverse = Math.max(0, share - reversed);
   if (toReverse > 0) {
     await applyCredit(
@@ -534,6 +680,136 @@ async function onRefund(ctx: Ctx, e: EventOf<"payment.refunded">): Promise<Outco
     );
   }
   await recordRefund(ctx, payment, e, toReverse);
+  if (e.fullyRefunded) await recomputeHasPaid(ctx, payment.userId);
+  if (ended) await recomputeUserPlan(ctx, payment.userId);
+}
+
+/* ───────────────────────────── chargebacks ───────────────────────────── */
+
+const disputeKey = (ctx: Ctx, disputeId: string) => `dispute:${ctx.provider}:${disputeId}`;
+
+/** Credits a refund (not a dispute) has a claim on: all of them once fully refunded, else the refunded share. */
+async function refundedCreditShare(ctx: Ctx, payment: PaymentRow): Promise<number> {
+  if (payment.status === "refunded") return payment.credits;
+  if (payment.amountCents <= 0) return 0;
+  const cents = await partiallyRefundedCents(ctx, payment);
+  return Math.min(payment.credits, Math.round((payment.credits * cents) / payment.amountCents));
+}
+
+async function flagDispute(ctx: Ctx, payment: PaymentRow, details: Record<string, unknown>): Promise<void> {
+  await ctx.tx.insert(moderationEvents).values({
+    userId: payment.userId,
+    kind: "payment_disputed",
+    details: { provider: ctx.provider, paymentId: payment.providerPaymentId, kind: payment.kind, ...details },
+  });
+}
+
+/**
+ * Freeze a disputed payment: reverse every credit it granted that isn't reversed yet (the balance
+ * may go negative), end its subscription, record the withdrawn money as a negative
+ * `<id>:dispute:<disputeId>` row and flag the account for review. Idempotent per dispute.
+ */
+async function freezeDisputedPayment(
+  ctx: Ctx,
+  payment: PaymentRow,
+  e: { disputeId: string; createdAt: Date; amountCents?: number; reason?: string; subscriptionId?: string },
+): Promise<void> {
+  const ended = payment.kind === "subscription" && (await endSubscription(ctx, e.subscriptionId, e.createdAt));
+  const toReverse = Math.max(0, payment.credits - (await reversedCredits(ctx, payment)));
+  if (toReverse > 0) {
+    await applyCredit(
+      {
+        userId: payment.userId,
+        delta: -toReverse,
+        reason: "purchase_reversal",
+        idempotencyKey: disputeKey(ctx, e.disputeId),
+        paymentId: payment.id,
+        note: "Payment disputed (chargeback)",
+      },
+      ctx.tx,
+    );
+  }
+
+  const stillPaidCents =
+    payment.status === "refunded" ? 0 : Math.max(0, payment.amountCents - (await partiallyRefundedCents(ctx, payment)));
+  const [opened] = await ctx.tx
+    .insert(payments)
+    .values({
+      userId: payment.userId,
+      provider: ctx.provider,
+      providerPaymentId: `${payment.providerPaymentId}${DISPUTE_ROW}${e.disputeId}`,
+      kind: payment.kind,
+      productId: payment.productId,
+      amountCents: -Math.min(e.amountCents ?? stillPaidCents, stillPaidCents),
+      currency: payment.currency,
+      credits: -toReverse,
+      status: "refunded",
+    })
+    .onConflictDoNothing({ target: [payments.provider, payments.providerPaymentId] })
+    .returning({ id: payments.id });
+  if (opened) {
+    await flagDispute(ctx, payment, {
+      phase: "opened",
+      disputeId: e.disputeId,
+      amountCents: e.amountCents ?? null,
+      reason: e.reason ?? null,
+      creditsReversed: toReverse,
+      subscriptionEnded: ended,
+    });
+  }
+  await recomputeHasPaid(ctx, payment.userId);
+  if (ended) await recomputeUserPlan(ctx, payment.userId);
+}
+
+async function onDisputeOpened(ctx: Ctx, e: EventOf<"payment.disputed">): Promise<Outcome> {
+  const payment = await lockPayment(ctx, e.paymentId);
+  if (!payment) return orphan(e, `dispute ${e.disputeId} for unknown payment ${e.paymentId}`);
+  await freezeDisputedPayment(ctx, payment, e);
+}
+
+async function onDisputeClosed(ctx: Ctx, e: EventOf<"payment.dispute_closed">): Promise<Outcome> {
+  const payment = await lockPayment(ctx, e.paymentId);
+  if (!payment) return orphan(e, `dispute ${e.disputeId} for unknown payment ${e.paymentId}`);
+
+  if (!e.won) {
+    // Lost: the money is gone for good. Freeze (a no-op if dispute.created was applied) and keep it so.
+    await freezeDisputedPayment(ctx, payment, e);
+    await flagDispute(ctx, payment, { phase: "closed", disputeId: e.disputeId, status: e.status });
+    return;
+  }
+
+  // Won: give back what the dispute froze, minus anything a refund has claimed since, and drop the
+  // negative revenue row. A subscription the dispute ended stays canceled (the user can subscribe again).
+  const [frozen] = await ctx.tx
+    .select({ delta: creditLedger.delta })
+    .from(creditLedger)
+    .where(eq(creditLedger.idempotencyKey, disputeKey(ctx, e.disputeId)))
+    .limit(1);
+  const refundClaim = await refundedCreditShare(ctx, payment);
+  const restore = Math.min(frozen ? -frozen.delta : 0, Math.max(0, (await reversedCredits(ctx, payment)) - refundClaim));
+  if (restore > 0) {
+    await applyCredit(
+      {
+        userId: payment.userId,
+        delta: restore,
+        reason: "purchase_reversal",
+        idempotencyKey: `${disputeKey(ctx, e.disputeId)}:won`,
+        paymentId: payment.id,
+        note: "Dispute won: credits restored",
+      },
+      ctx.tx,
+    );
+  }
+  await ctx.tx
+    .delete(payments)
+    .where(
+      and(
+        eq(payments.provider, ctx.provider),
+        eq(payments.providerPaymentId, `${payment.providerPaymentId}${DISPUTE_ROW}${e.disputeId}`),
+      ),
+    );
+  await flagDispute(ctx, payment, { phase: "closed", disputeId: e.disputeId, status: e.status, creditsRestored: restore });
+  await recomputeHasPaid(ctx, payment.userId);
 }
 
 /**

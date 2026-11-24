@@ -57,7 +57,7 @@ export function ModelsList({ initialModels }: ModelsListProps) {
         <li>
           <Link
             href="/app/models/new"
-            className="grain flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors outline-none hover:border-primary/50 hover:bg-accent/30 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="grain flex h-full min-h-48 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors hover:border-primary/50 hover:bg-accent/30"
           >
             <span aria-hidden="true" className="flex size-11 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
               <PlusIcon className="size-5" />
@@ -123,7 +123,11 @@ function ModelCard({ model, onTrainingDone }: { model: ModelView; onTrainingDone
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex flex-col gap-0.5">
           <h3 className="truncate font-semibold">
-            <Link href={`/app/models/${model.id}`} className="outline-none after:absolute after:inset-0 focus-visible:underline">
+            {/* Stretched link: the focus ring goes inside the card's edge (the card clips overflow). */}
+            <Link
+              href={`/app/models/${model.id}`}
+              className="after:absolute after:inset-0 after:rounded-xl focus-visible:underline focus-visible:outline-hidden focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-ring"
+            >
               {model.name}
             </Link>
           </h3>

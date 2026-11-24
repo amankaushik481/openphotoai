@@ -2,6 +2,7 @@
  * Response shapes of the /api/models routes. Types only (safe to `import type` from client code).
  * They extend the contract DTOs in src/types/domain.ts with additive fields.
  */
+import type { LivenessStep } from "@/lib/liveness";
 import type { IdentityModelDTO, ReadinessDTO, TrainingPhotoDTO } from "@/types/domain";
 
 export type IdentityMode = "instant" | "trained";
@@ -31,4 +32,6 @@ export interface AddPhotoResponse {
 export interface ConsentChallengeResponse {
   captureToken: string;
   expiresAt: string;
+  /** Head-pose steps the camera must capture (one frame each, in order) besides the frontal selfie. */
+  steps: LivenessStep[];
 }

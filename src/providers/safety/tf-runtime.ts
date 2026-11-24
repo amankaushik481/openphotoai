@@ -113,9 +113,16 @@ async function loadModelArtifacts(tf: Tf, modelJsonPath: string): Promise<TfCore
 
 let queue: Promise<unknown> = Promise.resolve();
 
-/** Run `fn` after every previously queued inference has settled. */
+/** Let pending I/O (other requests on this instance) run before the next synchronous wasm inference. */
+const yieldToEventLoop = () => new Promise<void>((resolve) => setImmediate(resolve));
+
+/**
+ * Run `fn` after every previously queued inference has settled. Inference is synchronous wasm work on
+ * the main thread, so each queued run first yields a macrotask: a burst of inferences (a 40-image
+ * batch) interleaves with other requests instead of blocking the event loop end to end.
+ */
 export function runExclusive<T>(fn: () => Promise<T>): Promise<T> {
-  const next = queue.then(() => fn());
+  const next = queue.then(yieldToEventLoop).then(() => fn());
   queue = next.catch(() => undefined);
   return next;
 }

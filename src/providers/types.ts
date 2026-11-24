@@ -211,6 +211,11 @@ export interface TalkingVideoInput {
   imageUrl: InputUrl;
   script: string;
   voice: string;
+  /**
+   * Longest speech audio (seconds) the job paid for. Providers that report the TTS duration must
+   * refuse (non-retryable) to animate longer audio: the avatar step is billed per second.
+   */
+  maxAudioSeconds?: number;
 }
 
 export interface VideoProvider extends AsyncAIProvider {
@@ -317,6 +322,11 @@ export type PaymentEvent =
       planId?: Exclude<PlanId, "free">;
       interval?: "month" | "year";
       userId?: string;
+      /**
+       * Invoice total after discounts, before any customer balance was applied. 0 for trials and
+       * 100%-off coupons (no credits are granted for those). Defaults to `amountCents`.
+       */
+      totalCents?: number;
     }
   | {
       type: "invoice.payment_failed";
@@ -334,6 +344,31 @@ export type PaymentEvent =
       paymentId: string;
       amountRefundedCents: number;
       fullyRefunded: boolean;
+      /** The subscription a refunded invoice belongs to (a full refund ends it). */
+      subscriptionId?: string;
+    }
+  | {
+      /** A chargeback / dispute was opened on a payment (Stripe `charge.dispute.created`). */
+      type: "payment.disputed";
+      eventId: string;
+      createdAt: Date;
+      /** The checkout/invoice id originally recorded in `payments.providerPaymentId`. */
+      paymentId: string;
+      disputeId: string;
+      amountCents: number;
+      reason?: string;
+      /** The subscription a disputed invoice belongs to (it is ended). */
+      subscriptionId?: string;
+    }
+  | {
+      /** A dispute was closed (Stripe `charge.dispute.closed`). `won`: the money stays with us. */
+      type: "payment.dispute_closed";
+      eventId: string;
+      createdAt: Date;
+      paymentId: string;
+      disputeId: string;
+      won: boolean;
+      status: string;
     }
   | { type: "ignored"; eventId: string; createdAt: Date; rawType: string };
 

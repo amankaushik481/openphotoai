@@ -40,8 +40,9 @@ describe("policy", () => {
   it("derives thresholds from config with hard floors", () => {
     expect(SAFETY_POLICY.minIdentityAge).toBe(Math.max(18, TRAINING.minAge) + Math.max(2, TRAINING.ageMargin));
     expect(SAFETY_POLICY.minIdentityAge).toBeGreaterThanOrEqual(20);
-    expect(SAFETY_POLICY.minReferenceAge).toBeGreaterThanOrEqual(18);
-    expect(SAFETY_POLICY.videoSampleFrames).toBe(4);
+    expect(SAFETY_POLICY.minReferenceAge).toBeGreaterThanOrEqual(19);
+    expect(SAFETY_POLICY.minOutputAge).toBeGreaterThanOrEqual(20);
+    expect(SAFETY_POLICY.videoSampleFps).toBeGreaterThanOrEqual(1);
     expect(SAFETY_POLICY.minPhotos).toEqual({ trained: TRAINING.minPhotos, instant: 3 });
     expect(Object.isFrozen(SAFETY_POLICY)).toBe(true);
   });

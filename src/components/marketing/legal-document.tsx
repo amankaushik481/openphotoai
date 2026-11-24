@@ -92,7 +92,7 @@ function Block({ block }: { block: LegalBlock }) {
 }
 
 const navLink =
-  "block rounded-md px-3 py-1.5 text-sm transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none";
+  "block rounded-md px-3 py-1.5 text-sm transition-colors";
 
 export function LegalDocumentView({ doc, lastUpdated }: { doc: LegalDocument; lastUpdated: string }) {
   return (

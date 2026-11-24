@@ -21,7 +21,7 @@ export function PageHeader({ title, description, eyebrow, actions, back, classNa
         {back && (
           <Link
             href={back.href}
-            className="-ml-1 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            className="-ml-1 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeftIcon aria-hidden="true" className="size-4" />
             {back.label}

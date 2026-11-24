@@ -11,16 +11,38 @@ import type { PhotoIssue } from "@/types/domain";
 const HARD_MIN_AGE = 18;
 /** Age estimators are noisy; identity photos need this many extra years. Hard floor. */
 const HARD_AGE_MARGIN = 2;
+/** References / outputs get a smaller (but non-zero) estimator margin. Hard floor. */
+const HARD_REFERENCE_MARGIN = 1;
+
+/**
+ * `max(floor, configured)` that fails CLOSED: a non-numeric / NaN / infinite config value (e.g.
+ * `Number(process.env.UNSET)`) falls back to the floor instead of turning every age gate into
+ * `age < NaN` (always false). Exported for tests.
+ */
+export function atLeast(floor: number, configured: unknown): number {
+  return typeof configured === "number" && Number.isFinite(configured) ? Math.max(floor, configured) : floor;
+}
+
+const MIN_AGE = atLeast(HARD_MIN_AGE, TRAINING.minAge);
 
 export const SAFETY_POLICY = Object.freeze({
   /** Consent selfie + training photos: every face's estimated age must be >= this. */
-  minIdentityAge: Math.max(HARD_MIN_AGE, TRAINING.minAge) + Math.max(HARD_AGE_MARGIN, TRAINING.ageMargin),
-  /** Uploaded reference/garment images: any face estimated below this is refused. */
-  minReferenceAge: Math.max(HARD_MIN_AGE, TRAINING.minAge),
+  minIdentityAge: MIN_AGE + atLeast(HARD_AGE_MARGIN, TRAINING.ageMargin),
+  /** Uploaded reference/garment images: any face estimated below this (or of unknown age) is refused. */
+  minReferenceAge: MIN_AGE + HARD_REFERENCE_MARGIN,
+  /**
+   * Generated images and video frames: any face estimated below this (or of unknown age) blocks the
+   * output. Same margin as identity photos: outputs are derived from a verified adult identity.
+   */
+  minOutputAge: MIN_AGE + atLeast(HARD_AGE_MARGIN, TRAINING.ageMargin),
   /** Accepted photos required before training, per identity mode. */
-  minPhotos: Object.freeze({ trained: TRAINING.minPhotos, instant: 3 }),
-  /** Frames sampled from every generated video for the output classifier. */
-  videoSampleFrames: 4,
+  minPhotos: Object.freeze({ trained: atLeast(3, TRAINING.minPhotos), instant: 3 }),
+  /** Video output moderation: frames per second sampled across the WHOLE clip (first + last frame always). */
+  videoSampleFps: 1,
+  /** Upper bound on sampled frames per video (longer clips are sampled evenly at a lower rate). */
+  videoMaxSampleFrames: 32,
+  /** Minimum frames sampled per video (first + last). */
+  videoMinSampleFrames: 2,
   /** Longest excerpt of user text stored in moderation_events. */
   maxLoggedTextChars: 200,
 });

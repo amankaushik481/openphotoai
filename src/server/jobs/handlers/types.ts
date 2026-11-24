@@ -21,6 +21,12 @@ export interface JobPlan {
   sourceMediaId?: string | null;
   /** User-provided text that must pass the prompt safety filter. */
   textsToModerate: string[];
+  /**
+   * The provider-bound text assembled from user text + brand kit + templates (curated pack prompts
+   * excluded, see src/server/jobs/assembled-text.ts). Re-checked as a whole after `textsToModerate`,
+   * so a blocked phrase split across fields is still caught.
+   */
+  assembledTexts?: string[];
   /** Persisted on jobs.output.plan; available to submit()/complete(). JSON-serializable. */
   data: Record<string, unknown>;
   /** Optional credit cost override (e.g. instant-mode models cost more). Defaults to creditCost(input). */
@@ -44,6 +50,8 @@ export interface CompleteArgs {
 export interface CompleteResult {
   mediaIds: string[];
   blockedCount: number;
+  /** Outputs refunded under the likeness guarantee and discarded (not "missing", not kept). */
+  discardedCount?: number;
   /** Extra fields merged into jobs.output. */
   extra?: Record<string, unknown>;
 }

@@ -5,6 +5,8 @@ import { POST as mockCompleteRoute } from "@/app/api/billing/mock/complete/route
 import { POST as portalRoute } from "@/app/api/billing/portal/route";
 import { GET as subscriptionRoute } from "@/app/api/billing/subscription/route";
 import { POST as webhookRoute } from "@/app/api/webhooks/payments/[provider]/route";
+import { db } from "@/db";
+import { webhookEvents } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { RATE_LIMITS } from "@/config/rate-limits";
 import { resetEnvCache } from "@/lib/env";
@@ -175,7 +177,7 @@ describe("POST /api/webhooks/payments/[provider]", () => {
   });
 
   it("answers 500 when the event must be redelivered, then processes the redelivery", async () => {
-    const invoice = invoicePaid({ customerId: "cus_unknown" });
+    const invoice = invoicePaid({ customerId: "cus_unknown", createdAt: new Date() });
     const res = await postWebhook("mock", invoice);
     expect(res.status).toBe(500);
     expect(await readWebhookEvent(invoice.eventId)).toMatchObject({ processedAt: null, error: expect.any(String) });
@@ -184,6 +186,15 @@ describe("POST /api/webhooks/payments/[provider]", () => {
     const retry = await postWebhook("mock", invoice);
     expect(retry.status).toBe(200);
     expect(await readUser(u.id)).toMatchObject({ plan: "pro", credits: 1100 });
+  });
+
+  it("answers 409 (so the provider redelivers) while another delivery holds the event (PAY-5)", async () => {
+    const event = packCheckout(u.id);
+    await db.insert(webhookEvents).values({ source: "payment:mock", eventId: event.eventId, type: event.type });
+    const res = await postWebhook("mock", event);
+    expect(res.status).toBe(409);
+    expect(res.json.error.code).toBe("conflict");
+    expect((await readUser(u.id)).credits).toBe(0);
   });
 
   it("404s the mock endpoint when Stripe is configured", async () => {

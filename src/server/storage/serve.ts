@@ -6,6 +6,7 @@ import { createReadStream, promises as fs } from "node:fs";
 import { Readable } from "node:stream";
 import { isLocalStorage } from "@/providers/storage/local";
 import { attachmentDisposition, contentTypeForKey } from "@/providers/storage/keys";
+import { signedObjectCacheControl } from "@/providers/storage/url-window";
 import { AppError, errorResponse, errors } from "@/server/http";
 import { getStorage } from "./index";
 
@@ -43,7 +44,8 @@ export async function serveLocalFile(req: Request, key: string, opts: { head?: b
 
     const params = new URL(req.url).searchParams;
     const dl = params.get("dl");
-    if (!storage.verifySignature(key, params.get("exp") ?? "", params.get("sig") ?? "", dl)) throw forbidden();
+    const exp = params.get("exp") ?? "";
+    if (!storage.verifySignature(key, exp, params.get("sig") ?? "", dl)) throw forbidden();
 
     let file: string;
     try {
@@ -57,7 +59,8 @@ export async function serveLocalFile(req: Request, key: string, opts: { head?: b
     const size = stat.size;
     const headers = new Headers({
       "Content-Type": contentTypeForKey(key),
-      "Cache-Control": "private, max-age=3600",
+      // Keys are never reused and URLs are stable per signing window: cache until the URL expires.
+      "Cache-Control": signedObjectCacheControl(Number(exp) - Math.floor(Date.now() / 1000)),
       "Accept-Ranges": "bytes",
       "Last-Modified": stat.mtime.toUTCString(),
       "X-Content-Type-Options": "nosniff",

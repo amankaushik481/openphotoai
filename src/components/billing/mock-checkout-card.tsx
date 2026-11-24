@@ -82,7 +82,7 @@ export function MockCheckoutCard({ checkoutId, item, email }: MockCheckoutCardPr
         </div>
         <p className="text-xs text-muted-foreground">Paying as {email}</p>
         {error && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" role="alert">
             <TriangleAlertIcon aria-hidden="true" />
             <AlertTitle>Payment failed</AlertTitle>
             <AlertDescription>{error}</AlertDescription>

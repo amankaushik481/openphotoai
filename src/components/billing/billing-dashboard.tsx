@@ -86,7 +86,7 @@ export function BillingDashboard({
       <PageHeader title="Billing" description="Your plan, credits and payments." />
 
       {notice && !dismissed && (
-        <Alert variant={notice === "success" ? "success" : "default"} className="pr-12">
+        <Alert role="status" variant={notice === "success" ? "success" : "default"} className="pr-12">
           {notice === "success" ? <CircleCheckIcon aria-hidden="true" /> : <InfoIcon aria-hidden="true" />}
           <AlertTitle>{notice === "success" ? "Payment received — thank you!" : "Checkout canceled"}</AlertTitle>
           <AlertDescription>
@@ -130,7 +130,7 @@ export function BillingDashboard({
         <Card className="gap-4">
           <CardHeader className="gap-1.5">
             <CardDescription>Credit balance</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-4xl font-semibold tabular-nums">
+            <CardTitle as="p" className="flex items-center gap-2 text-4xl font-semibold tabular-nums">
               <CoinsIcon aria-hidden="true" className="size-7 text-primary" />
               <span aria-live="polite">{formatCredits(credits.balance)}</span>
             </CardTitle>

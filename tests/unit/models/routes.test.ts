@@ -18,6 +18,7 @@ import type { AddPhotoResponse, ConsentChallengeResponse, ModelDetailResponse, M
 import type { ApiErrorBody } from "@/types/domain";
 import { getStorage, storageKeys } from "@/server/storage";
 import { callRoute, createTestDb, createTestModel, createTestUser, sessionMock } from "../../helpers/factories";
+import { appendLivenessFrames, livenessFrames } from "../../helpers/liveness";
 import { imageForm, reloadModel, selfie, useTempStorage } from "./helpers";
 
 vi.mock("@/server/auth/session", () => sessionMock);
@@ -58,18 +59,20 @@ async function challenge(modelId: string): Promise<ConsentChallengeResponse> {
   return res.json;
 }
 
-function postConsent(modelId: string, name: string, captureToken: string) {
+async function postConsent(modelId: string, name: string, captureToken: string, steps: ConsentChallengeResponse["steps"] = []) {
+  const frontal = selfie(name);
+  const form = appendLivenessFrames(imageForm("selfie", frontal, { captureToken }), await livenessFrames(frontal, steps));
   return callRoute(consentRoute, {
     url: `/api/models/${modelId}/consent`,
     params: { id: modelId },
-    body: imageForm("selfie", selfie(name), { captureToken }),
+    body: form,
     headers: { "user-agent": "vitest-camera", "x-forwarded-for": "203.0.113.7" },
   });
 }
 
 async function consent(modelId: string, name = "alice-01") {
-  const { captureToken } = await challenge(modelId);
-  return postConsent(modelId, name, captureToken);
+  const { captureToken, steps } = await challenge(modelId);
+  return postConsent(modelId, name, captureToken, steps);
 }
 
 function upload(modelId: string, bytes: Uint8Array<ArrayBuffer>) {
@@ -169,7 +172,12 @@ describe("live consent selfie", () => {
 
     const [record] = await db.select().from(consentRecords).where(eq(consentRecords.modelId, model.id));
     expect(record).toMatchObject({ userId: u.id, kind: "training_selfie", ipAddress: "203.0.113.7", userAgent: "vitest-camera" });
-    expect(record!.evidence).toMatchObject({ captureMethod: "camera", age: 29, faceConfidence: 0.99 });
+    expect(record!.evidence).toMatchObject({
+      captureMethod: "camera+active-liveness",
+      age: 29,
+      faceConfidence: 0.99,
+      liveness: { method: "active_head_pose", poseVerified: true, faceProvider: "mock" },
+    });
   });
 
   it("requires a capture token issued by the challenge endpoint (single use)", async () => {
@@ -178,20 +186,20 @@ describe("live consent selfie", () => {
     expect(missing.status).toBe(422);
     expect(missing.json.error.code).toBe("consent_required");
 
-    const { captureToken } = await challenge(model.id);
-    expect((await postConsent(model.id, "alice-01", "forged-token")).status).toBe(422);
-    expect((await postConsent(model.id, "alice-01", captureToken)).status).toBe(200);
-    const reused = await postConsent(model.id, "alice-01", captureToken);
+    const { captureToken, steps } = await challenge(model.id);
+    expect((await postConsent(model.id, "alice-01", "forged-token", steps)).status).toBe(422);
+    expect((await postConsent(model.id, "alice-01", captureToken, steps)).status).toBe(200);
+    const reused = await postConsent(model.id, "alice-01", captureToken, steps);
     expect(reused.status).toBe(422);
     expect(reused.json.error.code).toBe("consent_required");
   });
 
   it("expires capture tokens after 5 minutes", async () => {
     const model = await createModel();
-    const { captureToken, expiresAt } = await challenge(model.id);
+    const { captureToken, expiresAt, steps } = await challenge(model.id);
     expect(Date.parse(expiresAt) - Date.now()).toBeGreaterThan((CONSENT_CHALLENGE_TTL_SEC - 5) * 1000);
     vi.useFakeTimers({ toFake: ["Date"], now: Date.now() + (CONSENT_CHALLENGE_TTL_SEC + 1) * 1000 });
-    const res = await postConsent(model.id, "alice-01", captureToken);
+    const res = await postConsent(model.id, "alice-01", captureToken, steps);
     expect(res.status).toBe(422);
     expect(res.json.error.message).toMatch(/expired/);
     expect((await reloadModel(model.id))!.status).toBe("awaiting_consent");

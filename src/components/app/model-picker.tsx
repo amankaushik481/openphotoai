@@ -113,7 +113,7 @@ export function ModelPicker({
       </Select>
       <Link
         href="/app/models/new"
-        className="inline-flex w-fit items-center gap-1 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="inline-flex w-fit items-center gap-1 rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <PlusIcon aria-hidden="true" className="size-3.5" />
         {t("models.createNew")}

@@ -4,6 +4,7 @@ import { DEFAULT_MOTION_PROMPT, MAX_TALKING_WORDS } from "@/components/video/vid
 import { db } from "@/db";
 import { jobs, media } from "@/db/schema";
 import type { MediaRow, UserRow } from "@/db/types";
+import { AudioTooLongError } from "@/providers/ai/shared/errors";
 import type { ImageToVideoInput, TalkingVideoInput } from "@/providers/types";
 import { setProviderOverrides } from "@/providers/registry";
 import { getBalance } from "@/server/credits/ledger";
@@ -183,11 +184,12 @@ describe("talking video handler", () => {
   it("prices per started 5 s of speech, submits script + voice and stores the video", async () => {
     const { talk } = spyVideoProvider();
     // 30 words -> 12 s -> 3 blocks of 8 credits.
-    const script = Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ");
+    const script = Array.from({ length: 30 }, (_, i) => `word${String.fromCharCode(97 + (i % 26))}`).join(" ");
     const job = await createJob(u, talking({ script: `  ${script}  `, voice: "deep_male" }));
     expect(job.creditsCharged).toBe(24);
     expect(safetyMock.assertTextAllowed).toHaveBeenCalledWith([script], expect.objectContaining({ userId: u.id }));
-    expect(talk.mock.calls[0]![0]).toMatchObject({ script, voice: "deep_male" });
+    // Paid 15 s; the provider may animate up to 1.5x that before refusing (PAY-2).
+    expect(talk.mock.calls[0]![0]).toMatchObject({ script, voice: "deep_male", maxAudioSeconds: 23 });
 
     const done = await syncJob(job.id);
     expect(done.status).toBe("succeeded");
@@ -196,6 +198,29 @@ describe("talking video handler", () => {
     expect(row!.durationSec).toBeGreaterThan(0);
     expect(row!.thumbKey).toBeTruthy();
     expect(await getBalance(u.id)).toBe(176);
+  });
+
+  it("rejects scripts whose characters exceed ~60 s of speech, even without spaces (PAY-2)", async () => {
+    await expect(createJob(u, talking({ script: "こんにちは".repeat(120) }))).rejects.toMatchObject({
+      code: "validation_error",
+      details: { estimatedSeconds: 120, maxSeconds: 60 },
+    });
+    await expect(createJob(u, talking({ script: "1234567890".repeat(60) }))).rejects.toMatchObject({ code: "validation_error" });
+    await expectNoCharge();
+  });
+
+  it("refunds and explains when the provider's speech audio runs longer than paid for (PAY-2)", async () => {
+    const provider = overrideMockAI();
+    provider.submitTalkingVideo = async (input) => {
+      throw new AudioTooLongError({ provider: "fal", audioSeconds: 41.2, maxSeconds: input.maxAudioSeconds ?? 0 });
+    };
+    await expect(createJob(u, talking({ script: "Hello there, this is a short script." }))).rejects.toMatchObject({
+      code: "validation_error",
+      details: { audioSeconds: 41.2, maxSeconds: 8 },
+    });
+    const [job] = await db.select().from(jobs).where(eq(jobs.type, "talking_video"));
+    expect(job).toMatchObject({ status: "failed", creditsRefunded: job!.creditsCharged });
+    expect(await getBalance(u.id)).toBe(200);
   });
 
   it("rejects scripts longer than ~60 s of speech", async () => {

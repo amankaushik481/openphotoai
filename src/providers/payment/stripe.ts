@@ -7,6 +7,12 @@
  *   STRIPE_PRICE_<PACKID>                e.g. STRIPE_PRICE_CREDITS_500
  * Webhooks are verified with `constructEventAsync` and normalized into provider-agnostic
  * `PaymentEvent`s (see `normalizeStripeEvent`). The SDK is imported lazily on first use.
+ *
+ * Webhook events to enable on the endpoint (`STRIPE_WEBHOOK_EVENTS`):
+ *   checkout.session.completed, checkout.session.async_payment_succeeded,
+ *   customer.subscription.created, customer.subscription.updated, customer.subscription.deleted,
+ *   invoice.paid, invoice.payment_failed, charge.refunded,
+ *   charge.dispute.created, charge.dispute.closed   (charge.dispute.funds_withdrawn is optional)
  */
 import type Stripe from "stripe";
 import { APP } from "@/config/app";
@@ -28,6 +34,20 @@ import type {
 } from "@/providers/types";
 import type { SubscriptionStatus } from "@/types/domain";
 import { PaymentWebhookError } from "./errors";
+
+/** The webhook events `normalizeStripeEvent` acts on; subscribe the endpoint to all of them. */
+export const STRIPE_WEBHOOK_EVENTS = [
+  "checkout.session.completed",
+  "checkout.session.async_payment_succeeded",
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.paid",
+  "invoice.payment_failed",
+  "charge.refunded",
+  "charge.dispute.created",
+  "charge.dispute.closed",
+] as const;
 
 /** The API version stripe@23 is typed against. Bump together with the SDK. */
 export const STRIPE_API_VERSION: Stripe.LatestApiVersion = "2026-11-18.endive";
@@ -85,6 +105,7 @@ function lineItem(item: CheckoutItem): Stripe.Checkout.SessionCreateParams.LineI
         product_data: {
           name: `${APP.name} ${plan.name} (${item.interval === "year" ? "yearly" : "monthly"})`,
           description: plan.description,
+          metadata: { planId: item.planId, interval: item.interval },
         },
       },
     };
@@ -102,6 +123,14 @@ function lineItem(item: CheckoutItem): Stripe.Checkout.SessionCreateParams.LineI
       },
     },
   };
+}
+
+/**
+ * STRIPE_ALLOW_PROMOTION_CODES=true shows the promotion-code box at checkout. Off by default: Stripe
+ * accepts every active promotion code in the account there, including ones made for other products.
+ */
+function promotionCodesAllowed(): boolean {
+  return process.env.STRIPE_ALLOW_PROMOTION_CODES?.trim().toLowerCase() === "true";
 }
 
 /** Metadata attached to the session (and its subscription): string values only. */
@@ -122,16 +151,25 @@ function readPlanMeta(meta: Stripe.Metadata | null | undefined): PlanMeta {
   };
 }
 
+/**
+ * Plan + interval from the price actually billed: a pinned price id, then price / product metadata
+ * (inline prices carry it on `product_data`), then the price's recurring interval. This wins over
+ * subscription metadata, which goes stale when the plan is changed outside our checkout (Customer
+ * Portal, dashboard, API).
+ */
 function planFromPrice(price: Stripe.Price | string | null | undefined): PlanMeta {
   if (!price) return {};
   if (typeof price === "string") return planFromPinnedPrice(price);
-  const fromMeta = readPlanMeta(price.metadata);
-  const pinned = planFromPinnedPrice(price.id);
+  const product = typeof price.product === "object" && price.product && "metadata" in price.product ? price.product : null;
+  const fromPrice = readPlanMeta(price.metadata);
+  const fromProduct = readPlanMeta(product?.metadata);
   const recurring = price.recurring?.interval;
-  return {
-    planId: fromMeta.planId ?? pinned.planId,
-    interval: fromMeta.interval ?? pinned.interval ?? (isBillingInterval(recurring) ? recurring : undefined),
-  };
+  return mergeMeta(
+    planFromPinnedPrice(price.id),
+    { planId: fromPrice.planId, interval: fromPrice.interval },
+    { planId: fromProduct.planId, interval: fromProduct.interval },
+    { interval: isBillingInterval(recurring) ? recurring : undefined },
+  );
 }
 
 /** First defined value per key, in priority order. */
@@ -160,7 +198,8 @@ const STATUS_MAP: Record<string, SubscriptionStatus> = {
 /** Normalize a Stripe subscription. Null when it isn't one of our plans. */
 export function normalizeSubscription(sub: Stripe.Subscription): NormalizedSubscription | null {
   const items = sub.items?.data ?? [];
-  const meta = mergeMeta(readPlanMeta(sub.metadata), ...items.map((i) => planFromPrice(i.price)));
+  // The billed price first: subscription metadata only reflects the plan bought at checkout.
+  const meta = mergeMeta(...items.map((i) => planFromPrice(i.price)), readPlanMeta(sub.metadata));
   const customerId = idOf(sub.customer);
   if (!meta.planId || !meta.interval || !customerId) return null;
 
@@ -188,11 +227,12 @@ function invoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
 }
 
 function invoicePlanMeta(invoice: Stripe.Invoice): PlanMeta {
-  const lines = invoice.lines?.data ?? [];
+  // Charged lines first: a proration invoice also lists the previous price as a credit line.
+  const lines = [...(invoice.lines?.data ?? [])].sort((a, b) => Number((b.amount ?? 0) > 0) - Number((a.amount ?? 0) > 0));
   return mergeMeta(
-    readPlanMeta(invoice.parent?.subscription_details?.metadata),
-    ...lines.map((line) => readPlanMeta(line.metadata)),
     ...lines.map((line) => planFromPrice(line.pricing?.price_details?.price)),
+    ...lines.map((line) => readPlanMeta(line.metadata)),
+    readPlanMeta(invoice.parent?.subscription_details?.metadata),
   );
 }
 
@@ -202,11 +242,14 @@ function ignored(event: Stripe.Event, createdAt: Date): PaymentEvent {
 
 function normalizeCheckout(event: Stripe.Event, session: Stripe.Checkout.Session, createdAt: Date): PaymentEvent {
   const meta = readPlanMeta(session.metadata);
-  const userId = session.client_reference_id ?? meta.userId;
+  // Our server-set metadata wins: `client_reference_id` can be chosen by whoever opens a Payment Link.
+  const userId = meta.userId ?? session.client_reference_id;
   const mode = session.mode === "payment" ? "payment" : session.mode === "subscription" ? "subscription" : null;
-  // Not started by us (payment link, setup mode) or an async payment that hasn't settled yet
-  // (checkout.session.async_payment_succeeded follows).
-  if (!userId || !mode) return ignored(event, createdAt);
+  const kind = session.metadata?.kind;
+  const ours = (mode === "payment" && kind === "credit_pack") || (mode === "subscription" && kind === "plan");
+  // Not started by our checkout (Payment Links, other products in the same Stripe account, setup
+  // mode) or an async payment that hasn't settled yet (checkout.session.async_payment_succeeded follows).
+  if (!userId || !mode || !ours) return ignored(event, createdAt);
   if (mode === "payment" && session.payment_status === "unpaid") return ignored(event, createdAt);
 
   return {
@@ -226,24 +269,52 @@ function normalizeCheckout(event: Stripe.Event, session: Stripe.Checkout.Session
   };
 }
 
-/** Find the checkout session or invoice a charge paid for (the id we stored in payments). */
-async function refundTarget(stripe: Stripe, charge: Stripe.Charge): Promise<string | null> {
-  const paymentIntent = idOf(charge.payment_intent);
+/** What a charge paid for: the id we stored in `payments` (checkout session or invoice). */
+interface PaymentTarget {
+  paymentId: string;
+  /** For invoices: the subscription billed. */
+  subscriptionId?: string;
+}
+
+const OUR_KINDS = new Set(["plan", "credit_pack"]);
+
+/**
+ * Find the checkout session or invoice a payment intent paid for. Null when there is none or it
+ * wasn't created by our checkout (another product sharing the Stripe account): those events are
+ * ignored instead of being retried for days.
+ */
+async function paymentTarget(stripe: Stripe, paymentIntent: string | null, what: string): Promise<PaymentTarget | null> {
   if (!paymentIntent) return null;
   try {
     const sessions = await stripe.checkout.sessions.list({ payment_intent: paymentIntent, limit: 1 });
-    if (sessions.data[0]) return sessions.data[0].id;
+    const session = sessions.data[0];
+    if (session) return OUR_KINDS.has(session.metadata?.kind ?? "") ? { paymentId: session.id } : null;
     const invoicePayments = await stripe.invoicePayments.list({
       payment: { type: "payment_intent", payment_intent: paymentIntent },
       limit: 1,
+      expand: ["data.invoice"],
     });
-    return idOf(invoicePayments.data[0]?.invoice);
+    const invoice = invoicePayments.data[0]?.invoice;
+    if (!invoice) return null;
+    if (typeof invoice === "string") return { paymentId: invoice };
+    if ("deleted" in invoice && invoice.deleted) return { paymentId: invoice.id };
+    const details = invoice.parent?.subscription_details;
+    const meta = readPlanMeta(details?.metadata);
+    const ours = details?.metadata?.kind === "plan" || Boolean(meta.userId) || Boolean(invoicePlanMeta(invoice).planId);
+    if (!ours || !invoice.id) return null;
+    return { paymentId: invoice.id, subscriptionId: idOf(details?.subscription) ?? undefined };
   } catch (err) {
-    throw new PaymentWebhookError(`Could not resolve the payment refunded by charge ${charge.id}`, {
-      retryable: true,
-      cause: err,
-    });
+    throw new PaymentWebhookError(`Could not resolve the payment behind ${what}`, { retryable: true, cause: err });
   }
+}
+
+/** Disputes the merchant keeps the money for: "won", or an inquiry closed without a chargeback. */
+const DISPUTE_KEPT_STATUSES = new Set<string>(["won", "warning_closed"]);
+
+function disputePaymentIntent(dispute: Stripe.Dispute): string | null {
+  const fromDispute = idOf(dispute.payment_intent);
+  if (fromDispute) return fromDispute;
+  return typeof dispute.charge === "object" && dispute.charge ? idOf(dispute.charge.payment_intent) : null;
 }
 
 /** Map a verified Stripe event to a `PaymentEvent` (unknown/foreign events → "ignored"). */
@@ -282,6 +353,7 @@ export async function normalizeStripeEvent(stripe: Stripe, event: Stripe.Event):
         planId: meta.planId,
         interval: meta.interval,
         userId: meta.userId,
+        ...(typeof invoice.total === "number" ? { totalCents: invoice.total } : {}),
       };
     }
 
@@ -295,15 +367,49 @@ export async function normalizeStripeEvent(stripe: Stripe, event: Stripe.Event):
 
     case "charge.refunded": {
       const charge = event.data.object;
-      const paymentId = await refundTarget(stripe, charge);
-      if (!paymentId) return ignored(event, createdAt);
+      const target = await paymentTarget(stripe, idOf(charge.payment_intent), `charge ${charge.id}`);
+      if (!target) return ignored(event, createdAt);
       return {
         type: "payment.refunded",
         eventId: event.id,
         createdAt,
-        paymentId,
+        paymentId: target.paymentId,
         amountRefundedCents: charge.amount_refunded,
         fullyRefunded: charge.refunded,
+        ...(target.subscriptionId ? { subscriptionId: target.subscriptionId } : {}),
+      };
+    }
+
+    // Chargebacks: Stripe sends no charge.refunded when a dispute is lost.
+    case "charge.dispute.created":
+    case "charge.dispute.funds_withdrawn": {
+      const dispute = event.data.object;
+      const target = await paymentTarget(stripe, disputePaymentIntent(dispute), `dispute ${dispute.id}`);
+      if (!target) return ignored(event, createdAt);
+      return {
+        type: "payment.disputed",
+        eventId: event.id,
+        createdAt,
+        paymentId: target.paymentId,
+        disputeId: dispute.id,
+        amountCents: dispute.amount,
+        reason: dispute.reason,
+        ...(target.subscriptionId ? { subscriptionId: target.subscriptionId } : {}),
+      };
+    }
+
+    case "charge.dispute.closed": {
+      const dispute = event.data.object;
+      const target = await paymentTarget(stripe, disputePaymentIntent(dispute), `dispute ${dispute.id}`);
+      if (!target) return ignored(event, createdAt);
+      return {
+        type: "payment.dispute_closed",
+        eventId: event.id,
+        createdAt,
+        paymentId: target.paymentId,
+        disputeId: dispute.id,
+        won: DISPUTE_KEPT_STATUSES.has(dispute.status),
+        status: dispute.status,
       };
     }
 
@@ -350,7 +456,7 @@ export function createStripePaymentProvider(opts: StripePaymentProviderOptions):
         metadata,
         success_url: input.successUrl,
         cancel_url: input.cancelUrl,
-        allow_promotion_codes: true,
+        allow_promotion_codes: promotionCodesAllowed(),
         automatic_tax: { enabled: false },
         ...(input.customerId ? { customer: input.customerId } : { customer_email: input.email }),
         ...(isPlan

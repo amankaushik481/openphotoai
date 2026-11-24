@@ -56,7 +56,7 @@ export async function verifyConsentSelfie(
 
   const face = faces[0];
   if (!isFiniteNumber(face.age)) return fail("age_unknown", new AppError("consent_required", MESSAGES.ageUnknown));
-  if (face.age < SAFETY_POLICY.minIdentityAge) {
+  if (!(face.age >= SAFETY_POLICY.minIdentityAge)) {
     await recordBlock("underage", ctx, { ...base, stage: "consent", age: face.age, minAge: SAFETY_POLICY.minIdentityAge });
     throw errors.contentBlocked(ADULTS_ONLY_MESSAGE, { categories: ["minors"] });
   }

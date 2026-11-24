@@ -22,6 +22,15 @@ export const RATE_LIMITS = {
   /** Public endpoints, keyed by IP. */
   reportsPerHourPerIp: { limit: 20, windowSec: 3600 },
   magicLinkPerHourPerIp: { limit: 10, windowSec: 3600 },
+  /** Magic links sent to one address (any IP): stops mail-bombing a victim. */
+  magicLinkPerHourPerEmail: { limit: 5, windowSec: 3600 },
+  /** One-click demo accounts (DEMO_MODE): per IP, and for the whole deployment (bounds storage). */
+  demoLoginsPerHourPerIp: { limit: 5, windowSec: 3600 },
+  demoLoginsPerHour: { limit: 120, windowSec: 3600 },
+  /** Account data exports per user (each signs every file URL). */
+  exportsPerHour: { limit: 5, windowSec: 3600 },
+  /** Share links created per user. */
+  sharesPerHour: { limit: 100, windowSec: 3600 },
   /** Public API, per key. */
   apiPerMinute: { limit: 120, windowSec: 60 },
 } as const;

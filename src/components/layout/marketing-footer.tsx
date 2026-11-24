@@ -14,7 +14,7 @@ const PRODUCT_LINKS = [
 ];
 
 const linkClass =
-  "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none";
+  "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function MarketingFooter() {
   const year = new Date().getFullYear();

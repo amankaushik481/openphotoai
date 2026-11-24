@@ -7,6 +7,7 @@ import { DownloadIcon, ImagesIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { JobProgress, JobStatusBadge } from "@/components/app/job-progress";
+import { useScriptCaptions } from "@/components/app/use-script-captions";
 import { JOB_TYPE_LABELS } from "@/config/credits";
 import { useJob } from "@/hooks/use-job";
 import { useMe } from "@/hooks/use-me";
@@ -26,10 +27,22 @@ export function VideoWaitNotice() {
   );
 }
 
-export function VideoPlayer({ media, className }: { media: MediaDTO; className?: string }) {
+export function VideoPlayer({
+  media,
+  className,
+  captionsScript,
+}: {
+  media: MediaDTO;
+  className?: string;
+  /** Talking videos: the spoken script, shown as closed captions. */
+  captionsScript?: string | null;
+}) {
   const aspectRatio = media.width && media.height ? `${media.width} / ${media.height}` : undefined;
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  useScriptCaptions(videoRef, captionsScript, media.durationSec);
   return (
     <video
+      ref={videoRef}
       controls
       playsInline
       preload="metadata"
@@ -87,7 +100,10 @@ export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
           <h3 className="truncate text-sm font-medium">{title}</h3>
           <JobStatusBadge status={current.status} />
         </div>
-        <VideoPlayer media={video} />
+        <VideoPlayer
+          media={video}
+          captionsScript={current.input.type === "talking_video" ? current.input.script : null}
+        />
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild variant="brand">
             <a href={video.downloadUrl} download>

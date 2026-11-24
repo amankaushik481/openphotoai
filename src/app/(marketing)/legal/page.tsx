@@ -22,7 +22,7 @@ export default function LegalIndexPage() {
           <li key={p.slug}>
             <Link
               href={p.href}
-              className="group flex items-start justify-between gap-4 rounded-2xl border bg-card p-6 shadow-xs transition-colors hover:border-primary/40 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="group flex items-start justify-between gap-4 rounded-2xl border bg-card p-6 shadow-xs transition-colors hover:border-primary/40"
             >
               <span>
                 <span className="block text-lg font-semibold">{p.title}</span>

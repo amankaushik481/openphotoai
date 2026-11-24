@@ -36,9 +36,12 @@ export function isFiniteNumber(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v);
 }
 
-/** Faces whose estimated age is known and below `minAge`. */
+/**
+ * Faces that are NOT verifiably at least `minAge`: estimated below it, or of unknown age (fail
+ * closed). Written as `!(age >= min)` so a NaN threshold can never let a face through.
+ */
 export function facesUnder(faces: readonly DetectedFace[], minAge: number): DetectedFace[] {
-  return faces.filter((f) => isFiniteNumber(f.age) && f.age < minAge);
+  return faces.filter((f) => !isFiniteNumber(f.age) || !(f.age >= minAge));
 }
 
 /** Lowest known age estimate among faces (null when no face has an estimate). */

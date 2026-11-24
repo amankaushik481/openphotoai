@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { db } from "@/db";
 import { consentRecords } from "@/db/schema";
 import type { IdentityModelRow, UserRow } from "@/db/types";
+import { resetEnvCache } from "@/lib/env";
 import { POST as acceptRoute } from "@/app/api/multi-person/invites/[token]/accept/route";
 import { POST as declineRoute } from "@/app/api/multi-person/invites/[token]/decline/route";
 import { GET as listRoute, POST as inviteRoute } from "@/app/api/multi-person/invites/route";
@@ -83,18 +84,29 @@ describe("accept / decline routes", () => {
     return tokenFromLatestEmail("bob@example.com");
   }
 
-  it("accepts with the invitee's model and records IP + user agent", async () => {
-    const token = await inviteBob();
-    sessionMock.setUser(bob);
-    const res = await callRoute(acceptRoute, {
-      params: { token },
-      body: { modelId: bobModel.id },
-      headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1", "user-agent": "Mozilla/5.0 test" },
-    });
-    expect(res.status).toBe(200);
-    expect(res.json).toEqual({ ok: true });
-    const [record] = await db.select().from(consentRecords).where(eq(consentRecords.userId, bob.id));
-    expect(record).toMatchObject({ kind: "multi_person", ipAddress: "203.0.113.9", userAgent: "Mozilla/5.0 test" });
+  it("accepts with the invitee's model and records IP (trusted proxy hop) + user agent + raw chain", async () => {
+    vi.stubEnv("TRUSTED_PROXY_HOPS", "1");
+    resetEnvCache();
+    try {
+      const token = await inviteBob();
+      sessionMock.setUser(bob);
+      const res = await callRoute(acceptRoute, {
+        params: { token },
+        body: { modelId: bobModel.id },
+        headers: { "x-forwarded-for": "198.51.100.66, 203.0.113.9", "user-agent": "Mozilla/5.0 test" },
+      });
+      expect(res.status).toBe(200);
+      expect(res.json).toEqual({ ok: true });
+      const [record] = await db.select().from(consentRecords).where(eq(consentRecords.userId, bob.id));
+      // The client-supplied left entry is not evidence; it is only kept in the raw chain.
+      expect(record).toMatchObject({ kind: "multi_person", ipAddress: "203.0.113.9", userAgent: "Mozilla/5.0 test" });
+      expect(record!.evidence).toMatchObject({
+        forwarded: { xForwardedFor: "198.51.100.66, 203.0.113.9", xRealIp: null },
+      });
+    } finally {
+      vi.unstubAllEnvs();
+      resetEnvCache();
+    }
   });
 
   it("maps failures to HTTP errors (email mismatch, foreign model, reuse)", async () => {

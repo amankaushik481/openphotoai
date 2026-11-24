@@ -89,7 +89,7 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
               htmlFor={id}
               className={cn(
                 "relative flex cursor-pointer flex-col gap-4 rounded-xl border-2 bg-card p-4 transition-colors sm:p-5",
-                "has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50",
+                "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
                 mode === key ? "border-primary bg-brand-soft/40" : "border-border hover:border-primary/40",
               )}
             >

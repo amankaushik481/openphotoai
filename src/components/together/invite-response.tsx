@@ -7,6 +7,7 @@ import { CircleCheckIcon, LoaderCircleIcon, PlusIcon, ShieldCheckIcon } from "lu
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { focusOnMount } from "@/lib/a11y";
 import { api, apiErrorText } from "@/lib/api-client";
 import type { ReceivedInviteDTO } from "@/server/together/types";
 import type { IdentityModelDTO } from "@/types/domain";
@@ -52,7 +53,8 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
           <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-success/10 text-success">
             <CircleCheckIcon className="size-6" aria-hidden="true" />
           </div>
-          <CardTitle className="text-xl" role="status">
+          {/* The form was replaced: move focus to the new page title so it's announced. */}
+          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
             You&apos;re sharing {sharedName ? `“${sharedName}”` : "your model"} with {invite.from.name}
           </CardTitle>
           <CardDescription>
@@ -73,7 +75,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
     return (
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl" role="status">
+          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
             Invite declined
           </CardTitle>
           <CardDescription>Nothing was shared. {invite.from.name} will see that you declined.</CardDescription>
@@ -90,7 +92,9 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">{invite.from.name} wants to take photos with you</CardTitle>
+        <CardTitle as="h1" className="text-xl">
+          {invite.from.name} wants to take photos with you
+        </CardTitle>
         <CardDescription>
           Invitation from <span className="font-medium text-foreground">{invite.from.name}</span> (
           <span className="break-all">{invite.from.email}</span>)

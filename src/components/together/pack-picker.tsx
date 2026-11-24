@@ -29,7 +29,7 @@ export function PackPicker({ packs, value, onValueChange, name, legend, classNam
               key={pack.slug}
               className={cn(
                 "group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-card text-left transition-colors",
-                "hover:bg-accent/50 has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50",
+                "hover:bg-accent/50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
                 checked && "border-primary ring-1 ring-primary",
               )}
             >

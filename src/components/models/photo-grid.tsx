@@ -68,7 +68,7 @@ function PhotoTile({
             type="button"
             aria-label={`Photo ${index}: ${statusText}${first ? ` (${ISSUE_LABELS[first.code]})` : ""}. Show details`}
             className={cn(
-              "group relative aspect-[4/5] overflow-hidden rounded-lg border bg-muted outline-none transition-shadow focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              "group relative aspect-[4/5] overflow-hidden rounded-lg border bg-muted transition-shadow",
               rejected && "border-destructive/60",
             )}
           >
@@ -137,7 +137,12 @@ function StatusDot({ rejected, warned }: { rejected: boolean; warned: boolean })
     );
   }
   return (
-    <span className={cn("flex size-6 items-center justify-center rounded-full text-white shadow", warned ? "bg-warning" : "bg-success")}>
+    <span
+      className={cn(
+        "flex size-6 items-center justify-center rounded-full shadow",
+        warned ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground",
+      )}
+    >
       {warned ? <TriangleAlertIcon aria-hidden="true" className="size-3.5" /> : <CheckIcon aria-hidden="true" className="size-3.5" />}
     </span>
   );

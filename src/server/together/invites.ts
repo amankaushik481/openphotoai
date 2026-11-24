@@ -38,6 +38,8 @@ import type { InviteListDTO, InvitePreview, ReceivedInviteDTO, SentInviteDTO } f
 export interface RequestMeta {
   ipAddress?: string | null;
   userAgent?: string | null;
+  /** Raw forwarded headers behind `ipAddress` (evidence; see forwardedChain() in src/server/http.ts). */
+  forwarded?: { xForwardedFor: string | null; xRealIp: string | null } | null;
 }
 
 const LIST_LIMIT = 100;
@@ -385,6 +387,7 @@ async function recordConsent(
       requesterUserId: share.requesterUserId,
       inviteeEmail: share.inviteeEmail,
       at: at.toISOString(),
+      ...(meta.forwarded ? { forwarded: meta.forwarded } : {}),
       ...(action === "granted"
         ? { consentVersion: CONSENT_VERSION, statement: CONSENT_STATEMENT, expiresAt: share.expiresAt.toISOString() }
         : { revokedBy }),

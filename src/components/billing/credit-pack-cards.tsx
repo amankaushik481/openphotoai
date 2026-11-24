@@ -32,7 +32,7 @@ export function CreditPackCards({ mode, className }: CreditPackCardsProps) {
           <Card key={pack.id} aria-labelledby={titleId} className={cn("gap-4", pack.popular && "border-primary/50 shadow-md")}>
             <CardHeader className="gap-1.5">
               <div className="flex items-center justify-between gap-2">
-                <CardTitle id={titleId} className="flex items-center gap-2 text-base">
+                <CardTitle as="h3" id={titleId} className="flex items-center gap-2 text-base">
                   <CoinsIcon aria-hidden="true" className="size-4 text-primary" />
                   {pack.name}
                 </CardTitle>

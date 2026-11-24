@@ -1,6 +1,6 @@
 /** Request helpers for the admin routes. */
 import type { ZodType } from "zod";
-import { errors } from "@/server/http";
+import { BODY_LIMITS, errors, readTextLimited } from "@/server/http";
 
 const MAX_IDEMPOTENCY_KEY_LENGTH = 128;
 
@@ -16,7 +16,7 @@ export function idempotencyKeyFrom(req: Request): string | null {
 
 /** Like parseBody, but an empty body is validated as `{}` (for endpoints whose fields are all optional). */
 export async function parseOptionalBody<T>(req: Request, schema: ZodType<T>): Promise<T> {
-  const text = await req.text();
+  const text = await readTextLimited(req, BODY_LIMITS.json);
   let raw: unknown = {};
   if (text.trim()) {
     try {

@@ -50,7 +50,7 @@ type DialogState =
   | null;
 
 const itemClass =
-  "flex min-h-10 w-full min-w-0 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50";
+  "flex min-h-10 w-full min-w-0 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors hover:bg-accent [--focus-offset:-2px]";
 
 export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: FolderNavProps) {
   const router = useRouter();
@@ -168,7 +168,7 @@ export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: F
           <button
             type="button"
             onClick={() => setDialog({ kind: "create" })}
-            className="rounded-sm font-medium text-foreground underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            className="rounded-sm font-medium text-foreground underline-offset-4 hover:underline"
           >
             Create one
           </button>

@@ -1,13 +1,35 @@
 "use client";
 
 import * as React from "react";
-import { CameraIcon, CameraOffIcon, CheckIcon, LoaderCircleIcon, RotateCcwIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  CameraIcon,
+  CameraOffIcon,
+  CheckIcon,
+  LoaderCircleIcon,
+  RotateCcwIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ApiClientError } from "@/lib/api-client";
+import { LIVENESS_PROMPTS, type LivenessStep } from "@/lib/liveness";
 import { cn } from "@/lib/utils";
 
-type Phase = "idle" | "starting" | "live" | "countdown" | "review" | "submitting" | "error";
+type Phase = "idle" | "starting" | "live" | "countdown" | "step" | "review" | "submitting" | "error";
+
+/**
+ * Arrow shown for each head-pose step. The preview is mirrored, so the user's own left is the
+ * screen's left: the arrow points the way the face should move on screen.
+ */
+const STEP_ICONS: Record<LivenessStep, typeof ArrowLeftIcon> = {
+  turn_left: ArrowLeftIcon,
+  turn_right: ArrowRightIcon,
+  look_up: ArrowUpIcon,
+  look_down: ArrowDownIcon,
+};
 type CameraErrorKind = "denied" | "not_found" | "busy" | "unsupported" | "unknown";
 
 const CAMERA_ERRORS: Record<CameraErrorKind, string> = {
@@ -37,12 +59,21 @@ function message(err: unknown, fallback: string): string {
 const ASPECT = 3 / 4;
 
 export interface CameraCaptureProps {
-  /** Called when the countdown starts (e.g. to fetch a capture token). Throwing cancels the capture. */
-  onCountdownStart?: () => Promise<void>;
-  /** Receives the captured JPEG once the user confirms it. Throw to show the error and offer a retake. */
-  onConfirm: (photo: Blob) => Promise<void>;
+  /**
+   * Called when the countdown starts (e.g. to fetch a capture token). May return head-pose `steps`
+   * (active liveness): after the frontal shot, the user is guided through each step and one frame
+   * is captured per step. Throwing cancels the capture.
+   */
+  onCountdownStart?: () => Promise<{ steps?: readonly LivenessStep[] } | void>;
+  /**
+   * Receives the frontal JPEG (+ one frame per liveness step, in order) once the user confirms it.
+   * Throw to show the error and offer a retake.
+   */
+  onConfirm: (photo: Blob, livenessFrames: Blob[]) => Promise<void>;
   /** Seconds of countdown before the shot (default 3). */
   countdownFrom?: number;
+  /** Seconds the user gets to follow each head-pose step before its frame is captured (default 3). */
+  stepCountdownFrom?: number;
   /** Longest side of the captured photo in pixels (default 1600). */
   maxSide?: number;
   confirmLabel?: string;
@@ -50,13 +81,16 @@ export interface CameraCaptureProps {
 }
 
 /**
- * Live front-camera capture with a face-centering oval, a 3-2-1 countdown and retake. There is
- * deliberately no file-upload fallback: the consent selfie must be taken live.
+ * Live front-camera capture with a face-centering oval, a 3-2-1 countdown and retake. With liveness
+ * steps (from `onCountdownStart`), the frontal shot is followed by a guided head-movement check: one
+ * prompt + countdown per step, one frame captured per step. There is deliberately no file-upload
+ * fallback and nothing is simulated here: the consent selfie must be taken live.
  */
 export function CameraCapture({
   onCountdownStart,
   onConfirm,
   countdownFrom = 3,
+  stepCountdownFrom = 3,
   maxSide = 1600,
   confirmLabel = "Use this selfie",
   className,
@@ -64,6 +98,12 @@ export function CameraCapture({
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Liveness steps of the current capture, and the frames captured for them so far. */
+  const stepsRef = React.useRef<readonly LivenessStep[]>([]);
+  const framesRef = React.useRef<Blob[]>([]);
+  const frontalRef = React.useRef<Blob | null>(null);
+  const [stepIndex, setStepIndex] = React.useState(0);
+  const [steps, setSteps] = React.useState<readonly LivenessStep[]>([]);
   const maskId = React.useId();
   const [phase, setPhase] = React.useState<Phase>("idle");
   const [cameraError, setCameraError] = React.useState<CameraErrorKind | null>(null);
@@ -71,6 +111,18 @@ export function CameraCapture({
   const [count, setCount] = React.useState(countdownFrom);
   const [photo, setPhoto] = React.useState<{ blob: Blob; url: string } | null>(null);
   const [announcement, setAnnouncement] = React.useState("");
+  const controlsRef = React.useRef<HTMLDivElement>(null);
+  const primaryRef = React.useRef<HTMLButtonElement>(null);
+
+  // Each phase swaps the buttons (Open camera → Take selfie → Retake / Use selfie). Once the user has
+  // used them, keep keyboard and switch users on the current primary action instead of <body>.
+  const interacted = React.useRef(false);
+  React.useEffect(() => {
+    if (!interacted.current) return;
+    const active = document.activeElement;
+    const lost = !active || active === document.body || Boolean(controlsRef.current?.contains(active));
+    if (lost && primaryRef.current && !primaryRef.current.disabled) primaryRef.current.focus();
+  }, [phase]);
 
   const stopCamera = React.useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -139,44 +191,85 @@ export function CameraCapture({
     return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92));
   }, [maxSide]);
 
-  const shoot = React.useCallback(async () => {
-    const blob = await grabFrame();
-    if (!blob) {
-      setError("We couldn't take the photo. Please try again.");
-      setPhase("live");
-      return;
-    }
+  const failCapture = React.useCallback(() => {
+    setError("We couldn't take the photo. Please try again.");
+    setPhase("live");
+  }, []);
+
+  /** All frames captured: show the frontal selfie for review. */
+  const finishCapture = React.useCallback(() => {
+    const frontal = frontalRef.current;
+    if (!frontal) return failCapture();
     stopCamera();
-    setPhoto({ blob, url: URL.createObjectURL(blob) });
+    setPhoto({ blob: frontal, url: URL.createObjectURL(frontal) });
     setPhase("review");
     setAnnouncement("Selfie taken. Check it, then use it or retake.");
-  }, [grabFrame, stopCamera]);
+  }, [failCapture, stopCamera]);
+
+  /** Count down `from` seconds (announcing each second), then run `done`. */
+  const countDown = React.useCallback((from: number, done: () => void, prefix = "") => {
+    const tick = (n: number) => {
+      if (n <= 0) return done();
+      setCount(n);
+      setAnnouncement(n === from && prefix ? `${prefix}. ${n}` : String(n));
+      timerRef.current = setTimeout(() => tick(n - 1), 1000);
+    };
+    tick(from);
+  }, []);
+
+  /** Guide the user through liveness step `index`, then capture its frame. */
+  const runStep = React.useCallback(
+    (index: number) => {
+      const step = stepsRef.current[index];
+      if (!step) return finishCapture();
+      setStepIndex(index);
+      setPhase("step");
+      setCount(stepCountdownFrom);
+      countDown(
+        stepCountdownFrom,
+        () => {
+          void grabFrame().then((blob) => {
+            if (!blob) return failCapture();
+            framesRef.current = [...framesRef.current, blob];
+            runStep(index + 1);
+          });
+        },
+        LIVENESS_PROMPTS[step],
+      );
+    },
+    [countDown, failCapture, finishCapture, grabFrame, stepCountdownFrom],
+  );
+
+  const shoot = React.useCallback(async () => {
+    const blob = await grabFrame();
+    if (!blob) return failCapture();
+    frontalRef.current = blob;
+    runStep(0);
+  }, [failCapture, grabFrame, runStep]);
 
   const startCountdown = React.useCallback(async () => {
     setError(null);
     setPhase("countdown");
     setCount(countdownFrom);
+    frontalRef.current = null;
+    framesRef.current = [];
+    stepsRef.current = [];
     try {
-      await onCountdownStart?.();
+      const started = await onCountdownStart?.();
+      stepsRef.current = started?.steps ?? [];
+      setSteps(stepsRef.current);
     } catch (err) {
       setError(message(err, "Something went wrong. Please try again."));
       setPhase("live");
       return;
     }
-    const tick = (n: number) => {
-      if (n <= 0) {
-        void shoot();
-        return;
-      }
-      setCount(n);
-      setAnnouncement(String(n));
-      timerRef.current = setTimeout(() => tick(n - 1), 1000);
-    };
-    tick(countdownFrom);
-  }, [countdownFrom, onCountdownStart, shoot]);
+    countDown(countdownFrom, () => void shoot(), stepsRef.current.length > 0 ? "Look straight at the camera" : "");
+  }, [countDown, countdownFrom, onCountdownStart, shoot]);
 
   const retake = () => {
     setPhoto(null);
+    frontalRef.current = null;
+    framesRef.current = [];
     void startCamera();
   };
 
@@ -186,7 +279,7 @@ export function CameraCapture({
     setError(null);
     setAnnouncement("Checking your selfie…");
     try {
-      await onConfirm(photo.blob);
+      await onConfirm(photo.blob, framesRef.current);
       setAnnouncement("Selfie verified.");
     } catch (err) {
       setError(message(err, "We couldn't check your selfie. Please retake it."));
@@ -194,7 +287,9 @@ export function CameraCapture({
     }
   };
 
-  const cameraVisible = phase === "starting" || phase === "live" || phase === "countdown";
+  const cameraVisible = phase === "starting" || phase === "live" || phase === "countdown" || phase === "step";
+  const currentStep = phase === "step" ? steps[stepIndex] : undefined;
+  const StepIcon = currentStep ? STEP_ICONS[currentStep] : null;
 
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
@@ -262,6 +357,24 @@ export function CameraCapture({
             </span>
           </div>
         )}
+        {currentStep && StepIcon && (
+          <div
+            data-liveness-step={currentStep}
+            data-liveness-step-index={stepIndex}
+            className="absolute inset-0 flex flex-col items-center justify-between p-4 text-center text-white"
+          >
+            <p className="rounded-full bg-black/60 px-3 py-1 text-xs font-medium">
+              Head movement check · step {stepIndex + 1} of {steps.length}
+            </p>
+            <span key={count} className="font-display text-7xl drop-shadow-lg motion-safe:animate-in motion-safe:fade-in">
+              {count}
+            </span>
+            <p className="flex items-center gap-2 rounded-xl bg-black/65 px-4 py-2 text-base font-semibold">
+              <StepIcon aria-hidden="true" className="size-5 shrink-0" />
+              {LIVENESS_PROMPTS[currentStep]}
+            </p>
+          </div>
+        )}
         {phase === "submitting" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/35 text-white">
             <LoaderCircleIcon aria-hidden="true" className="size-8 animate-spin" />
@@ -284,24 +397,41 @@ export function CameraCapture({
         </p>
       )}
 
-      <div className="flex w-full max-w-sm flex-col gap-2 sm:flex-row sm:justify-center">
+      <div
+        ref={controlsRef}
+        onClickCapture={() => {
+          interacted.current = true;
+        }}
+        className="flex w-full max-w-sm flex-col gap-2 sm:flex-row sm:justify-center"
+      >
         {(phase === "idle" || phase === "error") && (
-          <Button type="button" variant="brand" size="lg" className="w-full sm:w-auto" onClick={() => void startCamera()}>
-            <CameraIcon />
-            {phase === "error" ? "Try again" : "Open camera"}
-          </Button>
-        )}
-        {(phase === "live" || phase === "starting" || phase === "countdown") && (
           <Button
+            ref={primaryRef}
             type="button"
             variant="brand"
             size="lg"
             className="w-full sm:w-auto"
-            disabled={phase !== "live"}
-            onClick={() => void startCountdown()}
+            onClick={() => void startCamera()}
           >
             <CameraIcon />
-            {phase === "countdown" ? "Hold still…" : "Take selfie"}
+            {phase === "error" ? "Try again" : "Open camera"}
+          </Button>
+        )}
+        {(phase === "live" || phase === "starting" || phase === "countdown" || phase === "step") && (
+          // aria-disabled (not `disabled`) while counting down, so focus stays on the button.
+          <Button
+            ref={primaryRef}
+            type="button"
+            variant="brand"
+            size="lg"
+            className="w-full aria-disabled:opacity-50 sm:w-auto"
+            aria-disabled={phase !== "live" || undefined}
+            onClick={() => {
+              if (phase === "live") void startCountdown();
+            }}
+          >
+            <CameraIcon />
+            {phase === "countdown" ? "Hold still…" : phase === "step" ? "Follow the prompt…" : "Take selfie"}
           </Button>
         )}
         {(phase === "review" || phase === "submitting") && (
@@ -311,13 +441,16 @@ export function CameraCapture({
               Retake
             </Button>
             <Button
+              ref={primaryRef}
               type="button"
               variant="brand"
               size="lg"
-              className="w-full sm:w-auto"
-              disabled={phase === "submitting"}
+              className="w-full aria-disabled:opacity-50 sm:w-auto"
+              aria-disabled={phase === "submitting" || undefined}
               aria-busy={phase === "submitting"}
-              onClick={() => void confirm()}
+              onClick={() => {
+                if (phase === "review") void confirm();
+              }}
             >
               {phase === "submitting" ? <LoaderCircleIcon className="animate-spin" /> : <CheckIcon />}
               {confirmLabel}

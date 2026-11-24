@@ -6,7 +6,7 @@ import { ZapIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { INSTANT_MODE_MULTIPLIER } from "@/config/credits";
 import {
   MAX_IMAGES_PER_JOB,
@@ -17,6 +17,7 @@ import {
   type IdentityMode,
 } from "@/components/create/logic";
 import type { Quality } from "@/types/domain";
+import { useBottomChromeHeight } from "@/components/layout/use-bottom-chrome";
 import { cn } from "@/lib/utils";
 
 const segmentItem =
@@ -154,31 +155,41 @@ export function CountPicker({
 /** Shown next to the model picker when the chosen model is an instant (reference-based) model. */
 export function InstantModeBadge({ mode, className }: { mode: IdentityMode | undefined; className?: string }) {
   if (mode !== "instant") return null;
+  // A popover (not a tooltip) so the explanation also opens on tap and stays readable.
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge variant="soft" tabIndex={0} className={cn("cursor-help", className)}>
-          <ZapIcon aria-hidden="true" />
-          Instant model · {INSTANT_MODE_MULTIPLIER}× credits
+    <Popover>
+      <PopoverTrigger asChild>
+        <Badge asChild variant="soft" className={cn("cursor-help", className)}>
+          <button type="button">
+            <ZapIcon aria-hidden="true" />
+            Instant model · {INSTANT_MODE_MULTIPLIER}× credits
+          </button>
         </Badge>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-64 text-balance">
+      </PopoverTrigger>
+      <PopoverContent className="max-w-64 text-sm text-balance">
         Instant models need no training but run on a pricier reference-based model, so full-quality photos cost{" "}
         {INSTANT_MODE_MULTIPLIER}× credits. Drafts stay free. Train your model for the best likeness at the normal price.
-      </TooltipContent>
-    </Tooltip>
+      </PopoverContent>
+    </Popover>
   );
 }
 
 /**
- * Phone-only action bar pinned above the bottom navigation (which is ~3.75rem + safe area tall).
+ * Phone-only action bar pinned above the bottom navigation (its measured height, `--bottom-nav-h`).
  * Render `<StickyActionBarSpacer />` at the end of the page so content can scroll clear of it.
  */
 export function StickyActionBar({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  // Stacks on the measured nav height and publishes its own (scroll-padding keeps focus clear of both).
+  useBottomChromeHeight(ref, "--bottom-action-h");
   return (
     <div
-      className={cn("glass fixed inset-x-0 z-30 border-t border-border/70 px-4 py-2.5 md:hidden", className)}
-      style={{ bottom: "calc(3.75rem + max(0.5rem, env(safe-area-inset-bottom)))" }}
+      ref={ref}
+      data-sticky-action-bar=""
+      className={cn(
+        "glass fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-border/70 px-safe py-2.5 md:hidden",
+        className,
+      )}
     >
       <div className="mx-auto flex max-w-lg items-center gap-3">{children}</div>
     </div>
@@ -186,5 +197,5 @@ export function StickyActionBar({ children, className }: { children: React.React
 }
 
 export function StickyActionBarSpacer() {
-  return <div aria-hidden="true" className="h-16 md:hidden" />;
+  return <div aria-hidden="true" className="h-[max(4rem,var(--bottom-action-h))] md:hidden" />;
 }

@@ -82,7 +82,8 @@ export async function toModelDTO(model: IdentityModelRow, viewerUserId: string):
     shared
       ? db.select({ name: userTable.name }).from(userTable).where(eq(userTable.id, model.userId)).limit(1)
       : Promise.resolve([]),
-    model.coverMediaKey ? signedUrl(model.coverMediaKey) : Promise.resolve(null),
+    // A shared model is shown without the owner's photos: the cover is their training-photo thumbnail.
+    model.coverMediaKey && !shared ? signedUrl(model.coverMediaKey) : Promise.resolve(null),
   ]);
   return {
     id: model.id,
@@ -95,7 +96,7 @@ export async function toModelDTO(model: IdentityModelRow, viewerUserId: string):
     acceptedPhotoCount: Number(counts[0]?.accepted ?? 0),
     mode: identityModeOf(model),
     consentVerified: model.consentVerifiedAt !== null,
-    trainingJobId: model.trainingJobId,
+    trainingJobId: shared ? null : model.trainingJobId,
     shared,
     ...(shared ? { ownerName: owner[0]?.name ?? null } : {}),
     createdAt: model.createdAt.toISOString(),

@@ -117,7 +117,8 @@ describe("createCheckout", () => {
       client_reference_id: "usr_1",
       customer_email: "jane@example.com",
       customer_creation: "always",
-      allow_promotion_codes: true,
+      // Off unless STRIPE_ALLOW_PROMOTION_CODES=true: Stripe would accept any code in the account.
+      allow_promotion_codes: false,
       automatic_tax: { enabled: false },
       success_url: "http://localhost:3000/app/billing?success=1",
       cancel_url: "http://localhost:3000/app/billing?canceled=1",
@@ -151,7 +152,11 @@ describe("createCheckout", () => {
             currency: "usd",
             unit_amount: 39000,
             recurring: { interval: "year" },
-            product_data: { name: expect.stringContaining("Pro"), description: expect.any(String) },
+            product_data: {
+              name: expect.stringContaining("Pro"),
+              description: expect.any(String),
+              metadata: { planId: "pro", interval: "year" },
+            },
           },
         },
       ],
@@ -169,6 +174,16 @@ describe("createCheckout", () => {
     await provider.createCheckout(checkoutInput());
     expect(sdk.sessionsCreate.mock.calls[0]![0].line_items).toEqual([{ price: "price_pro_m", quantity: 1 }]);
     expect(sdk.sessionsCreate.mock.calls[1]![0].line_items).toEqual([{ price: "price_500", quantity: 1 }]);
+  });
+
+  it("shows the promotion-code box only when STRIPE_ALLOW_PROMOTION_CODES=true", async () => {
+    process.env.STRIPE_ALLOW_PROMOTION_CODES = "true";
+    try {
+      await provider.createCheckout(checkoutInput());
+      expect(sdk.sessionsCreate.mock.calls[0]![0].allow_promotion_codes).toBe(true);
+    } finally {
+      delete process.env.STRIPE_ALLOW_PROMOTION_CODES;
+    }
   });
 
   it("creates the SDK client once (lazily)", async () => {
@@ -261,8 +276,15 @@ describe("parseWebhook", () => {
       interval: "month",
     });
     await expect(
-      deliver(event("checkout.session.async_payment_succeeded", { ...session, mode: "payment", subscription: null })),
-    ).resolves.toMatchObject({ type: "checkout.completed", mode: "payment" });
+      deliver(
+        event("checkout.session.async_payment_succeeded", {
+          ...session,
+          mode: "payment",
+          subscription: null,
+          metadata: { userId: "usr_1", kind: "credit_pack", creditPackId: "credits_100" },
+        }),
+      ),
+    ).resolves.toMatchObject({ type: "checkout.completed", mode: "payment", creditPackId: "credits_100" });
   });
 
   it("ignores unpaid (async pending) and foreign checkouts", async () => {
@@ -359,7 +381,7 @@ describe("parseWebhook", () => {
   });
 
   it("maps charge.refunded to the original checkout session", async () => {
-    sdk.sessionsList.mockResolvedValueOnce({ data: [{ id: "cs_1" }] });
+    sdk.sessionsList.mockResolvedValueOnce({ data: [{ id: "cs_1", metadata: { userId: "usr_1", kind: "credit_pack" } }] });
     const charge = { id: "ch_1", payment_intent: "pi_1", amount: 3900, amount_refunded: 1000, refunded: false };
     await expect(deliver(event("charge.refunded", charge))).resolves.toEqual({
       type: "payment.refunded",
@@ -380,7 +402,11 @@ describe("parseWebhook", () => {
       paymentId: "in_7",
       fullyRefunded: true,
     });
-    expect(sdk.invoicePaymentsList).toHaveBeenCalledWith({ payment: { type: "payment_intent", payment_intent: "pi_2" }, limit: 1 });
+    expect(sdk.invoicePaymentsList).toHaveBeenCalledWith({
+      payment: { type: "payment_intent", payment_intent: "pi_2" },
+      limit: 1,
+      expand: ["data.invoice"],
+    });
   });
 
   it("ignores refunds it can't attribute; a failed lookup is retryable", async () => {
@@ -402,6 +428,143 @@ describe("parseWebhook", () => {
       eventId: "evt_1",
       createdAt: new Date(CREATED * 1000),
       rawType: "customer.created",
+    });
+  });
+});
+
+describe("parseWebhook: review regressions (docs/reviews/payments.md)", () => {
+  it("PAY-6: the billed (pinned) price wins over stale subscription metadata", async () => {
+    process.env.STRIPE_PRICE_STARTER_MONTH = "price_starter_m";
+    const downgraded = stripeSubscription({
+      metadata: { userId: "usr_1", kind: "plan", planId: "studio", interval: "month" },
+      items: { data: [{ current_period_end: CREATED, price: { id: "price_starter_m", metadata: {}, recurring: { interval: "month" } } }] },
+    });
+    await expect(deliver(event("customer.subscription.updated", downgraded))).resolves.toMatchObject({
+      subscription: { planId: "starter", interval: "month", userId: "usr_1" },
+    });
+
+    const invoice = stripeInvoice({
+      billing_reason: "subscription_cycle",
+      parent: {
+        type: "subscription_details",
+        subscription_details: { subscription: "sub_1", metadata: { userId: "usr_1", planId: "studio", interval: "month" } },
+      },
+      lines: { data: [{ amount: 1500, metadata: {}, pricing: { type: "price_details", price_details: { price: "price_starter_m", product: "prod_1" } } }] },
+    });
+    await expect(deliver(event("invoice.paid", invoice))).resolves.toMatchObject({ planId: "starter", interval: "month", userId: "usr_1" });
+  });
+
+  it("PAY-6: inline prices resolve the plan from product metadata, the interval from the price", async () => {
+    const sub = stripeSubscription({
+      metadata: { userId: "usr_1", kind: "plan", planId: "pro", interval: "month" },
+      items: {
+        data: [
+          {
+            current_period_end: CREATED,
+            price: { id: "price_inline", metadata: {}, recurring: { interval: "year" }, product: { id: "prod_1", metadata: { planId: "studio", interval: "year" } } },
+          },
+        ],
+      },
+    });
+    await expect(deliver(event("customer.subscription.updated", sub))).resolves.toMatchObject({
+      subscription: { planId: "studio", interval: "year" },
+    });
+  });
+
+  it("PAY-10: ignores checkouts not created by our checkout; server metadata wins over client_reference_id", async () => {
+    const paymentLink = {
+      id: "cs_pl",
+      mode: "subscription",
+      payment_status: "paid",
+      client_reference_id: "victim_user",
+      customer: "cus_attacker",
+      subscription: "sub_att",
+      metadata: {},
+      amount_total: 100,
+      currency: "usd",
+    };
+    await expect(deliver(event("checkout.session.completed", paymentLink))).resolves.toMatchObject({ type: "ignored" });
+    await expect(
+      deliver(event("checkout.session.completed", { ...paymentLink, mode: "payment", metadata: { kind: "plan", userId: "usr_1" } })),
+    ).resolves.toMatchObject({ type: "ignored" });
+
+    const ours = { ...paymentLink, metadata: { userId: "usr_1", kind: "plan", planId: "pro", interval: "month" } };
+    await expect(deliver(event("checkout.session.completed", ours))).resolves.toMatchObject({ type: "checkout.completed", userId: "usr_1" });
+  });
+
+  it("PAY-11: passes the invoice total (after discounts) along", async () => {
+    await expect(deliver(event("invoice.paid", stripeInvoice({ amount_paid: 0, total: 0 })))).resolves.toMatchObject({
+      type: "invoice.paid",
+      amountCents: 0,
+      totalCents: 0,
+    });
+  });
+
+  it("PAY-1: maps charge.dispute.created / funds_withdrawn / closed to dispute events", async () => {
+    sdk.invoicePaymentsList.mockResolvedValue({
+      data: [
+        {
+          invoice: {
+            id: "in_9",
+            parent: { subscription_details: { subscription: "sub_9", metadata: { userId: "usr_1", kind: "plan", planId: "studio", interval: "year" } } },
+            lines: { data: [] },
+          },
+        },
+      ],
+    });
+    const dispute = { id: "dp_1", charge: "ch_1", payment_intent: "pi_9", amount: 390000, reason: "fraudulent", status: "needs_response" };
+    for (const type of ["charge.dispute.created", "charge.dispute.funds_withdrawn"]) {
+      await expect(deliver(event(type, dispute))).resolves.toEqual({
+        type: "payment.disputed",
+        eventId: "evt_1",
+        createdAt: new Date(CREATED * 1000),
+        paymentId: "in_9",
+        subscriptionId: "sub_9",
+        disputeId: "dp_1",
+        amountCents: 390000,
+        reason: "fraudulent",
+      });
+    }
+    for (const [status, won] of [["won", true], ["warning_closed", true], ["lost", false], ["prevented", false]] as const) {
+      await expect(deliver(event("charge.dispute.closed", { ...dispute, status }))).resolves.toMatchObject({
+        type: "payment.dispute_closed",
+        paymentId: "in_9",
+        disputeId: "dp_1",
+        won,
+        status,
+      });
+    }
+    // The payment intent can also come from an expanded charge.
+    await expect(
+      deliver(event("charge.dispute.created", { ...dispute, payment_intent: null, charge: { id: "ch_1", payment_intent: "pi_9" } })),
+    ).resolves.toMatchObject({ type: "payment.disputed", paymentId: "in_9" });
+  });
+
+  it("PAY-12: refunds and disputes of payments made outside our checkout are ignored", async () => {
+    sdk.sessionsList.mockResolvedValueOnce({ data: [{ id: "cs_other", metadata: {} }] });
+    await expect(deliver(event("charge.refunded", { id: "ch_1", payment_intent: "pi_1", amount_refunded: 100, refunded: true }))).resolves.toMatchObject({
+      type: "ignored",
+    });
+    sdk.invoicePaymentsList.mockResolvedValueOnce({
+      data: [{ invoice: { id: "in_other", parent: { subscription_details: { subscription: "sub_x", metadata: {} } }, lines: { data: [] } } }],
+    });
+    await expect(deliver(event("charge.dispute.created", { id: "dp_2", payment_intent: "pi_2", amount: 100, status: "needs_response" }))).resolves.toMatchObject({
+      type: "ignored",
+    });
+  });
+
+  it("PAY-9: a refunded invoice names its subscription", async () => {
+    sdk.invoicePaymentsList.mockResolvedValueOnce({
+      data: [{ invoice: { id: "in_3", parent: { subscription_details: { subscription: "sub_3", metadata: { userId: "usr_1", kind: "plan" } } }, lines: { data: [] } } }],
+    });
+    await expect(deliver(event("charge.refunded", { id: "ch_3", payment_intent: "pi_3", amount_refunded: 3900, refunded: true }))).resolves.toEqual({
+      type: "payment.refunded",
+      eventId: "evt_1",
+      createdAt: new Date(CREATED * 1000),
+      paymentId: "in_3",
+      subscriptionId: "sub_3",
+      amountRefundedCents: 3900,
+      fullyRefunded: true,
     });
   });
 });

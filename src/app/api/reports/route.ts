@@ -6,6 +6,6 @@ import { rateLimit } from "@/server/rate-limit";
 export const POST = route({ auth: "public" }, async ({ req, user }) => {
   await rateLimit("reportsPerHourPerIp", `ip:${clientIp(req)}`);
   const body = await parseBody(req, createReportRequest);
-  await createReport(body, { reporterUserId: user?.id ?? null });
+  await createReport(body, { reporterUserId: user?.id ?? null, reporterAccountEmail: user?.email ?? null });
   return { ok: true };
 });

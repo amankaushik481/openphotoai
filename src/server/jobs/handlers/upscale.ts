@@ -126,20 +126,20 @@ export async function completeEnhancement({ job, output, plan }: CompleteArgs): 
   // The provider's output won't change on a retry: fail (and refund) the job right away.
   if (!image) throw new NonRetryableError(`${job.type} job ${job.id}: the provider returned no image`);
 
-  const { mediaIds, blockedCount } = await ingestImages(job, [{ ...image, seed: undefined }], {
+  const { mediaIds, blockedCount, discardedCount } = await ingestImages(job, [{ ...image, seed: undefined }], {
     prompt: data.sourcePrompt ?? undefined,
     seed: data.sourceSeed ?? undefined,
     scoreLikeness: data.scoreLikeness,
     isDraft: false,
   });
   if (mediaIds.length) {
-    // A low-likeness result is still refunded by ingestion, but the user asked for this photo: show it.
+    // The user asked for this photo: show it (a low-likeness result was refunded and discarded by ingestion).
     await db
       .update(media)
       .set({ hidden: false, parentMediaId: data.sourceMediaId })
       .where(and(eq(media.userId, job.userId), inArray(media.id, mediaIds)));
   }
-  return { mediaIds, blockedCount, extra: { sourceMediaId: data.sourceMediaId } };
+  return { mediaIds, blockedCount, discardedCount, extra: { sourceMediaId: data.sourceMediaId } };
 }
 
 /** Refuse background removal on a photo that is already transparent. */

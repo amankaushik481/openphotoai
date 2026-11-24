@@ -2,7 +2,7 @@
 import { and, eq } from "drizzle-orm";
 import { APP } from "@/config/app";
 import { db } from "@/db";
-import { trainingPhotos } from "@/db/schema";
+import { identityModels, trainingPhotos } from "@/db/schema";
 import type { IdentityModelRow, TrainingPhotoRow } from "@/db/types";
 import { AppError, errors } from "@/server/http";
 import { getStorage } from "@/server/storage";
@@ -69,7 +69,7 @@ export async function analyzeTrainingPhotoSafety(
   // Adults only: every face in the photo counts, not just the main one.
   const ages = faces.map((f) => f.age);
   const ageEstimate = ages.every(isFiniteNumber) ? Math.min(...ages) : null;
-  if (ageEstimate !== null && ageEstimate < SAFETY_POLICY.minIdentityAge) {
+  if (ageEstimate !== null && !(ageEstimate >= SAFETY_POLICY.minIdentityAge)) {
     addIssue(PHOTO_ISSUES.underage);
     await recordBlock("underage", ctx, { ...base, stage: "training_photo", ages, minAge: SAFETY_POLICY.minIdentityAge });
   } else if (ageEstimate === null) {
@@ -98,6 +98,9 @@ function matchScore(consent: number[], candidate: number[]): number | null {
 
 /**
  * Final gate before training: re-verifies all accepted photos match consent and are adults.
+ * The consent embedding is re-read from the database (not taken from the possibly stale `model`
+ * argument), and a photo stored before the current consent selfie (scored against an older one)
+ * is re-analyzed against the current embedding instead of trusting its stored score.
  * Throws AppError("content_blocked"/"consent_required").
  */
 export async function assertTrainingAllowed(model: IdentityModelRow, ctx: SafetyContext): Promise<void> {
@@ -105,8 +108,14 @@ export async function assertTrainingAllowed(model: IdentityModelRow, ctx: Safety
   if (model.userId !== ctx.userId) throw errors.forbidden();
   if (model.deletedAt) throw errors.notFound("Model");
 
-  const consentEmbedding = model.consentEmbedding;
-  if (!isValidEmbedding(consentEmbedding) || !model.consentVerifiedAt) {
+  const [current] = await db
+    .select({ consentEmbedding: identityModels.consentEmbedding, consentVerifiedAt: identityModels.consentVerifiedAt })
+    .from(identityModels)
+    .where(and(eq(identityModels.id, model.id), eq(identityModels.userId, model.userId)))
+    .limit(1);
+  const consentEmbedding = current?.consentEmbedding ?? null;
+  const consentAt = current?.consentVerifiedAt ?? null;
+  if (!isValidEmbedding(consentEmbedding) || !consentAt) {
     await recordBlock("consent_failed", eventCtx, { stage: "pre_training", reason: "missing_consent" });
     throw new AppError("consent_required", "Take a live consent selfie before training this model.");
   }
@@ -138,13 +147,13 @@ export async function assertTrainingAllowed(model: IdentityModelRow, ctx: Safety
   const nsfw: string[] = [];
   const unchecked: string[] = [];
   for (const photo of photos) {
-    const v = await verifiedValues(photo, consentEmbedding, eventCtx);
+    const v = await verifiedValues(photo, consentEmbedding, consentAt, eventCtx);
     if (v.checkFailed) {
       unchecked.push(photo.id);
       continue;
     }
     if (v.nsfw) nsfw.push(photo.id);
-    if (v.ageEstimate === null || v.ageEstimate < SAFETY_POLICY.minIdentityAge) underage.push(photo.id);
+    if (v.ageEstimate === null || !(v.ageEstimate >= SAFETY_POLICY.minIdentityAge)) underage.push(photo.id);
     if (v.faceMatchScore === null || v.faceMatchScore < threshold) mismatched.push(photo.id);
   }
 
@@ -177,13 +186,18 @@ export async function assertTrainingAllowed(model: IdentityModelRow, ctx: Safety
   }
 }
 
-/** Stored face-match/age values, re-analyzed from storage (and persisted) when missing. */
+/**
+ * Stored face-match/age values, re-analyzed from storage (and persisted) when missing or when the
+ * photo predates the current consent selfie (its score was computed against another embedding).
+ */
 async function verifiedValues(
   photo: TrainingPhotoRow,
   consentEmbedding: number[],
+  consentAt: Date,
   ctx: SafetyContext,
 ): Promise<{ faceMatchScore: number | null; ageEstimate: number | null; nsfw: boolean; checkFailed: boolean }> {
-  if (photo.faceMatchScore !== null && photo.ageEstimate !== null) {
+  const scoredAgainstCurrent = photo.createdAt.getTime() >= consentAt.getTime();
+  if (scoredAgainstCurrent && photo.faceMatchScore !== null && photo.ageEstimate !== null) {
     return { faceMatchScore: photo.faceMatchScore, ageEstimate: photo.ageEstimate, nsfw: false, checkFailed: false };
   }
   let bytes: Uint8Array;

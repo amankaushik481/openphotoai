@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { APP } from "@/config/app";
+import { focusOnMount } from "@/lib/a11y";
 import { signIn } from "@/lib/auth-client";
 import { GoogleIcon } from "./google-icon";
 
@@ -74,7 +75,10 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
           <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
             <MailCheck className="size-6" aria-hidden />
           </div>
-          <CardTitle className="text-xl">Check your inbox</CardTitle>
+          {/* The form (and its focused button) was replaced: focus the new title so it's announced. */}
+          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
+            Check your inbox
+          </CardTitle>
           <CardDescription>
             We sent a sign-in link to <span className="font-medium break-all text-foreground">{email.trim()}</span>. It
             expires in 15 minutes.
@@ -98,7 +102,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             </Button>
           )}
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" role="alert">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -123,12 +127,14 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">Sign in to {APP.name}</CardTitle>
+        <CardTitle as="h1" className="text-xl">
+          Sign in to {APP.name}
+        </CardTitle>
         <CardDescription>New here? Enter your email and we&apos;ll create your account.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {error && (
-          <Alert variant="destructive" id={errorId}>
+          <Alert variant="destructive" role="alert" id={errorId}>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

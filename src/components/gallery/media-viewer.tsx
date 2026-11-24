@@ -27,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CopyButton } from "@/components/app/copy-button";
 import { MediaCard } from "@/components/app/media-card";
+import { useScriptCaptions } from "@/components/app/use-script-captions";
 import { EnhanceQuickActions } from "@/components/enhance/enhance-panel";
 import { ApiClientError, api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -68,9 +69,13 @@ const LINEAGE_LABEL: Partial<Record<JobType, string>> = {
   pose_copy: "Made from",
 };
 
-function isTypingTarget(target: EventTarget | null): boolean {
+/** Widgets that use arrow keys / Escape themselves (a focused <video> seeks with arrows). */
+const KEY_OWNING_WIDGETS = "[role=slider],[role=radiogroup],[role=toolbar],[role=tablist],[role=listbox],[role=grid],[role=application]";
+
+function ownsKeys(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+  if (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "VIDEO", "AUDIO"].includes(target.tagName)) return true;
+  return target.closest(KEY_OWNING_WIDGETS) !== null;
 }
 
 /** Overlays (dialogs, menus) own the keyboard while open. */
@@ -92,6 +97,9 @@ export function MediaViewer({
   const { mutate: mutateFolders } = useFolders();
   const [media, setMedia] = React.useState(initial);
   const [shareOpen, setShareOpen] = React.useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  // Talking videos speak their script (stored as the media prompt): caption it. Other clips are silent.
+  useScriptCaptions(videoRef, details.jobType === "talking_video" ? media.prompt : null, media.durationSec);
 
   const backHref = galleryHref(filters);
   const prevHref = prevId ? viewerHref(prevId, filters) : null;
@@ -105,7 +113,7 @@ export function MediaViewer({
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || isTypingTarget(e.target) || overlayOpen()) return;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || ownsKeys(e.target) || overlayOpen()) return;
       if (e.key === "ArrowLeft" && prevHref) router.push(prevHref, { scroll: false });
       else if (e.key === "ArrowRight" && nextHref) router.push(nextHref, { scroll: false });
       else if (e.key === "Escape") router.push(backHref, { scroll: false });
@@ -147,6 +155,10 @@ export function MediaViewer({
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="sr-only" suppressHydrationWarning>
+        {media.kind === "video" ? "Video" : "Photo"} from{" "}
+        {created.toLocaleDateString(t.locale, { dateStyle: "medium" })}
+      </h1>
       <div className="flex items-center justify-between gap-2">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href={backHref} scroll={false}>
@@ -174,6 +186,7 @@ export function MediaViewer({
             />
           ) : (
             <video
+              ref={videoRef}
               src={media.url}
               poster={media.thumbUrl !== media.url ? media.thumbUrl : undefined}
               controls
@@ -181,9 +194,7 @@ export function MediaViewer({
               loop
               preload="metadata"
               className="max-h-[75dvh] w-full"
-            >
-              <track kind="captions" />
-            </video>
+            />
           )}
           {media.hidden && (
             <Badge variant="secondary" className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm">
@@ -442,7 +453,7 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
         {rows.map(([label, value]) => (
           <React.Fragment key={label}>
             <dt className="text-muted-foreground">{label}</dt>
-            <dd className="min-w-0 truncate text-right">{value}</dd>
+            <dd className="min-w-0 text-right break-words">{value}</dd>
           </React.Fragment>
         ))}
       </dl>

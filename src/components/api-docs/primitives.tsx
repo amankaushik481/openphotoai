@@ -71,7 +71,7 @@ export function CodeBlock({ code, label, language }: { code: string; label: stri
       <pre
         tabIndex={0}
         aria-label={`${label} code sample`}
-        className="overflow-x-auto p-4 text-[13px] leading-relaxed outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="overflow-x-auto rounded-[inherit] p-4 text-[13px] leading-relaxed [--focus-offset:-2px]"
       >
         <code className="font-mono" data-language={language}>
           {code}

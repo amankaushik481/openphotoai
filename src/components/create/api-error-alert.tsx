@@ -20,6 +20,8 @@ export interface ApiErrorAlertProps {
 /** Inline, focusable error with a next step (buy credits, policy, retry countdown…). */
 export function ApiErrorAlert({ error, onDismiss, className }: ApiErrorAlertProps) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const titleId = React.useId();
+  const descriptionId = React.useId();
 
   // Move focus to a fresh error so keyboard and screen-reader users notice it.
   React.useEffect(() => {
@@ -31,15 +33,19 @@ export function ApiErrorAlert({ error, onDismiss, className }: ApiErrorAlertProp
   const warn = error.code === "rate_limited" || error.code === "insufficient_credits" || error.code === "plan_limit";
 
   return (
+    // Focus (not role="alert") announces it: a named group reads title + message once.
     <Alert
       ref={ref}
       tabIndex={-1}
+      role="group"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       variant={warn ? "warning" : "destructive"}
-      className={cn("pr-10 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50", className)}
+      className={cn("pr-10", className)}
     >
       <Icon aria-hidden="true" />
-      <AlertTitle className="line-clamp-none">{error.title}</AlertTitle>
-      <AlertDescription>
+      <AlertTitle id={titleId}>{error.title}</AlertTitle>
+      <AlertDescription id={descriptionId}>
         <p>{error.message}</p>
         {error.hint && <p className="text-xs">{error.hint}</p>}
         {error.retryAfterSec !== undefined && <RetryCountdown key={`${error.code}:${error.retryAfterSec}`} seconds={error.retryAfterSec} />}
@@ -96,7 +102,10 @@ export function useErrorToast() {
       const action = e.action;
       toast.error(e.title, {
         description: e.message,
-        ...(action ? { action: { label: action.label, onClick: () => router.push(action.href) } } : {}),
+        // A toast with an action stays until dismissed (WCAG 2.2.1): keyboard users need time to reach it.
+        ...(action
+          ? { duration: Infinity, action: { label: action.label, onClick: () => router.push(action.href) } }
+          : {}),
       });
     },
     [router],

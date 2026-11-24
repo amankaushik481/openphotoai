@@ -68,7 +68,9 @@ ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME \
     NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 # MOCK_PROVIDERS only for this command: prerendering must never need provider keys.
 # The container's runtime environment decides the real providers.
-RUN MOCK_PROVIDERS=true NEXT_OUTPUT=standalone pnpm build
+# The standalone copy of the ffmpeg binary (76 MB) is dropped: the runtime uses /tools' copy (FFMPEG_BIN).
+RUN MOCK_PROVIDERS=true NEXT_OUTPUT=standalone pnpm build \
+ && find .next/standalone -path '*/ffmpeg-static/ffmpeg' -type f -delete
 
 # ── runtime ──────────────────────────────────────────────────────────────────
 FROM ${NODE_IMAGE} AS runtime

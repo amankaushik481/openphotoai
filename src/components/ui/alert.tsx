@@ -23,14 +23,15 @@ const alertVariants = cva(
 );
 
 function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
-  return <div data-slot="alert" role="alert" className={cn(alertVariants({ variant }), className)} {...props} />;
+  // No implicit role: static notices aren't announced. Pass `role="alert"` for errors inserted at runtime.
+  return <div data-slot="alert" className={cn(alertVariants({ variant }), className)} {...props} />;
 }
 
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-title"
-      className={cn("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight", className)}
+      className={cn("col-start-2 min-h-4 font-medium tracking-tight break-words", className)}
       {...props}
     />
   );

@@ -83,7 +83,7 @@ export default async function PacksPage() {
           </div>
           <Link
             href="/docs#packs"
-            className="shrink-0 text-sm font-medium underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:rounded-sm focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+            className="shrink-0 text-sm font-medium underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:rounded-sm"
           >
             Read the pack format
           </Link>

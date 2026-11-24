@@ -63,19 +63,23 @@ export function ConsentStep({ modelId, onVerified }: ConsentStepProps) {
         <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
           <strong className="font-medium text-foreground">Why can&apos;t I upload a photo instead?</strong> Consent has to be
           given live by the person in the model, so the selfie must be taken now with your camera. Face the camera in
-          good light, without sunglasses or a mask, with no one else in the frame.
+          good light, without sunglasses or a mask, with no one else in the frame. After the photo, we&apos;ll ask you to
+          turn or tilt your head slightly a couple of times: this short movement check shows it&apos;s really you, live.
         </p>
       </section>
 
       <CameraCapture
         onCountdownStart={async () => {
-          token.current = (await modelsApi.challenge(modelId)).captureToken;
+          // The token comes with a random head-movement sequence (active liveness) the camera guides through.
+          const challenge = await modelsApi.challenge(modelId);
+          token.current = challenge.captureToken;
+          return { steps: challenge.steps };
         }}
-        onConfirm={async (photo) => {
+        onConfirm={async (photo, livenessFrames) => {
           const captureToken = token.current;
-          token.current = null; // single use: a retake gets a fresh token
+          token.current = null; // single use: a retake gets a fresh token (and new steps)
           if (!captureToken) throw new Error("Please retake the selfie.");
-          const { model } = await modelsApi.consent(modelId, photo, captureToken);
+          const { model } = await modelsApi.consent(modelId, photo, captureToken, livenessFrames);
           onVerified(model);
         }}
       />

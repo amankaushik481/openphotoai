@@ -70,6 +70,11 @@ export function inspectEnv(env: Env): EnvReport {
       detail: env.webhooksEnabled ? `${env.webhookBase}/api/webhooks/…` : "local URL: job status is polled instead",
     },
     { area: "Sign-in", value: signIn, detail: env.BETTER_AUTH_SECRET ? "BETTER_AUTH_SECRET set" : "dev secret (insecure)" },
+    {
+      area: "Client IP",
+      value: env.trustedProxyHops > 0 ? `${env.trustedProxyHops} proxy hop(s)` : "unknown",
+      detail: env.trustedProxyHops > 0 ? "from X-Forwarded-For (right to left)" : "TRUSTED_PROXY_HOPS=0: forwarded headers ignored",
+    },
     { area: "Cron", value: env.CRON_SECRET ? "protected" : "no secret", detail: "/api/cron/* (or `pnpm worker`)" },
     { area: "Demo mode", value: env.DEMO_MODE ? "on" : "off", detail: env.DEMO_MODE ? "/api/demo/login enabled" : "" },
   ];
@@ -79,7 +84,19 @@ export function inspectEnv(env: Env): EnvReport {
     if (isPglite) warnings.push("Using PGlite in production: data stays on one local disk and cannot scale. Use Postgres.");
     if (env.aiProvider === "mock") warnings.push("Mock AI provider in production: generated photos are placeholders.");
     if (env.paymentProvider === "mock") warnings.push("Mock payments in production: anyone can add credits for free.");
-    if (env.emailProvider === "mock") warnings.push("Mock email in production: magic links and receipts are never delivered.");
+    if (env.emailProvider === "mock") {
+      warnings.push(
+        env.devMailboxEnabled
+          ? "Mock email in production: every sign-in link is PUBLICLY readable at /dev/emails (anyone can sign in as anyone). Demo use only."
+          : "Mock email in production: magic links and receipts are never delivered.",
+      );
+    }
+    if (env.demoBanner) warnings.push("Mock providers in production: every page shows a \"Demo mode\" banner.");
+    if (env.trustedProxyHops === 0 && !LOCALHOST_URL.test(env.NEXT_PUBLIC_APP_URL)) {
+      warnings.push(
+        "TRUSTED_PROXY_HOPS is 0: client IPs are unknown and per-IP rate limits are shared by all visitors. Behind a reverse proxy set it to the number of proxies.",
+      );
+    }
     if (env.STORAGE_DRIVER === "local") warnings.push("Local file storage in production: files are lost on ephemeral/serverless disks. Use S3.");
     if (LOCALHOST_URL.test(env.NEXT_PUBLIC_APP_URL)) warnings.push("NEXT_PUBLIC_APP_URL points to localhost in production.");
     if (env.paymentProvider === "stripe" && stripeMode === "test") warnings.push("Stripe test key in production.");

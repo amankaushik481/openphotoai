@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP } from "@/config/app";
-import { magicLinkVerifyApiPath } from "@/server/auth/magic-link";
+import { magicLinkVerifyApiPath, pendingMagicLinkEmail } from "@/server/auth/magic-link";
 import { firstParam, safeLoginPath, safeNextPath } from "@/server/auth/redirect";
 
 export const metadata: Metadata = {
@@ -30,8 +30,33 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
           <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-warning/10 text-warning">
             <TriangleAlert className="size-6" aria-hidden />
           </div>
-          <CardTitle className="text-xl">This link is incomplete</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            This link is incomplete
+          </CardTitle>
           <CardDescription>Copy the whole link from the email, or request a new one.</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button asChild variant="brand" size="lg" className="w-full">
+            <Link href="/login">Back to sign in</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // Show which account the link signs into, so a link someone else requested (login CSRF) is obvious.
+  const email = await pendingMagicLinkEmail(token);
+  if (!email) {
+    return (
+      <Card>
+        <CardHeader className="justify-items-center text-center">
+          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-warning/10 text-warning">
+            <TriangleAlert className="size-6" aria-hidden />
+          </div>
+          <CardTitle as="h1" className="text-xl">
+            This link has expired
+          </CardTitle>
+          <CardDescription>Sign-in links work once and expire after 15 minutes. Request a new one.</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button asChild variant="brand" size="lg" className="w-full">
@@ -54,10 +79,21 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
         <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
           <KeyRound className="size-6" aria-hidden />
         </div>
-        <CardTitle className="text-xl">Confirm sign-in</CardTitle>
-        <CardDescription>Continue to sign in to {APP.name} on this device.</CardDescription>
+        <CardTitle as="h1" className="text-xl">
+          Confirm sign-in
+        </CardTitle>
+        <CardDescription>
+          Continue to sign in to {APP.name} on this device as{" "}
+          <strong className="font-medium break-all text-foreground" data-testid="verify-email">
+            {email}
+          </strong>
+          .
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="grid gap-3">
+        <p className="text-center text-xs text-muted-foreground">
+          Not your email address? Don&apos;t continue: someone may be trying to sign you into their account.
+        </p>
         <Button asChild variant="brand" size="lg" className="w-full">
           {/* Plain anchor: the API route sets the session cookie and redirects. */}
           <a href={href} rel="nofollow">

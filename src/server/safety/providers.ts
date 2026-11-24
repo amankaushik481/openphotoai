@@ -3,6 +3,7 @@
  * misconfigured registry (which throws synchronously) surfaces as a rejected promise and
  * takes the same fail-closed path as a provider outage.
  */
+import { createHash } from "node:crypto";
 import { getFaceProvider, getModerationProvider } from "@/providers/registry";
 import type { DetectedFace, ModerationResult } from "@/providers/types";
 import type { ModerationSnapshot } from "@/types/domain";
@@ -39,15 +40,45 @@ function toClassification(result: ModerationResult, fallbackName: string): Class
   };
 }
 
-export async function analyzeFaces(bytes: Uint8Array): Promise<{ faces: DetectedFace[]; matchThreshold: number }> {
+export interface FaceAnalysis {
+  faces: DetectedFace[];
+  matchThreshold: number;
+}
+
+/**
+ * Recent analyses per provider instance, keyed by content hash: the output age gate and likeness
+ * scoring analyze the same generated image back to back. Small and short-lived on purpose.
+ */
+const FACE_CACHE_SIZE = 16;
+const FACE_CACHE_TTL_MS = 10_000;
+const faceCache = new WeakMap<object, Map<string, { at: number; value: Promise<FaceAnalysis> }>>();
+
+export async function analyzeFaces(bytes: Uint8Array): Promise<FaceAnalysis> {
   const provider = getFaceProvider();
-  const { faces } = await provider.analyze(bytes);
-  if (!Array.isArray(faces)) throw new Error(`face provider "${provider.name}" returned no face list`);
-  return { faces, matchThreshold: provider.matchThreshold };
+  const key = createHash("sha256").update(bytes).digest("hex");
+  let cache = faceCache.get(provider);
+  if (!cache) faceCache.set(provider, (cache = new Map()));
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.at < FACE_CACHE_TTL_MS) return hit.value;
+
+  const value = (async (): Promise<FaceAnalysis> => {
+    const { faces } = await provider.analyze(bytes);
+    if (!Array.isArray(faces)) throw new Error(`face provider "${provider.name}" returned no face list`);
+    return { faces, matchThreshold: provider.matchThreshold };
+  })();
+  cache.set(key, { at: Date.now(), value });
+  // Errors are never cached (the next call retries); the oldest entry is evicted first.
+  value.catch(() => cache.delete(key));
+  while (cache.size > FACE_CACHE_SIZE) cache.delete(cache.keys().next().value!);
+  return value;
 }
 
 export async function faceMatchThreshold(): Promise<number> {
   return getFaceProvider().matchThreshold;
+}
+
+export async function faceProviderName(): Promise<string> {
+  return getFaceProvider().name;
 }
 
 /** Celebrity recognition when the moderation provider supports it; null when it does not. */

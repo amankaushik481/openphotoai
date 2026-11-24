@@ -72,6 +72,21 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     setSelected([]);
   }
 
+  // Leaving selection mode (X, Escape, delete) unmounts the focused bar or turns tiles back into links:
+  // return focus to the "Select" toggle instead of losing it to <body>.
+  const selectToggleRef = React.useRef<HTMLButtonElement>(null);
+  const wasSelecting = React.useRef(selecting);
+  React.useEffect(() => {
+    const ended = wasSelecting.current && !selecting;
+    wasSelecting.current = selecting;
+    if (!ended) return;
+    const frame = requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (!active || active === document.body) selectToggleRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selecting]);
+
   React.useEffect(() => {
     if (!selecting) return;
     const onKey = (e: KeyboardEvent) => {
@@ -195,6 +210,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
           folderName={folderName}
           hiddenCount={list.hiddenCount}
           selecting={selecting}
+          selectToggleRef={selectToggleRef}
           onSelectingChange={(on) => {
             setSelecting(on);
             if (!on) setSelected([]);
@@ -205,7 +221,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
         {folderName && <h2 className="text-lg font-semibold">{folderName}</h2>}
 
         {list.error && !list.media.length ? (
-          <Alert variant="destructive">
+          <Alert variant="destructive" role="alert">
             <AlertTitle>We couldn&apos;t load your gallery</AlertTitle>
             <AlertDescription className="flex flex-wrap items-center gap-3">
               {list.error instanceof ApiClientError ? errorMessage(list.error.code) : t("errors.generic")}

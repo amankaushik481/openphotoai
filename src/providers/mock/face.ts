@@ -5,8 +5,9 @@
  * - Embeddings: 128-d, L2-normalized. Every identity has a fixed base vector (all base
  *   vectors are mutually orthogonal), plus a small per-image jitter seeded by the image
  *   bytes: same identity ⇒ cosine ≈ 0.97, different identity ⇒ cosine ≈ 0.
- * - Pose: derived from a coarse perceptual signature of the pixels (4×4 block means), so it
- *   varies between photos but is stable under JPEG re-encoding and resizing.
+ * - Pose: the marker's explicit pose cells when present (deterministic head-pose for liveness
+ *   tests and the e2e fake camera); otherwise derived from a coarse perceptual signature of the
+ *   pixels (4×4 block means), so it varies between photos but is stable under re-encoding/resizing.
  * - Box: centered 40% of the image (several faces are laid out side by side).
  */
 import { createHash } from "node:crypto";
@@ -41,7 +42,7 @@ export function createMockFaceProvider(): FaceProvider {
 
       const marker: Marker = (await decodeMarker(bytes)) ?? { ...DEFAULT_MARKER };
       const imageSeed = createHash("sha256").update(bytes).digest("hex");
-      const pose = await poseFromPixels(bytes);
+      const pose = marker.pose ? { ...marker.pose, roll: 0 } : await poseFromPixels(bytes);
 
       const faces: DetectedFace[] = Array.from({ length: marker.faces }, (_, i) => ({
         box: faceBox(width, height, i, marker.faces),

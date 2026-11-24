@@ -8,7 +8,7 @@ import { db } from "@/db";
 import { uploads } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { newId } from "@/lib/ids";
-import { AppError, errors } from "@/server/http";
+import { AppError, errors, readFormDataLimited } from "@/server/http";
 import { imageMetrics, normalizeImage } from "@/server/images/process";
 import { sniffImageType } from "@/server/media/sniff";
 import { assertReferenceImageAllowed } from "@/server/safety";
@@ -36,13 +36,12 @@ export interface UploadDTO {
  * normalized (EXIF/GPS stripped, re-encoded JPEG) and safety-checked; masks are kept as PNG.
  */
 export async function createUploadFromRequest(req: Request, user: Pick<UserRow, "id">): Promise<{ upload: UploadDTO }> {
-  const declared = Number(req.headers.get("content-length") ?? 0);
-  if (declared > UPLOAD_LIMITS.maxBytes + MULTIPART_OVERHEAD_BYTES) throw tooLarge();
-
   let form: FormData;
   try {
-    form = await req.formData();
-  } catch {
+    // Capped while streaming, so a chunked body without Content-Length can't be buffered unbounded.
+    form = await readFormDataLimited(req, UPLOAD_LIMITS.maxBytes + MULTIPART_OVERHEAD_BYTES);
+  } catch (err) {
+    if (err instanceof AppError) throw err.code === "payload_too_large" ? tooLarge() : err;
     throw errors.validation("Send the image as multipart/form-data with a `file` field.");
   }
   const purpose = purposeSchema.safeParse(form.get("purpose"));
