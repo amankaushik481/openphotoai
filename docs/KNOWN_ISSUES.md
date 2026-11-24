@@ -76,8 +76,17 @@ clipping parent would hide an outer outline.
 ## Performance
 
 Fixed from `docs/reviews/performance.md`: PERF-1, PERF-3, PERF-5, PERF-7, PERF-8, PERF-12, PERF-14 and PERF-16 in full;
-PERF-6, PERF-9, PERF-13, PERF-15 and PERF-18 in part (the remainder is listed below). PERF-2 is handled by the security
-workstream. PERF-4, PERF-10, PERF-11 and PERF-17 are deferred.
+PERF-4, PERF-6, PERF-9, PERF-13, PERF-15 and PERF-18 in part (the remainder is listed below). PERF-2 is handled by the
+security workstream. PERF-10, PERF-11 and PERF-17 are deferred.
+
+Landing page (`/`, Lighthouse mobile ≥ 90; measure a production build, 5 runs, median): the root layout only hydrates
+the theme provider (SWR defaults live in `SwrProvider`, mounted by `/app` and `/admin`); the marketing header's theme
+toggle, mobile menu trigger and the hero's demo button are tiny islands whose classes are resolved on the server (the
+Radix sheet, the API client and sonner load on first use); `app/error.tsx` loads its UI only when shown; below-the-fold
+landing sections and the marketing footer use `render-lazy` (`content-visibility: auto`). `pnpm build` ends with
+`scripts/compile-hints.mjs`, which marks the framework chunks (`rootMainFiles`) for eager, off-main-thread V8
+compilation; without it the hydration bootstrap task (~45 ms on a fast desktop, ~30 ms of it lazy compilation) is most
+of the page's Total Blocking Time. Keep that step if the build command changes (Docker and Vercel run `pnpm build`).
 
 Verify function sizes after `next build`: `node scripts/trace-sizes.mjs` lists every route's trace size and which
 routes carry ffmpeg, the safety models, PGlite and each sharp libc build (expected: ffmpeg only on the job / batch /
@@ -91,7 +100,7 @@ musl build nowhere). Set `OPENSHOOT_TRACE_PGLITE=true` at build time to deploy w
 | PERF-13 | S3 objects are still buffered whole (`transformToByteArray`) and a very slow client can still hit `maxDuration = 300` mid-archive. | Chunk-wise S3 → `ZipPassThrough` streaming needs a streaming `get` on the storage contract. | Selections over 3.5 GB are refused before streaming (fflate writes no ZIP64), so archives are never silently corrupt. |
 | PERF-15 | `DATABASE_POOL_MAX` and the build-time `OPENSHOOT_TRACE_PGLITE` switch are read from `process.env` directly instead of being validated by the Zod schema in `src/lib/env.ts` (a non-numeric pool size silently falls back to 10). | Env-contract work outside this wave (`src/lib/env.ts`). | Both are documented (`.env.example`, `docs/SELF_HOSTING.md`: 1–3 connections on serverless with a pooled URL). PGlite is imported only for `pglite:` URLs and left out of production traces unless `OPENSHOOT_TRACE_PGLITE=true` at build time; using it otherwise fails with an explicit message. |
 | PERF-18 | `route({ auth: "public" })` still resolves the session; `GET /api/account/export` is unbounded; the gallery grid isn't virtualized and is fetched client-side; `APP.url` is baked in at build time. | Each is a separate change in code owned by other workstreams. | Public share pages now count views after the response (`after()`). |
-| PERF-4, PERF-11 | ~45 KB gz of avoidable JS on `/` (eager Radix Sheet, root `SWRConfig`, eager Toaster, `Button`/`cn` in `error.tsx`); zod shipped to `/app` routes through `src/types/domain.ts`. | UI and contract files under concurrent edits in this wave; splitting `domain.ts` touches every importer. | Static marketing pages; `next/image` is no longer used as an optimizer (`images.unoptimized`). |
+| PERF-4 (part), PERF-11 | The sonner `Toaster` chunk (~10 KB gz) still loads right after hydration on every page; zod shipped to `/app` routes through `src/types/domain.ts`. | Toasts fired before a lazily mounted `Toaster` would be lost (sonner doesn't replay them), so it stays mounted at the root; splitting `domain.ts` touches every importer. | The `Toaster` is `next/dynamic` (`ssr: false`), off the critical path; the rest of PERF-4 is fixed (see above). |
 | PERF-10, PERF-17 | Images are decoded ~6× and JPEG-encoded twice per output; videos are probed 3×. Landing paint/CSS/font tweaks. | Pipeline restructuring needs careful output-equivalence testing (watermark + label + XMP). | Ingestion is off the request path (PERF-9). |
 | Other | Server source maps (~58 MB) ship in the standalone output. `0001_perf_indexes` creates indexes without `CONCURRENTLY` (Drizzle runs migrations in a transaction), so large `media` / `jobs` tables are write-locked while it runs. | Source maps keep production stack traces readable. | Run the migration in a quiet window on large deployments, or create the indexes `CONCURRENTLY` by hand first (the migration uses `IF NOT EXISTS` and skips them). The Docker image drops the standalone copy of ffmpeg (it uses `/tools`' copy through `FFMPEG_BIN`). |
 

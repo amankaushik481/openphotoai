@@ -7,6 +7,7 @@ import { AppTopbar } from "@/components/layout/app-topbar";
 import { DemoModeBanner } from "@/components/layout/demo-mode-banner";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SkipLink } from "@/components/layout/skip-link";
+import { SwrProvider } from "@/components/providers/swr-provider";
 import { env } from "@/lib/env";
 import { requireUserPage } from "@/server/auth/session";
 import { DEMO_ACCOUNT_TTL_HOURS, DEMO_BANNER_COOKIE, isDemoEmail } from "@/server/demo/constants";
@@ -22,19 +23,24 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   const showDemoBanner = isDemoEmail(user.email) && !(await cookies()).has(DEMO_BANNER_COOKIE);
 
   return (
-    <div className="min-h-dvh md:grid md:grid-cols-[15.5rem_minmax(0,1fr)]">
-      <SkipLink />
-      <AppSidebar isAdmin={isAdmin} className="hidden md:flex" />
-      <div className="flex min-w-0 flex-col">
-        <DemoModeBanner mocked={env.demoBanner ? env.mockedProviders : null} />
-        {showDemoBanner ? <DemoUserBanner cookieName={DEMO_BANNER_COOKIE} ttlHours={DEMO_ACCOUNT_TTL_HOURS} /> : null}
-        <AppTopbar user={shellUser} />
-        {/* Bottom padding clears the measured tab bar (--bottom-nav-h) plus room for floating bars. */}
-        <main id="main" className="flex-1 px-4 pt-6 pb-[calc(var(--bottom-nav-h)+3rem)] sm:px-6 md:pb-12 lg:px-8 lg:pt-8">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
-        </main>
+    <SwrProvider>
+      <div className="min-h-dvh md:grid md:grid-cols-[15.5rem_minmax(0,1fr)]">
+        <SkipLink />
+        <AppSidebar isAdmin={isAdmin} className="hidden md:flex" />
+        <div className="flex min-w-0 flex-col">
+          <DemoModeBanner mocked={env.demoBanner ? env.mockedProviders : null} />
+          {showDemoBanner ? <DemoUserBanner cookieName={DEMO_BANNER_COOKIE} ttlHours={DEMO_ACCOUNT_TTL_HOURS} /> : null}
+          <AppTopbar user={shellUser} />
+          {/* Bottom padding clears the measured tab bar (--bottom-nav-h) plus room for floating bars. */}
+          <main
+            id="main"
+            className="flex-1 px-4 pt-6 pb-[calc(var(--bottom-nav-h)+3rem)] sm:px-6 md:pb-12 lg:px-8 lg:pt-8"
+          >
+            <div className="mx-auto w-full max-w-6xl">{children}</div>
+          </main>
+        </div>
+        <MobileBottomNav isAdmin={isAdmin} className="md:hidden" />
       </div>
-      <MobileBottomNav isAdmin={isAdmin} className="md:hidden" />
-    </div>
+    </SwrProvider>
   );
 }

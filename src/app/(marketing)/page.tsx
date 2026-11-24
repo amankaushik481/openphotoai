@@ -34,24 +34,39 @@ export default async function HomePage() {
       <JsonLd data={[buildSoftwareApplicationJsonLd(), buildOrganizationJsonLd()]} />
       <Hero />
       <TrustStrip />
-      <HowItWorks />
-      <FeatureGrid packCount={packs.length} packNames={pickShowcasePacks(packs, 7).map((p) => p.name)} />
-      <PacksShowcase packs={packs} />
-      <ComparisonTable />
-      <PricingTeaser />
-      <MarketingSection labelledBy="faq-title" className="max-w-3xl">
-        <SectionHeading id="faq-title" eyebrow="FAQ" title="Questions, answered honestly." />
-        <FaqList items={faq} className="mt-10" />
-        <div className="mt-6 flex justify-center">
-          <Button asChild variant="ghost">
-            <Link href="/faq">
-              Read all questions
-              <ArrowRightIcon />
-            </Link>
-          </Button>
-        </div>
-      </MarketingSection>
-      <FinalCta />
+      {/* Below the fold: rendered when scrolled near (see `render-lazy`); sizes are rough estimates. */}
+      <div className="render-lazy [--render-size:1200px] md:[--render-size:700px]">
+        <HowItWorks />
+      </div>
+      <div className="render-lazy [--render-size:3100px] md:[--render-size:2100px] lg:[--render-size:1350px]">
+        <FeatureGrid packCount={packs.length} packNames={pickShowcasePacks(packs, 7).map((p) => p.name)} />
+      </div>
+      <div className="render-lazy [--render-size:1650px] lg:[--render-size:1170px]">
+        <PacksShowcase packs={packs} />
+      </div>
+      <div className="render-lazy [--render-size:1720px] sm:[--render-size:1180px] lg:[--render-size:1020px]">
+        <ComparisonTable />
+      </div>
+      <div className="render-lazy [--render-size:1450px] md:[--render-size:960px] lg:[--render-size:710px]">
+        <PricingTeaser />
+      </div>
+      <div className="render-lazy [--render-size:680px]">
+        <MarketingSection labelledBy="faq-title" className="max-w-3xl">
+          <SectionHeading id="faq-title" eyebrow="FAQ" title="Questions, answered honestly." />
+          <FaqList items={faq} className="mt-10" />
+          <div className="mt-6 flex justify-center">
+            <Button asChild variant="ghost">
+              <Link href="/faq">
+                Read all questions
+                <ArrowRightIcon />
+              </Link>
+            </Button>
+          </div>
+        </MarketingSection>
+      </div>
+      <div className="render-lazy [--render-size:480px]">
+        <FinalCta />
+      </div>
     </>
   );
 }

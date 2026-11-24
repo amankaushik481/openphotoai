@@ -227,6 +227,17 @@
   backdrop-filter: blur(16px) saturate(1.4);
 }
 
+/*
+ * Below-the-fold block of a long page: the browser skips its style, layout and paint until it scrolls
+ * near the viewport (cheaper first render = earlier LCP, less main-thread work). Set the estimated
+ * height with `[--render-size:…]` (mobile first); `auto` remembers the real size once rendered.
+ * Paint is contained, so use it on full-width wrappers whose content doesn't overflow them.
+ */
+@utility render-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--render-size, 800px);
+}
+
 /* Bottom padding that clears the iOS home indicator. */
 @utility pb-safe {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));

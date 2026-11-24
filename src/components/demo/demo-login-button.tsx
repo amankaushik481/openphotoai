@@ -1,14 +1,7 @@
-"use client";
-
-import { Loader2, PlayIcon } from "lucide-react";
-import { useState } from "react";
-import useSWR from "swr";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { api, apiErrorText, fetcher } from "@/lib/api-client";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const DEMO_LOGIN_PATH = "/api/demo/login";
+import { DemoLoginButtonClient } from "./demo-login-button-client";
 
 interface DemoLoginButtonProps {
   /**
@@ -22,7 +15,12 @@ interface DemoLoginButtonProps {
   label?: string;
 }
 
-/** "Try the live demo": creates a throwaway demo account, signs in and opens its first batch. */
+/**
+ * "Try the live demo": creates a throwaway demo account, signs in and opens its first batch.
+ *
+ * The button classes are resolved here (on the server when rendered from a server component, e.g. the
+ * landing hero), so the client island ships without the Button/cva/tailwind-merge stack.
+ */
 export function DemoLoginButton({
   probe = false,
   variant = "outline",
@@ -30,40 +28,13 @@ export function DemoLoginButton({
   className,
   label = "Try the live demo",
 }: DemoLoginButtonProps) {
-  const { data } = useSWR<{ enabled: boolean }>(probe ? DEMO_LOGIN_PATH : null, fetcher, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
-  const [pending, setPending] = useState(false);
-
-  if (probe && !data?.enabled) return null;
-
-  async function start() {
-    setPending(true);
-    try {
-      const { redirect } = await api<{ redirect: string }>(DEMO_LOGIN_PATH, { method: "POST" });
-      // Full navigation: the new session cookie must replace whatever the client cached.
-      window.location.assign(redirect);
-    } catch (err) {
-      toast.error(apiErrorText(err));
-      setPending(false);
-    }
-  }
-
   return (
-    <Button
-      type="button"
+    <DemoLoginButtonClient
+      probe={probe}
       variant={variant}
       size={size}
-      className={cn("w-full sm:w-auto", className)}
-      onClick={start}
-      disabled={pending}
-      aria-busy={pending || undefined}
-      data-testid="demo-login-button"
-    >
-      {pending ? <Loader2 className="animate-spin" aria-hidden /> : <PlayIcon aria-hidden />}
-      {pending ? "Setting up your demo…" : label}
-    </Button>
+      label={label}
+      className={cn(buttonVariants({ variant, size, className: cn("w-full sm:w-auto", className) }))}
+    />
   );
 }

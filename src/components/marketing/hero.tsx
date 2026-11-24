@@ -40,9 +40,11 @@ export function Hero() {
   const kept = FRAMES.filter((f) => !f.refunded).length;
   return (
     <section aria-labelledby="hero-title" className="grain relative overflow-hidden">
+      {/* will-change: own compositor layer, so the large blur is applied once instead of in every raster tile
+          (a shorter first frame: the hero headline is the LCP element). */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-48 left-1/2 -z-10 h-[34rem] w-[60rem] -translate-x-1/2 rounded-full bg-brand-gradient opacity-[0.16] blur-3xl dark:opacity-25"
+        className="pointer-events-none absolute -top-48 left-1/2 -z-10 h-[34rem] w-[60rem] -translate-x-1/2 rounded-full bg-brand-gradient opacity-[0.16] blur-3xl will-change-transform dark:opacity-25"
       />
       <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-24 lg:pb-28">
         <div className="flex flex-col items-center text-center lg:items-start lg:text-left">

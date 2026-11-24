@@ -19,7 +19,7 @@ const linkClass =
 export function MarketingFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-border/70">
+    <footer className="render-lazy border-t border-border/70 [--render-size:570px] md:[--render-size:300px]">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Logo />

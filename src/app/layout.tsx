@@ -59,7 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`${sans.variable} ${mono.variable} ${display.variable}`}
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        <Providers locale={DEFAULT_LOCALE}>{children}</Providers>
+        <Providers>{children}</Providers>
         {APP.posthogKey ? <PostHogProvider apiKey={APP.posthogKey} apiHost={APP.posthogHost} /> : null}
       </body>
     </html>

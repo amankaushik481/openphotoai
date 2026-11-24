@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -66,13 +65,16 @@ export function PackCard({ pack, href, priority = false, className }: PackCardPr
         style={pack.cover ? undefined : { backgroundImage: packGradient(pack.colors) }}
       >
         {pack.cover ? (
-          <Image
+          // Static file and the image optimizer is off (next.config `images.unoptimized`): a plain <img>
+          // renders the same as next/image `fill` without shipping its client component to every pack grid.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={pack.cover}
             alt=""
-            fill
-            priority={priority}
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
+            decoding="async"
+            className="absolute inset-0 size-full object-cover text-transparent transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
           <span

@@ -2,29 +2,26 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { SWRConfig } from "swr";
 
-import { fetcher } from "@/lib/api-client";
-import { I18nProvider } from "@/i18n/react";
-import type { Locale } from "@/i18n";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
 // Toasts are never needed for first paint; keep sonner off the critical path (Lighthouse).
 const Toaster = dynamic(() => import("@/components/ui/sonner").then((m) => m.Toaster), { ssr: false });
 
 /**
- * App-wide client providers: theme (class-based, system default), i18n, SWR defaults, toasts.
- * Tooltips bring their own provider (see components/ui/tooltip), so none is mounted here.
+ * Root client providers, kept minimal because they hydrate on every page (incl. the static marketing
+ * pages, where JS weight is a Lighthouse cost): theme (class-based, system default) and toasts.
+ *
+ *   • SWR defaults live in `SwrProvider`, mounted by the layouts whose pages fetch with SWR (/app, /admin).
+ *   • i18n: `useT()` falls back to DEFAULT_LOCALE, the only locale, so no provider is mounted here. Mount
+ *     `I18nProvider` around a subtree once a second locale exists.
+ *   • Tooltips bring their own provider (see components/ui/tooltip).
  */
-export function Providers({ children, locale = "en" }: { children: React.ReactNode; locale?: Locale }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <I18nProvider locale={locale}>
-        <SWRConfig value={{ fetcher, errorRetryCount: 3 }}>
-          {children}
-          <Toaster position="top-center" richColors closeButton />
-        </SWRConfig>
-      </I18nProvider>
+      {children}
+      <Toaster position="top-center" richColors closeButton />
     </ThemeProvider>
   );
 }

@@ -1,27 +1,17 @@
-"use client";
-
-import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-
-import { Button } from "@/components/ui/button";
-import { useT } from "@/i18n/react";
+import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggleButton } from "@/components/layout/theme-toggle-button";
+import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 
-/** Light/dark toggle. Both icons render and CSS picks one, so there's no hydration mismatch. */
+/**
+ * Light/dark toggle (a ghost icon button). Styles and label are resolved here, on the server when the
+ * caller is a server component (marketing header), so only the tiny `ThemeToggleButton` hydrates.
+ */
 export function ThemeToggle({ className }: { className?: string }) {
-  const { resolvedTheme, setTheme } = useTheme();
-  const t = useT();
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className={cn("relative", className)}
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label={t("user.toggleTheme")}
-    >
-      <SunIcon className="scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
-      <MoonIcon className="absolute scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
-    </Button>
+    <ThemeToggleButton
+      className={cn(buttonVariants({ variant: "ghost", size: "icon", className: cn("relative", className) }))}
+      label={t("user.toggleTheme")}
+    />
   );
 }
