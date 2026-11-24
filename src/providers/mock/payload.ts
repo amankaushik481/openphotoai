@@ -25,10 +25,15 @@ export const MOCK_KINDS = [
 ] as const;
 export type MockKind = (typeof MOCK_KINDS)[number];
 
-/** Prompt directives → payload flag bits. */
+/**
+ * Prompt directives → payload flag bits. `[mock:unsafe-output]` = `[mock:nsfw-output]`, spelled so
+ * that it passes the always-on prompt filter (which blocks the word "nsfw"): use it in full-stack
+ * runs (dev, e2e) to reach the output classifier.
+ */
 export const MOCK_DIRECTIVES = {
   "[mock:fail]": 1,
   "[mock:nsfw-output]": 2,
+  "[mock:unsafe-output]": 2,
   "[mock:stuck]": 4,
 } as const;
 export const FLAG_FAIL = 1;

@@ -101,6 +101,10 @@ describe("mock AI provider lifecycle", () => {
     const { bytes } = await ai.fetchOutput(nsfw.images![0].url);
     expect((await decodeMarker(bytes))?.nsfw).toBe(true);
     expect((await createMockModerationProvider().checkImage(bytes)).allowed).toBe(false);
+
+    // Prompt-filter-safe spelling of the same directive (used by full-stack e2e runs).
+    const unsafe = succeeded(await ai.getStatus(await ai.submitGenerate(genInput({ prompt: "x [mock:unsafe-output]", numImages: 1 }))));
+    expect((await decodeMarker((await ai.fetchOutput(unsafe.images![0].url)).bytes))?.nsfw).toBe(true);
   });
 
   it("issues unique, compact request ids", async () => {

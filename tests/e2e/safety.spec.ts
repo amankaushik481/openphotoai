@@ -80,7 +80,7 @@ test("explicit prompts are blocked for free; blocked outputs are refunded", asyn
 
   await test.step("an explicit output is blocked, discarded and refunded", async () => {
     await page.getByRole("button", { name: "Dismiss" }).click().catch(() => undefined);
-    await prompt.fill("me in a cafe, candid portrait [mock:nsfw-output]");
+    await prompt.fill("me in a cafe, candid portrait [mock:unsafe-output]");
     const created = page.waitForResponse((r) => r.url().endsWith("/api/jobs") && r.request().method() === "POST");
     await generate.click();
     const res = await created;

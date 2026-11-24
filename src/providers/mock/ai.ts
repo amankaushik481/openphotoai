@@ -6,6 +6,8 @@
  * 0 ⇒ done immediately). Prompt directives for tests and demos:
  *   [mock:fail]         the job fails with "Mock provider failure"
  *   [mock:nsfw-output]  output images/videos carry the nsfw marker (the output classifier blocks them)
+ *   [mock:unsafe-output]  same, but passes the always-on prompt filter (which blocks "nsfw"):
+ *                       use this one when the prompt goes through the app (dev, e2e)
  *   [mock:stuck]        the job stays "running" forever
  *
  * Outputs keep the identity of their source (decoded from the pixel marker of inputs passed
