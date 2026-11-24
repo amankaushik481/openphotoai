@@ -64,18 +64,25 @@ const AGE_PATTERNS: readonly RegExp[] = [
  * Applied after the age-context patterns below ("at 7 pm", "is 5 feet tall", "only 15 minutes").
  */
 const NOT_AN_AGE =
-  "(?!\\s*(?:\\d|mm|cm|m|km|ft|feet|foot|inch|inches|in|degrees?|deg|percent|pct|pm|am|a\\s+m|p\\s+m|h|hr|hrs|hours?|min|mins|minutes?|" +
+  "(?!\\s*(?:\\d|mm|cm|m|km|ft|feet|foot|inch|inches|degrees?|deg|percent|pct|pm|am|a\\s+m|p\\s+m|h|hr|hrs|hours?|min|mins|minutes?|" +
   "sec|secs|seconds?|s|fps|x|k|mph|kph|kmh|kg|lbs?|pounds?|stor(?:y|ies)|floors?|meters?|metres?|o\\s*clock|oclock|00|15|30|45|" +
   "points?|pts|stars?|th|st|nd|rd|times|people|persons?|guests|friends|kids|days?|weeks?|months?|dollars?|euros?|usd|eur|" +
   "bucks|miles?|steps|laps|reps|percent|mp|megapixels?|sizes?|angles?|locations?|poses?|shots?|photos?|outfits?|looks|colou?rs|" +
   "years?\\s+(?:ago|later|earlier|before|after|of|experience|married|together|younger|older))(?![a-z]))";
+/** What may follow "<subject> at N" for N to read as an age (end of text or a short list of words). */
+const AGE_PHRASE_END =
+  "(?=\\s*$|\\s+(?:and|with|wearing|dressed|in|on|as|at|for|posing|smiling|standing|sitting|looking|holding|years?|yrs?|yo|y\\s+o|" +
+  "old|girl|boy|kid|child|teen|teenager|again|photo|portrait|selfie|style|version|looks?|just|only|when|playing|going)(?![a-z]))";
 /** Who an age is about: "{subject} at 15", "me at sixteen", "her aged 12". */
 const AGE_SUBJECTS = "(?:subject|me|her|him|herself|himself|myself|yourself|themselves|them|us|woman|man|person|girl|boy|lady|guy|she|he|i|version|self)";
 
 /** Age expressions written around a number: group 1 is the age (< 18 ⇒ minor). */
 const AGE_CONTEXT_PATTERNS: readonly RegExp[] = [
-  // "{subject} at 15", "me at the age of 12", "her aged 14"
-  new RegExp(`(?<![a-z])${AGE_SUBJECTS}\\s+(?:at|aged|age)\\s+(?:the\\s+age\\s+of\\s+|age\\s+)?${NUM}(?![0-9])${NOT_AN_AGE}`, "g"),
+  // "{subject} at 15", "me at the age of 12", "her aged 14" (the number must end the phrase: "at 3 different angles" is no age)
+  new RegExp(
+    `(?<![a-z])${AGE_SUBJECTS}\\s+(?:at|aged|age)\\s+(?:the\\s+age\\s+of\\s+|age\\s+)?${NUM}(?![0-9])${NOT_AN_AGE}${AGE_PHRASE_END}`,
+    "g",
+  ),
   // "I'm 15", "she is 15", "when I was 12", "who is only 14"
   new RegExp(
     `(?<![a-z])(?:i\\s*m|i\\s+am|she\\s*s|she\\s+is|he\\s*s|he\\s+is|they\\s+are|who\\s+is|who\\s*s|when\\s+(?:i|she|he|they|we)\\s+(?:was|were))\\s+` +

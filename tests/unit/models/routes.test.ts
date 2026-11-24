@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import sharp from "sharp";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { POST as challengeRoute } from "@/app/api/models/[id]/consent/challenge/route";
 import { POST as consentRoute } from "@/app/api/models/[id]/consent/route";
 import { DELETE as deletePhotoRoute } from "@/app/api/models/[id]/photos/[photoId]/route";
@@ -11,6 +11,7 @@ import { GET as listModelsRoute, POST as createModelRoute } from "@/app/api/mode
 import { db } from "@/db";
 import { consentRecords, identityModels, modelShares, trainingPhotos } from "@/db/schema";
 import type { UserRow } from "@/db/types";
+import { resetEnvCache } from "@/lib/env";
 import { newId } from "@/lib/ids";
 import { setProviderOverrides } from "@/providers/registry";
 import { CONSENT_CHALLENGE_TTL_SEC } from "@/server/models/consent";
@@ -159,6 +160,13 @@ describe("models CRUD", () => {
 
 describe("live consent selfie", () => {
   it("verifies the selfie, stores it privately and records consent", async () => {
+    // Behind one trusted proxy, its X-Forwarded-For entry is the consent IP (SEC-4).
+    vi.stubEnv("TRUSTED_PROXY_HOPS", "1");
+    resetEnvCache();
+    onTestFinished(() => {
+      vi.unstubAllEnvs();
+      resetEnvCache();
+    });
     const model = await createModel();
     const res = await consent(model.id);
     expect(res.status).toBe(200);

@@ -92,8 +92,8 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | GET | `/api/models/:id` | UK | → `{ model, photos: TrainingPhotoDTO[], readiness: ReadinessDTO, readinessByMode }` |
 | PATCH | `/api/models/:id` | U | `{ name }` → `{ model }` |
 | DELETE | `/api/models/:id` | U | → `{ ok }` (real deletion + email) |
-| POST | `/api/models/:id/consent/challenge` | U | → `{ captureToken, expiresAt }` (single-use, 5 min) |
-| POST | `/api/models/:id/consent` | U | multipart `selfie` (live camera capture) + `captureToken` → `{ model }` |
+| POST | `/api/models/:id/consent/challenge` | U | → `{ captureToken, expiresAt, steps }` (single-use, 5 min; `steps`: 2 random head-pose steps of `turn_left`/`turn_right`/`look_up`/`look_down`) |
+| POST | `/api/models/:id/consent` | U | multipart `selfie` (live frontal capture) + one `liveness` frame per step, in order + `captureToken` → `{ model }` (active liveness, docs/SAFETY.md §2) |
 | POST | `/api/models/:id/photos` | U | multipart `file` → `{ photo, readiness, readinessByMode }` (quality + safety checked; safety failures are rejected with 422 and never stored) |
 | DELETE | `/api/models/:id/photos/:photoId` | U | → `{ ok, model, readiness }` |
 | POST | `/api/models/:id/train` | U | `{ mode: "instant" \| "trained" }` → `{ model, job: JobDTO \| null }` (instant: free, immediate) |
@@ -108,7 +108,8 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/batches` | U | `CreateBatchRequest` (+ header `Idempotency-Key`, stored on child jobs as `<key>:<i>`) → `{ batch, jobs: JobDTO[], requested, stoppedReason }` |
 | GET | `/api/batches/:id` | U | → `{ batch, jobs: JobDTO[] }` |
 | POST | `/api/prompt-helper` | U | `{ request, modelId?, style? }` → `{ prompt, negativePrompt?, suggestions? }` |
-| POST | `/api/uploads` | U | multipart `file`, `purpose` (`reference`/`garment`/`mask`) → `{ upload: { id, url, width, height } }` |
+| POST | `/api/uploads` | U | multipart `file`, `purpose` (`reference`/`garment`/`mask`) → `{ upload: { id, url, width, height } }` (faces in references/garments are blurred; masks stored black/white; uploads expire after 30 days) |
+| DELETE | `/api/uploads/:id` | U | delete one of your uploads and its files → `{ ok: true }` |
 
 ### Gallery / sharing
 | Method | Path | Auth | Body → Response |

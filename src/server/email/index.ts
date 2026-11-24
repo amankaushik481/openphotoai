@@ -84,8 +84,14 @@ export async function sendEmail<T extends EmailTemplateName>(
   let status: EmailStatus = "failed";
   let providerMessageId: string | null = null;
   let error: string | null = null;
+  // RFC 2606 reserves ".invalid": never deliverable (used for demo accounts) — record, don't send.
+  const undeliverable = /\.invalid$/i.test(recipient);
   try {
     provider = getEmailProvider();
+    if (undeliverable) {
+      status = "mocked";
+      throw new SkipDelivery();
+    }
     const result = await provider.send({
       to: recipient,
       subject: rendered.subject,
@@ -97,7 +103,7 @@ export async function sendEmail<T extends EmailTemplateName>(
     providerMessageId = result.id;
     status = provider.name === "mock" ? "mocked" : "sent";
   } catch (err) {
-    error = errorMessage(err);
+    if (!(err instanceof SkipDelivery)) error = errorMessage(err);
   }
 
   const stored = provider?.name === "mock" ? rendered : redactForStorage(template, props, rendered);
@@ -142,3 +148,5 @@ export async function sendEmailSafe<T extends EmailTemplateName>(
     return null;
   }
 }
+
+class SkipDelivery extends Error {}

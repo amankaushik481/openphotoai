@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE as deleteFolderRoute, PATCH as renameFolderRoute } from "@/app/api/folders/[id]/route";
 import { GET as listFoldersRoute, POST as createFolderRoute } from "@/app/api/folders/route";
 import { POST as reportRoute } from "@/app/api/reports/route";
@@ -9,6 +9,7 @@ import { RATE_LIMITS } from "@/config/rate-limits";
 import { db } from "@/db";
 import { folders, media, reports, shareLinks } from "@/db/schema";
 import type { UserRow } from "@/db/types";
+import { resetEnvCache } from "@/lib/env";
 import { FOLDER_NAME_MAX, MAX_FOLDERS } from "@/server/gallery/dto";
 import { incrementShareViews, resolveShare } from "@/server/gallery/share";
 import { callRoute, createTestDb, createTestUser, sessionMock } from "../../helpers/factories";
@@ -198,7 +199,17 @@ describe("POST /api/reports", () => {
   const report = (body: unknown, ip = "203.0.113.7") =>
     callRoute(reportRoute, { url: "/api/reports", body, headers: { "x-forwarded-for": ip } });
 
-  it("stores the report with the owner as targetUserId and notifies takedown + reporter", async () => {
+  // The IP comes from the trusted proxy's X-Forwarded-For entry (SEC-4).
+  beforeEach(() => {
+    vi.stubEnv("TRUSTED_PROXY_HOPS", "1");
+    resetEnvCache();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    resetEnvCache();
+  });
+
+  it("stores the report with the owner as targetUserId and notifies takedown (anonymous: no mail to the free-text address)", async () => {
     const m = await seedMedia(alice.id, 1);
     const link = (await callRoute(createShareRoute, { url: "/api/share", body: { mediaId: m.id } })).json.share;
     sessionMock.setUser(null);
@@ -223,7 +234,8 @@ describe("POST /api/reports", () => {
       status: "open",
     });
     expect(sendEmailSafe).toHaveBeenCalledWith("report_received", "takedown@example.com", { reportId: row!.id });
-    expect(sendEmailSafe).toHaveBeenCalledWith("report_received", "victim@example.com", { reportId: row!.id });
+    // SEC-17: the public form can't be used to mail arbitrary third parties.
+    expect(sendEmailSafe).not.toHaveBeenCalledWith("report_received", "victim@example.com", expect.anything());
   });
 
   it("resolves the owner from a media id or a folder share, and records signed-in reporters", async () => {
@@ -237,7 +249,9 @@ describe("POST /api/reports", () => {
       reporterUserId: bob.id,
       reporterEmail: null,
     });
-    expect(sendEmailSafe).toHaveBeenCalledTimes(1);
+    // Takedown inbox + an acknowledgement to the signed-in reporter's own account address.
+    expect(sendEmailSafe).toHaveBeenCalledTimes(2);
+    expect(sendEmailSafe).toHaveBeenCalledWith("report_received", bob.email, { reportId: byMedia!.id });
 
     await db.delete(reports);
     sessionMock.setUser(alice);

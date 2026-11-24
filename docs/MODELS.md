@@ -79,6 +79,16 @@ export async function submit(endpointId: string, input: Record<string, unknown>,
   });
   return request_id;                          // persist; equals payload.request_id in the webhook
 }
+```
+
+> **Trained LoRAs and deletion (SAF-7).** fal has no API to delete a stored file. OpenShoot therefore submits
+> training with `storageSettings: { expiresIn: "1d" }`, copies `diffusers_lora_file.url` into its own storage
+> under the model prefix when training completes (`src/server/models/weights.ts`), and generates from that copy
+> (a signed URL when storage is public, otherwise a 1-day fal upload cached in the model's metadata). Deleting a
+> model deletes our copy; fal's `deleteModel` reports `providerDeleted: false` with the reason, and fal's own copy
+> expires within a day of training.
+
+```ts
 
 // 3) Poll (fallback when a webhook is late)
 const st = await fal.queue.status("fal-ai/flux-lora", { requestId, logs: true });

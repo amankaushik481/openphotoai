@@ -267,8 +267,9 @@ describe("talking video handler", () => {
     await expect(createJob(u, talking({ sourceMediaId: edited.id }))).rejects.toMatchObject({ code: "validation_error" });
     await expectNoCharge();
 
-    // Photo-to-video of a Together photo is fine (no words put in anyone's mouth).
-    const job = await createJob(u, video({ sourceMediaId: pair.id }));
-    expect(job.status).toBe("running");
+    // Photo-to-video of a Together photo is refused too: the partner consented to photos, not to being animated (SAF-12).
+    await expect(createJob(u, video({ sourceMediaId: pair.id }))).rejects.toMatchObject({ code: "validation_error" });
+    await expect(createJob(u, video({ sourceMediaId: edited.id }))).rejects.toMatchObject({ code: "validation_error" });
+    await expectNoCharge();
   });
 });

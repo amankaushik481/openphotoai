@@ -225,6 +225,7 @@ export const TEXT_FILTER_EXCEPTIONS: readonly RegExp[] = [
   // athletic wear, not underwear (still blocked as "... bra only")
   "sports?\\s+bras?(?!\\s+(?:only|and\\s+(?:panties|thong|briefs|nothing)))",
   "bra\\s+size\\s+chart",
+  "(?:remove|fix|smooth|iron)\\s+(?:the\\s+|her\\s+|his\\s+)?(?:clothing|clothes|shirt|dress|outfit)\\s+(?:wrinkles?|creases?|lint|stains?|pills?)",
   "(?:legal|design|creative|case|news|project|client|press)\\s+briefs?",
   "garter\\s+snakes?",
   "enfant\\s+terrible",

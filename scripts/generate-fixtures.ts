@@ -94,6 +94,7 @@ async function main() {
     );
   }
 
+  if (!only || selected("liveness", only)) await writeLivenessFrames();
   if (only) return;
   const garment = await finish(await renderGarment(), { faces: 0 });
   await writeFile(path.join(ROOT, "garment.jpg"), garment);
@@ -171,6 +172,40 @@ function inBucket({ yaw, pitch }: { yaw: number; pitch: number }, bucket: PoseBu
       return pitch >= 15 - slack && Math.abs(yaw) <= 8 + slack;
     case "down":
       return pitch <= -15 + slack && Math.abs(yaw) <= 8 + slack;
+  }
+}
+
+/* ───────────── liveness (e2e fake camera) ───────────── */
+
+/**
+ * tests/fixtures/liveness/<identity>-<pose>.jpg: 960×1280 (3:4, the camera component's crop, so it is
+ * a no-op) frames of the mock "default" identity with explicit pose marker cells, one per head pose of
+ * the consent active-liveness check (src/server/safety/liveness.ts). Built from the default-* selfies
+ * (center-cropped from 4:5), so frames are mutually distinct. An e2e fake camera shows "frontal" until
+ * the UI shows a step (`[data-liveness-step]`), then the frame named after that step.
+ */
+const LIVENESS_FRAMES: { pose: "frontal" | "turn_left" | "turn_right" | "look_up" | "look_down"; source: string; yaw: number; pitch: number }[] = [
+  { pose: "frontal", source: "default-01", yaw: 0, pitch: 0 },
+  { pose: "turn_left", source: "default-02", yaw: -25, pitch: 0 },
+  { pose: "turn_right", source: "default-03", yaw: 25, pitch: 0 },
+  { pose: "look_up", source: "default-04", yaw: 0, pitch: 20 },
+  { pose: "look_down", source: "default-05", yaw: 0, pitch: -20 },
+];
+const LIVENESS_W = Math.round((SELFIE_H * 3) / 4);
+
+async function writeLivenessFrames() {
+  const dir = path.join(ROOT, "liveness");
+  await mkdir(dir, { recursive: true });
+  for (const spec of LIVENESS_FRAMES) {
+    const src = path.join(ROOT, "selfies", `${spec.source}.jpg`);
+    const cropped = sharp(src).extract({ left: Math.round((SELFIE_W - LIVENESS_W) / 2), top: 0, width: LIVENESS_W, height: SELFIE_H });
+    const bytes = await finish(cropped, { ...DEFAULT_IDENTITY, pose: { yaw: spec.yaw, pitch: spec.pitch } }, 88);
+    const decoded = await decodeMarker(bytes);
+    if (!decoded?.pose || decoded.pose.yaw !== spec.yaw || decoded.pose.pitch !== spec.pitch) {
+      throw new Error(`liveness ${spec.pose}: pose marker did not round-trip`);
+    }
+    await writeFile(path.join(dir, `default-${spec.pose}.jpg`), bytes);
+    console.log(`liveness/default-${spec.pose}.jpg ${kb(bytes)}  yaw=${spec.yaw} pitch=${spec.pitch}`);
   }
 }
 

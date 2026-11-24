@@ -16,6 +16,7 @@
  *   outputs.ts      checkOutputImage, checkOutputVideo
  *   reference.ts    assertReferenceImageAllowed
  *   consent.ts      verifyConsentSelfie
+ *   liveness.ts     pickLivenessChallenge, verifyLiveness (active head-pose liveness for the consent selfie)
  *   training.ts     analyzeTrainingPhotoSafety, assertTrainingAllowed
  *   multi-person.ts assertModelsUsable
  *   likeness.ts     likenessScore (embeddings.ts: cosine / l2normalize / mean)

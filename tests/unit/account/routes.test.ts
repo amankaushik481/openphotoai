@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { POST as confirmRoute } from "@/app/api/account/delete/confirm/route";
 import { POST as deleteRoute } from "@/app/api/account/delete/route";
 import { RATE_LIMITS } from "@/config/rate-limits";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
+import { resetEnvCache } from "@/lib/env";
 import { callRoute, createTestDb, createTestUser, sessionMock } from "../../helpers/factories";
 import { createPaymentProviderMock, useTempStorage } from "./fixtures";
 
@@ -91,6 +92,13 @@ describe("POST /api/account/delete/confirm", () => {
   });
 
   it("is rate limited per IP, in its own bucket", async () => {
+    // The IP comes from the trusted proxy's X-Forwarded-For entry (SEC-4).
+    vi.stubEnv("TRUSTED_PROXY_HOPS", "1");
+    resetEnvCache();
+    onTestFinished(() => {
+      vi.unstubAllEnvs();
+      resetEnvCache();
+    });
     const { limit } = RATE_LIMITS.accountDeleteConfirmPerHourPerIp;
     for (let i = 0; i < limit; i++) expect((await confirm({ token: `t${i}` })).status).toBe(404);
     expect((await confirm({ token: "t" })).status).toBe(429);

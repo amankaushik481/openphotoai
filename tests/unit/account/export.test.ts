@@ -64,7 +64,9 @@ describe("exportAccountData", () => {
     const in24h = Date.now() / 1000 + 24 * 3600;
     for (const url of urls) {
       expect(url).toMatch(/^http:\/\/localhost:3000\/api\/files\/users\//);
-      expect(Math.abs(expiryOf(url!) - in24h)).toBeLessThan(60);
+      // Signed against an hourly window (stable, cacheable URLs): valid for 24h to 25h.
+      expect(expiryOf(url!) - in24h).toBeGreaterThan(-60);
+      expect(expiryOf(url!) - in24h).toBeLessThan(3600 + 60);
       const key = decodeURIComponent(new URL(url!).pathname.replace("/api/files/", ""));
       expect(seeded.storageKeys).toContain(key);
     }
