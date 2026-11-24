@@ -233,7 +233,7 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
               <p>
                 Jobs are asynchronous. <C>POST /jobs</C> validates the request, runs the safety checks, charges the
                 credits and submits the job, then returns it (usually <C>running</C>). Poll <C>GET /jobs/{"{id}"}</C>{" "}
-                every 2–5 seconds — each poll also checks the AI provider when the job's last check is stale, so polling
+                every 2–5 seconds — each poll also checks the AI provider when the job&apos;s last check is stale, so polling
                 alone drives a job to completion. Photos typically take 5–30 seconds, videos a few minutes.
               </p>
               <p>

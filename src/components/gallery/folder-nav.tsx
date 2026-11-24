@@ -37,8 +37,8 @@ export interface FolderNavProps {
   filters: GalleryFilters;
   /** Called after a link is followed (e.g. close the mobile sheet). */
   onNavigate?: () => void;
-  /** Called after folders change (counts, deletions) so the media list can refresh. */
-  onFoldersChanged?: () => void;
+  /** Called after a folder is deleted (its media are kept, now without a folder). */
+  onFolderDeleted?: (folderId: string) => void;
   className?: string;
 }
 
@@ -52,7 +52,7 @@ type DialogState =
 const itemClass =
   "flex min-h-10 w-full min-w-0 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
-export function FolderNav({ filters, onNavigate, onFoldersChanged, className }: FolderNavProps) {
+export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: FolderNavProps) {
   const router = useRouter();
   const { folders, isLoading, mutate } = useFolders();
   const [dialog, setDialog] = React.useState<DialogState>(null);
@@ -78,7 +78,7 @@ export function FolderNav({ filters, onNavigate, onFoldersChanged, className }: 
     toast.success(`Folder “${folder.name}” deleted. Its photos are still in your gallery.`);
     if (filters.folderId === folder.id)
       router.replace(galleryHref({ ...filters, folderId: undefined }), { scroll: false });
-    onFoldersChanged?.();
+    onFolderDeleted?.(folder.id);
   }
 
   return (

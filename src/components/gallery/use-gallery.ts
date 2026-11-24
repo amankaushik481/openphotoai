@@ -56,17 +56,23 @@ export function useMediaList(filters: GalleryFilters, pageSize = GALLERY_PAGE_SI
     if (hasMore && !isLoadingMore) void setSize((s) => s + 1);
   }, [hasMore, isLoadingMore, setSize]);
 
-  /** Apply a local change to every loaded page (drop items that no longer match the filters). */
+  /**
+   * Apply a local change to every loaded page (items that no longer match the filters drop out) without
+   * refetching: fresh pages would carry new signed URLs and make every thumbnail reload.
+   */
   const patchLocal = React.useCallback(
-    (update: (m: MediaDTO) => MediaDTO | null) =>
+    (update: (m: MediaDTO) => MediaDTO | null, hiddenDelta = 0) =>
       mutate(
         (pages) =>
-          pages?.map((p) => ({
+          pages?.map((p, i) => ({
             ...p,
             media: p.media.flatMap((m) => {
               const next = update(m);
               return next && matchesGalleryFilters(next, filters) ? [next] : [];
             }),
+            ...(i === 0 && p.hiddenCount !== undefined
+              ? { hiddenCount: Math.max(0, p.hiddenCount + hiddenDelta) }
+              : {}),
           })),
         { revalidate: false },
       ),
@@ -85,6 +91,13 @@ export function useMediaList(filters: GalleryFilters, pageSize = GALLERY_PAGE_SI
     patchLocal,
     revalidate: () => mutate(),
   };
+}
+
+/** Change in the "hidden" count when `action` runs on `items`. */
+export function hiddenDeltaFor(action: BulkAction, items: readonly Pick<MediaDTO, "hidden">[]): number {
+  if (action === "hide") return items.filter((m) => !m.hidden).length;
+  if (action === "unhide" || action === "delete") return -items.filter((m) => m.hidden).length;
+  return 0;
 }
 
 /** Local result of a bulk action on one item (null = removed from the gallery). */

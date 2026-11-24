@@ -29,7 +29,7 @@ import {
 import { GalleryToolbar, type PackOption } from "./gallery-toolbar";
 import { LoadMore } from "./load-more";
 import { SelectionBar } from "./selection-bar";
-import { applyBulkLocally, runBulkAction, useFolders, useMediaList } from "./use-gallery";
+import { applyBulkLocally, hiddenDeltaFor, runBulkAction, useFolders, useMediaList } from "./use-gallery";
 
 function bulkMessage(action: BulkAction, n: number, folderName: string | null): string {
   const items = n === 1 ? "1 item" : `${n} items`;
@@ -106,13 +106,15 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     try {
       const { updated } = await runBulkAction(action, ids, folderId);
       const chosen = new Set(ids);
-      await list.patchLocal((m) => (chosen.has(m.id) ? applyBulkLocally(m, action, folderId) : m));
+      const hiddenDelta = hiddenDeltaFor(
+        action,
+        list.media.filter((m) => chosen.has(m.id)),
+      );
+      await list.patchLocal((m) => (chosen.has(m.id) ? applyBulkLocally(m, action, folderId) : m), hiddenDelta);
       toast.success(bulkMessage(action, updated, folderId ? (folderName ?? "folder") : null));
       setSelected([]);
       if (action === "delete") setSelecting(false);
       if (action === "move" || action === "delete") void mutateFolders();
-      // Refresh counts (e.g. "Show hidden (N)") and pages shifted by removed items.
-      void list.revalidate();
     } catch (err) {
       showError(err);
     } finally {
@@ -131,6 +133,9 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
       setBusy(null);
     }
   }
+
+  const forgetFolder = (folderId: string) =>
+    void list.patchLocal((m) => (m.folderId === folderId ? { ...m, folderId: null } : m));
 
   const loadedIds = list.media.filter((m) => filters.showHidden || !m.hidden).map((m) => m.id);
   const allSelected = loadedIds.length > 0 && loadedIds.every((id) => selected.includes(id));
@@ -180,7 +185,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
       <aside className="hidden lg:block">
         <div className="sticky top-24">
-          <FolderNav filters={filters} onFoldersChanged={() => void list.revalidate()} />
+          <FolderNav filters={filters} onFolderDeleted={forgetFolder} />
         </div>
       </aside>
 
@@ -258,7 +263,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
           <FolderNav
             filters={filters}
             onNavigate={() => setFoldersOpen(false)}
-            onFoldersChanged={() => void list.revalidate()}
+            onFolderDeleted={forgetFolder}
             className="px-2 pb-6"
           />
         </SheetContent>

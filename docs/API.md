@@ -202,22 +202,22 @@ Every error has the same body: `{ "error": { "code": "...", "message": "...", "d
 | Endpoint | Scope | Description |
 |---|---|---|
 | `GET /api/v1/models` | read | Your identity models + models shared with you → `{ models }` |
-| `GET /api/v1/models/{id}` | read | One model → `{ model }` |
+| `GET /api/v1/models/{id}` | read | `?mode=instant\|trained` → `{ model, photos, readiness, readinessByMode }` (shared models: no photos) |
 | `POST /api/v1/jobs` | generate | Create a job (`Idempotency-Key` supported) → `{ job }` |
 | `GET /api/v1/jobs` | read | `?status&type&limit&cursor` or `?ids=a,b` → `{ jobs, nextCursor }` |
 | `GET /api/v1/jobs/{id}` | read | Job status + results (lazy provider sync) → `{ job }` |
 | `POST /api/v1/jobs/{id}/cancel` | generate | Cancel + refund → `{ job }` |
 | `POST /api/v1/batches` | generate | One pack → up to 50 images → `{ batch, jobs, requested, stoppedReason }` |
 | `GET /api/v1/batches/{id}` | read | Batch progress → `{ batch, jobs }` |
-| `GET /api/v1/media` | read | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media, nextCursor }` |
+| `GET /api/v1/media` | read | `?folderId&favorite&kind&modelId&packId&batchId&showHidden&cursor&limit` → `{ media, nextCursor, hiddenCount? }` |
 | `GET /api/v1/media/{id}` | read | One photo/video with fresh signed URLs → `{ media }` |
 | `GET /api/v1/packs` | read | All photo packs → `{ packs }` |
 | `GET /api/v1/credits` | read | `?cursor&limit` → `{ balance, ledger, nextCursor }` |
 | `GET /api/v1/openapi.json` | public | OpenAPI 3.1 document |
 
 Response bodies are identical to the web app's session API (`/api/jobs`, `/api/batches`, …) and use the DTOs in
-`src/types/domain.ts` (`JobDTO`, `MediaDTO`, `BatchDTO`, `IdentityModelDTO`, `CreditLedgerEntryDTO`) and
-`PackSummary` from `src/types/pack.ts`.
+`src/types/domain.ts` (`JobDTO`, `MediaDTO`, `BatchDTO`, `IdentityModelDTO`, `TrainingPhotoDTO`, `ReadinessDTO`,
+`CreditLedgerEntryDTO`) and `PackSummary` from `src/types/pack.ts`.
 
 ## For contributors
 

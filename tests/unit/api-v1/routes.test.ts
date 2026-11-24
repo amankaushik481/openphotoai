@@ -16,7 +16,11 @@ import { callRoute, createTestDb, createTestMedia, createTestModel, createTestUs
 import { resetSafety, useTempStorage } from "../jobs/fixtures";
 import { V1_HANDLERS } from "./routes";
 
-vi.mock("@/server/safety", async () => (await import("../jobs/fixtures")).safetyMock);
+// Deterministic safety fakes from the job-engine tests; other exports (e.g. SAFETY_POLICY) stay real.
+vi.mock("@/server/safety", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  ...(await import("../jobs/fixtures")).safetyMock,
+}));
 vi.mock("@/providers/registry", async (importOriginal) =>
   importOriginal().catch(async () => (await import("../jobs/registry-fallback")).fallbackRegistry),
 );

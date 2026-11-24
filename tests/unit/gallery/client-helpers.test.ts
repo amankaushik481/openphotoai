@@ -11,7 +11,7 @@ import {
   viewOf,
   withView,
 } from "@/components/gallery/gallery-filters";
-import { applyBulkLocally } from "@/components/gallery/use-gallery";
+import { applyBulkLocally, hiddenDeltaFor } from "@/components/gallery/use-gallery";
 import type { MediaDTO } from "@/types/domain";
 
 const media = (over: Partial<MediaDTO> = {}): MediaDTO => ({
@@ -97,6 +97,11 @@ describe("gallery filters", () => {
     expect(applyBulkLocally(media(), "move", "fld_2")?.folderId).toBe("fld_2");
     expect(applyBulkLocally(media(), "hide")?.hidden).toBe(true);
     expect(applyBulkLocally(media(), "delete")).toBeNull();
+    const items = [media(), media({ hidden: true })];
+    expect(hiddenDeltaFor("hide", items)).toBe(1);
+    expect(hiddenDeltaFor("unhide", items)).toBe(-1);
+    expect(hiddenDeltaFor("delete", items)).toBe(-1);
+    expect(hiddenDeltaFor("favorite", items)).toBe(0);
   });
 });
 
