@@ -17,7 +17,7 @@ import type * as TfConverter from "@tensorflow/tfjs-converter";
 import type { ModerationProvider, ModerationResult } from "../types";
 import { decodeRgb } from "./image-decode";
 import { DEFAULT_NSFW_THRESHOLDS, evaluateNsfw, toNsfwScores, type NsfwThresholds } from "./nsfw-policy";
-import { packageEntryDir, requireUncached } from "./node-require";
+import { packageDir, requireUncached } from "./node-require";
 import { evaluateTextHeuristics } from "./text-heuristics";
 import { getTfRuntime, runExclusive, type Tf } from "./tf-runtime";
 
@@ -42,8 +42,7 @@ let loaded: Promise<LoadedNsfw> | undefined;
 
 /** Directory of nsfwjs' bundled model files (not reachable through its `exports` map). */
 export function nsfwModelDir(): string {
-  // nsfwjs main → <pkg>/dist/cjs/index.js; models live in <pkg>/dist/models/<name>/.
-  return path.join(packageEntryDir("nsfwjs"), "..", "models", NSFW_MODEL_DIR);
+  return path.join(packageDir("nsfwjs"), "dist", "models", NSFW_MODEL_DIR);
 }
 
 async function loadNsfwModel(): Promise<LoadedNsfw> {

@@ -1,0 +1,82 @@
+{
+  "slug": "holi",
+  "name": "Holi",
+  "tagline": "Clouds of color, laughter and spring celebration.",
+  "description": "The festival of colors in full joy: bursts of gulal, color-streaked white kurtas, dhol rhythms, rooftop celebrations, gujiya and thandai and that blissful after-Holi grin. Bright spring sunlight and colors frozen mid-air.",
+  "category": "seasonal",
+  "emoji": "🌈",
+  "tags": [
+    "holi",
+    "festival of colors",
+    "indian",
+    "spring",
+    "colors",
+    "festive",
+    "celebration",
+    "gulal"
+  ],
+  "colors": [
+    "#db2777",
+    "#22c55e"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, muddy colors, face fully covered, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 460,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Color cloud",
+      "prompt": "joyful photo of {subject} laughing as a cloud of pink and yellow color powder bursts around, wearing a white kurta streaked with bright colors, face lightly dusted with gulal, bright spring sunlight, 50mm lens, festival energy, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gulal on cheeks",
+      "prompt": "close portrait of {subject} with soft streaks of green and magenta gulal on the cheeks and forehead, wearing a white cotton kurta, radiant smile, colorful haze behind, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tossing colors",
+      "prompt": "action photo of {subject} tossing a handful of blue color powder into the air mid-laugh, wearing white clothes splashed with color, vivid particles frozen in the sunlight, 35mm lens, fast shutter, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "With friends",
+      "prompt": "candid photo of {subject} in the middle of a group of adult friends celebrating Holi, everyone covered in rainbow colors, laughing, bright daylight, 24mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop Holi",
+      "prompt": "photo of {subject} on a sunlit rooftop during Holi with colored powder drifting in the air, wearing a white kurta covered in color, joyful expression, blue sky, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Plate of colors",
+      "prompt": "portrait of {subject} holding a brass plate of heaped colored powders in pink, yellow, green and blue, wearing a clean white outfit before the celebration, warm smile, soft morning light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Colored water splash",
+      "prompt": "photo of {subject} laughing as colored water splashes in a bright arc, wearing white clothes washed with pink, sparkling droplets in the sun, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dhol dance",
+      "prompt": "photo of {subject} dancing to a dhol drummer in a color-filled street, arms raised, wearing white streaked with color, ecstatic smile, motion blur, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gujiya and thandai",
+      "prompt": "photo of {subject} offering a plate of gujiya sweets and a glass of thandai, face lightly dusted with color, wearing a festive white outfit, warm smile, courtyard with marigolds, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Backlit color glow",
+      "prompt": "portrait of {subject} backlit by the afternoon sun with clouds of orange and pink powder glowing behind, color-streaked face, serene happy expression, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Temple courtyard",
+      "prompt": "photo of {subject} in a temple courtyard during Holi celebrations with color filling the air, wearing a white kurta, joyful expression, warm light, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "After the colors",
+      "prompt": "candid portrait of {subject} sitting on old stone steps after Holi play, covered head to toe in colors and catching a breath with a huge grin, golden late afternoon light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

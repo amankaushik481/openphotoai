@@ -15,7 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type * as TfCore from "@tensorflow/tfjs-core";
 import type * as TfConverter from "@tensorflow/tfjs-converter";
-import { packageEntryDir, requireFromApp } from "./node-require";
+import { packageDir, requireFromApp } from "./node-require";
 
 export type Tf = typeof TfCore;
 export type TfConverterModule = typeof TfConverter;
@@ -44,7 +44,7 @@ async function initRuntime(): Promise<TfRuntime> {
   const wasm = requireFromApp<{ setWasmPaths(prefix: string, usePlatformFetch?: boolean): void }>(
     "@tensorflow/tfjs-backend-wasm",
   );
-  const wasmDir = packageEntryDir("@tensorflow/tfjs-backend-wasm") + path.sep;
+  const wasmDir = path.join(packageDir("@tensorflow/tfjs-backend-wasm"), "dist") + path.sep;
   registerFileModelRouter(tf);
   // setWasmPaths must precede the first backend initialization; repeating it is harmless.
   wasm.setWasmPaths(wasmDir);

@@ -1,0 +1,90 @@
+{
+  "slug": "lunar-new-year",
+  "name": "Lunar New Year",
+  "tagline": "Red lanterns, plum blossoms and good-fortune celebrations.",
+  "description": "Spring Festival portraits in the Chinese New Year tradition: lantern-lined streets, red envelopes, dumpling folding, plum blossoms, lion dances, reunion dinners, temple fairs, tea and mandarin oranges. Silk qipao and Tang-style jackets in lucky red and gold.",
+  "category": "seasonal",
+  "emoji": "🏮",
+  "tags": [
+    "lunar new year",
+    "chinese new year",
+    "spring festival",
+    "red lanterns",
+    "festive",
+    "qipao",
+    "celebration",
+    "new year"
+  ],
+  "colors": [
+    "#dc2626",
+    "#fbbf24"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable characters, text, costume-like outfit, stereotyped styling",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 440,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Lantern street",
+      "prompt": "festive portrait of {subject} on a street hung with hundreds of glowing red lanterns at dusk, wearing a red silk mandarin-collar jacket, joyful smile, warm red and gold light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "festive portrait of {subject} on a street hung with hundreds of glowing red lanterns at dusk, wearing a red silk Tang-style jacket with frog buttons, joyful smile, warm red and gold light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "festive portrait of {subject} on a street hung with hundreds of glowing red lanterns at dusk, wearing an elegant red silk qipao with gold embroidery, joyful smile, warm red and gold light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Red envelope",
+      "prompt": "photo of {subject} holding out a red envelope with gold patterns toward the camera with both hands, wearing festive red attire, warm smile, festive living room with plum blossom branches, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} holding out a red envelope with gold patterns toward the camera with both hands, wearing a burgundy silk Tang-style jacket, warm smile, festive living room with plum blossom branches, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} holding out a red envelope with gold patterns toward the camera with both hands, wearing a red silk qipao-style top, warm smile, festive living room with plum blossom branches, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dumpling folding",
+      "prompt": "candid photo of {subject} folding dumplings at a kitchen table with adult family members softly blurred, wearing a cozy red sweater, laughing, flour-dusted wooden board, warm light, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Plum blossoms",
+      "prompt": "portrait of {subject} among blooming plum blossom branches in a classical garden, wearing a silk jacket with frog buttons, serene smile, soft spring light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} among blooming plum blossom branches in a classical garden, wearing a navy silk jacket with frog buttons, serene smile, soft spring light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} among blooming plum blossom branches in a classical garden, wearing a pale pink silk qipao, serene smile, soft spring light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lion dance",
+      "prompt": "photo of {subject} watching a vibrant lion dance performance in the street, wearing festive red, delighted expression, confetti in the air, drums and a colorful lion costume behind, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Reunion dinner",
+      "prompt": "photo of {subject} at a round reunion dinner table with a lazy Susan full of festive dishes, raising a cup of tea, warm smile, adult relatives softly blurred, warm golden light, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Temple fair",
+      "prompt": "photo of {subject} at a lively temple fair with red decorations and food stalls, holding a candied hawthorn skewer, wearing a festive padded jacket, playful grin, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Riverside fireworks",
+      "prompt": "photo of {subject} on a riverside promenade at night watching fireworks over the water, wearing a red scarf and dark coat, joyful upturned face lit by the bursts, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Red studio",
+      "prompt": "studio portrait of {subject} against a rich red backdrop with hanging golden ornaments, in elegant festive red attire, elegant confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} against a rich red backdrop with hanging golden ornaments, in a black silk Tang-style jacket with gold embroidery, elegant confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} against a rich red backdrop with hanging golden ornaments, in a red velvet qipao with pearl earrings, elegant confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tea and blossoms",
+      "prompt": "portrait of {subject} pouring tea from a porcelain teapot at a wooden table with mandarin oranges and blossoms, wearing a silk jacket, calm gracious smile, soft window light, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mandarin oranges",
+      "prompt": "close portrait of {subject} holding a pair of mandarin oranges with leaves for good fortune, wearing a red sweater, bright smile, festive bokeh of lanterns, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern festival",
+      "prompt": "photo of {subject} at a lantern festival beneath glowing animal-shaped lanterns over a lake, wearing a warm coat, awe-struck smile, colorful reflections, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -15,37 +15,38 @@ Live status of the autonomous build. Updated after every wave.
 ## Wave 1 — foundation
 | Workstream | Owner | Status | Notes |
 |---|---|---|---|
-| platform-core (db scripts, test harness, rate limit, credits ledger) | agent W1-core | 🔄 running | |
-| auth (Better Auth, magic link, Google, sessions, API-key auth, login) | agent W1-auth | 🔄 running | |
-| storage + image processing | agent W1-storage | 🔄 running | |
+| platform-core (db scripts, test harness, rate limit, credits ledger) | agent W1-core | ✅ done | |
+| auth (Better Auth, magic link, Google, sessions, API-key auth, login) | agent W1-auth | ✅ done | |
+| storage + image processing | agent W1-storage | ✅ done | |
 | mock providers + registry | agent W1-providers | 🔄 running | |
-| design system + layouts + shared components | agent W1-ui | 🔄 running | |
-| job engine + media ingestion + generate handler + jobs API + webhooks/cron/worker | agent W1-engine | 🔄 running | |
-| infra (Docker, compose, CI, .env.example, setup scripts) | agent W1-infra | 🔄 running | |
+| design system + layouts + shared components | agent W1-ui | ✅ done | |
+| job engine + media ingestion + generate handler + jobs API + webhooks/cron/worker | agent W1-engine | ✅ done | |
+| infra (Docker, compose, CI, .env.example, setup scripts) | agent W1-infra | ✅ done | |
 
 | safety policy (text filter, consent, age, multi-person, output checks) | agent W1-safety | 🔄 running | |
-| email (React Email templates, Resend + mock, dev mailbox, maintenance cron) | agent W1-email | 🔄 running | |
+| email (React Email templates, Resend + mock, dev mailbox, maintenance cron) | agent W1-email | ✅ done | |
 
 ## Wave 2 — features
 | Workstream | Owner | Status | Notes |
 |---|---|---|---|
-| fal.ai adapter (default real provider) | agent W2-fal | 🔄 running | started early (independent) |
-| Replicate adapter | agent W2-replicate | 🔄 running | started early |
+| fal.ai adapter (default real provider) | agent W2-fal | ✅ done | 115 tests |
+| Replicate adapter | agent W2-replicate | ✅ done | 68 tests |
 | local safety ML providers (human, nsfwjs, Rekognition, OpenAI moderation) | agent W2-safety-ml | 🔄 running | started early |
 | 44+ photo packs + validator + docs | agent W2-packs | 🔄 running | started early |
-| models (upload, quality checker, consent, training, deletion) | — | ⏳ after Wave 1 | |
-| generation UI (create, drafts, prompt helper, batch) | — | ⏳ | |
-| edit / inpaint / pose copy | — | ⏳ | |
-| upscale / restore / remove bg | — | ⏳ | |
-| video + talking video | — | ⏳ | |
-| try-on | — | ⏳ | |
-| multi-person (invites + together photos) | — | ⏳ | |
-| gallery + sharing + reports | — | ⏳ | |
-| billing (Stripe + mock checkout) | — | ⏳ | |
-| admin dashboard | — | ⏳ | |
-| public API + OpenAPI | — | ⏳ | |
-| landing / pricing / FAQ / legal / packs pages | — | ⏳ | |
-| teams + brand kits | — | ⏳ | |
+| models (upload, quality checker, consent, training, deletion) | agent W2-models | 🔄 running | |
+| generation UI (create, drafts, prompt helper, batch) | agent W2-create | 🔄 running | |
+| edit / inpaint / pose copy | agent W2-edit | 🔄 running | |
+| upscale / restore / remove bg | agent W2-enhance | 🔄 running | |
+| video + talking video | agent W2-video | 🔄 running | |
+| try-on | agent W2-tryon | 🔄 running | |
+| multi-person (invites + together photos) | agent W2-together | 🔄 running | |
+| gallery + sharing + reports | agent W2-gallery | 🔄 running | |
+| billing (Stripe + mock checkout) | agent W2-billing | 🔄 running | |
+| admin dashboard | agent W2-admin | 🔄 running | |
+| public API + OpenAPI | agent W2-api | 🔄 running | |
+| landing / pricing / FAQ / legal / packs pages | agent W2-marketing | 🔄 running | |
+| teams + brand kits | agent W2-teams | 🔄 running | |
+| account settings + real deletion + export | agent W2-account | 🔄 running | |
 
 ## Wave 3 — integration · Wave 4 — hardening · Wave 5 — ship
 _Pending._

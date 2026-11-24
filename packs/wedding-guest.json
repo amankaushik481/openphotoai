@@ -1,0 +1,94 @@
+{
+  "slug": "wedding-guest",
+  "name": "Wedding Guest",
+  "tagline": "Dressed up and dancing at garden, vineyard and ballroom weddings.",
+  "description": "Look your best at every kind of wedding: garden ceremonies, vineyard receptions, black-tie ballrooms, beach vows, church steps, cocktail hours, South Asian celebrations and sparkler send-offs. Cocktail, formal and festive attire, plus candid dance-floor joy.",
+  "category": "events",
+  "emoji": "💐",
+  "tags": [
+    "wedding guest",
+    "wedding",
+    "formal",
+    "cocktail attire",
+    "black tie",
+    "garden party",
+    "celebration",
+    "event"
+  ],
+  "colors": [
+    "#be185d",
+    "#fbcfe8"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, wedding dress on subject, bridal veil, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 400,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Garden ceremony",
+      "prompt": "portrait of {subject} as a wedding guest in a lush garden with white floral arches, in elegant cocktail attire, warm smile, soft afternoon light, guests softly blurred, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} as a wedding guest in a lush garden with white floral arches, in a light grey suit with a floral pocket square, warm smile, soft afternoon light, guests softly blurred, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} as a wedding guest in a lush garden with white floral arches, in a flowing sage green midi dress, warm smile, soft afternoon light, guests softly blurred, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vineyard reception",
+      "prompt": "photo of {subject} at a vineyard wedding reception at golden hour, raising a glass of wine, in summer wedding attire, laughing, long tables with candles and greenery, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} at a vineyard wedding reception at golden hour, raising a glass of wine, in a beige linen suit, laughing, long tables with candles and greenery, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} at a vineyard wedding reception at golden hour, raising a glass of wine, in a terracotta satin midi dress, laughing, long tables with candles and greenery, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ballroom black tie",
+      "prompt": "portrait of {subject} at a black-tie wedding in a grand ballroom with chandeliers, in black-tie attire, poised smile, warm glowing light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a black-tie wedding in a grand ballroom with chandeliers, in a classic black tuxedo, poised smile, warm glowing light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a black-tie wedding in a grand ballroom with chandeliers, in a floor-length navy satin gown, poised smile, warm glowing light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dance floor",
+      "prompt": "candid photo of {subject} dancing at a wedding reception mid-twirl with a big laugh, wearing dressy attire, warm string lights and motion blur, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Champagne tower",
+      "prompt": "photo of {subject} beside a sparkling champagne tower at a wedding reception, in formal attire, delighted expression, warm candle bokeh, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} beside a sparkling champagne tower at a wedding reception, in a midnight blue suit and silk tie, delighted expression, warm candle bokeh, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} beside a sparkling champagne tower at a wedding reception, in a champagne-colored satin gown, delighted expression, warm candle bokeh, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach wedding",
+      "prompt": "photo of {subject} as a guest at a beach wedding at sunset, wearing breezy formal linen, standing beside a floral aisle on the sand, warm smile, golden light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Church steps",
+      "prompt": "photo of {subject} on the stone steps of a historic church with flower petals drifting through the air, in smart wedding attire, joyful expression, bright daylight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on the stone steps of a historic church with flower petals drifting through the air, in a navy suit with a boutonniere, joyful expression, bright daylight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on the stone steps of a historic church with flower petals drifting through the air, in a floral midi dress and a small fascinator, joyful expression, bright daylight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cocktail hour",
+      "prompt": "photo of {subject} during cocktail hour on a terrace with string lights, holding a cocktail, wearing elegant attire, chatting with a warm smile, guests softly blurred, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Barn wedding plus-one",
+      "prompt": "photo of {subject} posing with a plus-one whose face is softly out of focus at a rustic barn wedding with fairy lights, wearing smart attire, happy smile, warm light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "The toast",
+      "prompt": "photo of {subject} giving a wedding toast with a microphone and a raised glass, wearing tailored formal attire, emotional happy expression, warm reception lights, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "South Asian wedding",
+      "prompt": "portrait of {subject} as a guest at a vibrant South Asian wedding with marigold decor, in festive embroidered attire, joyful smile, warm festive light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} as a guest at a vibrant South Asian wedding with marigold decor, in a pastel embroidered sherwani, joyful smile, warm festive light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} as a guest at a vibrant South Asian wedding with marigold decor, in an embroidered pastel lehenga, joyful smile, warm festive light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sparkler send-off",
+      "prompt": "photo of {subject} holding a sparkler during a nighttime wedding send-off, warm sparkler glow on the face, wearing dressy attire, joyful laugh, bokeh of sparklers, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

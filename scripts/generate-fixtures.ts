@@ -84,7 +84,7 @@ async function findSelfie(spec: SelfieSpec, acceptedHashes: string[]) {
     const marker = await decodeMarker(bytes);
     if (!marker) throw new Error(`${spec.name}: marker did not decode`);
 
-    if (!spec.blur && (await metrics(bytes)).sharpness < MIN_SHARPNESS) continue;
+    if (!spec.blur && !spec.brightness && (await metrics(bytes)).sharpness < MIN_SHARPNESS) continue;
     let pose: { yaw: number; pitch: number } | undefined;
     if (spec.pose) {
       pose = await stablePose(bytes, spec.pose);

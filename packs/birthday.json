@@ -1,0 +1,86 @@
+{
+  "slug": "birthday",
+  "name": "Birthday Celebration",
+  "tagline": "Candles, confetti and your best year yet.",
+  "description": "Celebrate another trip around the sun: birthday candles, confetti showers, balloon garlands, rooftop dinners, picnics, disco balls, champagne sprays, surprise parties and a milestone bouquet. Fun, flattering and ready for the birthday post.",
+  "category": "events",
+  "emoji": "🎂",
+  "tags": [
+    "birthday",
+    "celebration",
+    "party",
+    "cake",
+    "confetti",
+    "balloons",
+    "milestone",
+    "friends"
+  ],
+  "colors": [
+    "#ec4899",
+    "#a855f7"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text, numbers on balloons, letters on banners",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 420,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Birthday candles",
+      "prompt": "photo of {subject} smiling over the glowing candles of a frosted birthday cake, warm candlelight on the face, cozy room with fairy lights, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Confetti shower",
+      "prompt": "photo of {subject} laughing as gold confetti rains down, wearing a sparkly party outfit, pastel balloon garland behind, bright flash and warm ambient light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Balloon garland",
+      "prompt": "portrait of {subject} in front of a lush balloon garland in blush, gold and white, wearing a stylish party outfit, joyful pose, soft studio light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} in front of a lush balloon garland in blush, gold and white, wearing a velvet blazer over a black tee, joyful pose, soft studio light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} in front of a lush balloon garland in blush, gold and white, wearing a sequined party dress, joyful pose, soft studio light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop dinner",
+      "prompt": "photo of {subject} at a rooftop birthday dinner at sunset, raising a glass in a toast, wearing a smart outfit, friends softly blurred, string lights, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Frosting on the nose",
+      "prompt": "candid photo of {subject} laughing with a dab of frosting on the nose, holding a slice of birthday cake and wearing a party hat, warm home lighting, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Birthday picnic",
+      "prompt": "photo of {subject} at a birthday picnic in a park with a small cake, flowers and a vintage blanket, wearing a summery outfit, laughing, golden hour, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Disco ball",
+      "prompt": "photo of {subject} dancing under a glittering disco ball at a birthday party, wearing a metallic jacket, euphoric expression, colorful flecks of light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Champagne spray",
+      "prompt": "photo of {subject} spraying champagne at a birthday celebration, wearing a festive outfit, ecstatic laugh, sparkling droplets in the light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Surprise party",
+      "prompt": "candid photo of {subject} walking into a surprise birthday party with a delighted open-mouthed expression, streamers and cheering friends softly blurred, 24mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Candlelit dinner",
+      "prompt": "portrait of {subject} at an elegant candlelit birthday dinner with a single slice of cake and a candle, wearing elegant evening attire, warm glowing smile, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at an elegant candlelit birthday dinner with a single slice of cake and a candle, wearing a tailored dark suit with an open collar, warm glowing smile, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at an elegant candlelit birthday dinner with a single slice of cake and a candle, wearing a silk midi dress and gold earrings, warm glowing smile, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Milestone bouquet",
+      "prompt": "portrait of {subject} celebrating a milestone birthday with a giant bouquet of flowers and gold balloons in a bright apartment, wearing a chic outfit, radiant smile, soft daylight, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Opening gifts",
+      "prompt": "candid photo of {subject} opening a beautifully wrapped birthday present with tissue paper flying, wearing a cozy sweater, delighted laugh, warm living room light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

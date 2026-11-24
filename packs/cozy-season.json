@@ -1,0 +1,86 @@
+{
+  "slug": "cozy-season",
+  "name": "Cozy Fall & Winter",
+  "tagline": "Knits, falling leaves, first snow and warm mugs.",
+  "description": "Sweater-weather portraits from first leaves to deep winter: park paths of gold and red, rainy window seats, apple orchards, cabin fireplaces, snowy forests, pumpkin stands, fresh bread, snowballs and misty lake mornings. Warm, soft and endlessly cozy.",
+  "category": "seasonal",
+  "emoji": "🍂",
+  "tags": [
+    "cozy",
+    "autumn",
+    "fall",
+    "winter",
+    "sweater weather",
+    "hygge",
+    "snow",
+    "seasonal"
+  ],
+  "colors": [
+    "#9a3412",
+    "#fed7aa"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, fake-looking snow, oversaturated leaves, harsh flash",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 320,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Falling leaves",
+      "prompt": "photo of {subject} walking a park path covered in golden and red autumn leaves, wearing a chunky knit sweater and a wool scarf, leaves drifting in the air, warm smile, soft afternoon light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy window seat",
+      "prompt": "cozy photo of {subject} curled up on a window seat wrapped in a plaid wool blanket with a steaming mug of tea, rain on the window, soft grey light and warm lamp glow, gentle smile, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Apple orchard",
+      "prompt": "photo of {subject} picking apples in an autumn orchard with a wicker basket, wearing a flannel shirt and a quilted vest, laughing, warm golden light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cabin fireplace",
+      "prompt": "photo of {subject} by a stone fireplace in a log cabin, wearing a fisherman sweater and thick wool socks, reading a book with a mug beside, warm firelight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy forest walk",
+      "prompt": "photo of {subject} on a snowy forest path in soft snowfall, wearing a long puffer coat, a knit beanie and mittens, rosy cheeks and a big smile, cool blue light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pumpkin stand",
+      "prompt": "photo of {subject} at a farm stand surrounded by heirloom pumpkins and hay bales, wearing a camel coat and a knit beanie, holding a small pumpkin, cheerful expression, golden afternoon, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fresh bread",
+      "prompt": "photo of {subject} in a warm kitchen lifting a loaf of fresh bread from the oven with oven mitts, wearing a cozy cardigan, satisfied smile, steam and soft window light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Spiced latte",
+      "prompt": "portrait of {subject} at an outdoor café table in autumn wrapped in an oversized wool scarf, holding a spiced latte, leaves on the ground, soft smile, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy autumn street",
+      "prompt": "photo of {subject} under a clear umbrella on a rainy autumn street with colorful leaves on the wet pavement, wearing a trench coat and rain boots, gentle smile, soft overcast light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowball",
+      "prompt": "candid photo of {subject} laughing while packing a snowball in a snowy backyard, wearing a puffer jacket and a knit hat, snow sparkling in the sun, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Porch cocoa",
+      "prompt": "photo of {subject} on a porch at dusk with a steaming mug of hot cocoa, wrapped in a shearling-lined jacket as the first snowflakes fall, warm window light, content smile, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Knitting by the lamp",
+      "prompt": "photo of {subject} knitting a chunky scarf on a sofa with a cat asleep beside, wearing a soft turtleneck, peaceful smile, warm lamp light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Misty lake morning",
+      "prompt": "portrait of {subject} on a foggy autumn morning by a lake with mist rising, wearing a waxed jacket and a knit beanie, holding a thermos cup, serene expression, soft diffused light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -7,6 +7,7 @@
  * path that does not exist at runtime (Vercel builds in /vercel/path0 but runs in /var/task),
  * resolution falls back to `process.cwd()`.
  */
+import { existsSync, realpathSync } from "node:fs";
 import * as nodeModule from "node:module";
 import path from "node:path";
 
@@ -74,9 +75,17 @@ export function requireUncached<T>(absPath: string): T {
 }
 
 /**
- * Directory of the file a package's `main` entry resolves to. Used to reach files that the
- * package's `exports` map does not expose (human's dist builds, nsfwjs model bundles).
+ * Root directory of an installed package (realpath), found through Node's own lookup paths.
+ * Unlike `require.resolve(pkg)` this needs only `<pkg>/package.json`, not the package's main
+ * entry: human's main is the tfjs-node build and nsfwjs's main is never used, so neither has
+ * to ship in a traced serverless bundle. Used to reach files outside a package's `exports`.
  */
-export function packageEntryDir(pkg: string): string {
-  return path.dirname(resolveFromApp(pkg));
+export function packageDir(pkg: string): string {
+  for (const req of bases()) {
+    for (const dir of req.resolve.paths(pkg) ?? []) {
+      const candidate = path.join(dir, pkg);
+      if (existsSync(path.join(candidate, "package.json"))) return realpathSync(candidate);
+    }
+  }
+  throw new Error(`safety: package "${pkg}" is not installed (looked from the app root)`);
 }

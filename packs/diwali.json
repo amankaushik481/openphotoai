@@ -1,0 +1,96 @@
+{
+  "slug": "diwali",
+  "name": "Diwali",
+  "tagline": "Diyas, rangoli and marigolds in festive finery.",
+  "description": "Celebrate the festival of lights: glowing diyas, rangoli at the doorstep, marigold torans, sparklers on the rooftop, mithai platters, puja thalis and fireworks over the city. Silk sarees, lehengas, kurtas and bandhgalas styled with care and warm, golden candlelight.",
+  "category": "seasonal",
+  "emoji": "🪔",
+  "tags": [
+    "diwali",
+    "deepavali",
+    "festival of lights",
+    "indian",
+    "festive",
+    "diya",
+    "rangoli",
+    "celebration"
+  ],
+  "colors": [
+    "#ea580c",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, garish colors, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 430,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Diya glow",
+      "prompt": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing festive embroidered traditional attire, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing an embroidered silk kurta in deep maroon, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "festive portrait of {subject} holding a lit clay diya close to the chest, wearing a rich silk saree in magenta and gold with jhumka earrings, warm candlelight glowing on the face, rows of diyas and marigold garlands softly blurred behind, gentle joyful smile, 85mm lens at f/1.8, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rangoli at the door",
+      "prompt": "photo of {subject} kneeling beside a vibrant rangoli of colored powder and flower petals at a doorstep, wearing festive traditional attire, adding the final touch, proud happy expression, warm evening light and diyas, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} kneeling beside a vibrant rangoli of colored powder and flower petals at a doorstep, wearing a mustard silk kurta and white churidar, adding the final touch, proud happy expression, warm evening light and diyas, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} kneeling beside a vibrant rangoli of colored powder and flower petals at a doorstep, wearing a teal anarkali suit with a gold-bordered dupatta, adding the final touch, proud happy expression, warm evening light and diyas, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Marigold doorway",
+      "prompt": "portrait of {subject} standing in a doorway decorated with marigold and mango-leaf torans, in elegant festive attire, warm welcoming smile, string lights and diyas glowing, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} standing in a doorway decorated with marigold and mango-leaf torans, in an ivory embroidered sherwani, warm welcoming smile, string lights and diyas glowing, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} standing in a doorway decorated with marigold and mango-leaf torans, in an emerald green lehenga with gold embroidery, warm welcoming smile, string lights and diyas glowing, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop sparklers",
+      "prompt": "photo of {subject} holding a crackling sparkler at night on a rooftop terrace, bright sparks trailing, wearing a festive kurta-style outfit, delighted laugh, fireworks blooming in the distant sky, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} holding a crackling sparkler at night on a rooftop terrace, bright sparks trailing, wearing a navy silk kurta with a printed Nehru jacket, delighted laugh, fireworks blooming in the distant sky, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} holding a crackling sparkler at night on a rooftop terrace, bright sparks trailing, wearing a red silk saree with a gold border, delighted laugh, fireworks blooming in the distant sky, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mithai platter",
+      "prompt": "photo of {subject} offering a brass platter of colorful mithai sweets toward the camera, wearing festive traditional attire, warm smile, living room glowing with fairy lights and diyas, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern balcony",
+      "prompt": "portrait of {subject} on a balcony hung with glowing paper lanterns at dusk, wearing festive traditional attire, serene smile, city lights twinkling behind, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Puja thali",
+      "prompt": "portrait of {subject} holding a decorated puja thali with a lit diya, flowers and kumkum, wearing traditional festive attire, peaceful devotional expression, soft warm light in a home shrine decorated with marigolds, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} holding a decorated puja thali with a lit diya, flowers and kumkum, wearing a cream silk kurta, peaceful devotional expression, soft warm light in a home shrine decorated with marigolds, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} holding a decorated puja thali with a lit diya, flowers and kumkum, wearing a gold and maroon silk saree, peaceful devotional expression, soft warm light in a home shrine decorated with marigolds, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Festive dinner",
+      "prompt": "candid photo of {subject} laughing with adult relatives softly blurred around a festive dinner table filled with traditional dishes, wearing festive attire, warm golden light, diyas on the table, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fairy light bokeh",
+      "prompt": "close portrait of {subject} framed by out-of-focus golden fairy lights, wearing an embroidered festive outfit, soft warm glow, joyful eyes, 85mm lens at f/1.4, dreamy bokeh, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Floating diyas",
+      "prompt": "photo of {subject} placing a floating diya in a pool of water scattered with flower petals, wearing traditional festive attire, reflective smile, candlelight reflections, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} placing a floating diya in a pool of water scattered with flower petals, wearing a white kurta with a silk shawl, reflective smile, candlelight reflections, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} placing a floating diya in a pool of water scattered with flower petals, wearing a pastel pink lehenga, reflective smile, candlelight reflections, 50mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Maroon studio",
+      "prompt": "studio portrait of {subject} against a deep maroon backdrop with hanging marigold strings, in rich festive attire, regal confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} against a deep maroon backdrop with hanging marigold strings, in a black bandhgala jacket with gold buttons, regal confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} against a deep maroon backdrop with hanging marigold strings, in a royal blue silk saree with statement gold jewelry, regal confident expression, warm key light, 85mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "City fireworks",
+      "prompt": "photo of {subject} on a rooftop watching fireworks burst over the city skyline, wearing festive attire, face lit warmly, joyful expression, long-exposure light trails, 35mm lens, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "slug": "graduation",
+  "name": "Graduation",
+  "tagline": "Cap, gown and the proudest smile on campus.",
+  "description": "University and postgraduate commencement photos: campus lawns, cap tosses, library steps, stoles and honor cords, sunflower bouquets, the walk across the stage, a celebratory pop of bubbly and doctoral regalia. Bright, proud and frame-worthy.",
+  "category": "events",
+  "emoji": "🎓",
+  "tags": [
+    "graduation",
+    "commencement",
+    "cap and gown",
+    "university",
+    "grad photos",
+    "diploma",
+    "masters",
+    "phd"
+  ],
+  "colors": [
+    "#1e3a8a",
+    "#facc15"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable text on banners, readable diploma text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 410,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Campus lawn",
+      "prompt": "university graduation portrait of {subject} in a black cap and gown on a sunny campus lawn with historic buildings, holding a rolled diploma tied with ribbon, proud beaming smile, soft golden light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cap toss",
+      "prompt": "photo of {subject} tossing a graduation cap high into a blue sky, wearing a black gown, joyful laugh, fellow graduates softly blurred, bright sunlight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Library steps",
+      "prompt": "portrait of {subject} sitting on the grand stone steps of a university library in a cap and gown with the diploma in the lap, confident smile, afternoon light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Stole and cords",
+      "prompt": "close portrait of {subject} in a graduation gown with a colorful stole and honor cords, cap slightly tilted, proud expression, campus greenery bokeh, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sunflower bouquet",
+      "prompt": "photo of {subject} in a cap and gown holding a bouquet of sunflowers, laughing, the campus clock tower behind, golden hour, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Diploma raised",
+      "prompt": "photo of {subject} on a commencement stage in a cap and gown raising the diploma triumphantly, stage lights and plain banners behind, 70-200mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bubbly celebration",
+      "prompt": "celebratory photo of {subject} in a graduation gown popping a bottle of sparkling wine with spray in the air, laughing, campus lawn, bright light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Proud family",
+      "prompt": "candid photo of {subject} in a cap and gown being hugged by proud adult family members softly blurred, happy tears, warm sunlight, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Doctoral regalia",
+      "prompt": "formal portrait of {subject} in doctoral regalia with a velvet tam and a colored hood, standing in a wood-paneled hall, dignified proud smile, warm light, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gothic archway",
+      "prompt": "portrait of {subject} in a cap and gown framed by a gothic stone archway on campus, looking back over one shoulder with a smile, soft light, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Golden field",
+      "prompt": "golden hour portrait of {subject} in a graduation gown on an open campus field, cap in hand, hair in the breeze, warm backlight, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lab to gown",
+      "prompt": "portrait of {subject} in a graduation gown standing in a university laboratory where the research happened, proud quiet smile, cool lab light with a warm key, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

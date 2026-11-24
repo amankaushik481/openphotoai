@@ -1,0 +1,86 @@
+{
+  "slug": "halloween-costumes",
+  "name": "Halloween Costumes",
+  "tagline": "Classic, clever and spooky costumes, all in good fun.",
+  "description": "Twelve-plus costume ideas without buying a single costume: gothic vampire, storybook witch, scarecrow, astronaut, wizard, pirate captain, mad scientist, haunted Victorian, classic monster, jazz-age detective, woodland fairy-tale and old-west cowboy. Spooky fun, never gruesome, with your face always visible.",
+  "category": "seasonal",
+  "emoji": "🎃",
+  "tags": [
+    "halloween",
+    "costume",
+    "spooky",
+    "october",
+    "pumpkin",
+    "costume party",
+    "witch",
+    "vampire"
+  ],
+  "colors": [
+    "#ea580c",
+    "#581c87"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, gore, blood, mask covering face, cheap plastic costume, revealing costume, weapons",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 470,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Gothic vampire",
+      "prompt": "Halloween costume portrait of {subject} as an elegant gothic vampire in a high-collared black velvet cape with crimson lining and a Victorian waistcoat, candlelit castle hallway, mysterious half smile, moody warm light, 85mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Storybook witch",
+      "prompt": "Halloween portrait of {subject} as a storybook witch in a tall pointed hat and a long black hooded cloak, holding a glowing lantern in a misty autumn forest, playful mischievous smile, 50mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pumpkin patch scarecrow",
+      "prompt": "photo of {subject} in a cozy scarecrow costume with a straw hat, patched flannel and painted rosy cheeks, sitting on a hay bale in a pumpkin patch, cheerful grin, golden afternoon light, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Astronaut",
+      "prompt": "Halloween costume photo of {subject} in a detailed white astronaut suit with no agency patches, helmet tucked under one arm, at a costume party lit with blue and purple lights, proud grin, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wise wizard",
+      "prompt": "Halloween portrait of {subject} as a wise wizard in flowing star-embroidered blue robes and a tall pointed hat, holding a gnarled wooden staff with a glowing crystal, foggy candlelit library, knowing smile, 50mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pirate captain",
+      "prompt": "Halloween costume portrait of {subject} as a pirate captain in a tricorn hat, a long brocade coat and a white linen shirt, holding a brass spyglass on the deck of an old ship replica, adventurous grin, warm lantern light, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mad scientist",
+      "prompt": "Halloween costume photo of {subject} as a mad scientist in a lab coat with brass goggles on the forehead, surrounded by bubbling colorful flasks and sparking coils, theatrical grin, green and purple light, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Haunted mansion",
+      "prompt": "Halloween photo of {subject} as a ghostly Victorian aristocrat in a pale grey period costume, standing on the staircase of a cobwebbed haunted mansion, eerie candlelight, playful spooky expression, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Classic monster",
+      "prompt": "Halloween costume photo of {subject} as a classic stitched-together laboratory monster with a flat-top wig, neck bolts and a tattered dark suit, lightning flashing through a castle window, comic scowl, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Jazz-age detective",
+      "prompt": "candid photo of {subject} at a lively Halloween costume party dressed as a 1920s jazz-age detective in a trench coat and fedora, laughing with costumed adult guests softly blurred, orange and purple lights, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Jack-o'-lantern carving",
+      "prompt": "photo of {subject} carving a jack-o'-lantern at a kitchen table, wearing a cozy orange sweater and a witch hat, candlelit carved pumpkins glowing, playful grin, warm light, 50mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Woodland fairy tale",
+      "prompt": "Halloween costume portrait of {subject} as a woodland fairy-tale character in a moss-green hooded cloak embroidered with leaves and a crown of autumn leaves, enchanted foggy forest, soft magical light, 85mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Old-west cowboy",
+      "prompt": "Halloween costume photo of {subject} as an old-west cowboy in a suede fringed jacket, a felt hat and boots, leaning on a wooden fence at a ranch costume party with string lights, easy grin, 35mm lens, playful costume photography, face clearly visible, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

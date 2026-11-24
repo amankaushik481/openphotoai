@@ -1,0 +1,92 @@
+{
+  "slug": "eid",
+  "name": "Eid Celebration",
+  "tagline": "Elegant festive attire, lantern light and shared feasts.",
+  "description": "Eid al-Fitr and Eid al-Adha portraits: brass lanterns, mosque courtyards in morning light, festive tables of dates and sweets, the crescent moon at dusk, evening bazaars, gift giving and garden gatherings. Elegant, modest festive attire styled with respect.",
+  "category": "seasonal",
+  "emoji": "🌙",
+  "tags": [
+    "eid",
+    "eid al fitr",
+    "eid al adha",
+    "eid mubarak",
+    "festive",
+    "modest fashion",
+    "celebration",
+    "ramadan"
+  ],
+  "colors": [
+    "#065f46",
+    "#fcd34d"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, readable text, revealing clothing",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 450,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Brass lantern",
+      "prompt": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing elegant embroidered festive attire, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing an ivory embroidered kurta with a matching waistcoat, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "festive portrait of {subject} holding an ornate brass lantern glowing with warm light, wearing an embroidered emerald kaftan dress with a silk scarf draped over the shoulders, gentle joyful smile, crescent moon decorations and fairy lights softly blurred behind, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mosque courtyard",
+      "prompt": "portrait of {subject} in the sunlit courtyard of a mosque with graceful arches and intricate tilework, wearing crisp white festive attire, peaceful content smile, soft morning light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} in the sunlit courtyard of a mosque with graceful arches and intricate tilework, wearing a crisp white thobe, peaceful content smile, soft morning light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} in the sunlit courtyard of a mosque with graceful arches and intricate tilework, wearing a flowing pastel abaya with delicate embroidery and a matching headscarf, peaceful content smile, soft morning light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Festive table",
+      "prompt": "photo of {subject} at a beautifully set Eid table with dates, biryani, sweets and sheer khurma, wearing elegant festive attire, warm welcoming smile, adult family members softly blurred, golden light, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} at a beautifully set Eid table with dates, biryani, sweets and sheer khurma, wearing a navy embroidered kurta, warm welcoming smile, adult family members softly blurred, golden light, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} at a beautifully set Eid table with dates, biryani, sweets and sheer khurma, wearing a dusty rose embroidered kaftan, warm welcoming smile, adult family members softly blurred, golden light, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dates and coffee",
+      "prompt": "close photo of {subject} offering a plate of dates and a small cup of Arabic coffee toward the camera, wearing elegant festive attire, warm smile, soft lantern light, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Crescent moon",
+      "prompt": "photo of {subject} on a rooftop at dusk looking up at a thin crescent moon in a violet sky, wearing elegant festive attire, hopeful serene expression, city lights below, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Evening bazaar",
+      "prompt": "candid photo of {subject} browsing a lively evening bazaar decorated with lanterns, holding a bag of sweets, wearing festive attire, happy expression, warm string lights, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gift giving",
+      "prompt": "photo of {subject} handing a beautifully wrapped gift box with a satin ribbon to someone just out of frame, wearing festive attire, warm generous smile, living room decorated with crescent lights, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Emerald studio",
+      "prompt": "studio portrait of {subject} against a deep emerald backdrop with hanging golden lanterns, in elegant festive attire, elegant confident expression, warm key light, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} against a deep emerald backdrop with hanging golden lanterns, in a black sherwani with gold buttons, elegant confident expression, warm key light, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} against a deep emerald backdrop with hanging golden lanterns, in an embroidered ivory gown with gold detailing and a silk scarf over the shoulders, elegant confident expression, warm key light, 85mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden gathering",
+      "prompt": "photo of {subject} at an outdoor Eid garden gathering under strings of lanterns, holding a cup of tea, laughing with adult guests softly blurred, golden hour light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Baking ma'amoul",
+      "prompt": "photo of {subject} in a warm kitchen shaping ma'amoul cookies with a carved wooden mold, wearing a festive outfit with sleeves rolled, joyful smile, trays of sweets, soft light, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Carved archway",
+      "prompt": "portrait of {subject} framed in a carved wooden arched doorway with geometric patterns, wearing elegant festive attire, calm confident smile, warm afternoon light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} framed in a carved wooden arched doorway with geometric patterns, wearing a sand-colored embroidered kurta, calm confident smile, warm afternoon light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} framed in a carved wooden arched doorway with geometric patterns, wearing a flowing lilac embroidered kaftan, calm confident smile, warm afternoon light, 50mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern-lit street",
+      "prompt": "photo of {subject} walking through a street decorated with crescent and star lanterns at night, wearing elegant festive attire, warm smile, glowing bokeh, 35mm lens, modest, respectful, authentic festive styling, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

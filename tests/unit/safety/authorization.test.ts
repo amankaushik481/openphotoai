@@ -138,15 +138,21 @@ describe("assertTrainingAllowed", () => {
   });
 
   it("fails closed when a photo can't be re-checked", async () => {
-    const model = await collectingModel();
-    await addPhotos(model, 9);
-    await addPhotos(model, 1, { faceMatchScore: null, ageEstimate: null }); // not in storage
-    expect((await rejection(assertTrainingAllowed(model, { userId: user.id }))).code).toBe("content_blocked");
+    const missing = await collectingModel();
+    await addPhotos(missing, 9);
+    await addPhotos(missing, 1, { faceMatchScore: null, ageEstimate: null }); // not in storage
+    const storageErr = await rejection(assertTrainingAllowed(missing, { userId: user.id }));
+    expect(storageErr.code).toBe("content_blocked");
+    expect(storageErr.details).toMatchObject({ categories: ["moderation_error"] });
 
-    const [photo] = await addPhotos(model, 1, { faceMatchScore: null, ageEstimate: null });
+    const unchecked = await collectingModel();
+    await addPhotos(unchecked, 9);
+    const [photo] = await addPhotos(unchecked, 1, { faceMatchScore: null, ageEstimate: null });
     objects.set(photo!.storageKey, await markedImage({ identity: "alice" }));
     providers.face = brokenFace();
-    expect((await rejection(assertTrainingAllowed(model, { userId: user.id }))).code).toBe("content_blocked");
+    const providerErr = await rejection(assertTrainingAllowed(unchecked, { userId: user.id }));
+    expect(providerErr.code).toBe("content_blocked");
+    expect(providerErr.details).toEqual({ categories: ["moderation_error"], photoIds: [photo!.id] });
   });
 
   it("refuses to train another user's model", async () => {

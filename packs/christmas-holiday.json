@@ -1,0 +1,90 @@
+{
+  "slug": "christmas-holiday",
+  "name": "Christmas & Holidays",
+  "tagline": "Cozy sweaters, twinkling trees and holiday-card magic.",
+  "description": "Everything for your holiday card and December posts: the decorated tree, fireside cocoa, a snowy porch with a wreath, Christmas markets, festive sweaters, gift wrapping, cookie baking, candlelit dinners and ice skating under the lights. Warm, twinkly and genuinely cozy.",
+  "category": "seasonal",
+  "emoji": "🎄",
+  "tags": [
+    "christmas",
+    "holiday",
+    "holiday card",
+    "winter",
+    "festive",
+    "cozy",
+    "xmas",
+    "december"
+  ],
+  "colors": [
+    "#b91c1c",
+    "#15803d"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, fake-looking snow, plastic tree, readable text, cluttered room",
+  "featured": true,
+  "isNew": false,
+  "sortOrder": 80,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Tree glow",
+      "prompt": "festive portrait of {subject} beside a beautifully decorated Christmas tree with warm white lights, wearing a cozy cream cable-knit sweater and holding a wrapped gift, warm genuine smile, soft bokeh of ornaments, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Fireside cocoa",
+      "prompt": "photo of {subject} by a crackling fireplace with stockings hanging on the mantel, holding a mug of hot cocoa with marshmallows, wearing a red knit sweater, cozy content smile, warm firelight, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Holiday card porch",
+      "prompt": "holiday-card portrait of {subject} on a snowy porch with a wreath on the door and glowing lanterns, wearing a wool coat and a plaid scarf, warm cheerful smile, gentle snowfall, 50mm lens, card-ready composition, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "holiday-card portrait of {subject} on a snowy porch with a wreath on the door and glowing lanterns, wearing a camel wool coat and a red plaid scarf, warm cheerful smile, gentle snowfall, 50mm lens, card-ready composition, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "holiday-card portrait of {subject} on a snowy porch with a wreath on the door and glowing lanterns, wearing a cream wool coat and a red plaid scarf, warm cheerful smile, gentle snowfall, 50mm lens, card-ready composition, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Christmas market",
+      "prompt": "candid photo of {subject} at a twinkling European Christmas market with wooden stalls, holding a mug of mulled wine, wearing a wool coat and knit beanie, laughing, warm string lights in the snow, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Festive sweater party",
+      "prompt": "candid photo of {subject} at a holiday party wearing a playful festive knit sweater with a reindeer pattern, laughing, warm string lights and tinsel, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy shopping street",
+      "prompt": "photo of {subject} walking down a snowy street lined with festive lights and decorated shop windows at dusk, wearing a long coat and scarf, catching snowflakes, joyful expression, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Wrapping gifts",
+      "prompt": "photo of {subject} wrapping presents in kraft paper and red ribbon at a wooden table, wearing a cozy sweater, playful smile, warm lamp light and pine branches, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gingerbread baking",
+      "prompt": "photo of {subject} in a warm kitchen decorating gingerbread cookies with a light dusting of flour, wearing a festive apron over a sweater, laughing, warm light, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Holiday dinner toast",
+      "prompt": "photo of {subject} raising a glass at a candlelit holiday dinner table with garlands and gold ornaments, wearing elegant holiday attire, warm smile, guests softly blurred, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} raising a glass at a candlelit holiday dinner table with garlands and gold ornaments, wearing a deep green velvet blazer, warm smile, guests softly blurred, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} raising a glass at a candlelit holiday dinner table with garlands and gold ornaments, wearing a deep red velvet dress, warm smile, guests softly blurred, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Santa hat",
+      "prompt": "playful portrait of {subject} in a classic red Santa hat and a cozy sweater, sitting by the tree with twinkling lights, big laugh, warm bokeh, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ice skating",
+      "prompt": "photo of {subject} ice skating on an outdoor rink beneath a giant lit Christmas tree, wearing a puffer jacket, mittens and a knit hat, joyful glide, festive lights, 50mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy cabin",
+      "prompt": "photo of {subject} on the porch of a snow-covered log cabin decorated with lights, wrapped in a plaid blanket with a steaming mug, peaceful smile, blue hour, 35mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Frosty window",
+      "prompt": "close portrait of {subject} by a frosty window with warm Christmas lights reflected in the glass, wearing a chunky knit turtleneck, soft dreamy smile, 85mm lens, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ import {
   type LabeledEmbedding,
 } from "../src/providers/safety/face-calibration";
 import { createLocalFaceProvider, LOCAL_FACE_MATCH_THRESHOLD } from "../src/providers/safety/local-face";
-import { packageEntryDir } from "../src/providers/safety/node-require";
+import { packageDir } from "../src/providers/safety/node-require";
 
 const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
@@ -75,7 +75,7 @@ async function loadFolder(dir: string): Promise<Sample[]> {
  * with others and is skipped.
  */
 async function loadHumanSamples(): Promise<Sample[]> {
-  const file = path.join(path.dirname(packageEntryDir("@vladmandic/human")), "assets", "screenshot-facematch.jpg");
+  const file = path.join(packageDir("@vladmandic/human"), "assets", "screenshot-facematch.jpg");
   const rowsY = [283, 395, 508, 620, 732, 845];
   const rowH = 107;
   const colW = 1920 / 18;

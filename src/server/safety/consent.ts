@@ -72,7 +72,7 @@ export async function verifyConsentSelfie(
   }
   if (figure?.isPublicFigure) {
     await recordBlock("public_figure", ctx, { ...base, stage: "consent", name: figure.name ?? null });
-    return fail("public_figure", errors.contentBlocked(MESSAGES.publicFigure, { categories: ["public_figure"] }));
+    throw errors.contentBlocked(MESSAGES.publicFigure, { categories: ["public_figure"] });
   }
 
   return { embedding: l2normalize(face.embedding), face: summarizeFaces(faces), age: face.age };

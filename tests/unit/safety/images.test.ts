@@ -216,7 +216,8 @@ describe("verifyConsentSelfie", () => {
   it("refuses sexual selfies and public figures", async () => {
     expect((await rejection(verifyConsentSelfie(await markedImage({ nsfw: true }), ctx()))).code).toBe("content_blocked");
     expect((await rejection(verifyConsentSelfie(await markedImage({ publicFigure: true }), ctx()))).code).toBe("content_blocked");
-    expect(await eventsOf(user.id, "consent_failed")).toHaveLength(2);
+    // One event per block, using the most specific kind.
+    expect(await eventsOf(user.id, "consent_failed")).toHaveLength(1);
     expect(await eventsOf(user.id, "public_figure")).toHaveLength(1);
   });
 

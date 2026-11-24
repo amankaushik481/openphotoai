@@ -12,7 +12,7 @@ import type { Config, FaceResult, Human } from "@vladmandic/human";
 import type { DetectedFace, FaceProvider } from "../types";
 import { l2Normalize, radToDeg, round } from "./face-math";
 import { decodeRgb } from "./image-decode";
-import { packageEntryDir, requireFromApp } from "./node-require";
+import { packageDir, requireFromApp } from "./node-require";
 import { allowModelDir, getTfRuntime, registerFileModelRouter, runExclusive, type Tf } from "./tf-runtime";
 
 /**
@@ -87,14 +87,15 @@ function humanConfig(wasmDir: string, modelsDir: string): Partial<Config> {
 async function loadHuman(): Promise<LoadedHuman> {
   const { tf, wasmDir } = await getTfRuntime();
   // human's package "exports" keys lack "./", so the wasm build cannot be imported by subpath:
-  // resolve the main entry and load the sibling file by absolute path (docs/MODELS.md §C.1).
-  const humanDist = packageEntryDir("@vladmandic/human");
-  const modelsDir = path.join(path.dirname(humanDist), "models");
+  // locate the package and load the file by absolute path (docs/MODELS.md §C.1).
+  const humanRoot = packageDir("@vladmandic/human");
+  const modelsDir = path.join(humanRoot, "models");
   allowModelDir(modelsDir);
-  const { Human: HumanCtor } = requireFromApp<HumanModule>(path.join(humanDist, "human.node-wasm.js"));
+  const { Human: HumanCtor } = requireFromApp<HumanModule>(path.join(humanRoot, "dist", "human.node-wasm.js"));
   const human = new HumanCtor(humanConfig(wasmDir, modelsDir));
   registerFileModelRouter(human.tf as unknown as Tf); // no-op when human shares our tfjs-core
-  await human.load();
+  // Backend checks inside load() must not interleave with inference already running on the engine.
+  await runExclusive(() => human.load());
   const backend = (human.tf as unknown as Tf).getBackend();
   if (backend !== "wasm") throw new Error(`safety: human initialized backend "${backend}" instead of wasm`);
   const missing = REQUIRED_MODELS.filter((m) => !human.models.loaded().includes(m));
