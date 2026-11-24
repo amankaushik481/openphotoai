@@ -14,6 +14,7 @@
 #   SEED_ON_START     run the idempotent seed after migrating (default: same as MIGRATE_ON_START)
 #   DB_WAIT_TIMEOUT   seconds to wait for Postgres (default: 60)
 #   LOOPBACK_FORWARD  "port:host:port[,…]" loopback TCP forwards (docker-compose S3 wiring)
+#   AUTH_SECRET_FILE  where a generated BETTER_AUTH_SECRET is kept (default: /data/.auth-secret)
 set -eu
 
 TOOLS_DIR=/tools
@@ -30,6 +31,12 @@ esac
 
 # Lets the HEALTHCHECK know whether this container serves HTTP.
 printf '%s\n' "$role" > /tmp/openshoot-role
+
+# BETTER_AUTH_SECRET signs sessions. When it is unset (zero-config `docker compose up`) or a published
+# placeholder, use a random secret generated on first start and kept in the data volume, shared by
+# web + worker (docker/auth-secret.mjs). A set, real value is used unchanged.
+BETTER_AUTH_SECRET=$(node "$TOOLS_DIR/docker/auth-secret.mjs")
+export BETTER_AUTH_SECRET
 
 # The command of a package.json script, e.g. "tsx --import ./scripts/preload/… scripts/worker.ts".
 script_command() {

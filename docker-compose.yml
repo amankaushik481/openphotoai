@@ -41,10 +41,9 @@ x-app: &app
       required: false
   environment:
     NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-    # ⚠️  INSECURE DEV DEFAULT. The image runs with NODE_ENV=production, which requires a secret.
-    # When BETTER_AUTH_SECRET is empty in .env this publicly known value is used so `docker compose up`
-    # works out of the box. Set your own (`openssl rand -base64 32`) before exposing the app.
-    BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-INSECURE-docker-compose-dev-secret-set-BETTER_AUTH_SECRET}
+    # BETTER_AUTH_SECRET comes from .env (no default here). When it is empty, the entrypoint generates a
+    # random secret on first start and keeps it in the app-data volume (/data/.auth-secret), shared by
+    # web + worker. Delete that file (or the volume) to rotate it; everyone is signed out.
     DATABASE_URL: postgres://openshoot:${POSTGRES_PASSWORD:-openshoot}@db:5432/openshoot
     STORAGE_DRIVER: s3
     S3_ENDPOINT: http://localhost:${MINIO_PORT:-9000}
@@ -54,9 +53,11 @@ x-app: &app
     S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-openshoot-dev-secret}
     S3_FORCE_PATH_STYLE: "true"
     LOOPBACK_FORWARD: "${MINIO_PORT:-9000}:minio:9000"
-    # Absolute path shared by web + worker if you switch STORAGE_DRIVER to local
-    # (then also mount a volume at /data on both services).
+    # Absolute path shared by web + worker if you switch STORAGE_DRIVER to local (on the app-data volume).
     LOCAL_STORAGE_DIR: /data/storage
+  # Shared by web + worker: the generated auth secret (and local storage, if enabled).
+  volumes:
+    - app-data:/data
 
 services:
   db:
@@ -110,7 +111,9 @@ services:
     <<: *app
     command: ["web"]
     ports:
-      - "3000:3000"
+      # Loopback only by default. To serve other machines, put a TLS reverse proxy in front (set
+      # TRUSTED_PROXY_HOPS=1 in .env) or change this to "3000:3000".
+      - "127.0.0.1:3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -130,3 +133,4 @@ services:
 volumes:
   db-data:
   minio-data:
+  app-data:

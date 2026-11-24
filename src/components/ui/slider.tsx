@@ -59,7 +59,7 @@ function Slider({
           key={index}
           aria-label={thumbLabels?.[index] ?? (ariaLabelledBy ? ariaLabel : (ariaLabel ?? "Value"))}
           aria-labelledby={thumbLabels?.[index] ? undefined : ariaLabelledBy}
-          className="block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+          className="relative block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 disabled:pointer-events-none disabled:opacity-50 pointer-coarse:size-5 pointer-coarse:after:absolute pointer-coarse:after:-inset-3"
         />
       ))}
     </SliderPrimitive.Root>

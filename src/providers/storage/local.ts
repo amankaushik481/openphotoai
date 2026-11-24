@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import type { StorageProvider } from "@/providers/types";
 import { AppError } from "@/server/http";
 import { assertSafeKey, assertSafePrefix, encodeKeyPath } from "./keys";
+import { signingWindow } from "./url-window";
 
 export interface LocalStorageOptions {
   dir: string;
@@ -27,8 +28,7 @@ export interface LocalStorageProvider extends StorageProvider {
   verifySignature(key: string, exp: string | number, sig: string, dl?: string | null): boolean;
 }
 
-export const DEFAULT_SIGNED_URL_TTL_SEC = 3600;
-export const MAX_SIGNED_URL_TTL_SEC = 7 * 24 * 3600;
+export { DEFAULT_SIGNED_URL_TTL_SEC, MAX_SIGNED_URL_TTL_SEC } from "./url-window";
 
 /** Derive a purpose-bound key so the app secret is never used directly for file URLs. */
 function signingKey(secret: string): Buffer {
@@ -179,8 +179,8 @@ export function createLocalStorage(opts: LocalStorageOptions): LocalStorageProvi
 
     async getSignedUrl(key: string, o?: { expiresInSec?: number; downloadName?: string }): Promise<string> {
       assertSafeKey(key);
-      const ttl = Math.min(Math.max(Math.floor(o?.expiresInSec ?? DEFAULT_SIGNED_URL_TTL_SEC), 1), MAX_SIGNED_URL_TTL_SEC);
-      const exp = Math.floor(Date.now() / 1000) + ttl;
+      // Bucketed expiry: the same object gets the same URL for up to an hour (browser-cacheable).
+      const exp = signingWindow(o?.expiresInSec).expiresAtSec;
       const dl = o?.downloadName || null;
       const params = new URLSearchParams({ exp: String(exp), sig: computeSignature(secret, key, exp, dl) });
       if (dl) params.set("dl", dl);

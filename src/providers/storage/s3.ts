@@ -6,6 +6,7 @@ import type { S3Client } from "@aws-sdk/client-s3";
 import type { PutOptions, StorageProvider } from "@/providers/types";
 import { AppError } from "@/server/http";
 import { assertSafeKey, assertSafePrefix, attachmentDisposition } from "./keys";
+import { IMMUTABLE_OBJECT_CACHE_CONTROL, signedObjectCacheControl, signingWindow } from "./url-window";
 
 export interface S3StorageOptions {
   /** Custom endpoint for R2 / MinIO (omit for AWS). */
@@ -19,9 +20,6 @@ export interface S3StorageOptions {
   forcePathStyle: boolean;
 }
 
-const DEFAULT_TTL_SEC = 3600;
-/** SigV4 presigned URLs are valid for at most 7 days. */
-const MAX_TTL_SEC = 7 * 24 * 3600;
 /** DeleteObjects accepts at most 1000 keys per request. */
 const DELETE_BATCH = 1000;
 
@@ -66,7 +64,13 @@ export function createS3Storage(opts: S3StorageOptions): StorageProvider {
       assertSafeKey(key);
       const { s3, client } = await sdk();
       await client.send(
-        new s3.PutObjectCommand({ Bucket, Key: key, Body: body, ContentType: o.contentType, CacheControl: o.cacheControl }),
+        new s3.PutObjectCommand({
+          Bucket,
+          Key: key,
+          Body: body,
+          ContentType: o.contentType,
+          CacheControl: o.cacheControl ?? IMMUTABLE_OBJECT_CACHE_CONTROL,
+        }),
       );
     },
 
