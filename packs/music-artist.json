@@ -1,0 +1,87 @@
+{
+  "slug": "music-artist",
+  "name": "Music Artist",
+  "tagline": "Stage lights, studio sessions and album-cover moods.",
+  "description": "Press and promo photos for musicians, singers and DJs: spotlit stages, club gigs, vocal booths, mixing consoles, grand pianos, DJ booths, backstage calm, record shops, street busking, jazz clubs, festival main stages and a square album-cover frame.",
+  "category": "creative",
+  "emoji": "🎸",
+  "tags": [
+    "music",
+    "musician",
+    "artist",
+    "band",
+    "concert",
+    "recording studio",
+    "album cover",
+    "press photo"
+  ],
+  "colors": [
+    "#be123c",
+    "#1e1b4b"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, logos, readable text, deformed instrument, extra guitar strings, mangled fingers on instrument",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 350,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Spotlight vocals",
+      "prompt": "concert photo of {subject} performing on stage under a dramatic spotlight with colored beams cutting through haze, singing into a microphone on a stand, wearing a leather jacket, crowd silhouettes in the foreground, 70-200mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Club guitar",
+      "prompt": "photo of {subject} playing an electric guitar on a small club stage with eyes on the crowd, wearing a dark shirt, red and blue stage lights, energetic expression, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Vocal booth",
+      "prompt": "photo of {subject} in a recording studio vocal booth wearing studio headphones, singing into a large-diaphragm microphone with a pop filter, soulful expression, warm amber light and acoustic panels, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mixing console",
+      "prompt": "photo of {subject} at a large mixing console in a dim control room, hands on the faders, glancing back at the camera with a smile, glowing meters and warm lamps, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Grand piano",
+      "prompt": "photo of {subject} playing a grand piano in an empty concert hall under a single warm spotlight, wearing an elegant black outfit, serene focused expression, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "DJ booth",
+      "prompt": "photo of {subject} DJing at a club booth with headphones on one ear and hands on the decks, euphoric expression, laser lights and haze, crowd blurred, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Backstage tuning",
+      "prompt": "candid backstage photo of {subject} in a green room before a show tuning a guitar, wearing a denim jacket, calm focused expression, mirror bulbs glowing, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Album cover",
+      "prompt": "album cover-style portrait of {subject} in a dark studio lit by a single red light, wearing a black turtleneck, intense introspective gaze, square composition with negative space, no text, no logos, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "1:1"
+    },
+    {
+      "title": "Record shop",
+      "prompt": "photo of {subject} in a record shop holding a vinyl LP in a plain sleeve, wearing a vintage jacket, warm smile, crates of records, warm light, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Golden hour busking",
+      "prompt": "photo of {subject} busking with an acoustic guitar on a city street corner at golden hour beside an open guitar case, passersby blurred, joyful expression, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Band press photo",
+      "prompt": "band press photo of {subject} in the foreground leaning on a weathered brick wall, wearing all black, cool confident expression, other band members softly blurred behind, overcast light, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Jazz club sax",
+      "prompt": "photo of {subject} playing a saxophone in a hazy jazz club with a small stage and warm amber spotlights, wearing a sharp suit, soulful expression, 85mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Festival main stage",
+      "prompt": "photo of {subject} on a festival main stage at sunset with arms raised to a massive crowd, confetti in the air, wearing a statement jacket, triumphant joy, 24mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

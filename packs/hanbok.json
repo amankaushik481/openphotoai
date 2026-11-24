@@ -1,0 +1,104 @@
+{
+  "slug": "hanbok",
+  "name": "Hanbok",
+  "tagline": "Traditional Korean dress in palaces, gardens and hanok villages.",
+  "description": "Hanbok portraits in the places they belong: Seoul's palace gates, Bukchon's hanok lanes, lotus-pond pavilions, cherry blossoms, autumn temple maples, snowy courtyards, a tea ceremony and a lantern festival, plus a modern hanbok-inspired street look. Accurate jeogori, chima and baji silhouettes.",
+  "category": "fashion",
+  "emoji": "🇰🇷",
+  "tags": [
+    "hanbok",
+    "korean",
+    "traditional dress",
+    "seoul",
+    "palace",
+    "hanok",
+    "heritage",
+    "cultural"
+  ],
+  "colors": [
+    "#db2777",
+    "#60a5fa"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 620,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Palace gate",
+      "prompt": "portrait of {subject} at the gate of Gyeongbokgung Palace with painted eaves, wearing a traditional hanbok in soft pastel colors, gentle smile, clear morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at the gate of Gyeongbokgung Palace with painted eaves, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in soft pastel colors, gentle smile, clear morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at the gate of Gyeongbokgung Palace with painted eaves, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in soft pastel colors, gentle smile, clear morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hanok village lane",
+      "prompt": "photo of {subject} walking a sloping lane of the Bukchon hanok village with tiled roofs, wearing a traditional hanbok in jade green, relaxed smile, soft afternoon light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} walking a sloping lane of the Bukchon hanok village with tiled roofs, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in jade green, relaxed smile, soft afternoon light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} walking a sloping lane of the Bukchon hanok village with tiled roofs, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in jade green, relaxed smile, soft afternoon light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lotus pond pavilion",
+      "prompt": "portrait of {subject} beside a palace lotus pond with a wooden pavilion reflected in the water, wearing a traditional hanbok in ivory and coral, serene expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} beside a palace lotus pond with a wooden pavilion reflected in the water, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in ivory and coral, serene expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} beside a palace lotus pond with a wooden pavilion reflected in the water, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in ivory and coral, serene expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cherry blossoms",
+      "prompt": "portrait of {subject} under blossoming cherry trees in a palace garden, wearing a traditional hanbok in pale pink, joyful smile, petals drifting, soft spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} under blossoming cherry trees in a palace garden, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in pale pink, joyful smile, petals drifting, soft spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} under blossoming cherry trees in a palace garden, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in pale pink, joyful smile, petals drifting, soft spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Temple maples",
+      "prompt": "photo of {subject} on a stone path through fiery autumn maples at a mountain temple, wearing a traditional hanbok in deep red and navy, calm smile, warm light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on a stone path through fiery autumn maples at a mountain temple, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in deep red and navy, calm smile, warm light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on a stone path through fiery autumn maples at a mountain temple, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in deep red and navy, calm smile, warm light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Royal blue studio",
+      "prompt": "studio portrait of {subject} wearing a traditional hanbok in rich royal blue silk, seated on a low wooden bench against a soft cream backdrop, dignified gentle expression, soft window-style light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} wearing a traditional men's hanbok with a jeogori jacket and baji trousers in rich royal blue silk, seated on a low wooden bench against a soft cream backdrop, dignified gentle expression, soft window-style light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} wearing a traditional hanbok with a jeogori jacket and a full chima skirt in rich royal blue silk, seated on a low wooden bench against a soft cream backdrop, dignified gentle expression, soft window-style light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy courtyard",
+      "prompt": "photo of {subject} in a snowy palace courtyard wearing a traditional hanbok in crimson with a warm traditional winter vest, rosy cheeks, gentle smile, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} in a snowy palace courtyard wearing a traditional men's hanbok with a jeogori jacket and baji trousers in crimson with a warm traditional winter vest, rosy cheeks, gentle smile, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} in a snowy palace courtyard wearing a traditional hanbok with a jeogori jacket and a full chima skirt in crimson with a warm traditional winter vest, rosy cheeks, gentle smile, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tea ceremony",
+      "prompt": "portrait of {subject} kneeling at a low table during a traditional tea ceremony in a hanok room with paper screens, wearing a traditional hanbok in soft lavender, graceful calm expression, diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} kneeling at a low table during a traditional tea ceremony in a hanok room with paper screens, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in soft lavender, graceful calm expression, diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} kneeling at a low table during a traditional tea ceremony in a hanok room with paper screens, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in soft lavender, graceful calm expression, diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lantern festival",
+      "prompt": "photo of {subject} at a lantern festival beside a stream at night, wearing a traditional hanbok in pastel tones and holding a small paper lantern, warm glowing smile, colorful reflections, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} at a lantern festival beside a stream at night, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in pastel tones and holding a small paper lantern, warm glowing smile, colorful reflections, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} at a lantern festival beside a stream at night, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in pastel tones and holding a small paper lantern, warm glowing smile, colorful reflections, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "New Year greeting",
+      "prompt": "photo of {subject} wearing a traditional hanbok in bright festive colors, smiling warmly after a respectful New Year bow in a hanok living room, soft daylight, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} wearing a traditional men's hanbok with a jeogori jacket and baji trousers in bright festive colors, smiling warmly after a respectful New Year bow in a hanok living room, soft daylight, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} wearing a traditional hanbok with a jeogori jacket and a full chima skirt in bright festive colors, smiling warmly after a respectful New Year bow in a hanok living room, soft daylight, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden fan",
+      "prompt": "portrait of {subject} in a traditional garden holding a painted folding fan at chest height, wearing a traditional hanbok in mint and white, playful smile, dappled sunlight, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} in a traditional garden holding a painted folding fan at chest height, wearing a traditional men's hanbok with a jeogori jacket and baji trousers in mint and white, playful smile, dappled sunlight, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} in a traditional garden holding a painted folding fan at chest height, wearing a traditional hanbok with a jeogori jacket and a full chima skirt in mint and white, playful smile, dappled sunlight, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Modern hanbok street",
+      "prompt": "street style photo of {subject} in a modern hanbok-inspired outfit with a linen jeogori-style jacket and wide trousers, walking along a Seoul café street, confident smile, soft daylight, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "slug": "kente-heritage",
+  "name": "Kente Heritage",
+  "tagline": "Woven kente and West African elegance, worn with pride.",
+  "description": "Portraits celebrating Ghanaian kente and West African style: handwoven kente drapes and gowns, graduation stoles, festival durbars, modern Accra streets, the weaver's loom, engagement celebrations, Ankara wax prints and regal studio portraits that show every woven thread.",
+  "category": "fashion",
+  "emoji": "🇬🇭",
+  "tags": [
+    "kente",
+    "ghana",
+    "west african",
+    "african fashion",
+    "heritage",
+    "ankara",
+    "cultural",
+    "traditional"
+  ],
+  "colors": [
+    "#ca8a04",
+    "#15803d"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 640,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Terracotta studio",
+      "prompt": "studio portrait of {subject} wearing handwoven kente cloth draped in the traditional style in gold, green and red patterns against a warm terracotta backdrop, regal confident expression, soft directional light revealing the woven texture, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} wearing a handwoven kente cloth draped over one shoulder in the traditional style in gold, green and red patterns against a warm terracotta backdrop, regal confident expression, soft directional light revealing the woven texture, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} wearing a handwoven kente wrap gown with a matching headwrap in gold, green and red patterns against a warm terracotta backdrop, regal confident expression, soft directional light revealing the woven texture, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Kente graduation stole",
+      "prompt": "graduation portrait of {subject} in a black cap and gown with a handwoven kente stole, proud radiant smile, sunny campus lawn, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Festival durbar",
+      "prompt": "photo of {subject} at a vibrant festival durbar with drummers and colorful ceremonial umbrellas, wearing handwoven kente cloth draped in the traditional style, joyful expression, warm afternoon light, 35mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} at a vibrant festival durbar with drummers and colorful ceremonial umbrellas, wearing a handwoven kente cloth draped over one shoulder in the traditional style, joyful expression, warm afternoon light, 35mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} at a vibrant festival durbar with drummers and colorful ceremonial umbrellas, wearing a handwoven kente wrap gown with a matching headwrap, joyful expression, warm afternoon light, 35mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Accra street style",
+      "prompt": "street portrait of {subject} in a modern Accra neighborhood with colorful murals without lettering, wearing a tailored outfit with kente accents, confident smile, bright daylight, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Weaver's loom",
+      "prompt": "portrait of {subject} beside a traditional kente loom where narrow strips of cloth are woven, wearing handwoven kente cloth draped in the traditional style, curious respectful expression, warm natural light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} beside a traditional kente loom where narrow strips of cloth are woven, wearing a handwoven kente cloth draped over one shoulder in the traditional style, curious respectful expression, warm natural light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} beside a traditional kente loom where narrow strips of cloth are woven, wearing a handwoven kente wrap gown with a matching headwrap, curious respectful expression, warm natural light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Engagement celebration",
+      "prompt": "portrait of {subject} at a traditional engagement celebration with coordinated kente fabrics and festive decor, wearing handwoven kente cloth draped in the traditional style with gold jewelry, warm celebratory smile, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at a traditional engagement celebration with coordinated kente fabrics and festive decor, wearing a handwoven kente cloth draped over one shoulder in the traditional style with gold jewelry, warm celebratory smile, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at a traditional engagement celebration with coordinated kente fabrics and festive decor, wearing a handwoven kente wrap gown with a matching headwrap with gold jewelry, warm celebratory smile, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ankara wax print",
+      "prompt": "fashion portrait of {subject} in a tailored Ankara wax-print outfit, bold colorful backdrop, confident pose, crisp studio light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "fashion portrait of {subject} in a tailored Ankara wax-print shirt and trousers, bold colorful backdrop, confident pose, crisp studio light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "fashion portrait of {subject} in a tailored Ankara wax-print gown with a matching headwrap, bold colorful backdrop, confident pose, crisp studio light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Palm beach sunset",
+      "prompt": "portrait of {subject} on a palm-lined beach at sunset, wearing handwoven kente cloth draped in the traditional style, wind lifting the fabric, serene proud expression, golden light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a palm-lined beach at sunset, wearing a handwoven kente cloth draped over one shoulder in the traditional style, wind lifting the fabric, serene proud expression, golden light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a palm-lined beach at sunset, wearing a handwoven kente wrap gown with a matching headwrap, wind lifting the fabric, serene proud expression, golden light, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Gold jewelry close-up",
+      "prompt": "close portrait of {subject} wearing handwoven kente cloth draped in the traditional style with traditional gold jewelry, rich warm studio light, dignified gaze, 100mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "close portrait of {subject} wearing a handwoven kente cloth draped over one shoulder in the traditional style with traditional gold jewelry, rich warm studio light, dignified gaze, 100mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "close portrait of {subject} wearing a handwoven kente wrap gown with a matching headwrap with traditional gold jewelry, rich warm studio light, dignified gaze, 100mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Textile market",
+      "prompt": "candid photo of {subject} at a bustling open-air textile market with stacks of colorful fabrics, wearing a kente-accented outfit, laughing, warm light, 35mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden celebration",
+      "prompt": "photo of {subject} at an elegant outdoor celebration under a canopy, wearing handwoven kente cloth draped in the traditional style, raising a glass, warm smile, festive golden light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} at an elegant outdoor celebration under a canopy, wearing a handwoven kente cloth draped over one shoulder in the traditional style, raising a glass, warm smile, festive golden light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} at an elegant outdoor celebration under a canopy, wearing a handwoven kente wrap gown with a matching headwrap, raising a glass, warm smile, festive golden light, 50mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Carved stool portrait",
+      "prompt": "regal portrait of {subject} seated on a carved wooden stool, wearing handwoven kente cloth draped in the traditional style and gold ornaments, dignified expression, deep green backdrop, Rembrandt lighting, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "regal portrait of {subject} seated on a carved wooden stool, wearing a handwoven kente cloth draped over one shoulder in the traditional style and gold ornaments, dignified expression, deep green backdrop, Rembrandt lighting, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "regal portrait of {subject} seated on a carved wooden stool, wearing a handwoven kente wrap gown with a matching headwrap and gold ornaments, dignified expression, deep green backdrop, Rembrandt lighting, 85mm lens, accurate woven textile detail, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

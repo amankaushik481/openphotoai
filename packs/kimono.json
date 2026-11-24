@@ -1,0 +1,100 @@
+{
+  "slug": "kimono",
+  "name": "Kimono",
+  "tagline": "Kimono and yukata portraits in temples, gardens and lantern-lit streets.",
+  "description": "Kimono and summer yukata photographed with respect in Kyoto's old lanes, torii-lined shrine paths, bamboo groves, cherry-blossom rivers, moss gardens, tea houses and snowy temples, plus summer festivals and riverside fireworks. Correct obi, haori and hakama styling.",
+  "category": "fashion",
+  "emoji": "👘",
+  "tags": [
+    "kimono",
+    "yukata",
+    "japanese",
+    "kyoto",
+    "traditional dress",
+    "temple",
+    "garden",
+    "cultural"
+  ],
+  "colors": [
+    "#9f1239",
+    "#fda4af"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 630,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Kyoto lane",
+      "prompt": "photo of {subject} wearing a traditional kimono with an obi in indigo, strolling a stone-paved lane in Kyoto's old district lined with wooden machiya houses, gentle smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} wearing a traditional men's kimono with a haori jacket and hakama in indigo, strolling a stone-paved lane in Kyoto's old district lined with wooden machiya houses, gentle smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} wearing a traditional kimono with an obi sash in indigo, strolling a stone-paved lane in Kyoto's old district lined with wooden machiya houses, gentle smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Torii path",
+      "prompt": "portrait of {subject} on a mountain shrine path lined with vermilion torii gates, wearing a traditional kimono with an obi in charcoal and gold, calm expression, dappled light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a mountain shrine path lined with vermilion torii gates, wearing a traditional men's kimono with a haori jacket and hakama in charcoal and gold, calm expression, dappled light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a mountain shrine path lined with vermilion torii gates, wearing a traditional kimono with an obi sash in charcoal and gold, calm expression, dappled light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bamboo grove",
+      "prompt": "photo of {subject} in a towering bamboo grove, wearing a traditional kimono with an obi in sage green, serene expression, soft filtered green light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} in a towering bamboo grove, wearing a traditional men's kimono with a haori jacket and hakama in sage green, serene expression, soft filtered green light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} in a towering bamboo grove, wearing a traditional kimono with an obi sash in sage green, serene expression, soft filtered green light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cherry blossom river",
+      "prompt": "portrait of {subject} on a stone bridge beside a cherry-blossom-lined river, wearing a traditional kimono with an obi in soft pink with a floral pattern, joyful smile, spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a stone bridge beside a cherry-blossom-lined river, wearing a traditional men's kimono with a haori jacket and hakama in soft pink with a floral pattern, joyful smile, spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a stone bridge beside a cherry-blossom-lined river, wearing a traditional kimono with an obi sash in soft pink with a floral pattern, joyful smile, spring light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Summer festival",
+      "prompt": "photo of {subject} at a summer festival with paper lanterns and food stalls at night, wearing a light cotton yukata with a bold pattern and holding a paper fan, happy expression, warm lantern glow, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Moss garden veranda",
+      "prompt": "portrait of {subject} seated on a wooden veranda overlooking a moss garden, wearing a traditional kimono with an obi in muted earth tones, peaceful expression, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} seated on a wooden veranda overlooking a moss garden, wearing a traditional men's kimono with a haori jacket and hakama in muted earth tones, peaceful expression, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} seated on a wooden veranda overlooking a moss garden, wearing a traditional kimono with an obi sash in muted earth tones, peaceful expression, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Autumn maples",
+      "prompt": "photo of {subject} beneath blazing red maples beside a temple pond, wearing a traditional kimono with an obi in deep burgundy, contemplative smile, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} beneath blazing red maples beside a temple pond, wearing a traditional men's kimono with a haori jacket and hakama in deep burgundy, contemplative smile, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} beneath blazing red maples beside a temple pond, wearing a traditional kimono with an obi sash in deep burgundy, contemplative smile, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Tea house",
+      "prompt": "portrait of {subject} in a traditional tea house with tatami mats and a shoji screen, whisking matcha in a ceramic bowl, wearing a traditional kimono with an obi in soft grey, focused calm expression, gentle window light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} in a traditional tea house with tatami mats and a shoji screen, whisking matcha in a ceramic bowl, wearing a traditional men's kimono with a haori jacket and hakama in soft grey, focused calm expression, gentle window light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} in a traditional tea house with tatami mats and a shoji screen, whisking matcha in a ceramic bowl, wearing a traditional kimono with an obi sash in soft grey, focused calm expression, gentle window light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snowy temple",
+      "prompt": "photo of {subject} holding a red paper umbrella at a snow-covered temple, wearing a traditional kimono with an obi in deep navy with a warm haori, serene expression, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} holding a red paper umbrella at a snow-covered temple, wearing a traditional men's kimono with a haori jacket and hakama in deep navy with a warm haori, serene expression, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} holding a red paper umbrella at a snow-covered temple, wearing a traditional kimono with an obi sash in deep navy with a warm haori, serene expression, soft winter light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Riverside fireworks",
+      "prompt": "photo of {subject} on a riverbank at night watching summer fireworks, wearing a navy cotton yukata, face lit by the colorful bursts, delighted expression, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Black silk studio",
+      "prompt": "studio portrait of {subject} wearing a traditional kimono with an obi in rich black silk with subtle gold embroidery, standing against a warm neutral backdrop, dignified expression, soft directional light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} wearing a traditional men's kimono with a haori jacket and hakama in rich black silk with subtle gold embroidery, standing against a warm neutral backdrop, dignified expression, soft directional light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} wearing a traditional kimono with an obi sash in rich black silk with subtle gold embroidery, standing against a warm neutral backdrop, dignified expression, soft directional light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Ryokan garden",
+      "prompt": "photo of {subject} in a ryokan's private garden at dusk with stone lanterns, wearing a relaxed indigo yukata, calm content smile, warm lantern glow, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

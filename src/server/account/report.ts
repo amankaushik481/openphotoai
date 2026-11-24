@@ -27,7 +27,8 @@ export interface DeletionSummary {
   subscriptions: number;
 }
 
-export interface DeletionReport {
+/** A type alias (not an interface) so it's assignable to the jsonb column's Record type. */
+export type DeletionReport = {
   version: 1;
   startedAt: string;
   attempts: number;
@@ -41,7 +42,7 @@ export interface DeletionReport {
   error?: string;
   /** A deletion run holds this lease so concurrent confirmations don't run it twice. */
   leaseUntil?: string | null;
-}
+};
 
 const MAX_WARNINGS = 50;
 

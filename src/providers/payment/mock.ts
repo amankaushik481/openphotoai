@@ -126,6 +126,11 @@ function tagOf(id: string): string {
   return createHash("sha256").update(id).digest("hex").slice(0, 24);
 }
 
+/** The subscription id a plan checkout creates once paid. */
+export function mockSubscriptionId(checkoutId: string): string {
+  return `mock_sub_${tagOf(checkoutId)}`;
+}
+
 /* ───────────────────────────── events ───────────────────────────── */
 
 type EventType = PaymentEvent["type"];
@@ -183,7 +188,7 @@ export function mockCheckoutEvents(checkout: MockCheckout, now: Date = new Date(
   }
 
   const { planId, interval } = checkout.item;
-  const subscriptionId = `mock_sub_${tag}`;
+  const subscriptionId = mockSubscriptionId(checkout.checkoutId);
   const subscription: NormalizedSubscription = {
     subscriptionId,
     customerId: checkout.customerId,

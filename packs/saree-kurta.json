@@ -1,0 +1,106 @@
+{
+  "slug": "saree-kurta",
+  "name": "Saree & Kurta",
+  "tagline": "Graceful South Asian traditional wear in heritage settings.",
+  "description": "Celebrate South Asian heritage dress: Banarasi and Kanjeevaram silk sarees, lehengas and anarkalis, kurtas, sherwanis and bandhgalas, photographed in palace courtyards, the pink city, lake terraces, river ghats, haveli doorways, Mughal gardens and temple steps. Draping and details styled with care.",
+  "category": "fashion",
+  "emoji": "🥻",
+  "tags": [
+    "saree",
+    "kurta",
+    "lehenga",
+    "sherwani",
+    "indian wear",
+    "south asian",
+    "ethnic wear",
+    "traditional"
+  ],
+  "colors": [
+    "#9d174d",
+    "#f59e0b"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, costume-like outfit, inaccurate traditional dress, stereotyped styling, readable text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 610,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Palace courtyard",
+      "prompt": "portrait of {subject} in a sunlit Rajput palace courtyard with carved sandstone arches, wearing elegant traditional South Asian attire, poised graceful expression, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} in a sunlit Rajput palace courtyard with carved sandstone arches, wearing an ivory silk sherwani with a maroon stole, poised graceful expression, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} in a sunlit Rajput palace courtyard with carved sandstone arches, wearing a royal blue Banarasi silk saree with a gold zari border, poised graceful expression, warm afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pink city street",
+      "prompt": "photo of {subject} on a street in Jaipur's pink city with latticed windows, wearing block-printed traditional cotton attire, joyful smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on a street in Jaipur's pink city with latticed windows, wearing a block-printed cotton kurta and white pajama, joyful smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on a street in Jaipur's pink city with latticed windows, wearing a block-printed cotton anarkali suit with a dupatta, joyful smile, soft morning light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Lake terrace",
+      "prompt": "portrait of {subject} on a marble terrace overlooking a serene lake with a palace in the distance, wearing elegant traditional attire, calm elegant expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a marble terrace overlooking a serene lake with a palace in the distance, wearing a cream bandhgala jacket and trousers, calm elegant expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a marble terrace overlooking a serene lake with a palace in the distance, wearing a pastel pink chiffon saree, calm elegant expression, golden hour, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "River ghats at dawn",
+      "prompt": "photo of {subject} on the steps of the river ghats in Varanasi at dawn, wearing simple traditional cotton attire, serene expression, soft mist and warm sunrise, wooden boats on the river, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on the steps of the river ghats in Varanasi at dawn, wearing a simple white cotton kurta, serene expression, soft mist and warm sunrise, wooden boats on the river, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on the steps of the river ghats in Varanasi at dawn, wearing a simple saffron cotton saree, serene expression, soft mist and warm sunrise, wooden boats on the river, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Teal silk studio",
+      "prompt": "studio portrait of {subject} against a deep teal backdrop, wearing rich traditional silk attire, regal confident expression, warm key light revealing the fabric texture, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "studio portrait of {subject} against a deep teal backdrop, wearing a black velvet bandhgala with gold buttons, regal confident expression, warm key light revealing the fabric texture, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "studio portrait of {subject} against a deep teal backdrop, wearing a red Kanjeevaram silk saree with temple jewelry, regal confident expression, warm key light revealing the fabric texture, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Haveli doorway",
+      "prompt": "portrait of {subject} framed in an ornate painted haveli doorway, wearing festive traditional attire, warm smile, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} framed in an ornate painted haveli doorway, wearing a mustard silk kurta with a printed Nehru jacket, warm smile, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} framed in an ornate painted haveli doorway, wearing an emerald green lehenga with mirror work, warm smile, soft diffused light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mehndi celebration",
+      "prompt": "candid photo of {subject} at a colorful mehndi celebration with marigold drapes and floor cushions, wearing bright festive attire, laughing, warm festive light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "candid photo of {subject} at a colorful mehndi celebration with marigold drapes and floor cushions, wearing a bright yellow kurta, laughing, warm festive light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "candid photo of {subject} at a colorful mehndi celebration with marigold drapes and floor cushions, wearing a bright yellow lehenga with floral jewelry, laughing, warm festive light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mughal garden",
+      "prompt": "photo of {subject} walking through a Mughal garden with fountains and symmetrical pathways, wearing pale blue embroidered attire, graceful stride, soft afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} walking through a Mughal garden with fountains and symmetrical pathways, wearing a pale blue chikankari kurta, graceful stride, soft afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} walking through a Mughal garden with fountains and symmetrical pathways, wearing a pale blue chikankari anarkali with a light chiffon dupatta, graceful stride, soft afternoon light, 85mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Monsoon terrace",
+      "prompt": "portrait of {subject} on a terrace during a light monsoon drizzle, wearing indigo cotton attire, joyful expression, lush green hills behind, soft overcast light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} on a terrace during a light monsoon drizzle, wearing an indigo cotton kurta, joyful expression, lush green hills behind, soft overcast light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} on a terrace during a light monsoon drizzle, wearing an indigo and white cotton saree, joyful expression, lush green hills behind, soft overcast light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Temple steps",
+      "prompt": "photo of {subject} on the stone steps of an ancient temple with carved pillars, wearing traditional South Indian attire, calm respectful expression, golden late light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "photo of {subject} on the stone steps of an ancient temple with carved pillars, wearing a white veshti with a silk shirt, calm respectful expression, golden late light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "photo of {subject} on the stone steps of an ancient temple with carved pillars, wearing a mustard and green traditional silk saree, calm respectful expression, golden late light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Textile bazaar",
+      "prompt": "candid photo of {subject} browsing a vibrant textile bazaar with bolts of colorful fabric, wearing everyday traditional attire, curious smile, warm light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "candid photo of {subject} browsing a vibrant textile bazaar with bolts of colorful fabric, wearing a cotton kurta, curious smile, warm light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "candid photo of {subject} browsing a vibrant textile bazaar with bolts of colorful fabric, wearing a printed cotton saree, curious smile, warm light, 35mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Evening reception",
+      "prompt": "portrait of {subject} at an elegant evening reception with chandeliers and floral decor, wearing glamorous traditional evening attire, confident warm smile, warm glamorous light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "portrait of {subject} at an elegant evening reception with chandeliers and floral decor, wearing a midnight blue embroidered sherwani, confident warm smile, warm glamorous light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "portrait of {subject} at an elegant evening reception with chandeliers and floral decor, wearing a silver sequined saree with a statement necklace, confident warm smile, warm glamorous light, 50mm lens, respectful authentic styling, accurate garment detail, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

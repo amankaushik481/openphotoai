@@ -3,9 +3,13 @@
  *   - case and Unicode look-alikes: NFKD (fullwidth, math alphanumerics, circled letters...),
  *     diacritics stripped, Cyrillic/Greek/small-caps homoglyphs mapped to Latin;
  *   - invisible characters (zero-width spaces/joiners, BOM, soft hyphen, bidi/tag controls);
- *   - leetspeak (0→o 1→i 3→e 4→a 5→s 7→t @→a $→s);
+ *   - leetspeak (0→o 1→i|l 3→e 4→a 5→s 7→t @→a $→s);
  *   - separators inside words ("s.e.x", "s-e-x-y") and spaced-out letters ("s e x");
  *   - repeated letters ("seeexxxy") — handled by the patterns from `termPattern`.
+ *
+ * ReDoS: user text is matched against large regex alternations. Patterns never put two
+ * quantifiers on the same character next to each other within a word, and every variant has runs
+ * of 4+ identical characters squeezed to 3, so backtracking per start position is bounded.
  */
 
 const MARKS = new RegExp("\\p{M}+", "gu");
@@ -35,6 +39,8 @@ const LEET: Readonly<Record<string, string>> = {
   "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s",
 };
 const LEET_CHARS = /[013457@$]/g;
+/** "1" is read as "i" in the main leet variant and as "l" in a second one ("1ingerie"). */
+const ONE_AS_L: Readonly<Record<string, string>> = { ...LEET, "1": "l" };
 /** A token is leet-decoded only when it contains a letter or leet symbol, so plain numbers ("15") stay numbers. */
 const LEET_TOKEN = /[a-z@$]/;
 const REGIONAL_INDICATOR_A = 0x1f1e6;
@@ -55,12 +61,17 @@ export function normalizeText(text: string): string {
 }
 
 /** Decode leetspeak in every whitespace-separated token that contains a letter or leet symbol. */
-export function leetify(text: string): string {
-  return text.replace(/\S+/g, (token) => (LEET_TOKEN.test(token) ? decodeLeet(token) : token));
+export function leetify(text: string, map: Readonly<Record<string, string>> = LEET): string {
+  return text.replace(/\S+/g, (token) => (LEET_TOKEN.test(token) ? decodeLeet(token, map) : token));
 }
 
-function decodeLeet(s: string): string {
-  return s.replace(LEET_CHARS, (c) => LEET[c] ?? c);
+function decodeLeet(s: string, map: Readonly<Record<string, string>> = LEET): string {
+  return s.replace(LEET_CHARS, (c) => map[c] ?? c);
+}
+
+/** Runs of 4+ identical characters become 3 (terms never need more; bounds regex backtracking). */
+function squeeze(s: string): string {
+  return s.replace(/(.)\1{3,}/g, "$1$1$1");
 }
 
 function words(s: string): string {
@@ -76,7 +87,11 @@ function singleCharRuns(base: string): string[] {
   const runs: string[] = [];
   let current: string[] = [];
   const flush = () => {
-    if (current.length >= 3) runs.push(decodeLeet(current.join("")));
+    if (current.length >= 3) {
+      const joined = current.join("");
+      runs.push(decodeLeet(joined));
+      if (joined.includes("1")) runs.push(decodeLeet(joined, ONE_AS_L));
+    }
     current = [];
   };
   for (const token of tokens) {
@@ -103,9 +118,10 @@ export interface TextVariants {
 export function buildVariants(text: string, exceptions: readonly RegExp[] = []): TextVariants {
   let base = normalizeText(text);
   for (const re of exceptions) base = base.replace(re, " ");
-  const leet = leetify(base);
-  const bounded = [...new Set([words(base), words(leet), words(leet.replace(INTRA_WORD_PUNCT, ""))])].filter(Boolean);
-  return { base, bounded, runs: singleCharRuns(base) };
+  const leets = base.includes("1") ? [leetify(base), leetify(base, ONE_AS_L)] : [leetify(base)];
+  const views = [base, ...leets, ...leets.map((l) => l.replace(INTRA_WORD_PUNCT, ""))];
+  const bounded = [...new Set(views.map((v) => squeeze(words(v))))].filter(Boolean);
+  return { base, bounded, runs: singleCharRuns(base).map(squeeze) };
 }
 
 /** Normalized key used to look up names/terms after a match (letters + digits, repeats squeezed). */
@@ -114,8 +130,8 @@ export function matchKey(s: string): string {
 }
 
 /**
- * Regex source for a term or name. Normalized like the text; every letter may repeat ("sexxxy"),
- * "l" also matches "i" (since "1" decodes to "i"), and words may be joined or space-separated.
+ * Regex source for a term or name. Normalized like the text; every letter may repeat ("sexxxy")
+ * and words may be joined or space-separated.
  */
 export function termPattern(term: string): string {
   const norm = words(leetify(normalizeText(term)));
@@ -130,12 +146,7 @@ export function termPattern(term: string): string {
  * "x+x+x+" would backtrack polynomially on adversarial input like "xxxx…xa" (ReDoS).
  */
 function letterRuns(word: string): string {
-  const out: string[] = [];
-  for (const run of word.match(/(.)\1*/g) ?? []) {
-    const cls = run[0] === "l" ? "[li]" : run[0]!;
-    out.push(run.length === 1 ? `${cls}+` : `${cls}{${run.length},}`);
-  }
-  return out.join("");
+  return (word.match(/(.)\1*/g) ?? []).map((run) => (run.length === 1 ? `${run}+` : `${run[0]}{${run.length},}`)).join("");
 }
 
 export interface CompiledTerms {

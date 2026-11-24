@@ -1,0 +1,82 @@
+{
+  "slug": "podcast-creator",
+  "name": "Podcast & Thumbnail",
+  "tagline": "Studio shots and expressive thumbnails for your channel.",
+  "description": "Everything a video creator or podcaster needs: on-mic studio shots, interview sets, creator desks and vlogs, plus big-expression thumbnail frames on bold solid backgrounds with clean empty space for your title. Widescreen 16:9 throughout.",
+  "category": "creative",
+  "emoji": "🎙️",
+  "tags": [
+    "podcast",
+    "youtube",
+    "thumbnail",
+    "creator",
+    "video",
+    "studio",
+    "streamer",
+    "channel art"
+  ],
+  "colors": [
+    "#7c3aed",
+    "#22d3ee"
+  ],
+  "defaultAspectRatio": "16:9",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, letters, title text, arrows, emoji graphics, logos, cluttered background",
+  "featured": false,
+  "isNew": true,
+  "sortOrder": 340,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "On the mic",
+      "prompt": "photo of {subject} speaking into a broadcast microphone on a boom arm in a cozy podcast studio with acoustic panels and warm practical lamps, wearing headphones and a casual overshirt, engaged expressive face, 35mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Surprised thumbnail",
+      "prompt": "video thumbnail-style photo of {subject} with a wide-eyed surprised expression, head and shoulders on the right side of the frame, solid bright yellow background with clean empty space on the left for a title, crisp studio light, high contrast, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pointing thumbnail",
+      "prompt": "thumbnail-style photo of {subject} pointing toward the empty left side of the frame with an excited grin, wearing a solid colored t-shirt, clean teal background, bold crisp lighting, high saturation, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Interview set",
+      "prompt": "photo of {subject} seated in a leather armchair across from an out-of-focus guest on a dark interview set with a lit bookshelf, mid-laugh, two microphones on arms, cinematic warm light, 35mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Creator desk",
+      "prompt": "photo of {subject} at a creator desk with a ring light, a camera on a tripod and a microphone, wearing a hoodie, smiling into the camera, colorful LED accent lights behind, 24mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Skeptical thumbnail",
+      "prompt": "thumbnail-style photo of {subject} with a skeptical raised-eyebrow expression and arms crossed on the right third of the frame, deep purple gradient background with empty space for a title, punchy rim light, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Laughing on air",
+      "prompt": "close photo of {subject} laughing hard at the microphone during a podcast recording, headphones on, warm tungsten light and the bokeh of a neon tube light, 85mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Reaction setup",
+      "prompt": "photo of {subject} reacting with delight to a monitor just off-frame, sitting in a high-back desk chair with headphones around the neck, RGB light glow, expressive face, 35mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Street vlog",
+      "prompt": "vlog-style photo of {subject} talking to a handheld camera while walking down a lively city street, wearing a casual jacket, animated expression, natural daylight, 24mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Channel art portrait",
+      "prompt": "channel-art portrait of {subject} with a friendly confident smile and arms crossed, centered on a clean orange-to-pink gradient background, crisp studio lighting, plenty of empty space on both sides, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Video podcast table",
+      "prompt": "photo of {subject} hosting a video podcast at a round table with three microphones, guests blurred, wearing a smart casual blazer, mid-question, professional broadcast lighting, 35mm lens, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Mind-blown thumbnail",
+      "prompt": "thumbnail-style photo of {subject} with a mind-blown expression and eyes wide on the right side of the frame, bright red background with empty space on the left, dramatic contrast lighting, no text or logos, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

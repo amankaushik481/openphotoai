@@ -180,6 +180,28 @@ describe("text filter: behavior", () => {
   });
 });
 
+describe("text filter: ReDoS resistance", () => {
+  it.each([
+    ["1 ".repeat(750)],
+    ["1".repeat(1500)],
+    ["x".repeat(1499) + "q"],
+    ["a a ".repeat(375)],
+    ["li".repeat(750)],
+    ["s.".repeat(750)],
+    ["teee".padEnd(1499, "e") + "q"],
+  ])("classifies adversarial input quickly (#%#)", (text) => {
+    classifyText("warm up the compiled patterns");
+    const start = performance.now();
+    classifyText(text);
+    expect(performance.now() - start).toBeLessThan(500);
+  });
+
+  it("still decodes 1 as l", () => {
+    expect(classifyText("1ingerie").categories).toContain("sexual");
+    expect(classifyText("l 0 l 1").categories).toContain("minors");
+  });
+});
+
 describe("normalizeText", () => {
   it("folds case, width, diacritics, homoglyphs and invisible characters", () => {
     expect(normalizeText("ＨéLLo​ Wörld")).toBe("hello world");

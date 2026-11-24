@@ -1,0 +1,82 @@
+{
+  "slug": "with-my-dog",
+  "name": "You & Your Dog",
+  "tagline": "Happy walks, couch cuddles and adventures with a best friend.",
+  "description": "Photos with a four-legged best friend: park walks, couch cuddles, beach runs, mountain hikes, café patios, games of fetch, autumn leaves, road trips and snow days, featuring a range of friendly breeds. Perfect for dating profiles, pet accounts and holiday cards.",
+  "category": "family",
+  "emoji": "🐶",
+  "tags": [
+    "dog",
+    "pet",
+    "dog lover",
+    "puppy",
+    "pet portrait",
+    "walks",
+    "companion",
+    "family"
+  ],
+  "colors": [
+    "#a16207",
+    "#bbf7d0"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, deformed dog, extra legs, extra paws, merged animal and human, distorted animal face",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 380,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Park walk",
+      "prompt": "candid photo of {subject} walking a happy golden retriever on a leash through a sunny park, wearing a casual jacket, laughing as the dog looks up, warm afternoon light, 85mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Couch cuddle",
+      "prompt": "cozy photo of {subject} on a sofa cuddling a scruffy terrier under a blanket, wearing a soft sweater, gentle smile, warm lamp light, 50mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Beach run",
+      "prompt": "action photo of {subject} running along the beach with a black labrador splashing in the shallows, wearing rolled trousers and a linen shirt, joyful laugh, golden hour, 200mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hiking buddy",
+      "prompt": "photo of {subject} on a mountain trail with a husky in a hiking harness beside, wearing an outdoor jacket, proud smile, sweeping valley view, 35mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Studio duo",
+      "prompt": "studio portrait of {subject} holding a small fluffy dog in the arms, both looking at the camera, soft grey seamless backdrop, warm smile, 85mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Café patio",
+      "prompt": "photo of {subject} at a dog-friendly café patio with a dachshund on the lap and a coffee on the table, wearing a striped shirt, relaxed smile, bright daylight, 35mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Game of fetch",
+      "prompt": "action photo of {subject} throwing a ball for a border collie mid-leap in a grassy field, wearing a hoodie, delighted expression, sunlight, 200mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Autumn hug",
+      "prompt": "photo of {subject} kneeling in autumn leaves hugging a corgi, wearing a knit sweater, big smile, warm golden light, 50mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Road trip",
+      "prompt": "photo of {subject} in a car with a happy dog leaning out of the window, sunglasses on the head, laughing, coastal road, 35mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Snow day",
+      "prompt": "photo of {subject} playing in fresh snow with a bernese mountain dog, wearing a puffer jacket and a beanie, snow flying, joyful, 50mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Morning treat",
+      "prompt": "candid photo of {subject} in a bright kitchen giving a treat to a sitting labrador, wearing a casual tee, warm smile, morning light, 35mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Cheek to cheek",
+      "prompt": "close portrait of {subject} cheek to cheek with a fluffy puppy, both looking at the camera, soft window light, delighted smile, 85mm lens, natural animal anatomy, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

@@ -41,6 +41,8 @@ generation endpoints; report button, moderation queue, suspension and real delet
    "analysis", "spices" pass. A short list of known-safe phrases (`TEXT_FILTER_EXCEPTIONS`: "baby blue",
    "cum laude", "child's pose", "minor adjustments", "Gore-Tex"...) is blanked out *before* leetspeak
    decoding and only when separated by plain whitespace, so an exception can never hide an obfuscated term.
+   Patterns are built so user input can't trigger catastrophic regex backtracking (tested with
+   adversarial 1,500-character prompts).
 2. **Moderation provider** (`getModerationProvider().checkText`, each text separately). A result is
    treated as blocked when `allowed` is false **or** it reports a sexual/minors category.
 3. Blocked ⇒ event `prompt_blocked` (or `public_figure` when that is the only category) and

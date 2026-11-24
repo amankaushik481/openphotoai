@@ -1,0 +1,94 @@
+{
+  "slug": "influencer-lifestyle",
+  "name": "Influencer Lifestyle",
+  "tagline": "Scroll-stopping content for your feed and stories.",
+  "description": "A month of content in one batch: outfit-of-the-day street shots, sunny brunches, hotel balconies, flower markets, rooftop golden hour, pastel walls, matcha cafés and nights out. Feed-ready 4:5 frames plus vertical 9:16 shots for stories and reels covers.",
+  "category": "lifestyle",
+  "emoji": "📱",
+  "tags": [
+    "influencer",
+    "instagram",
+    "content creator",
+    "lifestyle",
+    "stories",
+    "feed",
+    "ootd",
+    "aesthetic"
+  ],
+  "colors": [
+    "#c026d3",
+    "#fb7185"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos, readable text, phone screen interface, heavy beauty filter",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 140,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Outfit of the day",
+      "prompt": "full-length outfit-of-the-day photo of {subject} on a chic city street with cream stone buildings, wearing a trendy layered outfit, confident mid-stride, soft overcast light, 50mm lens, fashion influencer style, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptMan": "full-length outfit-of-the-day photo of {subject} on a chic city street with cream stone buildings, wearing an oversized blazer, white tee, straight jeans and loafers, confident mid-stride, soft overcast light, 50mm lens, fashion influencer style, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "promptWoman": "full-length outfit-of-the-day photo of {subject} on a chic city street with cream stone buildings, wearing an oversized blazer, a fitted knit, a satin midi skirt and ankle boots, confident mid-stride, soft overcast light, 50mm lens, fashion influencer style, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    },
+    {
+      "title": "Sunny brunch",
+      "prompt": "photo of {subject} at a sunlit brunch table with avocado toast, fresh berries and iced lattes, laughing while reaching for a cup, wearing a linen shirt, bright airy tones, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Hotel balcony sunrise",
+      "prompt": "photo of {subject} on a boutique hotel balcony with a city view at sunrise, wearing a cozy white knit set and holding a coffee, dreamy smile, soft warm light, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    },
+    {
+      "title": "Flower market",
+      "prompt": "photo of {subject} carrying an armful of peonies through a colorful flower market, wearing a pastel outfit, joyful candid laugh, soft daylight, 50mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Filming content",
+      "prompt": "behind-the-scenes photo of {subject} filming content at a tidy home desk with a ring light and a phone on a tripod, wearing a stylish casual outfit, animated mid-sentence expression, warm cozy room, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rooftop golden hour",
+      "prompt": "photo of {subject} on a rooftop at golden hour leaning on the railing with the city behind, wearing a chic neutral outfit, hair catching the light, confident smile, 85mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    },
+    {
+      "title": "Boutique browsing",
+      "prompt": "candid photo of {subject} browsing a minimalist boutique with neutral clothing racks, holding up a linen jacket, playful smile toward the camera, soft daylight, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pastel wall",
+      "prompt": "photo of {subject} posing in front of a pastel pink wall with a palm-leaf shadow, wearing an all-white outfit with sunglasses in hand, playful pose, bright sun, 35mm lens, feed-ready, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Matcha café",
+      "prompt": "photo of {subject} at a minimalist café table holding a matcha latte, wearing a cream knit, gentle smile, soft overhead light, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Golden car light",
+      "prompt": "candid photo of {subject} in the driver's seat of a parked car with golden sunlight streaming in, sunglasses pushed up, relaxed smile, phone-camera look, 26mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    },
+    {
+      "title": "Wellness morning",
+      "prompt": "photo of {subject} on a yoga mat by a sunny window with a green juice, wearing a matching knit lounge set, serene smile, soft morning light, 35mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Night out",
+      "prompt": "flash photo of {subject} on a city street at night heading out, wearing a sleek black outfit and a statement jacket, confident laugh, bokeh of car lights, 28mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    },
+    {
+      "title": "Mirror outfit check",
+      "prompt": "mirror photo of {subject} in a bright apartment hallway holding a phone with a plain case at chest height, wearing a stylish casual outfit, face fully visible in the reflection, soft daylight, 26mm lens, social media lifestyle photography, natural skin texture, true-to-life skin tone, photorealistic",
+      "aspectRatio": "9:16"
+    }
+  ]
+}

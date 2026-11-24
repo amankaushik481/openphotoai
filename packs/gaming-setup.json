@@ -1,0 +1,82 @@
+{
+  "slug": "gaming-setup",
+  "name": "Gaming Setup",
+  "tagline": "RGB glow, battle stations and streamer energy.",
+  "description": "For gamers and streamers: RGB battle stations, live-stream reactions, victory moments, esports stages, couch co-op, retro arcade rooms, VR sessions, minimalist setup tours and LAN parties, plus a clean profile shot for your channel.",
+  "category": "lifestyle",
+  "emoji": "🎮",
+  "tags": [
+    "gaming",
+    "gamer",
+    "streamer",
+    "rgb",
+    "setup",
+    "esports",
+    "twitch",
+    "desk setup"
+  ],
+  "colors": [
+    "#7c3aed",
+    "#22c55e"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos, readable screen text, video game characters, cartoon",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 360,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Battle station",
+      "prompt": "photo of {subject} at a gaming battle station with dual curved monitors, a mechanical keyboard and soft RGB light strips, headset around the neck, turning toward the camera with a grin, purple and blue glow, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Live stream",
+      "prompt": "photo of {subject} streaming live with a headset on and a broadcast microphone in front, reacting with excitement, ring light and RGB panels behind, 24mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Victory moment",
+      "prompt": "photo of {subject} jumping up from a gaming chair to celebrate a win with arms raised, monitors glowing, colorful light, motion energy, 24mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "In the zone",
+      "prompt": "close photo of {subject} in intense concentration during gameplay, face lit by monitor glow, wearing a headset, RGB reflections, 85mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Esports stage",
+      "prompt": "photo of {subject} on stage at an esports arena in a plain team jersey, headset on, bright stage lights and huge screens of abstract color, determined expression, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Couch co-op",
+      "prompt": "candid photo of {subject} playing a console game on a couch with a controller, laughing with a friend blurred beside, TV glow and warm lamp light, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Retro arcade room",
+      "prompt": "photo of {subject} in a home retro gaming room with classic arcade cabinets and neon, hand on a joystick, nostalgic smile, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "VR session",
+      "prompt": "photo of {subject} with a VR headset pushed up on the forehead, holding motion controllers, amazed expression, futuristic lit room, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Setup tour",
+      "prompt": "photo of {subject} leaning on a minimalist white desk setup with a single ultrawide monitor and plants, wearing a cozy hoodie, proud smile, soft daylight mixed with RGB, 24mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Late-night session",
+      "prompt": "candid photo of {subject} at a gaming desk late at night with snacks and a can of sparkling water, headset around the neck, sleepy happy grin, monitor glow, 35mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "LAN party",
+      "prompt": "photo of {subject} at a lively LAN party with rows of glowing PCs, high-fiving a teammate off-frame, wearing a plain hoodie, excited expression, 24mm lens, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Streamer profile",
+      "prompt": "portrait of {subject} in a gaming chair with arms crossed and a headset around the neck, confident smirk, glowing purple and teal RGB backdrop, 50mm lens, channel profile photo, no brand logos, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

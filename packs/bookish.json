@@ -1,0 +1,82 @@
+{
+  "slug": "bookish",
+  "name": "Bookish & Library",
+  "tagline": "Reading nooks, grand libraries and dark-academia moods.",
+  "description": "For readers, writers and dark-academia lovers: grand old libraries with rolling ladders, antique bookshops, candlelit studies, rainy window seats, park-bench paperbacks, book clubs and green banker's lamps. Warm, literary and quietly photogenic.",
+  "category": "lifestyle",
+  "emoji": "📚",
+  "tags": [
+    "bookish",
+    "library",
+    "reading",
+    "dark academia",
+    "books",
+    "bookstore",
+    "literary",
+    "cozy"
+  ],
+  "colors": [
+    "#78350f",
+    "#d6d3d1"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, readable book titles, readable text, cluttered mess",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 390,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Grand library",
+      "prompt": "photo of {subject} in a grand old library with soaring wooden shelves and a rolling ladder, holding an open leather-bound book, wonder-struck expression, warm lamp light and dusty sunbeams, 24mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Reading nook",
+      "prompt": "cozy photo of {subject} curled up in an armchair reading nook surrounded by stacks of books, wrapped in a knit blanket and absorbed in a novel, soft lamp light, 50mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Bookshop ladder",
+      "prompt": "photo of {subject} on a rolling ladder in an antique bookshop reaching for a book, glancing down at the camera with a smile, wearing a cardigan, warm light, 35mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Dark academia study",
+      "prompt": "dark academia portrait of {subject} in a candlelit study with old books, a globe and a fountain pen, wearing a tweed blazer over a turtleneck, contemplative gaze, moody warm light, 50mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy window seat",
+      "prompt": "photo of {subject} reading on a window seat as rain streaks the glass, wearing an oversized sweater, a mug of tea beside, peaceful expression, soft grey light, 50mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Park bench paperback",
+      "prompt": "photo of {subject} reading a paperback on a park bench under autumn trees, wearing a wool coat and scarf, gentle smile, golden light, 85mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Book club",
+      "prompt": "candid photo of {subject} laughing at a cozy book club gathering with wine and books on the coffee table, adult friends softly blurred, warm light, 35mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Writing longhand",
+      "prompt": "photo of {subject} writing longhand at an antique desk piled with books, wearing a cardigan, focused expression, candle and lamp light, 50mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Banker's lamps",
+      "prompt": "photo of {subject} at a long library study table lit by green banker's lamps with books open, looking up with a quiet smile, wearing a sweater vest over a collared shirt, 35mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Book stack",
+      "prompt": "portrait of {subject} holding a tall stack of books up to the chin and peeking over with a playful smile, warm bookshop background, 85mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Garden reading",
+      "prompt": "photo of {subject} reading in a wicker chair in a blooming garden, wearing a linen shirt with a sun hat on the table, serene smile, dappled light, 50mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Train reading",
+      "prompt": "photo of {subject} reading a book on a vintage train by the window as the countryside passes, wearing a wool coat, peaceful smile, soft daylight, 35mm lens, no readable titles, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}

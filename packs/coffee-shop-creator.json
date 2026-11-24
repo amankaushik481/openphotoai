@@ -1,0 +1,82 @@
+{
+  "slug": "coffee-shop-creator",
+  "name": "Coffee Shop Creator",
+  "tagline": "Laptop, latte and a corner table: work-from-café content.",
+  "description": "For freelancers, writers and creators who live in cafés: laptop corner tables, journaling, filming at the table, pour-over rituals, video calls, sketching, photo editing and rainy-day focus sessions. Warm, productive and relatable.",
+  "category": "lifestyle",
+  "emoji": "💻",
+  "tags": [
+    "coffee shop",
+    "creator",
+    "remote work",
+    "laptop",
+    "freelancer",
+    "cafe",
+    "productivity",
+    "writer"
+  ],
+  "colors": [
+    "#57534e",
+    "#fbbf24"
+  ],
+  "defaultAspectRatio": "4:5",
+  "negativePrompt": "deformed hands, extra fingers, missing fingers, fused fingers, extra limbs, distorted face, asymmetrical eyes, plastic skin, waxy skin, airbrushed skin, cartoon, anime, illustration, 3d render, cgi, painting, watermark, text, logo, signature, blurry, lowres, jpeg artifacts, duplicate person, brand logos on cups or laptops, readable screen text",
+  "featured": false,
+  "isNew": false,
+  "sortOrder": 330,
+  "subjects": [
+    "man",
+    "woman",
+    "person"
+  ],
+  "prompts": [
+    {
+      "title": "Laptop corner table",
+      "prompt": "photo of {subject} working on a laptop at a corner table in a warm specialty coffee shop, wearing a soft knit sweater, glancing up from the screen with a focused smile, latte beside, window light, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Journaling",
+      "prompt": "photo of {subject} writing in a leather journal with a fountain pen at a café window, wearing a cardigan, thoughtful smile, a flat white and a croissant nearby, soft daylight, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Filming at the table",
+      "prompt": "behind-the-scenes photo of {subject} filming a talking video on a small tripod at a café table, wearing a casual overshirt, animated expression, cozy café blurred behind, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Pour-over ritual",
+      "prompt": "close photo of {subject} pouring a slow pour-over coffee at a café bar, wearing a denim shirt, concentrated gentle smile, steam rising, warm light, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Video call",
+      "prompt": "photo of {subject} on a video call with earbuds at a café table, laughing at the screen, wearing a smart casual shirt, plants and a brick wall behind, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Sketchbook",
+      "prompt": "photo of {subject} sketching in a sketchbook at a café counter seat, wearing a striped shirt, pencil in hand, absorbed expression, warm afternoon light, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Photo editing",
+      "prompt": "photo of {subject} editing photos on a laptop with a camera beside on the table, headphones around the neck, satisfied smile, moody café light, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Communal table",
+      "prompt": "photo of {subject} at a long communal table in a bright coworking café full of plants, typing and chatting with someone off-frame, wearing a crew-neck sweater, relaxed smile, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Rainy focus",
+      "prompt": "photo of {subject} with a laptop by a rain-streaked café window, wearing a chunky knit, warm lamp light, calm focused expression, 50mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Brainstorm",
+      "prompt": "photo of {subject} brainstorming with sticky notes and a notebook spread across a café table, pen tucked behind the ear, wearing a casual shirt, playful smile, bright daylight, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Awning terrace",
+      "prompt": "photo of {subject} working on a laptop at an outdoor café table under a striped awning, sunglasses on the head and wearing a linen shirt, relaxed smile, bright day, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    },
+    {
+      "title": "Closing time",
+      "prompt": "photo of {subject} packing up a laptop at closing time in an empty café with chairs stacked and warm pendant lights, satisfied tired smile, wearing a jacket, 35mm lens, no logos, natural skin texture, true-to-life skin tone, photorealistic"
+    }
+  ]
+}
