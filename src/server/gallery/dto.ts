@@ -54,3 +54,16 @@ export interface MediaListResponse<M> {
   nextCursor: string | null;
   hiddenCount?: number;
 }
+
+/** What the public share page may show about shared media (no prompt, model or owner details). */
+export interface PublicMediaDTO {
+  id: string;
+  kind: "image" | "video";
+  url: string;
+  thumbUrl: string;
+  mimeType: string;
+  width: number | null;
+  height: number | null;
+  durationSec: number | null;
+  createdAt: string;
+}

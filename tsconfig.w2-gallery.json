@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "incremental": false },
+  "include": [
+    "next-env.d.ts",
+    "src/server/gallery/**/*.ts",
+    "src/app/api/media/**/*.ts",
+    "src/app/api/folders/**/*.ts",
+    "src/app/api/share/**/*.ts",
+    "src/app/api/reports/**/*.ts",
+    "src/app/app/gallery/**/*.tsx",
+    "src/app/s/**/*.tsx",
+    "src/components/gallery/**/*.tsx",
+    "src/components/gallery/**/*.ts",
+    "tests/unit/gallery/**/*.ts"
+  ]
+}

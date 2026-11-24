@@ -69,10 +69,7 @@ export function PersonStep({ person, onChange, disabled = false }: PersonStepPro
         kind="image"
         title="Pick your photo"
         description="Choose the photo of you to dress in the garment."
-        onSelect={(media) => {
-          setOpen(false);
-          onChange(media);
-        }}
+        onSelect={onChange}
       />
     </StepSection>
   );
