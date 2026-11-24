@@ -22,7 +22,7 @@ const SELFIE_W = 1024;
 const SELFIE_H = 1280;
 const MAX_BYTES = 150 * 1024;
 const MIN_SHARPNESS = 150;
-const MIN_DHASH_DISTANCE = 12;
+const MIN_DHASH_DISTANCE = 10;
 
 type PoseBucket = "frontal" | "left" | "right" | "up" | "down";
 
@@ -76,8 +76,9 @@ async function main() {
 
 /** Try seeds until the selfie meets its pose target, size budget, sharpness and distinctness. */
 async function findSelfie(spec: SelfieSpec, acceptedHashes: string[]) {
-  for (let attempt = 0; attempt < 400; attempt++) {
+  for (let attempt = 0; attempt < 2000; attempt++) {
     const seed = hash32(`${spec.name}:${attempt}`);
+    if (spec.pose && !(await previewMatches(spec, seed, acceptedHashes))) continue;
     const bytes = await renderSelfie(spec, seed);
     if (bytes.byteLength > MAX_BYTES) continue;
     const marker = await decodeMarker(bytes);
@@ -95,6 +96,19 @@ async function findSelfie(spec: SelfieSpec, acceptedHashes: string[]) {
     return { bytes, seed, pose };
   }
   throw new Error(`${spec.name}: no suitable variant found`);
+}
+
+/** Cheap 1/8-scale render: pose (4×4 block means) and dHash barely depend on resolution or noise. */
+async function previewMatches(spec: SelfieSpec, seed: number, acceptedHashes: string[]): Promise<boolean> {
+  const svg = selfieSvg(mulberry32(seed), spec.faces ?? 1).replace(
+    `width="${SELFIE_W}" height="${SELFIE_H}"`,
+    `width="${SELFIE_W / 8}" height="${SELFIE_H / 8}"`,
+  );
+  const preview = await (await encodeMarker(sharp(Buffer.from(svg)).removeAlpha(), spec.marker)).png().toBuffer();
+  const f = (await face.analyze(new Uint8Array(preview))).faces[0];
+  if (!spec.pose || !inBucket({ yaw: f.yaw ?? 0, pitch: f.pitch ?? 0 }, spec.pose, 2)) return false;
+  const hash = await dHash(new Uint8Array(preview));
+  return !acceptedHashes.some((h) => hamming(h, hash) < MIN_DHASH_DISTANCE - 2);
 }
 
 /** Pose of the photo, if it is inside `bucket` with margin and stays there after re-encode + resize. */
@@ -115,18 +129,18 @@ async function stablePose(bytes: Uint8Array, bucket: PoseBucket) {
 }
 
 /** Conservative buckets (well inside any reasonable frontal/left/right/up/down split). */
-function inBucket({ yaw, pitch }: { yaw: number; pitch: number }, bucket: PoseBucket): boolean {
+function inBucket({ yaw, pitch }: { yaw: number; pitch: number }, bucket: PoseBucket, slack = 0): boolean {
   switch (bucket) {
     case "frontal":
-      return Math.abs(yaw) <= 7 && Math.abs(pitch) <= 6;
+      return Math.abs(yaw) <= 7 + slack && Math.abs(pitch) <= 6 + slack;
     case "left":
-      return yaw <= -22 && Math.abs(pitch) <= 8;
+      return yaw <= -22 + slack && Math.abs(pitch) <= 8 + slack;
     case "right":
-      return yaw >= 22 && Math.abs(pitch) <= 8;
+      return yaw >= 22 - slack && Math.abs(pitch) <= 8 + slack;
     case "up":
-      return pitch >= 15 && Math.abs(yaw) <= 8;
+      return pitch >= 15 - slack && Math.abs(yaw) <= 8 + slack;
     case "down":
-      return pitch <= -15 && Math.abs(yaw) <= 8;
+      return pitch <= -15 + slack && Math.abs(yaw) <= 8 + slack;
   }
 }
 

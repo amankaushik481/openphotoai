@@ -23,6 +23,9 @@ import { createTestDb, createTestModel, createTestUser } from "../../helpers/fac
 import { overrideMockAI, resetSafety, safetyMock, safetyState, useTempStorage, BLOCKED_WORD } from "./fixtures";
 
 vi.mock("@/server/safety", async () => (await import("./fixtures")).safetyMock);
+vi.mock("@/providers/registry", async (importOriginal) =>
+  importOriginal().catch(async () => (await import("./registry-fallback")).fallbackRegistry),
+);
 
 let cleanupStorage: () => Promise<void>;
 beforeAll(async () => {

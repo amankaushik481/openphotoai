@@ -7,7 +7,6 @@ import { SkipLink } from "@/components/layout/skip-link";
 import { requireUserPage } from "@/server/auth/session";
 
 export const metadata: Metadata = {
-  title: { default: "Dashboard", template: "%s · App" },
   robots: { index: false, follow: false },
 };
 

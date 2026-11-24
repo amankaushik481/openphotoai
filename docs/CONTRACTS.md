@@ -18,8 +18,8 @@ the source of truth; this file explains it.
 | `src/config/{app,credits,plans,models,rate-limits}.ts` | Branding, credit costs, plans/packs, model ids, rate limits | orchestrator (values tunable) |
 | `src/server/http.ts` | `route({auth, rateLimit}, handler)`, `AppError`, `errors.*`, `parseBody`, `parseQuery` | orchestrator |
 | `src/server/auth/session.ts` | `resolveRequestAuth`, `getCurrentUser`, `requireUserPage`, `requireAdminPage`, `authenticateApiKey` | auth |
-| `src/server/rate-limit.ts` | `rateLimit(name, subject)`, `checkRateLimit` | platform-core |
-| `src/server/credits/ledger.ts` | `applyCredit`, `debitForJob`, `refundJob`, `getBalance`, `listLedger` | platform-core |
+| `src/server/rate-limit.ts` | `rateLimit(name, subject)`, `checkRateLimit`, `pruneRateLimits(olderThan?)` | platform-core |
+| `src/server/credits/ledger.ts` | `applyCredit`, `debitForJob`, `refundJob(jobId, opts?, tx?)`, `getBalance`, `listLedger`, `grantCredits`, `adminAdjust` | platform-core |
 | `src/server/storage/index.ts` | `getStorage()`, `signedUrl()`, `storageKeys.*` | storage |
 | `src/server/images/process.ts` | `normalizeImage`, `makeThumbnail`, `imageMetrics`, `perceptualHash`, `applyAiLabel`, `applyWatermark`, `cropRegion`, `extractVideoFrames` | storage |
 | `src/server/safety/index.ts` | `assertTextAllowed`, `checkOutputImage/Video`, `assertReferenceImageAllowed`, `verifyConsentSelfie`, `analyzeTrainingPhotoSafety`, `assertTrainingAllowed`, `assertModelsUsable`, `likenessScore`, `recordModerationEvent` | safety |

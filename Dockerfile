@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1
 #
 # OpenShoot production image: one image, two roles (see docker/entrypoint.sh).
 #   docker build -t openshoot .

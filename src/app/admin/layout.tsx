@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/layout/admin-nav";
 import { Logo } from "@/components/layout/logo";
 import { SkipLink } from "@/components/layout/skip-link";
 import { UserMenu } from "@/components/layout/user-menu";
+import { APP } from "@/config/app";
 import { t } from "@/i18n";
 import { requireAdminPage } from "@/server/auth/session";
 
 export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s · Admin" },
+  title: { default: "Admin", template: `%s · Admin · ${APP.name}` },
   robots: { index: false, follow: false },
 };
 
@@ -27,9 +27,6 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
           <Logo href="/admin" showName={false} />
           <span className="font-display text-xl leading-none">{t("admin.title")}</span>
-          <Badge variant="soft" className="hidden sm:inline-flex">
-            {user.email}
-          </Badge>
           <div className="ml-auto flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
               <Link href="/app">

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { APP } from "@/config/app";
 import { cn } from "@/lib/utils";
 
-/** Brand mark: a lens ring + flash dot on the brand gradient. Decorative (name is rendered as text). */
+/** Brand mark: a lens ring + AI sparkle on the brand gradient. Decorative (name is rendered as text). */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span
@@ -14,8 +14,8 @@ export function LogoMark({ className }: { className?: string }) {
       )}
     >
       <svg viewBox="0 0 32 32" fill="none" className="size-full">
-        <circle cx="16" cy="16.5" r="7" stroke="white" strokeWidth="3" />
-        <circle cx="23.75" cy="8.25" r="2" fill="white" />
+        <circle cx="14" cy="18" r="6.5" stroke="white" strokeWidth="3" />
+        <path d="M23.5 3.5C23.95 7.1 24.9 8.05 28.5 8.5C24.9 8.95 23.95 9.9 23.5 13.5C23.05 9.9 22.1 8.95 18.5 8.5C22.1 8.05 23.05 7.1 23.5 3.5Z" fill="white" />
       </svg>
     </span>
   );
