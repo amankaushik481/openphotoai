@@ -9,11 +9,6 @@ export const INVITE_TTL_DAYS = 14;
 export const SHARE_TTL_DAYS = 365;
 /** Pending (unanswered, unexpired) invites a user may have at once. */
 export const MAX_PENDING_INVITES = 20;
-/** Invite emails a user may send (new invites + re-sends), per fixed window. */
-export const INVITE_RATE_LIMITS = [
-  { name: "multiPersonInvitesPerHour", limit: 10, windowSec: 3600 },
-  { name: "multiPersonInvitesPerDay", limit: 30, windowSec: 86_400 },
-] as const;
 export const MAX_INVITE_MESSAGE_LENGTH = 500;
 /** Reference photos sent to the provider per person in a together photo. */
 export const REFERENCE_PHOTOS_PER_PERSON = 4;

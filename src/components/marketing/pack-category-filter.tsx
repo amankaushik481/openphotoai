@@ -56,7 +56,7 @@ export function PackCategoryFilter({
     const url = new URL(window.location.href);
     if (id === ALL) url.searchParams.delete("category");
     else url.searchParams.set("category", id);
-    window.history.replaceState(window.history.state, "", url);
+    window.history.replaceState(null, "", url);
     window.dispatchEvent(new Event(CHANGE_EVENT));
   };
 

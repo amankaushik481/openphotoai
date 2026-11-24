@@ -23,6 +23,7 @@ export interface JobResultsProps {
 
 /** Progress for running/failed jobs + a grid of finished results with "compare" and "edit this" actions. */
 export function JobResults({ jobs, onCompare, compareId, title = "Results", className }: JobResultsProps) {
+  const headingId = React.useId();
   const [showHidden, setShowHidden] = React.useState(false);
   const pending = jobs.filter((j) => j.status !== "succeeded");
   const media = React.useMemo(() => jobs.filter((j) => j.status === "succeeded").flatMap((j) => j.media), [jobs]);
@@ -30,8 +31,8 @@ export function JobResults({ jobs, onCompare, compareId, title = "Results", clas
   if (jobs.length === 0) return null;
 
   return (
-    <section aria-labelledby="job-results-heading" className={cn("flex flex-col gap-4", className)}>
-      <h2 id="job-results-heading" className="text-lg font-semibold">
+    <section aria-labelledby={headingId} className={cn("flex flex-col gap-4", className)}>
+      <h2 id={headingId} className="text-lg font-semibold">
         {title}
       </h2>
       {pending.length > 0 && (
@@ -52,20 +53,21 @@ export function JobResults({ jobs, onCompare, compareId, title = "Results", clas
             {onCompare && (
               <Button
                 type="button"
-                size="sm"
+                size="icon-sm"
                 variant="secondary"
                 aria-pressed={compareId === m.id}
+                aria-label="Compare with the original"
+                title="Compare with the original"
                 onClick={() => onCompare(m)}
-                className="h-8 bg-background/90 backdrop-blur-sm"
+                className="bg-background/90 backdrop-blur-sm"
               >
                 <SquareSplitHorizontalIcon />
-                Compare
               </Button>
             )}
             <Button asChild size="sm" variant="secondary" className="h-8 bg-background/90 backdrop-blur-sm">
-              <Link href={`/app/edit/${m.id}`} aria-label="Use as new source: edit this result">
+              <Link href={`/app/edit/${m.id}`} title="Use as the new source and keep editing">
                 <PencilLineIcon />
-                Edit this
+                Edit
               </Link>
             </Button>
           </>

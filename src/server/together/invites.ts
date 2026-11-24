@@ -18,6 +18,7 @@ import { newToken } from "@/lib/ids";
 import { sendEmailSafe } from "@/server/email";
 import { errors } from "@/server/http";
 import { getOwnedModel } from "@/server/models/service";
+import { rateLimit } from "@/server/rate-limit";
 import { assertTextAllowed } from "@/server/safety";
 import type { InviteStatus } from "@/types/domain";
 import {
@@ -29,7 +30,6 @@ import {
   SHARE_TTL_DAYS,
 } from "./constants";
 import { displayName, effectiveStatus, toReceivedInviteDTO, toSentInviteDTO } from "./dto";
-import { assertInviteRateLimit } from "./rate-limit";
 import type { CreateInviteRequest } from "./schemas";
 import { hashInviteToken, inviteUrl, isShareId, maskEmail, normalizeEmail } from "./tokens";
 import type { InviteListDTO, InvitePreview, ReceivedInviteDTO, SentInviteDTO } from "./types";
@@ -67,8 +67,8 @@ export async function createInvite(
     throw errors.validation("You can't invite yourself. To combine two of your own models, just pick both.");
   }
   const message = input.message?.trim() || null;
-  // Rate-limit first: every attempt (including blocked messages) counts, so moderation can't be spammed.
-  await assertInviteRateLimit(user.id);
+  // Rate-limit first (shared with team invites): every attempt counts, blocked messages included.
+  await rateLimit("invitesPerHour", `user:${user.id}`);
   if (message) await assertTextAllowed([message], { userId: user.id });
 
   const token = newToken();
