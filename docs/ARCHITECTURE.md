@@ -139,10 +139,14 @@ Details worth knowing:
   `Idempotency-Key` is stored on its children as `<key>:<i>`.
 - **Training.** The train handler runs the final safety gate, zips the accepted (EXIF-stripped) photos into
   storage, hands the provider a URL, and on completion stores `identity_models.providerModelRef` and emails the
-  user. The zip is deleted when the job ends. Instant models skip training: they reference the training photos
-  directly (`IdentityRef.referenceImageUrls`) and are ready immediately.
+  user. fal LoRA files are also copied into storage under the model's prefix (`weights/{jobId}.safetensors`,
+  [`src/server/models/weights.ts`](../src/server/models/weights.ts)) and generation uses that copy, because fal has no
+  file-deletion API (its copy expires after a day). The zip is deleted when the job ends. Instant models skip
+  training: they reference the training photos directly (`IdentityRef.referenceImageUrls`) and are ready
+  immediately.
 - **Provider inputs.** `providerInputUrl()` returns a short-lived signed URL when storage is publicly reachable (S3,
-  R2), and otherwise uploads the bytes to the provider's own file storage (local disk in development).
+  R2), and otherwise uploads the bytes to the provider's own file storage (local disk in development, or an S3
+  endpoint on `localhost` / a private network such as the Compose MinIO).
 
 ## Safety pipeline
 
@@ -199,9 +203,11 @@ users/{userId}/
     photos/{photoId}.jpg          training photo (EXIF stripped)
     photos/{photoId}_thumb.webp
     training/{jobId}.zip          training set, deleted when the job ends
+    weights/{jobId}.safetensors   copy of a fal-trained LoRA (fal can't delete its own copy)
   media/{mediaId}.{ext}           generated image or video (AI-labeled, watermarked on the free tier)
   media/{mediaId}_thumb.webp
-  uploads/{uploadId}.{ext}        pose references, garments, masks
+  uploads/{uploadId}.{ext}        pose references, garments, masks (deleted after 30 days)
+  uploads/{uploadId}_{w}x{h}.png  mask resized for a job
 ```
 
 Two drivers implement `StorageProvider`: `local` (files on disk, served by `GET /api/files/[...key]` with HMAC-signed,
@@ -280,8 +286,8 @@ sequenceDiagram
    and the maintenance cron resumes stalled deletions.
 
 **Model deletion** (`DELETE /api/models/:id`) cancels a running training job, deletes the provider-side weights
-(Replicate deletes the destination model; fal offers no deletion API, so only OpenShoot's copies and references are
-removed), the model's storage prefix and rows, and emails the owner. Photos other users made with a model that was
+(Replicate deletes the destination model; fal offers no deletion API, so OpenShoot deletes its own weights copy and
+references and fal's 1-day copy expires on its own), the model's storage prefix and rows, and emails the owner. Photos other users made with a model that was
 shared with them stay in their galleries (DECISIONS #29).
 
 ## Background work
@@ -289,7 +295,7 @@ shared with them stay in their galleries (DECISIONS #29).
 | Task | Vercel | Docker / self-hosted |
 |---|---|---|
 | Finish jobs with missed webhooks, time out stuck jobs | `/api/cron/jobs` (every minute; daily on Hobby) | `pnpm worker` every 5 s |
-| Maintenance: low-credit emails, expire invites and deletion links, resume stalled deletions, delete demo accounts older than 24 h, prune rate limits and old outbox emails | `/api/cron/maintenance` (daily) | `pnpm worker` hourly |
+| Maintenance: low-credit emails, expire multi-person invites and deletion links, resume stalled deletions, delete demo accounts older than 24 h and job-input uploads older than 30 days, prune rate limits and outbox emails older than 90 days | `/api/cron/maintenance` (daily) | `pnpm worker` hourly |
 
 Both cron endpoints require `Authorization: Bearer <CRON_SECRET>` and refuse every call when it isn't set.
 
@@ -312,11 +318,12 @@ Both cron endpoints require `Authorization: Bearer <CRON_SECRET>` and refuse eve
 
 | Path | Contents |
 |---|---|
-| `src/app/(marketing)` | Landing, pricing, FAQ, packs gallery, legal pages, API docs (`/docs/api`) |
+| `src/app/(marketing)` | Landing, pricing, FAQ, packs gallery, legal pages, docs overview (`/docs`) and API docs (`/docs/api`) |
 | `src/app/(auth)` | `/login`, `/verify` |
 | `src/app/app` | Signed-in app: dashboard, models, create, packs, batches, edit, pose, video, try-on, together, gallery, billing, settings, API keys, team |
 | `src/app/admin` | Admin: overview, users, jobs, moderation, revenue |
 | `src/app/api` | Route handlers; `api/v1` is the public API, `api/webhooks` and `api/cron` the inbound integrations |
+| `src/app/s`, `invites`, `teams/join`, `account`, `billing`, `suspended` | Public share page, multi-person and team invites, deletion confirmation, mock checkout, suspension notice |
 | `src/app/dev/emails` | Dev mailbox (mock email only) |
 | `src/server/jobs` | Engine, handlers, batches, costs, brand kits |
 | `src/server/safety` | Consent, liveness, training, text, outputs, references, multi-person, likeness, events |
@@ -324,6 +331,7 @@ Both cron endpoints require `Authorization: Bearer <CRON_SECRET>` and refuse eve
 | `src/server/billing`, `credits` | Checkout, payment events, catalog; the credit ledger |
 | `src/server/account`, `admin`, `teams`, `together` | Deletion and export, admin queries, teams and brand kits, multi-person invites |
 | `src/server/auth`, `email`, `storage`, `images`, `packs`, `openapi`, `maintenance` | Supporting services |
+| `src/server/demo` | One-click demo mode (`DEMO_MODE`): demo accounts, synthetic consent, 24 h cleanup |
 | `src/providers` | Interfaces, registry and adapters (`mock`, `ai`, `safety`, `payment`, `email`, `storage`) |
 | `src/config` | `app.ts`, `plans.ts`, `credits.ts`, `models.ts`, `rate-limits.ts` |
 | `src/db` | Schema and client; `src/types` domain types and pack schema; `src/lib` env, ids, API client |

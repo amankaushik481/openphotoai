@@ -79,10 +79,12 @@ const nextConfig: NextConfig = {
     [`{${INGEST_ROUTES},${SAFETY_ROUTES}}`]: SAFETY_MODEL_FILES,
   },
   outputFileTracingExcludes: {
-    "/**": EXCLUDE_EVERYWHERE,
+    // Every route imports ffmpeg-static through shared modules: drop its 76 MB binary everywhere.
+    // Turbopack (our `next build`) applies excludes to the traced files and then adds the
+    // outputFileTracingIncludes above, so the INGEST routes still ship it. (A negated `!<routes>` key
+    // is not supported by Turbopack's route matching: it matched no route at all.)
+    "/**": [...EXCLUDE_EVERYWHERE, "node_modules/**/ffmpeg-static/ffmpeg"],
     "next-server": EXCLUDE_EVERYWHERE,
-    // Routes that never ingest outputs still import ffmpeg-static through shared modules; drop its binary.
-    [`!${INGEST_ROUTES}`]: ["node_modules/**/ffmpeg-static/ffmpeg"],
   },
   images: {
     // All user media is rendered with <img> from signed URLs; the only next/image user is the (static)

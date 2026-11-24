@@ -16,7 +16,7 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
 ## 2. Feature list (shipped)
 
 ### Core
-1. **Selfie upload + quality checker** — 10–30 photos (Trained mode) or 3–10 (Instant mode). Client resizes to
+1. **Selfie upload + quality checker** — 10–30 photos (Trained mode) or as few as 3 (Instant mode). Client resizes to
    ≤2048px; server strips EXIF/GPS. Per-photo checks: resolution, blur (Laplacian variance), exposure, contrast,
    exactly one face, face size, head-pose variety, near-duplicates (pHash), plus safety (face matches consent selfie,
    adult, not sexual). Every issue has a plain-language message **and a fix-it tip**. Readiness panel shows counts,
@@ -25,7 +25,7 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
    - **Instant** (beats photoai): ready in seconds, no training cost; uses reference-based identity models.
    - **Trained** (best likeness): FLUX-family LoRA training via fal/Replicate; progress UI; "model ready" email.
 3. **Generate** from a prompt, a pack, or a style reference image. Aspect ratios, 1–4 images per job, seed control.
-4. **Photo packs** — 40+ themed packs as JSON files in `packs/` (no code to add one). Public pack gallery pages
+4. **Photo packs** — 64 themed packs (791 prompts) as JSON files in `packs/` (no code to add one). Public pack gallery pages
    double as SEO landing pages.
 5. **Pose / style copy** — upload any reference photo, get yourself in that pose and setting.
 6. **Edit** — change outfit, background, hair, expression or anything (instruction edit); **brush inpainting**.
@@ -58,12 +58,14 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
   (idempotent, out-of-order safe), plan limits (models, batch size, concurrency, API access, team seats).
 - Admin dashboard: users (search, credits adjust, suspend), jobs (failures, refunds), revenue, provider cost per
   job, moderation queue (reports + safety events).
-- Emails: magic link, welcome, model ready, training failed, low credits, receipt, deletion confirm/complete,
-  invites, suspension.
+- Emails: magic link, welcome, model ready, training failed, model deleted, low credits, receipt, deletion
+  confirm/complete, invites (team, multi-person), suspension, report received.
+- Optional one-click public demo (`DEMO_MODE`, mock providers only): throwaway accounts deleted after 24 hours.
 - i18n-ready (`src/i18n`, English shipped). PostHog analytics only when a key is set.
 
 ## 3. Safety (core module — see `docs/SAFETY.md`)
-Consent selfie (live camera) → every training photo must face-match it; adults only (age estimate ≥ 18 + margin);
+Consent selfie (live camera with an active head-pose liveness challenge) → every training photo must face-match it;
+adults only (age estimate ≥ 18 + margin, also checked on every face in an output);
 prompt filter + output classifier on every image/video (no env flag disables it; blocked outputs never stored);
 public-figure prompt/reference blocking; multi-person requires ownership or accepted invite; AI-generated labels
 (IPTC DigitalSourceType XMP metadata on every output) + visible watermark on free tier; report button +

@@ -148,7 +148,7 @@ test("using another person's model needs their accepted invite", async ({ page, 
     // Their only ready model is preselected.
     await expect(friend.getByRole("radio", { name: /Friend me/ })).toBeChecked();
     await friend.getByRole("button", { name: "Accept and share" }).click();
-    await expect(friend.getByRole("status").filter({ hasText: "You're sharing “Friend me”" })).toBeVisible();
+    await expect(friend.getByRole("heading", { name: /^You're sharing “Friend me” with / })).toBeVisible();
   });
 
   await test.step("with consent the together photo is created", async () => {

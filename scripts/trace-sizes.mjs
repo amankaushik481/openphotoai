@@ -46,8 +46,10 @@ for (const trace of walk(serverDir)) {
   const flags = new Set();
   for (const f of files) {
     const abs = path.resolve(base, f);
-    bytes += fileSize(abs);
-    for (const [name, re] of Object.entries(HEAVY)) if (re.test(abs.replaceAll("\\", "/"))) flags.add(name);
+    const size = fileSize(abs);
+    bytes += size;
+    // Symlink / directory entries (size 0) don't ship the heavy files themselves.
+    if (size > 0) for (const [name, re] of Object.entries(HEAVY)) if (re.test(abs.replaceAll("\\", "/"))) flags.add(name);
   }
   rows.push({ route: path.relative(serverDir, trace).replace(/\.js\.nft\.json$/, ""), mb: bytes / 1e6, flags: [...flags] });
 }

@@ -29,7 +29,7 @@ the source of truth; this file explains it.
 | `src/server/media/service.ts` | `toMediaDTO`, `getOwnedMedia`, `getOwnedUpload`, `providerInputUrl`, `ingestImages`, `ingestVideos` | job-engine |
 | `src/server/jobs/engine.ts` | `createJob`, `createBatch`, `toJobDTO`, `getJobForUser`, `syncJob`, `handleAIWebhook`, `cancelJob`, `pollStaleJobs`, `failJob` | job-engine |
 | `src/server/jobs/handlers/types.ts` | `JobHandler` contract (`plan` → `submit` → `complete?` / `onFailed?`) | job-engine |
-| `src/server/jobs/handlers/<type>.ts` | One handler per job type (stubs until implemented) | feature owner |
+| `src/server/jobs/handlers/<type>.ts` | One handler per job type (all 12 implemented; registry in `handlers/index.ts`) | feature owner |
 | `src/lib/api-client.ts` | `api<T>(path, {method, body})`, `ApiClientError`, SWR `fetcher` | orchestrator |
 
 Stub bodies throw `not implemented (<owner>)`. Owners replace bodies **without changing signatures**.
@@ -61,12 +61,15 @@ If a signature must change, do it in a backward-compatible way (optional params)
 `train` jobs are created by `POST /api/models/:id/train`. Batches by `POST /api/batches`.
 
 1. `handler.plan()` — authorize every referenced resource (models via `getOwnedModel`/`assertModelsUsable`,
-   media via `getOwnedMedia`, uploads via `getOwnedUpload`), resolve prompts, return `textsToModerate` + `data`.
-2. Engine: `assertTextAllowed`, rate limits (`jobsPerMinute`, `jobsPerDay`, `draftsPerDay` for drafts),
-   plan concurrency limit, `creditCost(input)`; in ONE transaction insert job + `debitForJob`.
+   media via `getOwnedMedia`, uploads via `getOwnedUpload`), resolve prompts, return `textsToModerate` + `data`
+   (+ `assembledTexts`, the provider-bound prompt, re-checked as a whole; docs/SAFETY.md "Assembled prompt").
+2. Engine: negative balance blocks, rate limits (`jobsPerMinute`, `jobsPerDay`; drafts per image against
+   `draftsPerDay` / `draftsPerDayFree`), `assertTextAllowed`, plan concurrency limit, `creditCost(input)` (or
+   `JobPlan.credits`); in ONE transaction insert job + `debitForJob`.
 3. `handler.submit()` → `ProviderJobRef`; job `running`. Submit error → `failJob` (refund).
-4. Completion via `POST /api/webhooks/ai/[provider]` (verified), `GET /api/jobs/:id` (lazy sync if stale > 3s),
-   `/api/cron/jobs` (Vercel cron) or `pnpm worker` (Docker).
+4. Completion via `POST /api/webhooks/ai/[provider]` (verified), `GET /api/jobs/:id` (lazy sync, throttled per job:
+   3 s, or 20 s / 60 s for training while webhooks are enabled), `/api/cron/jobs` (Vercel cron) or `pnpm worker`
+   (Docker).
 5. Success → `handler.complete?()` or default `ingestImages`/`ingestVideos` (safety check per output; blocked outputs
    discarded + proportional refund; all blocked → status `blocked` + full refund). Failure → `failJob` + `onFailed`.
 
@@ -128,10 +131,14 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/reports` | P (IP rate limit) | `{ shareToken?, mediaId?, reason, details?, email? }` → `{ ok }` |
 
 ### Packs
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
 | GET | `/api/packs` | P | → `{ packs: PackSummary[] }` |
 | GET | `/api/packs/:slug` | P | → `{ pack: PackSummary & { prompts: {title}[] } }` |
 
 ### Multi-person consent
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
 | POST | `/api/multi-person/invites` | U | `{ email, message? }` → `{ invite }` (emails the owner) |
 | GET | `/api/multi-person/invites` | U | → `{ sent: [...], received: [...] }` |
 | POST | `/api/multi-person/invites/:token/accept` | U | `{ modelId }` → `{ ok }` (invitee picks which of their models to share) |
@@ -139,14 +146,19 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | DELETE | `/api/multi-person/shares/:id` | U | revoke (either party) |
 
 ### Credits / billing
-| GET | `/api/credits` | U | → `{ balance, ledger: CreditLedgerEntryDTO[], nextCursor }` |
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
+| GET | `/api/credits` | UK | → `{ balance, ledger: CreditLedgerEntryDTO[], nextCursor }` |
 | POST | `/api/billing/checkout` | U | `{ item: CheckoutItem }` → `{ url }` |
 | POST | `/api/billing/portal` | U | → `{ url }` |
 | GET | `/api/billing/subscription` | U | → `{ subscription | null, plan }` |
-| POST | `/api/webhooks/payments/[provider]` | P (signature) | Stripe / mock events |
+| POST | `/api/webhooks/payments/[provider]` | P (signature) | Stripe / mock events (404 unless `provider` is the configured one; 409 while the same event is in flight; 500 = redeliver) |
 | POST | `/api/billing/mock/complete` | U (mock only) | `{ checkoutId }` → signs + posts a mock webhook (dev/e2e) |
+| POST | `/api/billing/mock/cancel` | U (mock only) | mock "billing portal": cancels the user's subscription now |
 
 ### Teams / brand kits
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
 | GET/POST | `/api/teams` | U | list mine / `{ name }` create (Studio plan) |
 | GET/PATCH/DELETE | `/api/teams/:id` | U | team detail (members, kits) |
 | POST | `/api/teams/:id/invites` | U | `{ email }` |
@@ -154,41 +166,56 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | DELETE | `/api/teams/:id/members/:memberId` | U | remove |
 | PATCH | `/api/teams/:id/members/:memberId` | U | `{ role }` (owner only) |
 | GET/POST | `/api/teams/:id/brand-kits` | U | list / create |
+| GET | `/api/brand-kits` | U | → `{ brandKits }` (every kit of every team I actively belong to) |
 | PATCH/DELETE | `/api/brand-kits/:id` | U | update / delete |
 | POST | `/api/teams/:id/credits/transfer` | U | `{ memberUserId, amount }` (owner → member) |
 
 ### API keys + public API v1
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
 | GET/POST | `/api/api-keys` | U | list / `{ name, scopes? }` (`*` default, `read`, `generate`) → `{ key, apiKey }` (key shown once) |
 | DELETE | `/api/api-keys/:id` | U | revoke |
 | GET | `/api/v1/openapi.json` | P | OpenAPI 3.1 document |
-| GET | `/api/v1/models`, `/api/v1/models/:id` | K | models |
-| POST/GET | `/api/v1/jobs`, GET `/api/v1/jobs/:id`, POST `/api/v1/jobs/:id/cancel` | K | same bodies as `/api/jobs` |
-| POST | `/api/v1/batches` | K | same body + `Idempotency-Key` as `/api/batches` |
-| POST | `/api/v1/uploads` | K | multipart `file` + `purpose` (`reference`/`garment`/`mask`), same as `/api/uploads` |
-| GET | `/api/v1/media`, `/api/v1/media/:id` | K | |
-| GET | `/api/v1/packs` | K | |
-| GET | `/api/v1/credits` | K | |
+| GET | `/api/v1/models`, `/api/v1/models/:id` | K (`read`) | models |
+| POST/GET | `/api/v1/jobs` (POST `generate`, GET `read`), GET `/api/v1/jobs/:id` (`read`), POST `/api/v1/jobs/:id/cancel` (`generate`) | K | same bodies as `/api/jobs` |
+| POST | `/api/v1/batches` | K (`generate`) | same body + `Idempotency-Key` as `/api/batches` |
+| GET | `/api/v1/batches/:id` | K (`read`) | → `{ batch, jobs }` |
+| POST | `/api/v1/uploads` | K (`generate`) | multipart `file` + `purpose` (`reference`/`garment`/`mask`), same as `/api/uploads` |
+| GET | `/api/v1/media`, `/api/v1/media/:id` | K (`read`) | |
+| GET | `/api/v1/packs` | K (`read`) | |
+| GET | `/api/v1/credits` | K (`read`) | |
 
 ### Webhooks / cron / files
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
 | POST | `/api/webhooks/ai/[provider]` | P (signature) | fal / replicate / mock completion webhooks |
 | GET | `/api/cron/jobs` | `Authorization: Bearer CRON_SECRET` | poll stale jobs |
-| GET | `/api/cron/maintenance` | CRON_SECRET | low-credit emails, expire shares/invites/deletions, resume stalled account deletions, prune rate limits (`pnpm worker` also runs it hourly) |
+| GET | `/api/cron/maintenance` | CRON_SECRET | low-credit emails, expire shares/invites/deletions, resume stalled account deletions, delete demo accounts (> 24 h) and expired uploads (> 30 days), prune rate limits and old outbox emails (`pnpm worker` also runs it hourly) |
 | GET/HEAD | `/api/files/[...key]` | signature (`?exp&sig&dl`) | local storage driver file serving (Range supported) |
 
 ### Admin (auth A)
 `GET /api/admin/stats`, `GET /api/admin/users?q`, `GET /api/admin/users/:id`,
 `POST /api/admin/users/:id/credits {delta, note}`, `POST /api/admin/users/:id/suspend {reason}`,
 `POST /api/admin/users/:id/unsuspend`, `GET /api/admin/jobs?status&type`, `POST /api/admin/jobs/:id/refund`,
-`GET /api/admin/moderation`, `POST /api/admin/reports/:id/resolve {action: dismiss|remove_media|suspend_user, note}`.
+`GET /api/admin/moderation` (open reports + unreviewed safety events),
+`POST /api/admin/moderation-events/:id/review` (→ `{ event: { id, reviewed } }`),
+`POST /api/admin/reports/:id/resolve {action: dismiss|remove_media|suspend_user, note}`.
 
-### Dev (mock mode only)
-`GET /dev/emails` (page) — mailbox of mocked emails; `POST /api/demo/login` (DEMO_MODE).
+### Dev mailbox / demo
+| Method | Path | Auth | Body → Response |
+|---|---|---|---|
+| GET | `/dev/emails`, `/dev/emails/[id]` (pages) | P (mock email only) | mailbox of mocked emails |
+| GET | `/api/dev/emails/latest` | P (mock email only, 404 otherwise) | `?to&template?` → newest mocked email `{ id, to, template, subject, html, text, links, createdAt }` (Playwright follows magic links with it) |
+| GET | `/api/demo/login` | P (404 unless `DEMO_MODE`) | → `{ enabled: true }` (lets the static landing page show the demo button; cached 5 min) |
+| POST | `/api/demo/login` | P (`DEMO_MODE` only, same-origin, per-IP + global rate limits) | creates a demo account, sets the session cookie → `{ redirect }` |
 
 ## 5. Page map
 
-Marketing (static, fast): `/`, `/pricing`, `/packs`, `/packs/[slug]`, `/faq`, `/legal/terms`, `/legal/privacy`,
-`/legal/acceptable-use`, `/docs/api`, `/s/[token]` (shared media + report button), `/login`, `/verify` (magic-link landing: user clicks to consume the token, so link scanners can't burn it),
+Marketing (static, fast): `/`, `/pricing`, `/packs`, `/packs/[slug]`, `/faq`, `/legal`, `/legal/terms`,
+`/legal/privacy`, `/legal/acceptable-use`, `/docs` (self-hosting, packs and API overview), `/docs/api`. Public
+pages: `/s/[token]` (shared media + report button), `/login`, `/verify` (magic-link landing: user clicks to consume the token, so link scanners can't burn it),
 `/invites/[token]` (multi-person), `/teams/join/[token]`, `/account/delete/confirm`, `/suspended`.
+Mock providers only: `/billing/mock-checkout` (mock payments), `/dev/emails`, `/dev/emails/[id]` (dev mailbox).
 
 App (`/app/**`, signed in): `/app` (dashboard), `/app/models`, `/app/models/new` (wizard: name → consent selfie →
 upload → quality check → train), `/app/models/[id]`, `/app/create` (prompt / pack / reference, drafts, prompt helper),

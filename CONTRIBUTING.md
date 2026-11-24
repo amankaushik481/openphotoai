@@ -58,7 +58,7 @@ unchanged. `NEXT_PUBLIC_*` values are baked in at build time: run `docker compos
 | `pnpm db:generate` | Create a migration from `src/db/schema.ts` changes |
 | `pnpm db:migrate` / `pnpm db:seed` | Apply migrations / validate packs and create the seed admin |
 | `pnpm db:studio` | Drizzle Studio |
-| `pnpm worker` | Background job poller (what the Docker `worker` service runs) |
+| `pnpm worker` | Background job poller + hourly maintenance (what the Docker `worker` service runs) |
 | `pnpm check-env` | Validate the environment and show active providers |
 | `pnpm packs:validate` | Validate the photo packs in `packs/` |
 | `pnpm email:dev` | Preview email templates on :3010 |
@@ -101,16 +101,17 @@ unchanged. `NEXT_PUBLIC_*` values are baked in at build time: run `docker compos
   pnpm test:e2e
   ```
 
-CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs typecheck, lint, unit tests and a build on every push
-and pull request, then the Playwright suite against Postgres.
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs typecheck, lint, pack validation, unit tests and a
+build on every pull request and push to `main`, then the Playwright suite against Postgres 16.
 
 ## Adding a photo pack
 
-1. Copy a pack in [`packs/`](packs) to `packs/<your-slug>.json`; the format is defined (and documented) by the Zod
-   schema in [`src/types/pack.ts`](src/types/pack.ts).
-2. Run `pnpm packs:validate`, then try it with mock providers (`/app/packs/<your-slug>`) and, ideally, a real one.
+1. Copy a pack in [`packs/`](packs) to `packs/<your-slug>.json`; the format is defined by the Zod schema in
+   [`src/types/pack.ts`](src/types/pack.ts) and explained in [`docs/ADDING_PACKS.md`](docs/ADDING_PACKS.md).
+2. Run `pnpm packs:validate --strict`, then try it with mock providers (`/app/packs/<your-slug>`) and, ideally, a
+   real one.
 3. Packs must not contain nudity or sexual content, minors, real public figures, or brands/trademarks. Cover images
-   must be AI-generated (with your own model) or licensed for this use.
+   must be generated on a demo identity (never a real person) or licensed for this use.
 
 ## Adding a provider
 
@@ -121,7 +122,8 @@ and pull request, then the Playwright suite against Postgres.
    validation of required keys) and `.env.example` (what it does, where to get it, required or optional).
 3. Model ids go in `src/config/models.ts`. Keep provider-side safety checkers enabled; OpenShoot's own safety checks
    run on every input and output regardless.
-4. Unit-test it with mocked HTTP (never real API calls) and document any webhook setup.
+4. Unit-test it with mocked HTTP (never real API calls) and document any webhook setup. The full checklist per
+   provider kind is in [`docs/ADDING_PROVIDERS.md`](docs/ADDING_PROVIDERS.md).
 
 ## Pull requests
 

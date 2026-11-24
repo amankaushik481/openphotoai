@@ -85,9 +85,11 @@ Vercel's file system is read-only and ephemeral, so use `STORAGE_DRIVER=s3`.
 
 No CORS rules are needed: uploads go through the API as multipart POSTs (photos are resized to ≤ 2048 px in the
 browser first, which keeps them under Vercel's 4.5 MB request limit), zip downloads are streamed by the server, and
-browsers only load short-lived signed GET URLs in `<img>` / `<video>` tags and download links. The endpoint must be
-reachable from the public internet, because AI providers download their inputs (training zips, photos, masks) from
-the same signed URLs. R2 and S3 are; a MinIO on `localhost` is not (see the
+browsers only load short-lived signed GET URLs in `<img>` / `<video>` tags and download links. With a public
+endpoint (R2, S3), AI providers download their inputs (training zips, photos, masks) from the same signed URLs, so
+it must be reachable from the public internet. An endpoint on `localhost`, a private IP, a `.local` / `.internal`
+name or a bare service name (`isPrivateEndpoint` in `src/providers/storage/s3.ts`) is treated as private: inputs are
+then uploaded to the AI provider's own file storage instead (see the
 [Docker storage section](#storage-on-a-remote-server)).
 
 AWS S3 works the same way: leave `S3_ENDPOINT` empty and set `S3_REGION` to the bucket's region.
@@ -157,7 +159,7 @@ authorized redirect URI `https://<your-domain>/api/auth/callback/google`, and se
 | Path | Schedule | Does |
 |---|---|---|
 | `/api/cron/jobs` | every minute | syncs running jobs whose webhook was missed, fails and refunds stuck jobs |
-| `/api/cron/maintenance` | daily, 04:00 UTC | low-credit emails, expires invites and deletion links, resumes stalled account deletions, deletes demo accounts older than 24 hours, prunes rate-limit and email-outbox rows |
+| `/api/cron/maintenance` | daily, 04:00 UTC | low-credit emails, expires invites and deletion links, resumes stalled account deletions, deletes demo accounts older than 24 hours and job-input uploads (references, garments, masks) older than 30 days, prunes rate-limit rows and email-outbox rows older than 90 days |
 
 Generate a secret with `openssl rand -hex 32` and set it as `CRON_SECRET`; Vercel sends it as
 `Authorization: Bearer <CRON_SECRET>` automatically. Without it both endpoints refuse every call.
@@ -247,14 +249,20 @@ then used.
 
 The image's entrypoint ([`docker/entrypoint.sh`](../docker/entrypoint.sh)) has three roles: `web` (default: wait
 for the database, migrate, seed, start), `worker`, and `migrate` (migrate and seed, then exit). Knobs:
-`MIGRATE_ON_START`, `SEED_ON_START`, `DB_WAIT_TIMEOUT`. Without Compose:
+`MIGRATE_ON_START` (default `true` for `web`, `false` for `worker`), `SEED_ON_START` (defaults to
+`MIGRATE_ON_START`), `DB_WAIT_TIMEOUT` (seconds, default 60), `AUTH_SECRET_FILE` (where a generated
+`BETTER_AUTH_SECRET` is kept, default `/data/.auth-secret`) and `LOOPBACK_FORWARD` (the Compose S3 wiring below).
+Without Compose:
 
 ```bash
 docker build -t openshoot .
-docker run -p 3000:3000 --env-file .env openshoot          # web
-docker run --env-file .env openshoot worker                 # worker
-docker run --rm --env-file .env openshoot migrate           # one-off migration
+docker run -p 3000:3000 --env-file .env -v openshoot-data:/data openshoot          # web
+docker run --env-file .env -v openshoot-data:/data openshoot worker                 # worker
+docker run --rm --env-file .env -v openshoot-data:/data openshoot migrate           # one-off migration
 ```
+
+Mount the same `/data` volume into every container (or set `BETTER_AUTH_SECRET` in `.env`): without it, each
+container generates its own secret, which is lost when the container is recreated.
 
 ### Configure `.env` for production
 
@@ -319,12 +327,14 @@ optimization for AI jobs: the worker polls running jobs every 5 seconds whatever
 
 ### Storage on a remote server
 
-Presigned URLs embed and sign the storage host, so browsers, the app **and the AI provider** must all reach the same
-`S3_ENDPOINT`. The compose default, `http://localhost:9000`, only works on your own machine: the browser reaches it
-through MinIO's published port and, inside the containers, `LOOPBACK_FORWARD`
+Presigned URLs embed and sign the storage host, so browsers and the app must reach the same `S3_ENDPOINT`. The
+compose default, `http://localhost:9000`, only works on your own machine: the browser reaches it through MinIO's
+published port and, inside the containers, `LOOPBACK_FORWARD`
 ([`docker/loopback-forward.mjs`](../docker/loopback-forward.mjs)) forwards `localhost:9000` to the `minio` service.
-With a real AI provider, OpenShoot hands those signed URLs to fal or Replicate (the S3 driver assumes its endpoint is
-public), so a `localhost` endpoint makes every training and edit fail at the provider.
+AI providers can't reach a `localhost` endpoint either; the S3 driver detects such private endpoints and uploads job
+inputs to the provider's own file storage instead (slower, and the provider keeps those copies for about a day). On
+a public hostname the provider downloads inputs straight from the signed URLs, so that hostname must really be
+reachable from the internet.
 
 On a server, choose one:
 
@@ -383,7 +393,7 @@ Both adapters implement every feature; model ids and prices live in [`src/config
 | Setup | `FAL_KEY` only | `AI_PROVIDER=replicate`, `REPLICATE_API_TOKEN`, `REPLICATE_OWNER`, and `REPLICATE_WEBHOOK_SECRET` for webhooks |
 | Webhooks | Verified with fal's public ED25519 keys (fetched from `rest.fal.ai`), no secret | Verified with the account's signing secret. Without `REPLICATE_WEBHOOK_SECRET` every webhook is rejected and jobs complete by polling only. Multi-image jobs are always polled (one prediction per image). |
 | Trained models | LoRA file returned by the trainer | A private destination model `openshoot-…` per identity under `REPLICATE_OWNER` |
-| Deleting a trained model | Not possible through fal's API: the LoRA stays at an unguessable fal URL; OpenShoot removes its own copies and references | Versions and the destination model are deleted |
+| Deleting a trained model | fal has no deletion API, so its copy of the LoRA is stored with a 1-day lifetime and expires on its own; OpenShoot copies the weights into your storage when training completes (`…/models/{id}/weights/`) and deletes that copy with the model | Versions and the destination model are deleted |
 | Cost | Slightly higher for training and photos, much lower for talking videos ($1.72 vs ~$4.83 per 30 s) | Slightly cheaper training and photos; some prices are UNVERIFIED in MODELS.md |
 | Local storage in dev | Inputs are uploaded to fal storage when your storage isn't public | Inputs are uploaded to Replicate files |
 
@@ -423,7 +433,8 @@ later invalidates stored consent embeddings: affected users retake the consent s
 - [ ] `MOCK_PROVIDERS=false`; `pnpm check-env` (with `NODE_ENV=production`) shows fal or Replicate, Stripe, Resend,
       S3 and real Postgres, and prints no warnings.
 - [ ] Migrations applied (`pnpm db:migrate`, automatic in Docker).
-- [ ] Storage bucket is private and its endpoint is reachable from browsers and from the AI provider.
+- [ ] Storage bucket is private and its endpoint is reachable from browsers (and from the AI provider, when it is a
+      public hostname).
 - [ ] Stripe webhook endpoint registered with the events listed above; one live test purchase grants credits once;
       Customer Portal saved in live mode.
 - [ ] Resend domain verified; a magic link arrives in a real inbox; `EMAIL_FROM` is on that domain.
@@ -455,10 +466,10 @@ If you change `src/db/schema.ts` yourself, create a migration with `pnpm db:gene
 |---|---|
 | The app refuses to start with "Invalid environment configuration" | The message lists each problem. Common ones: a short or placeholder `BETTER_AUTH_SECRET`; "AI_PROVIDER=fal in production requires real payments and email" (set `MOCK_PROVIDERS=false` and configure Stripe + Resend); a provider selected without its keys. On Vercel the same error can fail the build while pages prerender. |
 | "Safety: FACE_PROVIDER and MODERATION_PROVIDER cannot be 'mock'…" | Remove `FACE_PROVIDER=mock` / `MODERATION_PROVIDER=mock`; the defaults (`local`) need no keys. |
-| Magic-link emails never arrive | Check the Resend dashboard: the `EMAIL_FROM` domain must be verified. In mock mode emails are only shown at `/dev/emails` (and that page is disabled in production unless everything runs on mocks). |
+| Magic-link emails never arrive | Check the Resend dashboard: the `EMAIL_FROM` domain must be verified. In mock mode emails are only shown at `/dev/emails` (in production that page only works when AI, payments and email all run on mocks and mock email was chosen explicitly with `MOCK_PROVIDERS=true` or `EMAIL_PROVIDER=mock`). |
 | "Too many requests" on sign-in for everyone | Behind a reverse proxy with `TRUSTED_PROXY_HOPS=0` all visitors share one IP bucket. Set it to the number of proxies. |
 | Jobs stay "running" | Webhooks are disabled while `WEBHOOK_BASE_URL`/`NEXT_PUBLIC_APP_URL` is localhost, and nothing polls: run `pnpm worker` (Docker: check the `worker` service), check the Vercel crons and `CRON_SECRET`. Jobs time out after 2 hours (training 6 hours) and are refunded. |
-| Jobs fail at the provider right after submit (download or input errors) | The provider can't fetch the signed input URL: storage isn't public (MinIO on `localhost`). See [Storage on a remote server](#storage-on-a-remote-server). |
+| Jobs fail at the provider right after submit (download or input errors) | The provider can't fetch the signed input URL: `S3_ENDPOINT` is a public-looking hostname the provider can't reach (firewall, split DNS, a proxy that rewrites `Host`). `localhost` / private-IP endpoints are detected and inputs are uploaded to the provider instead. See [Storage on a remote server](#storage-on-a-remote-server). |
 | Photos don't load in the browser | `S3_ENDPOINT` isn't reachable from the browser, or a proxy in front of MinIO rewrites the `Host` header (signatures then fail). |
 | Stripe webhook returns 400 | Wrong `STRIPE_WEBHOOK_SECRET` (each endpoint and each `stripe listen` session has its own). 404 means `PAYMENT_PROVIDER` isn't `stripe`. 409 means another request is still applying the same event, and 500 that applying it failed (the error is stored in the `webhook_events` table): Stripe redelivers both. |
 | Replicate webhooks return 401 | `REPLICATE_WEBHOOK_SECRET` is missing or wrong. Jobs still finish through polling. |

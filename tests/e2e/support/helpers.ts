@@ -2,6 +2,7 @@
  * Shared Playwright helpers for the end-to-end journeys (mock providers, dev mailbox, mock checkout).
  * Everything here drives the app the way a user or an API client would: no test-only backdoors.
  */
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import { FIXTURES_DIR, type SelfieName } from "../../fixtures";
@@ -121,8 +122,71 @@ export async function buyCreditsViaApi(page: Page, packId = "credits_100"): Prom
   return checkoutId!;
 }
 
+/** Head poses the consent liveness check can ask for (src/lib/liveness.ts) + the frontal shot. */
+const CAMERA_POSES = ["frontal", "turn_left", "turn_right", "look_up", "look_down"] as const;
+
+/** `tests/fixtures/liveness/default-<pose>.jpg` as data URLs (identity "default", 960×1280). */
+let cameraFrames: Record<string, string> | undefined;
+function livenessFrames(): Record<string, string> {
+  cameraFrames ??= Object.fromEntries(
+    CAMERA_POSES.map((pose) => {
+      const bytes = readFileSync(path.join(FIXTURES_DIR, "liveness", `default-${pose}.jpg`));
+      return [pose, `data:image/jpeg;base64,${bytes.toString("base64")}`];
+    }),
+  );
+  return cameraFrames;
+}
+
+const fakeCameraPages = new WeakSet<Page>();
+
+/**
+ * Test-harness camera (no app backdoor): replaces `getUserMedia` in this page with a 960×1280
+ * canvas stream showing the frontal fixture, or `default-<step>.jpg` while the consent camera
+ * shows liveness step `[data-liveness-step="<step>"]`. Chromium's built-in fake device can't
+ * turn its head. Applies from the next navigation on.
+ */
+export async function installFakeCamera(page: Page): Promise<void> {
+  if (fakeCameraPages.has(page)) return;
+  fakeCameraPages.add(page);
+  await page.addInitScript((frames: Record<string, string>) => {
+    const devices = navigator.mediaDevices;
+    if (!devices) return;
+    const images = Object.fromEntries(
+      Object.entries(frames).map(([pose, src]) => {
+        const img = new Image();
+        img.src = src;
+        return [pose, img];
+      }),
+    );
+    devices.getUserMedia = async (constraints?: MediaStreamConstraints) => {
+      if (!constraints?.video) throw new DOMException("The test camera has video only.", "NotFoundError");
+      await Promise.all(Object.values(images).map((img) => img.decode().catch(() => undefined)));
+      const canvas = document.createElement("canvas");
+      canvas.width = 960;
+      canvas.height = 1280;
+      const ctx = canvas.getContext("2d")!;
+      const draw = () => {
+        const step = document.querySelector("[data-liveness-step]")?.getAttribute("data-liveness-step");
+        ctx.drawImage((step && images[step]) || images.frontal!, 0, 0, canvas.width, canvas.height);
+      };
+      draw();
+      const timer = window.setInterval(draw, 50);
+      const stream = canvas.captureStream(30);
+      for (const track of stream.getTracks()) {
+        const stop = track.stop.bind(track);
+        track.stop = () => {
+          window.clearInterval(timer);
+          stop();
+        };
+      }
+      return stream;
+    };
+  }, livenessFrames());
+}
+
 /** `/app/models/new`: name the model and land on the consent step. Returns the model id. */
 export async function startModel(page: Page, name: string): Promise<string> {
+  await installFakeCamera(page);
   await page.goto("/app/models/new");
   await page.getByLabel("Model name").fill(name);
   await page.getByRole("button", { name: "Continue" }).click();
@@ -132,14 +196,18 @@ export async function startModel(page: Page, name: string): Promise<string> {
   return id!;
 }
 
-/** Take the live consent selfie with Chromium's fake camera (identity "default" for the mock face provider). */
+/**
+ * Take the live consent selfie with the test camera (identity "default" for the mock face provider):
+ * 3 s countdown for the frontal shot, then one guided head movement per liveness step (3 s each).
+ * Needs `installFakeCamera` before the page loaded (startModel does it).
+ */
 export async function takeConsentSelfie(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Open camera" }).click();
   const shoot = page.getByRole("button", { name: "Take selfie" });
   await expect(shoot).toBeEnabled();
   await shoot.click();
-  // 3-2-1 countdown, then review.
-  await page.getByRole("button", { name: "Use this selfie" }).click({ timeout: 15_000 });
+  await expect(page.locator("[data-liveness-step]")).toBeVisible({ timeout: 10_000 });
+  await page.getByRole("button", { name: "Use this selfie" }).click({ timeout: 30_000 });
   await expect(page.getByRole("button", { name: /Add photos of yourself/ })).toBeVisible({ timeout: 15_000 });
 }
 

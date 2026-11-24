@@ -67,7 +67,8 @@ export default defineConfig({
       STORAGE_DRIVER: "local",
       LOCAL_STORAGE_DIR: storageDir,
       NEXT_PUBLIC_APP_URL: baseURL,
-      BETTER_AUTH_SECRET: "e2e-test-secret-e2e-test-secret-e2e-test-secret",
+      // Production build: must pass the env.ts strength check (32+ chars, 8+ distinct, no placeholder words).
+      BETTER_AUTH_SECRET: "playwright-e2e-only-auth-key-7Qm4Vx9Lw2Kp6Zr8",
       CRON_SECRET: "e2e-cron-secret",
       NEXT_TELEMETRY_DISABLED: "1",
     },

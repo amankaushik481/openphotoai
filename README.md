@@ -87,8 +87,8 @@ core module that cannot be switched off. The product name is configurable: set `
 - Teams: seats, roles, shared brand kits and credit transfers (Studio plan).
 - Admin dashboard: users (search, adjust credits, suspend), jobs (failures, refunds), revenue, provider cost per job,
   moderation queue.
-- Transactional emails (React Email): magic link, welcome, model ready, training failed, low credits, receipt,
-  invites, deletion, suspension.
+- Transactional emails (React Email): magic link, welcome, model ready, training failed, model deleted, low credits,
+  receipt, invites, account deletion, suspension, report received.
 - Optional one-click public demo (`DEMO_MODE`, mock providers only): throwaway accounts with a ready model and
   credits, deleted after 24 hours.
 - i18n-ready (English shipped), optional PostHog analytics (off unless a key is set), dark mode.
@@ -173,7 +173,7 @@ apply the database migrations, register the Stripe webhook and (on the Hobby pla
 Provider cost per action at the default models (estimates from [docs/MODELS.md](docs/MODELS.md) §E and
 [src/config/models.ts](src/config/models.ts), researched November 2026; re-check prices before launch). Credits are
 what users are charged ([src/config/credits.ts](src/config/credits.ts)). At the default prices one credit sells for
-$0.05 (Studio plan) to $0.09 (100-credit pack).
+$0.04 (Studio, billed yearly; $0.05 monthly) to $0.09 (100-credit pack).
 
 | Action | Credits | fal (default) | Replicate |
 |---|---|---|---|
@@ -189,13 +189,14 @@ $0.05 (Studio plan) to $0.09 (100-credit pack).
 | Virtual try-on | 3 | $0.075 | ~$0.08 |
 | Together photo (per image) | 3 | $0.08 | ~$0.08 |
 | Photo → video, 5 s / 10 s | 10 / 18 | $0.42 / $0.84 | ~$0.35 / ~$0.70 |
-| Talking video, 30 s (TTS + lip-sync) | 48 (8 per started 5 s) | $1.72 | ~$4.83 |
+| Talking video, 30 s (TTS + lip-sync) | 72 (12 per started 5 s) | $1.72 | ~$4.83 |
 | Prompt helper call | 0 | ~$0.0005 | ~$0.001 |
 | Safety checks (local face + moderation models) | 0 | $0 (CPU only) | $0 (CPU only) |
 
 "High quality" photos cost 2 credits and render up to 2 MP on fal (billed per megapixel, so about twice a standard
-photo). Watch two margins if you change prices: training on the Studio plan is roughly break-even on fal, and talking
-videos on Replicate cost more than the credits they are sold for.
+photo). Watch two margins if you change prices: training on the Studio plan is roughly break-even on fal (monthly
+billing; a loss on yearly billing), and talking videos on Replicate cost more than their credits bring in on the Pro
+and Studio plans.
 
 **One training + 100 photos** (fal default / Replicate):
 
@@ -205,7 +206,7 @@ videos on Replicate cost more than the credits they are sold for.
 | 100 standard photos | $3.50 | $3.20 |
 | **Core** | **$5.50** | **$4.70** |
 | + 100 free drafts, 100 prompt-helper calls, 20 upscales (2×) | +$4.83 | +$4.30 |
-| **Realistic total** | **~$10.35** | **~$9.00** |
+| **Realistic total** | **~$10.33** | **~$9.00** |
 
 The same user pays 140 credits for the core (40 + 100), which fits in a Starter month (200 credits, $15).
 
@@ -247,7 +248,8 @@ src/
   app/              Next.js pages and API routes (marketing, /app, /admin, /api, /api/v1)
   components/       UI: ui/ (design system), app/ (shared), one folder per feature
   server/           Server-only domain code: jobs engine + handlers, safety, credits, billing, models,
-                    media, gallery, teams, together, account, admin, email, storage, packs, auth, openapi
+                    media, images, gallery, teams, together, account, admin, email, storage, packs, auth,
+                    openapi, maintenance, demo
   providers/        Adapter interfaces (types.ts), registry.ts, mock/, ai/ (fal, replicate),
                     safety/, payment/, email/, storage/
   config/           Branding, plans, credit costs, model ids, rate limits
@@ -257,7 +259,8 @@ src/
   i18n/, content/, hooks/, types/
 packs/              64 photo packs (JSON)
 drizzle/            SQL migrations
-scripts/            setup, migrate, seed, worker, check-env, validate-packs, calibrate-face
+scripts/            setup, migrate, seed, worker, check-env, validate-packs, calibrate-face,
+                    generate-fixtures, trace-sizes
 docker/             Container entrypoint and helpers
 tests/              unit/ (Vitest), e2e/ (Playwright), fixtures/, helpers/
 docs/               Specs, guides and reviews (index: docs/README.md)

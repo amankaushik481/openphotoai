@@ -44,6 +44,7 @@ Start with the [project README](../README.md) for the overview and the 5-minute 
 | [reviews/payments.md](reviews/payments.md) | Payments and credits review: Stripe, webhooks, subscriptions, refunds, the ledger. |
 | [reviews/performance.md](reviews/performance.md) | Performance review: bundles, rendering, queries. |
 | [reviews/accessibility-mobile.md](reviews/accessibility-mobile.md) | Accessibility (WCAG 2.2 AA) and mobile UI review. |
+| [reviews/docs-accuracy.md](reviews/docs-accuracy.md) | Docs accuracy pass: every factual claim in the guides checked against the code, and what was corrected. |
 | [agents/RULES.md](agents/RULES.md) | Rules for the agents that built the project (ownership, verification, provider module map). |
 | [agents/INTEGRATION_TODO.md](agents/INTEGRATION_TODO.md) | Integration follow-ups from wave 3. |
 

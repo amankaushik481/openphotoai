@@ -14,7 +14,7 @@ module, not a plugin: **there is no env var, setting, plan or admin switch that 
 | 1 | **Consent.** A model can only be trained from photos of the person who took a live consent selfie. Every training photo must face-match that selfie. | `verifyConsentSelfie` (`consent.ts`), `analyzeTrainingPhotoSafety` + `assertTrainingAllowed` (`training.ts`) |
 | 2 | **Adults only.** Training is refused if anyone in the consent selfie or any training photo is estimated under 18 + a 2-year margin. References showing anyone under 18 are refused. Prompts that mention children or ages under 18 are refused. | `consent.ts`, `training.ts`, `reference.ts`, `text-filter.ts` |
 | 3 | **No sexual content.** Every prompt/instruction/script passes a rule filter *and* the moderation provider; every generated image and video passes an output classifier. Blocked outputs are discarded before storage — never stored, never shown — and refunded. | `text.ts`, `outputs.ts` (callers: `src/server/media/service.ts`) |
-| 4 | **No public figures.** Prompts naming public figures (≥ 300 names + generic phrases like "celebrity lookalike", "deepfake") are refused; uploaded references and consent selfies are checked with celebrity recognition when the provider supports it. | `public-figures.ts`, `terms.ts`, `reference.ts`, `consent.ts` |
+| 4 | **No public figures.** Prompts naming public figures (about 500 names with aliases + generic phrases like "celebrity lookalike", "deepfake") are refused; uploaded references and consent selfies are checked with celebrity recognition when the provider supports it. | `public-figures.ts`, `terms.ts`, `reference.ts`, `consent.ts` |
 | 5 | **Multi-person consent.** Every identity in a job must be owned by the user or shared with them through an accepted, unexpired in-app invite granted by the model's owner. | `assertModelsUsable` (`multi-person.ts`) |
 | 6 | **Everything blocked is recorded** in `moderation_events` for the admin moderation queue. | `events.ts` |
 | 7 | **Fail closed.** If a classifier, face model or storage read fails, the request is blocked (outputs are marked `allowed: false`, category `moderation_error`). An outage can never let content through. | every module |
@@ -39,8 +39,9 @@ generation endpoints; report button, moderation queue, suspension and real delet
    student", "sweet sixteen", "barely 18", "age regression", "stepdaughter"…, plus es/fr/de/pt/it/nl/
    Hindi-Latin equivalents). Sexual terms include euphemisms ("birthday suit", "wearing nothing",
    "implied nude", "wet t-shirt", "only a towel", "bra", "garter belt"…), es/fr/de/pt/it/nl/Hindi-Latin
-   nudity and underwear words, a substring list for non-Latin scripts (Hindi, Russian, Chinese, Japanese,
-   Korean, Arabic), and undressing patterns ("remove the bikini top", "replace her clothes with nothing",
+   nudity and underwear words (plus a few nudity words in Scandinavian, Finnish, Indonesian/Malay, Turkish,
+   Filipino and Vietnamese), a substring list for non-Latin scripts (Hindi, Russian/Ukrainian, Chinese,
+   Japanese, Korean, Arabic), and undressing patterns ("remove the bikini top", "replace her clothes with nothing",
    "unzip the dress completely", "change the clothing … to: nothing").
    Evasion handling (`normalize.ts`): NFKD + diacritics stripping (fullwidth, math-bold, circled and
    regional-indicator letters), Cyrillic/Greek/small-caps homoglyphs, zero-width and other invisible
@@ -218,8 +219,9 @@ retake the consent selfie — mismatched dimensions are treated as "no match", n
 
 1. **Report.** Anyone can report a shared image (`/s/[token]` → `POST /api/reports`, IP rate limited).
    Reports land in the `reports` table.
-2. **Review.** Admins review open reports alongside `moderation_events` in `/admin/moderation`
-   (`GET /api/admin/moderation`). Events can be filtered by kind; repeated `prompt_blocked`,
+2. **Review.** Admins review open reports alongside unreviewed `moderation_events` in `/admin/moderation`
+   (`GET /api/admin/moderation`, newest first, each event tagged with its kind); marking an event reviewed
+   (`POST /api/admin/moderation-events/:id/review`) removes it from the queue. Repeated `prompt_blocked`,
    `underage` or `multi_person_unauthorized` events from one account are a strong abuse signal.
 3. **Action.** `POST /api/admin/reports/:id/resolve` with `remove_media` (deletes storage + row),
    `suspend_user` (suspends the account and records `account_suspended`) or `dismiss`.
@@ -260,7 +262,8 @@ and error messages. Embeddings are never written to events or returned by the AP
   the margin produces false refusals for young-looking adults (support can't override it by design).
   Face matching can be fooled by look-alike relatives.
 - **The text filter is keyword-based.** It covers English plus the most common nudity/minor words in
-  es/fr/de/pt/it/nl/Hindi (Latin script) and a short non-Latin list; everything else relies on the
+  es/fr/de/pt/it/nl/Hindi (Latin script), a handful of nudity words in other Latin-script languages and a
+  short non-Latin list; everything else relies on the
   moderation provider (OpenAI's moderation is multilingual; the local provider is not). Novel slang,
   misspellings and context-dependent euphemisms ("hot and steamy", "OF") can evade rules; the output
   classifier and age gate are the backstop.

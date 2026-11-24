@@ -26,11 +26,13 @@ OpenShoot generates realistic images of real people, so its **safety module is p
 (`src/server/safety`, providers in `src/providers/safety`). The following are always treated as vulnerabilities,
 with the same private reporting process:
 
-- generating or training on someone without the consent flow (live consent selfie + face match of every training
-  photo), or using another user's identity model without an accepted invite;
-- bypassing the adult-only age checks;
+- generating or training on someone without the consent flow (live consent selfie with its head-pose liveness
+  challenge + face match of every training photo), or using another user's identity model without an accepted
+  invite;
+- bypassing the adult-only age checks (identities, references and every face in an output);
 - getting prompts, references or outputs past moderation (sexual content, minors, public figures, violence);
-- removing or skipping the AI-generated label (IPTC metadata) or the free-tier watermark;
+- removing or skipping the AI-generated label (IPTC metadata), or getting unwatermarked outputs on the free tier
+  while the operator has the watermark on (`WATERMARK_FREE_TIER`, a product setting, not a safety control);
 - accessing another user's photos, models, media or signed URLs (IDOR), or escalating to admin;
 - disabling safety checks through configuration. By design no environment variable turns safety off, and
   `src/lib/env.ts` refuses mock safety providers when a real AI provider is configured; a way around this is a bug.
