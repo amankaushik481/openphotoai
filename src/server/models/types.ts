@@ -6,8 +6,8 @@ import type { IdentityModelDTO, ReadinessDTO, TrainingPhotoDTO } from "@/types/d
 
 export type IdentityMode = "instant" | "trained";
 
-/** IdentityModelDTO + the identity mode (`metadata.mode`; "trained" until Instant is chosen). */
-export type ModelView = IdentityModelDTO & { mode: IdentityMode };
+/** The model DTO returned by the /api/models routes (`mode` is "trained" until Instant is chosen). */
+export type ModelView = IdentityModelDTO;
 
 export type ReadinessByMode = Record<IdentityMode, ReadinessDTO>;
 

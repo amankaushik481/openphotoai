@@ -93,6 +93,7 @@ export async function toModelDTO(model: IdentityModelRow, viewerUserId: string):
     coverUrl,
     photoCount: Number(counts[0]?.total ?? 0),
     acceptedPhotoCount: Number(counts[0]?.accepted ?? 0),
+    mode: identityModeOf(model),
     consentVerified: model.consentVerifiedAt !== null,
     trainingJobId: model.trainingJobId,
     shared,
@@ -102,9 +103,9 @@ export async function toModelDTO(model: IdentityModelRow, viewerUserId: string):
   };
 }
 
-/** toModelDTO + the identity mode (additive field used by the /api/models routes and the UI). */
+/** Alias of toModelDTO (kept for the /api/models routes; the DTO now carries `mode`). */
 export async function toModelView(model: IdentityModelRow, viewerUserId: string): Promise<ModelView> {
-  return { ...(await toModelDTO(model, viewerUserId)), mode: identityModeOf(model) };
+  return toModelDTO(model, viewerUserId);
 }
 
 export interface DeleteModelOptions {

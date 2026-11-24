@@ -12,3 +12,4 @@
 - [ ] docker compose up (web image build; Docker Hub rate limits seen earlier).
 - [ ] ledger: optional createdBy on refundJob (admin refund attribution) — admin currently patches the row in-tx.
 - [ ] create page: use IdentityModelDTO.mode (added) instead of server-side map; MeDTO.draftsRemaining; ui/slider thumb aria-label; Idempotency-Key on POST /api/batches.
+- [ ] billing: apply `billingPerMinute` to checkout/portal routes; .env.example STRIPE_PRICE_<PLAN>_<MONTH|YEAR> + STRIPE_PRICE_<PACKID>; SELF_HOSTING: Stripe webhook events list (checkout.session.completed, checkout.session.async_payment_succeeded, customer.subscription.created/updated/deleted, invoice.paid, invoice.payment_failed, charge.refunded).
