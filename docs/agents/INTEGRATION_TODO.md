@@ -16,3 +16,4 @@
 - [ ] build warning: child_process.spawn in src/providers/mock/render.ts (and any other spawn/fs dynamic path) traces whole project — add /*turbopackIgnore: true*/ or scope paths.
 - [ ] billing public cards: link /login?next=/app/billing?plan=&interval= / ?pack= and auto-open checkout; derive '2 months free' from plans.
 - [ ] gallery: apply downloadsPerHour to POST /api/media/download.
+- [ ] API keys: scope selection (`*` / `read` / `generate`) in POST /api/api-keys + UI; v1 uploads endpoint (`POST /api/v1/uploads`) for reference/garment/mask; v1 batches Idempotency-Key once engine supports it.

@@ -71,6 +71,14 @@ describe("schema-view helpers", () => {
       ["b", true, ["≤ 9 chars"]],
       ["a", false, ["1–4", "default 2"]],
     ]);
+    const nested = propertyRows({
+      type: "object",
+      properties: { m: { type: "object", required: ["w"], properties: { w: { type: "integer" } } } },
+    });
+    expect(nested.map((r) => [r.name, r.required])).toEqual([
+      ["m", false],
+      ["m.w", true],
+    ]);
   });
 
   it("builds samples against the given base URL", () => {

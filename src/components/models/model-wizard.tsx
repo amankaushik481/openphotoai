@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CircleAlertIcon, LayersIcon, LoaderCircleIcon, PartyPopperIcon, SparklesIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -56,10 +55,9 @@ export interface ModelWizardProps {
 
 /** Create-a-model flow: name → live consent selfie → photos → Instant / Trained → progress → done. */
 export function ModelWizard({ initial }: ModelWizardProps) {
-  const router = useRouter();
   const refreshModels = useRefreshModels();
   const [modelId, setModelId] = React.useState<string | null>(initial?.model.id ?? null);
-  const [step, setStep] = React.useState<Step>(initial ? stepForStatus(initial.model.status) : "details");
+  const [currentStep, setStep] = React.useState<Step>(initial ? stepForStatus(initial.model.status) : "details");
   const [job, setJob] = React.useState<JobDTO | null>(null);
   const { detail, mutate } = useModel(modelId, initial ?? undefined);
   const headingRef = React.useRef<HTMLHeadingElement>(null);
@@ -71,11 +69,8 @@ export function ModelWizard({ initial }: ModelWizardProps) {
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Training can finish while the page is open (or before it was opened).
-  const status = detail?.model.status;
-  React.useEffect(() => {
-    if (step === "training" && status === "ready") go("done");
-  }, [go, status, step]);
+  // Training can finish while the page is open (the model polls while training).
+  const step: Step = currentStep === "training" && detail?.model.status === "ready" ? "done" : currentStep;
 
   const visible = step === "training" ? "mode" : step;
   const current = STEPS.findIndex((s) => s.id === visible);
@@ -127,7 +122,8 @@ export function ModelWizard({ initial }: ModelWizardProps) {
           onCreated={(created) => {
             setModelId(created.id);
             void refreshModels();
-            router.replace(`/app/models/new?id=${created.id}`, { scroll: false });
+            // Keep the id in the URL so a refresh resumes this model (no server round trip / remount).
+            window.history.replaceState(null, "", `/app/models/new?id=${created.id}`);
             go("consent");
           }}
         />

@@ -160,7 +160,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | DELETE | `/api/api-keys/:id` | U | revoke |
 | GET | `/api/v1/openapi.json` | P | OpenAPI 3.1 document |
 | GET | `/api/v1/models`, `/api/v1/models/:id` | K | models |
-| POST/GET | `/api/v1/jobs`, GET `/api/v1/jobs/:id` | K | same bodies as `/api/jobs` |
+| POST/GET | `/api/v1/jobs`, GET `/api/v1/jobs/:id`, POST `/api/v1/jobs/:id/cancel` | K | same bodies as `/api/jobs` |
 | POST | `/api/v1/batches` | K | |
 | GET | `/api/v1/media`, `/api/v1/media/:id` | K | |
 | GET | `/api/v1/packs` | K | |

@@ -10,7 +10,7 @@ export function SchemaTable({ schema, caption }: { schema: JsonSchema; caption: 
     <DocTable caption={caption} head={["Field", "Type", "Description"]}>
       {rows.map((row) => (
         <tr key={row.name}>
-          <td className="px-3 py-2 whitespace-nowrap">
+          <td className="whitespace-nowrap">
             <code className="font-mono text-xs font-semibold">{row.name}</code>
             {row.required ? (
               <span className="ml-1.5 text-[11px] font-medium text-destructive">required</span>
@@ -18,10 +18,10 @@ export function SchemaTable({ schema, caption }: { schema: JsonSchema; caption: 
               <span className="ml-1.5 text-[11px] text-muted-foreground">optional</span>
             )}
           </td>
-          <td className="max-w-[16rem] px-3 py-2">
+          <td className="max-w-[16rem]">
             <TypeLabel parts={row.type} />
           </td>
-          <td className="min-w-[14rem] px-3 py-2 text-muted-foreground">
+          <td className="min-w-[14rem] text-muted-foreground">
             {row.description ? <InlineMarkdown text={row.description} /> : null}
             {row.constraints.length > 0 && (
               <span className="mt-0.5 block text-xs text-muted-foreground/80">{row.constraints.join(" · ")}</span>

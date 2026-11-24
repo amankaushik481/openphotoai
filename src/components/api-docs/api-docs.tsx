@@ -202,10 +202,10 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
                   ["generate", "Creating and canceling jobs and batches (spends credits)."],
                 ].map(([scope, grants]) => (
                   <tr key={scope}>
-                    <td className="px-3 py-2">
+                    <td>
                       <C>{scope}</C>
                     </td>
-                    <td className="px-3 py-2 text-muted-foreground">{grants}</td>
+                    <td className="text-muted-foreground">{grants}</td>
                   </tr>
                 ))}
               </DocTable>
@@ -250,10 +250,10 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
               <DocTable caption="Job statuses" head={["Status", "Meaning"]}>
                 {JOB_STATUSES.map((s) => (
                   <tr key={s}>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="whitespace-nowrap">
                       <C>{s}</C>
                     </td>
-                    <td className="px-3 py-2 text-muted-foreground">
+                    <td className="text-muted-foreground">
                       <InlineMarkdown text={JOB_STATUS_DOCS[s]} />
                     </td>
                   </tr>
@@ -326,11 +326,11 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
               <DocTable caption="Error codes" head={["Code", "Status", "Meaning"]}>
                 {errorCodeTable().map((e) => (
                   <tr key={e.code}>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="whitespace-nowrap">
                       <C>{e.code}</C>
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs">{e.status}</td>
-                    <td className="px-3 py-2 text-muted-foreground">
+                    <td className="font-mono text-xs">{e.status}</td>
+                    <td className="text-muted-foreground">
                       <InlineMarkdown text={e.meaning} />
                     </td>
                   </tr>

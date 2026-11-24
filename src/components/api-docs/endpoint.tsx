@@ -47,15 +47,15 @@ function Parameters({ params }: { params: ParameterObject[] }) {
         const extra = constraints(p.schema);
         return (
           <tr key={`${p.in}:${p.name}`}>
-            <td className="px-3 py-2 whitespace-nowrap">
+            <td className="whitespace-nowrap">
               <code className="font-mono text-xs font-semibold">{p.name}</code>
               {p.required && <span className="ml-1.5 text-[11px] font-medium text-destructive">required</span>}
             </td>
-            <td className="px-3 py-2 text-xs text-muted-foreground">{p.in}</td>
-            <td className="px-3 py-2">
+            <td className="text-xs text-muted-foreground">{p.in}</td>
+            <td>
               <TypeLabel parts={typeParts(p.schema)} />
             </td>
-            <td className="min-w-[14rem] px-3 py-2 text-muted-foreground">
+            <td className="min-w-[14rem] text-muted-foreground">
               {p.description && <InlineMarkdown text={p.description} />}
               {extra.length > 0 && (
                 <span className="mt-0.5 block text-xs text-muted-foreground/80">{extra.join(" · ")}</span>

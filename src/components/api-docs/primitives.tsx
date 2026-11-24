@@ -42,11 +42,19 @@ export function TypeLabel({ parts }: { parts: TypePart[] }) {
     <code className="font-mono text-xs break-words">
       {parts.map((p, i) =>
         p.ref ? (
-          <a key={i} href={`#${schemaAnchor(p.ref)}`} className="text-primary underline-offset-2 hover:underline">
+          <a
+            key={i}
+            href={`#${schemaAnchor(p.ref)}`}
+            className="whitespace-nowrap text-primary underline-offset-2 hover:underline"
+          >
             {p.text}
           </a>
-        ) : (
+        ) : p.sep ? (
           <Fragment key={i}>{p.text}</Fragment>
+        ) : (
+          <span key={i} className="whitespace-nowrap">
+            {p.text}
+          </span>
         ),
       )}
     </code>
@@ -77,7 +85,8 @@ export function CodeBlock({ code, label, language }: { code: string; label: stri
 export function DocTable({ caption, head, children }: { caption: string; head: string[]; children: React.ReactNode }) {
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full text-left text-sm">
+      {/* Cell padding via descendant selectors keeps the (long) reference tables light. */}
+      <table className="w-full text-left text-sm [&_td]:px-3 [&_td]:py-2">
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-muted/50 text-xs text-muted-foreground">
           <tr>

@@ -1,10 +1,11 @@
 /** Pure helpers that turn OpenAPI / JSON Schema nodes into readable table rows. */
 import type { JsonSchema } from "@/server/openapi/types";
 
-/** A piece of a type label; `ref` = component schema name to link to. */
+/** A piece of a type label; `ref` = component schema name to link to; `sep` = a " | " separator. */
 export interface TypePart {
   text: string;
   ref?: string;
+  sep?: true;
 }
 
 export interface PropertyRow {
@@ -22,7 +23,7 @@ export function refName(ref: string): string {
 const literal = (v: unknown) => (typeof v === "string" ? `"${v}"` : JSON.stringify(v));
 
 function joinParts(groups: TypePart[][]): TypePart[] {
-  return groups.flatMap((g, i) => (i === 0 ? g : [{ text: " | " }, ...g]));
+  return groups.flatMap((g, i) => (i === 0 ? g : [{ text: " | ", sep: true as const }, ...g]));
 }
 
 export function typeParts(s: JsonSchema): TypePart[] {
@@ -33,7 +34,7 @@ export function typeParts(s: JsonSchema): TypePart[] {
   const alternatives = s.oneOf ?? s.anyOf;
   if (alternatives) return joinParts(alternatives.map(typeParts));
   if (s.const !== undefined) return [{ text: literal(s.const) }];
-  if (s.enum) return [{ text: s.enum.map(literal).join(" | ") }];
+  if (s.enum) return joinParts(s.enum.map((v) => [{ text: literal(v) }]));
 
   const types = Array.isArray(s.type) ? s.type : s.type ? [s.type] : [];
   if (types.length === 0) return [{ text: "any" }];
@@ -80,15 +81,22 @@ export function constraints(s: JsonSchema): string[] {
   return out.filter((c): c is string => c !== null);
 }
 
-/** Rows for an object schema's properties (required first, then in declaration order). */
-export function propertyRows(s: JsonSchema): PropertyRow[] {
+/**
+ * Rows for an object schema's properties (required first, then in declaration order). Inline
+ * (non-$ref) object properties are followed by their own fields as `parent.child` rows.
+ */
+export function propertyRows(s: JsonSchema, prefix = ""): PropertyRow[] {
   const required = new Set(s.required ?? []);
-  const rows = Object.entries(s.properties ?? {}).map(([name, prop]) => ({
-    name,
-    type: typeParts(prop),
-    required: required.has(name),
-    description: prop.description ?? null,
-    constraints: constraints(prop),
-  }));
-  return [...rows.filter((r) => r.required), ...rows.filter((r) => !r.required)];
+  const entries = Object.entries(s.properties ?? {});
+  const ordered = [...entries.filter(([n]) => required.has(n)), ...entries.filter(([n]) => !required.has(n))];
+  return ordered.flatMap(([name, prop]) => {
+    const row: PropertyRow = {
+      name: `${prefix}${name}`,
+      type: typeParts(prop),
+      required: required.has(name),
+      description: prop.description ?? null,
+      constraints: constraints(prop),
+    };
+    return prop.properties && !prop.$ref ? [row, ...propertyRows(prop, `${row.name}.`)] : [row];
+  });
 }
