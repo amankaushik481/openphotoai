@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MODELS } from "@/config/models";
 import type { GenerateInput, IdentityRef, ProviderJobRef } from "@/providers/types";
 import { ASPECT_RATIOS } from "@/types/domain";
-import { ProviderRequestError } from "@/providers/ai/shared/errors";
+import { ProviderDeletionUnsupportedError, ProviderRequestError } from "@/providers/ai/shared/errors";
 
 const client = vi.hoisted(() => ({
   queue: { submit: vi.fn(), status: vi.fn(), result: vi.fn(), cancel: vi.fn() },
@@ -339,7 +339,7 @@ describe("other image endpoints", () => {
 });
 
 describe("training", () => {
-  it("submits flux-lora-fast-training with masks on, a non-expiring output and defaults", async () => {
+  it("submits flux-lora-fast-training with masks on, a 1-day output lifetime and defaults", async () => {
     const provider = createFalProvider({ apiKey: API_KEY });
     const ref = await provider.submitTraining(
       { imagesZipUrl: "https://cdn.test/selfies.zip", imageCount: 15, triggerWord: "ohwx", subject: "man" },
@@ -355,7 +355,8 @@ describe("training", () => {
       create_masks: true,
       is_style: false,
     });
-    expect(options.storageSettings).toEqual({ expiresIn: "never" });
+    // fal can't delete files: the LoRA is copied into our storage at completion, fal's copy expires (SAF-7).
+    expect(options.storageSettings).toEqual({ expiresIn: "1d" });
     expect(options.webhookUrl).toBe("https://app.test/hook");
   });
 
@@ -367,13 +368,16 @@ describe("training", () => {
     expect(lastSubmit().input.steps).toBe(4000);
   });
 
-  it("deleteModel is a best-effort no-op that does not log the LoRA URL", async () => {
-    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+  it("deleteModel reports honestly that fal can't delete files (without leaking the LoRA URL)", async () => {
     const provider = createFalProvider({ apiKey: API_KEY });
-    await expect(provider.deleteModel(trained.modelRef)).resolves.toBeUndefined();
+    const err = await provider.deleteModel(trained.modelRef).then(
+      () => null,
+      (e: unknown) => e,
+    );
+    expect(err).toBeInstanceOf(ProviderDeletionUnsupportedError);
+    expect((err as Error).message).toMatch(/expires automatically/);
+    expect((err as Error).message).not.toContain("abc.safetensors");
     expect(client.queue.submit).not.toHaveBeenCalled();
-    expect(info.mock.calls.flat().join(" ")).not.toContain("abc.safetensors");
-    info.mockRestore();
   });
 });
 

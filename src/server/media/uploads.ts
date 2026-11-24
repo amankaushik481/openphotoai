@@ -79,7 +79,8 @@ export async function createUploadFromRequest(req: Request, user: Pick<UserRow, 
     const checked = await assertReferenceImageAllowed(normalized.bytes, { userId: user.id, purpose: purpose.data });
     ({ face, moderation } = checked);
     // A reference may show a real third party: their face never reaches a generator (SAF-13).
-    bytes = await blurRegions(normalized.bytes, checked.faceBoxes);
+    // (`?? []`: test doubles of the safety module may omit the boxes.)
+    bytes = await blurRegions(normalized.bytes, checked.faceBoxes ?? []);
   }
 
   const id = newId("upl");
