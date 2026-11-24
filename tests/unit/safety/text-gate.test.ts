@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestDb, createTestUser } from "../../helpers/db";
 import type { UserRow } from "@/db/types";
 import { AppError } from "@/server/http";
@@ -9,8 +9,12 @@ import { brokenModeration, eventsOf, providers, useMockProviders } from "./fixtu
 vi.mock("@/providers/registry", async () => (await import("./fixtures")).registryMock);
 
 let user: UserRow;
-beforeEach(async () => {
+// One database per file; every test gets a fresh user so event assertions stay isolated.
+beforeAll(async () => {
   await createTestDb();
+});
+
+beforeEach(async () => {
   user = await createTestUser();
   useMockProviders();
 });

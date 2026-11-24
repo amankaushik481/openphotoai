@@ -2,26 +2,40 @@
  * Runtime module resolution for the local ML stack (server-only).
  *
  * The tfjs/human/nsfwjs packages are listed in `serverExternalPackages`, so they are never
- * bundled: we load them with a real Node `require` at runtime. `import.meta.url` is the
- * primary base; when a bundler rewrote it to a build-time path that does not exist at runtime
- * (e.g. Vercel builds in /vercel/path0 but runs in /var/task) we fall back to `process.cwd()`.
+ * bundled: we load them with Node's own `require` at runtime, created with
+ * `createRequire(import.meta.url)`. When a bundler rewrote `import.meta.url` to a build-time
+ * path that does not exist at runtime (Vercel builds in /vercel/path0 but runs in /var/task),
+ * resolution falls back to `process.cwd()`.
  */
-import { createRequire } from "node:module";
+import * as nodeModule from "node:module";
 import path from "node:path";
 
-type NodeRequire = ReturnType<typeof createRequire>;
+type CreateRequire = typeof nodeModule.createRequire;
+type NodeRequire = ReturnType<CreateRequire>;
+
+/**
+ * Bundlers (webpack/Turbopack) rewrite a literal `createRequire(import.meta.url)` into their own
+ * module loader, which cannot resolve the dynamic paths used here. `process.getBuiltinModule`
+ * (Node ≥ 20.16 / 22.3) is opaque to them and always returns Node's real implementation.
+ */
+function nodeCreateRequire(): CreateRequire {
+  const getBuiltin = (process as { getBuiltinModule?: (id: string) => unknown }).getBuiltinModule;
+  const builtin = getBuiltin?.call(process, "node:module") as typeof nodeModule | undefined;
+  return builtin?.createRequire ?? nodeModule.createRequire;
+}
 
 let cached: NodeRequire[] | undefined;
 
 function bases(): NodeRequire[] {
   if (cached) return cached;
+  const create = nodeCreateRequire();
   const list: NodeRequire[] = [];
   try {
-    list.push(createRequire(import.meta.url));
+    list.push(create(import.meta.url));
   } catch {
     // import.meta.url unavailable or not a file URL in this runtime: fall through to cwd.
   }
-  list.push(createRequire(path.join(process.cwd(), "package.json")));
+  list.push(create(path.join(process.cwd(), "package.json")));
   cached = list;
   return list;
 }

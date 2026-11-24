@@ -67,10 +67,10 @@ describe("createOpenAIModerationProvider", () => {
   });
 
   it("posts text to omni-moderation-latest with bearer auth", async () => {
-    const fetchMock = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) =>
+    const fetchMock = vi.fn<typeof fetch>(async () =>
       jsonResponse({ id: "modr-1", model: "omni-moderation-latest", results: [outcome(["sexual"])] }),
     );
-    const p = createOpenAIModerationProvider({ apiKey: "sk-test", fetch: fetchMock as unknown as typeof fetch });
+    const p = createOpenAIModerationProvider({ apiKey: "sk-test", fetch: fetchMock });
     const res = await p.checkText("something explicit");
     expect(res).toMatchObject({ allowed: false, categories: ["sexual"], provider: "openai" });
     const [url, init] = fetchMock.mock.calls[0];
@@ -88,8 +88,8 @@ describe("createOpenAIModerationProvider", () => {
   });
 
   it("sends images as a base64 JPEG data URL", async () => {
-    const fetchMock = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) => jsonResponse({ results: [outcome()] }));
-    const p = createOpenAIModerationProvider({ apiKey: "sk-test", fetch: fetchMock as unknown as typeof fetch });
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse({ results: [outcome()] }));
+    const p = createOpenAIModerationProvider({ apiKey: "sk-test", fetch: fetchMock });
     const png = new Uint8Array(await sharp({ create: { width: 32, height: 32, channels: 4, background: "#ff0000" } }).png().toBuffer());
     await expect(p.checkImage(png)).resolves.toMatchObject({ allowed: true, categories: [] });
     const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body)) as {

@@ -3,7 +3,7 @@
 import * as React from "react";
 import useSWR, { type SWRConfiguration } from "swr";
 import { ApiClientError, api, fetcher } from "@/lib/api-client";
-import type { BatchStatus, JobDTO } from "@/types/domain";
+import type { BatchDTO, BatchStatus, JobDTO } from "@/types/domain";
 import {
   JOB_POLL_INTERVAL_MS,
   allJobsTerminal,
@@ -115,13 +115,7 @@ export function useJobs(ids: readonly string[], options: { onAllTerminal?: (jobs
 }
 
 /** Shape of `batch` in GET /api/batches/:id (owned by the job engine; only stable fields typed). */
-export interface BatchSummary {
-  id: string;
-  status: BatchStatus;
-  packId?: string | null;
-  modelId?: string | null;
-  [key: string]: unknown;
-}
+export type BatchSummary = BatchDTO;
 
 /** Poll GET /api/batches/:id until the batch and all its jobs are terminal. */
 export function useBatch(batchId: string | null | undefined, options: { onTerminal?: (jobs: JobDTO[]) => void } = {}) {

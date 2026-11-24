@@ -117,7 +117,7 @@ export const en = {
       blocked: "Blocked by safety filter",
     },
     blockedOutputs: "{count} result(s) were blocked by our safety filter and never stored.",
-    failedGeneric: "Something went wrong on our side. Your credits have been refunded.",
+    failedGeneric: "Something went wrong on our side. Please try again.",
     progressLabel: "Job progress",
   },
   upload: {
@@ -214,7 +214,7 @@ export const en = {
     consent_required: "Consent is required before continuing.",
     conflict: "This changed in the meantime. Refresh and try again.",
     payload_too_large: "That file is too large.",
-    provider_error: "Our AI provider had a hiccup. Your credits have been refunded.",
+    provider_error: "Our AI provider had a hiccup. Please try again.",
     plan_limit: "Your plan doesn't include this. Upgrade to unlock it.",
     suspended: "Your account is suspended.",
     internal: "Something went wrong on our side. Please try again.",

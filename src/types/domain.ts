@@ -413,6 +413,19 @@ export interface JobDTO {
   completedAt: string | null;
 }
 
+export interface BatchDTO {
+  id: string;
+  modelId: string | null;
+  packId: string | null;
+  brandKitId: string | null;
+  total: number;
+  completed: number;
+  failed: number;
+  status: BatchStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IdentityModelDTO {
   id: string;
   name: string;

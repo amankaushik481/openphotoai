@@ -4,22 +4,16 @@
  * Every POLL_INTERVAL_MS it syncs running jobs whose provider status is stale (missed webhooks,
  * localhost without webhooks) and fails + refunds jobs stuck past their timeout. SIGTERM/SIGINT
  * finish the current pass, close the database and exit cleanly.
+ *
+ * Run via `pnpm worker`, which preloads scripts/preload/server-only.mjs (server modules import
+ * `server-only`, which throws outside Next's react-server build).
  */
-import { registerHooks } from "node:module";
 import { setTimeout as sleep } from "node:timers/promises";
 import { loadDotEnv } from "./lib/env";
 import { errorMessage, log } from "./lib/log";
 
 const POLL_INTERVAL_MS = Number(process.env.WORKER_POLL_INTERVAL_MS) || 5_000;
 const BATCH_LIMIT = Number(process.env.WORKER_BATCH_LIMIT) || 50;
-
-// `server-only` throws outside Next's react-server build; the worker legitimately runs server code.
-registerHooks({
-  resolve(specifier, context, nextResolve) {
-    if (specifier === "server-only") return { url: "data:text/javascript,export%20%7B%7D", shortCircuit: true };
-    return nextResolve(specifier, context);
-  },
-});
 
 loadDotEnv();
 

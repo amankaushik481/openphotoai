@@ -139,7 +139,7 @@ async function analyzeLocal(bytes: Uint8Array): Promise<{ faces: DetectedFace[];
   const result = await runExclusive(async () => {
     const input = tf.tensor3d(img.data, [img.height, img.width, 3], "int32");
     try {
-      return await human.detect(input as never);
+      return await human.detect(input as unknown as Parameters<Human["detect"]>[0]);
     } finally {
       tf.dispose(input);
     }
