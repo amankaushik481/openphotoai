@@ -184,7 +184,7 @@ export function getFaqCategories(): FaqCategory[] {
           question: "Do my credits expire?",
           featured: true,
           pricing: true,
-          answer: `Credits from one-time credit packs **never expire**. Monthly plan credits roll over for ${legal.rolloverMonths} extra month, so a busy month never wastes a quiet one.`,
+          answer: `Credits **never expire** — whether they come from a plan or a one-time credit pack. A quiet month never wastes your credits.`,
         },
         {
           id: "failed-photos",

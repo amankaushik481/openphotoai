@@ -80,7 +80,7 @@ export default function PricingPage() {
           </p>
         )}
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Plan credits roll over for {legal.rolloverMonths} month. Prices in USD; taxes may apply at checkout.
+          Credits never expire — from plans or packs. Prices in USD; taxes may apply at checkout.
           Commercial use included on paid plans.
         </p>
       </section>

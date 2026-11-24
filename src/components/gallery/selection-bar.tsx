@@ -59,7 +59,7 @@ export function SelectionBar({
 
   return (
     <div
-      role="toolbar"
+      role="region"
       aria-label="Selection actions"
       className="glass sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 mx-auto mt-6 flex w-full max-w-3xl flex-wrap items-center gap-2 rounded-xl border p-2 shadow-lg md:bottom-4"
     >

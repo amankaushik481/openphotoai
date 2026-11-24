@@ -48,7 +48,7 @@ See `docs/RESEARCH.md` for the market analysis behind these choices and `docs/CO
 - **Brand kit for teams** — background/outfit/style/lighting/aspect presets applied to every member's headshots.
 - **Public API** — API keys, OpenAPI 3.1 spec at `/api/v1/openapi.json`, docs at `/docs/api`.
 - **Mobile-first, fast** — Lighthouse 90+ on landing; bottom navigation on phones; camera capture for consent.
-- **Honest pricing** — credits never expire on packs; plan credits roll over for 1 month; refunds by default.
+- **Honest pricing** — credits never expire (plans and packs); automatic refunds for failures, blocked outputs and low-likeness results.
 - **Privacy** — training selfies deletable any time; real deletion (storage + provider model) confirmed by email.
 
 ### SaaS layer

@@ -39,7 +39,7 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPriceCents: 0,
     monthlyCredits: 0,
     limits: { maxModels: 1, maxBatch: 10, maxConcurrentJobs: 2, apiAccess: false, teamSeats: 0, watermark: true },
-    highlights: ["Unlimited free draft previews*", "Pay-as-you-go credit packs", "Watermark until first purchase"],
+    highlights: ["5 free draft previews / day", "Pay-as-you-go credit packs", "Watermark until first purchase"],
   },
   starter: {
     id: "starter",

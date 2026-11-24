@@ -11,7 +11,7 @@ function rows(): { topic: string; us: string; typical: string }[] {
     { topic: "Credit-pack credits", us: "Never expire", typical: "Often expire monthly" },
     {
       topic: "Plan credits",
-      us: `Roll over for ${legal.rolloverMonths} month`,
+      us: "Never expire",
       typical: "Use them or lose them",
     },
     { topic: "Photo doesn't look like you", us: "Credits refunded automatically", typical: "Usually no refund" },

@@ -11,7 +11,7 @@ export const TERMS_TEMPLATE: LegalDocument = {
     "No sexual content, no minors, no public figures, no impersonation, no deception.",
     "You own your photos. We never use them to train general AI models.",
     "Failed, blocked and low-likeness results are refunded in credits automatically.",
-    "Plan credits roll over for {{rolloverMonths}} month; credit-pack credits never expire.",
+    "Credits never expire while your account is open, whether they come from a plan or a credit pack.",
     "Cancel in one click. Delete everything for real, confirmed by email.",
   ],
   sections: [
@@ -131,7 +131,7 @@ export const TERMS_TEMPLATE: LegalDocument = {
           items: [
             "Generations cost credits. The cost of every action is shown before you start it and is listed on the [pricing page](/pricing).",
             "Subscriptions renew automatically each month or year until you cancel. You can cancel at any time in Billing; you keep access and your credits until the end of the paid period.",
-            "Credits granted by a subscription roll over for {{rolloverMonths}} month after the period they were granted for; credits from one-time credit packs never expire while your account is open.",
+            "Credits granted by a subscription and credits from one-time credit packs do not expire while your account is open. Cancelling a subscription stops future grants but keeps your existing balance.",
             "Prices are shown in US dollars and may exclude taxes, which are added at checkout where required. Payments are processed by our payment provider; we never see your full card number.",
             "We give at least {{priceChangeNoticeDays}} days' notice by email before any price or credit-cost increase that affects an active subscription. Credits you already hold keep their value.",
             "Credits have no cash value, cannot be transferred outside the Service (except team transfers we support) and are forfeited if your account is deleted.",
