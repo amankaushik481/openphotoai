@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { HistoryIcon, LoaderCircleIcon } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { JOB_TYPE_LABELS } from "@/config/credits";
@@ -90,38 +89,45 @@ export function CreditHistory({ firstPage }: { firstPage: CreditsPage }) {
 
   if (!entries.length) {
     return (
-      <EmptyState
-        size="sm"
-        icon={<HistoryIcon />}
-        title={t("empty.creditHistory")}
-        description={t("empty.creditHistoryBody")}
-      />
+      <div className="flex flex-col gap-1.5 border-y-2 border-double border-foreground/40 py-6">
+        <p aria-hidden="true" className="mono-caps text-muted-foreground">
+          Ledger · no entries
+        </p>
+        <h3 className="font-display text-2xl leading-none">{t("empty.creditHistory")}</h3>
+        <p className="text-sm text-muted-foreground">{t("empty.creditHistoryBody")}</p>
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border bg-card">
+      {/* The lab ledger: mono figures, dotted leaders from each entry to its amount, double rules top and bottom. */}
+      <div className="border-y-[3px] border-double border-foreground/50 font-mono">
         <Table scrollLabel="Credit history table">
           <TableHeader>
-            <TableRow>
-              <TableHead className="pl-4">Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Credits</TableHead>
-              <TableHead className="hidden pr-4 text-right sm:table-cell">Balance</TableHead>
+            <TableRow className="border-foreground/30 hover:bg-transparent">
+              <TableHead className="h-9 pl-0 text-[10px] tracking-[0.16em] text-muted-foreground uppercase">Date</TableHead>
+              <TableHead className="h-9 text-[10px] tracking-[0.16em] text-muted-foreground uppercase">Description</TableHead>
+              <TableHead className="h-9 text-right text-[10px] tracking-[0.16em] text-muted-foreground uppercase">Credits</TableHead>
+              <TableHead className="hidden h-9 pr-0 text-right text-[10px] tracking-[0.16em] text-muted-foreground uppercase sm:table-cell">
+                Balance
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {entries.map((e) => {
               const { title, detail } = describeLedgerEntry(e, jobTypes);
               return (
-                <TableRow key={e.id}>
-                  <TableCell className="pl-4 align-top whitespace-nowrap text-muted-foreground">
+                <TableRow key={e.id} className="border-dashed border-foreground/15 hover:bg-accent/40">
+                  <TableCell className="pl-0 align-top text-xs whitespace-nowrap text-muted-foreground tabular-nums">
                     <LocalDate iso={e.createdAt} />
                   </TableCell>
                   <TableCell className="max-w-[12rem] align-top whitespace-normal sm:max-w-none">
-                    <span className="font-medium">{title}</span>
-                    {detail && <span className="block text-xs break-words text-muted-foreground">{detail}</span>}
+                    <span className="flex items-baseline gap-2">
+                      <span className="font-sans font-medium">{title}</span>
+                      <span aria-hidden="true" className="hidden min-w-6 flex-1 border-b border-dotted border-foreground/35 sm:block" />
+                    </span>
+                    {detail && <span className="block font-sans text-xs break-words text-muted-foreground">{detail}</span>}
                   </TableCell>
                   <TableCell
                     className={cn(
@@ -130,11 +136,11 @@ export function CreditHistory({ firstPage }: { firstPage: CreditsPage }) {
                     )}
                   >
                     {formatCreditDelta(e.delta)}
-                    <span className="block text-xs font-normal whitespace-nowrap text-muted-foreground sm:hidden">
+                    <span className="block text-[11px] font-normal whitespace-nowrap text-muted-foreground sm:hidden">
                       Bal. {formatCredits(e.balanceAfter)}
                     </span>
                   </TableCell>
-                  <TableCell className="hidden pr-4 text-right align-top text-muted-foreground tabular-nums sm:table-cell">
+                  <TableCell className="hidden pr-0 text-right align-top text-muted-foreground tabular-nums sm:table-cell">
                     {formatCredits(e.balanceAfter)}
                   </TableCell>
                 </TableRow>

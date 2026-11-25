@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TriangleAlertIcon } from "lucide-react";
 import { MockCheckoutCard, type MockCheckoutItemView } from "@/components/billing";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LabNotice } from "@/components/billing/lab-notice";
 import { Button } from "@/components/ui/button";
 import { env } from "@/lib/env";
 import { requireUserPage } from "@/server/auth/session";
@@ -43,19 +42,15 @@ export default async function MockCheckoutPage({ searchParams }: { searchParams:
   }
 
   return (
-    <main id="main" className="flex min-h-dvh items-center justify-center bg-muted/30 px-4 py-10">
+    <main id="main" className="grain flex min-h-dvh items-center justify-center bg-secondary px-4 py-10">
       {view ? (
         <MockCheckoutCard checkoutId={checkoutId} item={view} email={user.email} />
       ) : (
         <div className="flex w-full max-w-md flex-col gap-4">
-          <Alert variant="destructive">
-            <TriangleAlertIcon aria-hidden="true" />
-            <AlertTitle>
-              <h1>Checkout unavailable</h1>
-            </AlertTitle>
-            <AlertDescription>{problem}</AlertDescription>
-          </Alert>
-          <Button asChild variant="outline">
+          <LabNotice tone="danger" label="Lab notice · no order" title="Checkout unavailable" titleAs="h1">
+            {problem}
+          </LabNotice>
+          <Button asChild variant="outline" className="self-start">
             <Link href="/app/billing">Back to billing</Link>
           </Button>
         </div>

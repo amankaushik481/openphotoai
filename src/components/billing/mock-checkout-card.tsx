@@ -2,15 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { FlaskConicalIcon, LoaderCircleIcon, LockIcon, TriangleAlertIcon } from "lucide-react";
+import { LoaderCircleIcon, LockIcon } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { api, ApiClientError } from "@/lib/api-client";
 import { formatCredits, formatPrice } from "./format";
+import { LabNotice } from "./lab-notice";
 
 export interface MockCheckoutItemView {
   name: string;
@@ -56,46 +53,48 @@ export function MockCheckoutCard({ checkoutId, item, email }: MockCheckoutCardPr
   }
 
   return (
-    <Card className="w-full max-w-md gap-5">
-      <CardHeader className="gap-3">
-        <Badge variant="warning" className="gap-1.5">
-          <FlaskConicalIcon aria-hidden="true" />
+    // A photo-lab order ticket: perforated top and bottom edges, mono figures, a dotted leader to the price.
+    <div className="w-full max-w-md border-y-2 border-dashed border-foreground/30 bg-card shadow-[0_18px_40px_-24px_rgb(22_20_15/0.5)]">
+      <div className="flex flex-col gap-3 border-b border-foreground/15 px-5 pt-5 pb-4 sm:px-6">
+        <p className="flex items-center justify-between gap-3 font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase">
+          <span>OpenShoot lab · order ticket</span>
+          <span aria-hidden="true">No. {checkoutId.slice(-6).toUpperCase()}</span>
+        </p>
+        <p className="w-fit border border-safelight-ink/60 px-2 py-1.5 font-mono text-[10px] leading-none tracking-[0.14em] text-safelight-ink uppercase">
           Test checkout — no real payment
-        </Badge>
-        <h1 className="text-xl leading-none font-semibold">Checkout</h1>
-        <CardDescription>
+        </p>
+        <h1 className="font-display text-4xl leading-none tracking-tight">Checkout</h1>
+        <p className="text-sm text-muted-foreground">
           This app runs with the mock payment provider. Paying here simulates a successful Stripe payment.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
+        </p>
+      </div>
+      <div className="flex flex-col gap-4 px-5 py-5 sm:px-6">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-baseline gap-2">
             <p className="font-medium">{item.name}</p>
-            <p className="text-sm text-muted-foreground">{item.description}</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {formatCredits(item.credits)} credits{item.interval ? (item.interval === "year" ? " up front" : " every month") : ""}
+            <span aria-hidden="true" className="min-w-4 flex-1 border-b border-dotted border-foreground/35" />
+            <p className="shrink-0 text-right font-mono font-medium tabular-nums">
+              {price}
+              <span className="text-xs font-normal text-muted-foreground">{per}</span>
             </p>
           </div>
-          <p className="shrink-0 text-right font-semibold tabular-nums">
-            {price}
-            <span className="text-sm font-normal text-muted-foreground">{per}</span>
+          <p className="text-sm text-muted-foreground">{item.description}</p>
+          <p className="font-mono text-[11px] tracking-[0.08em] text-muted-foreground uppercase">
+            {formatCredits(item.credits)} credits{item.interval ? (item.interval === "year" ? " up front" : " every month") : ""}
           </p>
         </div>
-        <Separator />
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Total due today</span>
-          <span className="text-lg font-semibold tabular-nums">{price}</span>
+        <div className="flex items-baseline justify-between gap-3 border-t-2 border-double border-foreground/40 pt-3">
+          <span className="mono-caps text-muted-foreground">Total due today</span>
+          <span className="font-mono text-2xl font-medium tabular-nums">{price}</span>
         </div>
-        <p className="text-xs text-muted-foreground">Paying as {email}</p>
+        <p className="font-mono text-[11px] tracking-[0.04em] text-muted-foreground">Paying as {email}</p>
         {error && (
-          <Alert variant="destructive" role="alert">
-            <TriangleAlertIcon aria-hidden="true" />
-            <AlertTitle>Payment failed</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <LabNotice role="alert" tone="danger" label="Lab notice · declined" title="Payment failed">
+            {error}
+          </LabNotice>
         )}
-      </CardContent>
-      <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      </div>
+      <div className="flex flex-col-reverse gap-2 border-t border-foreground/15 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
         <Button asChild variant="outline" className="w-full sm:w-auto">
           <Link href="/app/billing?canceled=1" aria-disabled={paying} tabIndex={paying ? -1 : undefined}>
             Cancel
@@ -105,7 +104,7 @@ export function MockCheckoutCard({ checkoutId, item, email }: MockCheckoutCardPr
           {paying ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <LockIcon aria-hidden="true" />}
           Pay {price}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
