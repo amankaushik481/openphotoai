@@ -11,12 +11,23 @@ import {
   CheckIcon,
   LoaderCircleIcon,
   RotateCcwIcon,
+  SmartphoneIcon,
 } from "lucide-react";
 
+import { CopyButton } from "@/components/app/copy-button";
 import { Button } from "@/components/ui/button";
 import { ApiClientError } from "@/lib/api-client";
 import { LIVENESS_PROMPTS, type LivenessStep } from "@/lib/liveness";
 import { cn } from "@/lib/utils";
+import {
+  CAMERA_ERRORS,
+  CAPTURE_STAGES,
+  captureStage,
+  cameraErrorKind,
+  reviewActions,
+  suggestOtherDevice,
+  type CameraErrorKind,
+} from "./camera-logic";
 
 type Phase = "idle" | "starting" | "live" | "countdown" | "step" | "review" | "submitting" | "error";
 
@@ -30,25 +41,6 @@ const STEP_ICONS: Record<LivenessStep, typeof ArrowLeftIcon> = {
   look_up: ArrowUpIcon,
   look_down: ArrowDownIcon,
 };
-type CameraErrorKind = "denied" | "not_found" | "busy" | "unsupported" | "unknown";
-
-const CAMERA_ERRORS: Record<CameraErrorKind, string> = {
-  denied:
-    "Camera access is blocked. Allow the camera for this site in your browser settings (often the camera icon in the address bar), then try again.",
-  not_found: "We couldn't find a camera on this device. Open this page on your phone or on a computer with a webcam.",
-  busy: "Your camera is being used by another app. Close that app and try again.",
-  unsupported:
-    "This browser can't open the camera here. Use an up-to-date browser on a secure (https) page, or open this page on your phone.",
-  unknown: "We couldn't start the camera. Please try again.",
-};
-
-function cameraErrorKind(err: unknown): CameraErrorKind {
-  const name = err instanceof DOMException || err instanceof Error ? err.name : "";
-  if (name === "NotAllowedError" || name === "SecurityError" || name === "PermissionDeniedError") return "denied";
-  if (name === "NotFoundError" || name === "OverconstrainedError" || name === "DevicesNotFoundError") return "not_found";
-  if (name === "NotReadableError" || name === "AbortError" || name === "TrackStartError") return "busy";
-  return "unknown";
-}
 
 function message(err: unknown, fallback: string): string {
   if (err instanceof ApiClientError || err instanceof Error) return err.message || fallback;
@@ -111,6 +103,12 @@ export function CameraCapture({
   const [count, setCount] = React.useState(countdownFrom);
   const [photo, setPhoto] = React.useState<{ blob: Blob; url: string } | null>(null);
   const [announcement, setAnnouncement] = React.useState("");
+  /** The last submission of this capture failed: its token is spent, so only a retake can follow. */
+  const [submitFailed, setSubmitFailed] = React.useState(false);
+  const phaseRef = React.useRef<Phase>("idle");
+  React.useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
   const controlsRef = React.useRef<HTMLDivElement>(null);
   const primaryRef = React.useRef<HTMLButtonElement>(null);
 
@@ -159,6 +157,20 @@ export function CameraCapture({
         audio: false,
       });
       streamRef.current = stream;
+      // The OS can stop the camera mid-capture (screen lock, another app): explain it instead of
+      // leaving a frozen preview whose "Take selfie" fails.
+      for (const track of stream.getVideoTracks()) {
+        track.addEventListener("ended", () => {
+          if (streamRef.current !== stream) return;
+          const current = phaseRef.current;
+          if (current !== "starting" && current !== "live" && current !== "countdown" && current !== "step") return;
+          if (timerRef.current) clearTimeout(timerRef.current);
+          stopCamera();
+          setCameraError("interrupted");
+          setPhase("error");
+          setAnnouncement(CAMERA_ERRORS.interrupted.title);
+        });
+      }
       const video = videoRef.current;
       if (video) {
         video.srcObject = stream;
@@ -168,8 +180,10 @@ export function CameraCapture({
       setAnnouncement("Camera is on. Center your face in the oval.");
     } catch (err) {
       stopCamera();
-      setCameraError(cameraErrorKind(err));
+      const kind = cameraErrorKind(err);
+      setCameraError(kind);
       setPhase("error");
+      setAnnouncement(CAMERA_ERRORS[kind].title);
     }
   }, [stopCamera]);
 
@@ -272,6 +286,8 @@ export function CameraCapture({
   }, [countDown, countdownFrom, onCountdownStart, shoot]);
 
   const retake = () => {
+    setSubmitFailed(false);
+    setError(null);
     setPhoto(null);
     frontalRef.current = null;
     framesRef.current = [];
@@ -287,7 +303,10 @@ export function CameraCapture({
       await onConfirm(photo.blob, framesRef.current);
       setAnnouncement("Selfie verified.");
     } catch (err) {
-      setError(message(err, "We couldn't check your selfie. Please retake it."));
+      // The capture token is spent either way: a retake fetches a fresh one (with new head moves).
+      setSubmitFailed(true);
+      setError(`${message(err, "We couldn't check your selfie.")} Tap Retake to try again.`);
+      setAnnouncement("Your selfie couldn't be verified. Retake it to try again.");
       setPhase("review");
     }
   };
@@ -295,6 +314,11 @@ export function CameraCapture({
   const cameraVisible = phase === "starting" || phase === "live" || phase === "countdown" || phase === "step";
   const currentStep = phase === "step" ? steps[stepIndex] : undefined;
   const StepIcon = currentStep ? STEP_ICONS[currentStep] : null;
+  const review = reviewActions({ failed: submitFailed });
+  const stage = captureStage(phase);
+  const stageIndex = stage ? CAPTURE_STAGES.findIndex((s) => s.id === stage) : -1;
+  // Only rendered after a client-side camera failure, so reading `window` here can't mismatch SSR.
+  const pageUrl = phase === "error" && typeof window !== "undefined" ? window.location.href : "";
 
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
@@ -387,14 +411,35 @@ export function CameraCapture({
           </div>
         )}
         {phase === "error" && cameraError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+          <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
+            <span aria-hidden="true" className="mb-1 flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <CameraOffIcon className="size-7" />
             </span>
-            <p className="text-sm">{CAMERA_ERRORS[cameraError]}</p>
+            <p className="font-semibold">{CAMERA_ERRORS[cameraError].title}</p>
+            <p className="text-sm text-muted-foreground">{CAMERA_ERRORS[cameraError].body}</p>
           </div>
         )}
       </div>
+
+      {/* Where the user is in the capture: selfie → head moves → check. */}
+      <ol aria-label="Capture progress" className="flex w-full max-w-sm items-center gap-2 text-xs">
+        {CAPTURE_STAGES.map((s, i) => {
+          const done = stageIndex > i || (phase === "submitting" && i < CAPTURE_STAGES.length - 1);
+          const active = stageIndex === i;
+          return (
+            <li key={s.id} className="flex flex-1 flex-col gap-1" aria-current={active ? "step" : undefined}>
+              <span
+                aria-hidden="true"
+                className={cn("h-1 rounded-full transition-colors", done ? "bg-primary" : active ? "bg-brand-gradient" : "bg-muted")}
+              />
+              <span className={cn(active ? "font-medium text-foreground" : "text-muted-foreground")}>
+                {s.id === "moves" && phase === "step" && steps.length > 0 ? `Move ${stepIndex + 1} of ${steps.length}` : s.label}
+                <span className="sr-only">{done ? " (done)" : active ? " (current)" : ""}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ol>
 
       {error && (
         <p role="alert" className="max-w-sm text-center text-sm text-destructive">
@@ -441,28 +486,51 @@ export function CameraCapture({
         )}
         {(phase === "review" || phase === "submitting") && (
           <>
-            <Button type="button" variant="outline" size="lg" className="w-full sm:w-auto" disabled={phase === "submitting"} onClick={retake}>
+            <Button
+              ref={review.primary === "retake" ? primaryRef : undefined}
+              type="button"
+              variant={review.primary === "retake" ? "brand" : "outline"}
+              size="lg"
+              className="w-full sm:w-auto"
+              disabled={phase === "submitting"}
+              onClick={retake}
+            >
               <RotateCcwIcon />
               Retake
             </Button>
-            <Button
-              ref={primaryRef}
-              type="button"
-              variant="brand"
-              size="lg"
-              className="w-full aria-disabled:opacity-50 sm:w-auto"
-              aria-disabled={phase === "submitting" || undefined}
-              aria-busy={phase === "submitting"}
-              onClick={() => {
-                if (phase === "review") void confirm();
-              }}
-            >
-              {phase === "submitting" ? <LoaderCircleIcon className="animate-spin" /> : <CheckIcon />}
-              {confirmLabel}
-            </Button>
+            {review.confirm && (
+              <Button
+                ref={primaryRef}
+                type="button"
+                variant="brand"
+                size="lg"
+                className="w-full aria-disabled:opacity-50 sm:w-auto"
+                aria-disabled={phase === "submitting" || undefined}
+                aria-busy={phase === "submitting"}
+                onClick={() => {
+                  if (phase === "review") void confirm();
+                }}
+              >
+                {phase === "submitting" ? <LoaderCircleIcon className="animate-spin" /> : <CheckIcon />}
+                {confirmLabel}
+              </Button>
+            )}
           </>
         )}
       </div>
+
+      {phase === "error" && cameraError && cameraError !== "busy" && cameraError !== "interrupted" && (
+        <div className="flex w-full max-w-sm flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <SmartphoneIcon aria-hidden="true" className="size-4 text-primary" />
+            {suggestOtherDevice(cameraError) ? "Continue on your phone" : "Or continue on another device"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Copy this page&apos;s link and open it on a phone where you&apos;re signed in. Your model and progress are saved.
+          </p>
+          <CopyButton value={pageUrl} label="Copy link" size="sm" toastMessage="Link copied" />
+        </div>
+      )}
 
       <p className="sr-only" aria-live="assertive" role="status">
         {announcement}
