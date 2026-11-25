@@ -1,12 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { ImageOffIcon, LoaderCircleIcon, RotateCwIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
+import { ImageOffIcon, LoaderCircleIcon, LightbulbIcon, LightbulbOffIcon, RotateCwIcon, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { MediaDTO } from "@/types/domain";
+import { VIEWER_STORAGE_PREFIX, useStoredValue, writeStored } from "@/components/create/use-stored";
+import { sprocketRow } from "./marks";
 import { clampPan, swipeDirection, zoomAt, type NavDirection, type Zoom } from "./viewer-gestures";
+
+/** Per-browser preference: look at prints on the light table or in the darkroom (lights off). */
+const BACKDROP_KEY = `${VIEWER_STORAGE_PREFIX}viewer-darkroom`;
+
+function useDarkroomBackdrop(): [boolean, (on: boolean) => void] {
+  const stored = useStoredValue("local", BACKDROP_KEY, (raw) => raw === "1");
+  const [chosen, setChosen] = React.useState<boolean | null>(null);
+  const set = React.useCallback((next: boolean) => {
+    setChosen(next);
+    writeStored("local", BACKDROP_KEY, next, (v) => (v ? "1" : null));
+  }, []);
+  return [chosen ?? stored ?? false, set];
+}
 
 export type StageLoadState = "ok" | "retrying" | "failed";
 
@@ -58,6 +73,7 @@ export function ViewerStage({
 }: ViewerStageProps) {
   const imgRef = React.useRef<HTMLImageElement>(null);
   const gesture = React.useRef<Gesture | null>(null);
+  const [darkroom, setDarkroom] = useDarkroomBackdrop();
   const lastTap = React.useRef<{ at: number; x: number; y: number } | null>(null);
   // Some touch browsers also fire dblclick for a double tap: don't toggle the zoom twice.
   const touchToggledAt = React.useRef(-Infinity);
@@ -146,7 +162,11 @@ export function ViewerStage({
     <figure
       className={cn(
         // Desktop: the photo stays in view (sticky, one screen tall) while the details column scrolls.
-        "relative flex min-h-[40dvh] items-center justify-center overflow-hidden rounded-xl bg-muted select-none lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:min-h-[28rem] lg:self-start",
+        "relative flex min-h-[40dvh] items-center justify-center overflow-hidden rounded-sm p-4 select-none sm:p-8 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:min-h-[28rem] lg:self-start",
+        // The light table (paper, a shade darker than the page), or the darkroom with the safelight on.
+        darkroom
+          ? "bg-darkroom shadow-[inset_0_0_140px_-50px_var(--darkroom-safelight)]"
+          : "border border-foreground/10 bg-secondary dark:bg-darkroom-raised",
         // Not zoomed: the page still scrolls vertically and pinches natively; horizontal moves are ours (swipe).
         isImage && (zoomed ? "touch-none" : "touch-pan-y touch-pinch-zoom"),
       )}
@@ -176,26 +196,32 @@ export function ViewerStage({
           onLoad={onLoaded}
           style={zoom ? { transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})` } : undefined}
           className={cn(
-            "max-h-[75dvh] w-auto max-w-full object-contain lg:max-h-full",
+            // A print: thin paper border and one soft, low shadow.
+            "max-h-[calc(75dvh-2rem)] w-auto max-w-full bg-[#fbf8f2] object-contain p-1.5 shadow-[0_14px_30px_-18px_rgb(22_20_15/0.55),0_2px_4px_-2px_rgb(22_20_15/0.25)] sm:p-2.5 lg:max-h-full",
             !panning && "transition-transform duration-200 ease-out motion-reduce:transition-none",
             zoomed ? "cursor-grab active:cursor-grabbing" : "pointer-fine:cursor-zoom-in",
             loadState !== "ok" && "invisible",
           )}
         />
       ) : (
-        <video
-          key={loadKey}
-          ref={videoRef}
-          src={media.url}
-          poster={media.thumbUrl !== media.url ? media.thumbUrl : undefined}
-          controls
-          playsInline
-          loop
-          preload="metadata"
-          onError={onLoadError}
-          onLoadedMetadata={onLoaded}
-          className="max-h-[75dvh] w-full lg:max-h-full"
-        />
+        // A strip of film: sprocket rows above and below the clip.
+        <div className="flex max-h-full w-full flex-col bg-darkroom">
+          <span aria-hidden="true" className="h-3.5 shrink-0" style={sprocketRow} />
+          <video
+            key={loadKey}
+            ref={videoRef}
+            src={media.url}
+            poster={media.thumbUrl !== media.url ? media.thumbUrl : undefined}
+            controls
+            playsInline
+            loop
+            preload="metadata"
+            onError={onLoadError}
+            onLoadedMetadata={onLoaded}
+            className="max-h-[calc(75dvh-3rem)] min-h-0 w-full lg:max-h-[calc(100%-1.75rem)]"
+          />
+          <span aria-hidden="true" className="h-3.5 shrink-0" style={sprocketRow} />
+        </div>
       )}
 
       {loadState !== "ok" && (
@@ -234,11 +260,28 @@ export function ViewerStage({
           onClick={() => toggleZoomAt()}
           onPointerDown={(e) => e.stopPropagation()}
           // Top-right: AI labels and watermarks sit at the bottom of the photo.
-          className="absolute top-3 right-3 bg-background/85 shadow-sm backdrop-blur-sm"
+          className="absolute top-3 right-3 border border-foreground/15 bg-card text-foreground shadow-none hover:bg-accent"
         >
           {zoomed ? <ZoomOutIcon /> : <ZoomInIcon />}
         </Button>
       )}
+
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        aria-pressed={darkroom}
+        title={darkroom ? "Back to the light table" : "View in the darkroom (lights off)"}
+        onClick={() => setDarkroom(!darkroom)}
+        onPointerDown={(e) => e.stopPropagation()}
+        aria-label="Darkroom backdrop"
+        className="absolute top-3 left-3 border border-foreground/15 bg-card font-mono text-[11px] tracking-[0.12em] text-foreground uppercase shadow-none hover:bg-accent max-sm:px-2"
+      >
+        {darkroom ? <LightbulbOffIcon aria-hidden="true" /> : <LightbulbIcon aria-hidden="true" />}
+        <span aria-hidden="true" className="max-sm:hidden">
+          Darkroom
+        </span>
+      </Button>
 
       {children}
     </figure>

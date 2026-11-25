@@ -49,8 +49,10 @@ type DialogState =
   | { kind: "share"; folder: FolderDTO }
   | null;
 
+/** Index rows on hairlines; the open one gets a safelight rule on its left edge. */
 const itemClass =
-  "flex min-h-10 w-full min-w-0 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors hover:bg-accent [--focus-offset:-2px]";
+  "flex min-h-10 w-full min-w-0 items-center gap-2.5 border-l-2 border-transparent px-2.5 text-sm transition-colors hover:bg-accent/60 [--focus-offset:-2px]";
+const activeClass = "border-safelight-ink bg-accent/40 font-medium";
 
 export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: FolderNavProps) {
   const router = useRouter();
@@ -87,14 +89,14 @@ export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: F
         href={galleryHref({ ...filters, folderId: undefined })}
         onClick={onNavigate}
         aria-current={!filters.folderId ? "page" : undefined}
-        className={cn(itemClass, !filters.folderId && "bg-accent font-medium")}
+        className={cn(itemClass, !filters.folderId && activeClass)}
       >
         <ImagesIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
         All media
       </Link>
 
-      <div className="mt-3 mb-1 flex items-center justify-between gap-2 px-2.5">
-        <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Folders</h2>
+      <div className="mt-4 mb-1 flex items-center justify-between gap-2 border-b border-foreground/15 pb-1 pl-3">
+        <h2 className="mono-caps text-muted-foreground">Folders</h2>
         <Button
           type="button"
           variant="ghost"
@@ -124,11 +126,13 @@ export function FolderNav({ filters, onNavigate, onFolderDeleted, className }: F
                   href={galleryHref({ ...filters, folderId: folder.id })}
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
-                  className={cn(itemClass, "pr-10", active && "bg-accent font-medium")}
+                  className={cn(itemClass, "pr-10", active && activeClass)}
                 >
                   <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
                   <span className="min-w-0 flex-1 truncate">{folder.name}</span>
-                  <span className="text-xs text-muted-foreground tabular-nums">{folder.mediaCount}</span>
+                  <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                    {String(folder.mediaCount).padStart(2, "0")}
+                  </span>
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

@@ -2,16 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import {
-  CheckSquareIcon,
-  FolderIcon,
-  HeartIcon,
-  ImageIcon,
-  ImagesIcon,
-  SparklesIcon,
-  VideoIcon,
-  XIcon,
-} from "lucide-react";
+import { FolderIcon, SquareDashedIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -20,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useModels } from "@/hooks/use-models";
 import { viewOf, withView, type GalleryFilters, type GalleryView } from "./gallery-filters";
+import { MiniContactSheet } from "./marks";
 
 export interface PackOption {
   slug: string;
@@ -41,6 +33,21 @@ export interface GalleryToolbarProps {
 
 const ALL = "all";
 
+const VIEWS: { value: GalleryView; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "favorites", label: "Favorites" },
+  { value: "photos", label: "Photos" },
+  { value: "videos", label: "Videos" },
+];
+
+/** Mono tab: a safelight underline marks the one that's on. */
+const TAB =
+  "h-10 flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 font-mono text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase shadow-none first:rounded-none last:rounded-none hover:bg-transparent hover:text-foreground data-[state=on]:border-safelight-ink data-[state=on]:bg-transparent data-[state=on]:text-foreground pointer-coarse:h-11";
+
+/** Filter selects: flat, mono, on the hairline. */
+const FILTER =
+  "h-8 max-w-44 rounded-sm border-foreground/20 bg-transparent font-mono text-xs tracking-[0.08em] uppercase shadow-none dark:bg-transparent";
+
 export function GalleryToolbar({
   filters,
   onFiltersChange,
@@ -59,39 +66,28 @@ export function GalleryToolbar({
   const modelKnown = !filters.modelId || models?.some((m) => m.id === filters.modelId);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-3 border-foreground/15 sm:border-b">
         <ToggleGroup
           type="single"
-          variant="outline"
-          size="sm"
           value={view}
           onValueChange={(v) => v && onFiltersChange(withView(filters, v as GalleryView))}
           aria-label="Show"
+          className="-mb-px gap-5 border-foreground/15 max-sm:w-full max-sm:border-b sm:gap-7"
         >
-          <ToggleGroupItem value="all" className="px-3">
-            <ImagesIcon aria-hidden="true" className="max-sm:hidden" />
-            All
-          </ToggleGroupItem>
-          <ToggleGroupItem value="favorites" className="px-3">
-            <HeartIcon aria-hidden="true" className="max-sm:hidden" />
-            Favorites
-          </ToggleGroupItem>
-          <ToggleGroupItem value="photos" className="px-3">
-            <ImageIcon aria-hidden="true" className="max-sm:hidden" />
-            Photos
-          </ToggleGroupItem>
-          <ToggleGroupItem value="videos" className="px-3">
-            <VideoIcon aria-hidden="true" className="max-sm:hidden" />
-            Videos
-          </ToggleGroupItem>
+          {VIEWS.map((v) => (
+            <ToggleGroupItem key={v.value} value={v.value} className={TAB}>
+              {v.label}
+            </ToggleGroupItem>
+          ))}
         </ToggleGroup>
 
+        <div className="mb-2 flex flex-wrap items-center gap-2 max-sm:w-full">
         <Select
           value={filters.modelId ?? ALL}
           onValueChange={(v) => onFiltersChange({ ...filters, modelId: v === ALL ? undefined : v })}
         >
-          <SelectTrigger size="sm" aria-label="Filter by model" className="max-w-44">
+          <SelectTrigger size="sm" aria-label="Filter by model" className={FILTER}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -109,7 +105,7 @@ export function GalleryToolbar({
           value={filters.packId ?? ALL}
           onValueChange={(v) => onFiltersChange({ ...filters, packId: v === ALL ? undefined : v })}
         >
-          <SelectTrigger size="sm" aria-label="Filter by pack" className="max-w-44">
+          <SelectTrigger size="sm" aria-label="Filter by pack" className={FILTER}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -124,8 +120,8 @@ export function GalleryToolbar({
         </Select>
 
         {filters.batchId && (
-          <span className="inline-flex h-8 items-center gap-1 rounded-md border bg-card pr-1 pl-3 text-sm">
-            <Link href={`/app/batches/${filters.batchId}`} className="underline-offset-4 hover:underline">
+          <span className="inline-flex h-8 items-center gap-1 rounded-sm border border-safelight-ink/50 pr-1 pl-2.5 font-mono text-xs tracking-[0.08em] uppercase">
+            <Link href={`/app/batches/${filters.batchId}`} className="underline underline-offset-4">
               One batch
             </Link>
             <Button
@@ -141,7 +137,9 @@ export function GalleryToolbar({
           </span>
         )}
 
-        <div className="ml-auto flex items-center gap-2">
+        </div>
+
+        <div className="mb-2 ml-auto flex items-center gap-2">
           <Button type="button" variant="outline" size="sm" className="lg:hidden" onClick={onOpenFolders}>
             <FolderIcon aria-hidden="true" />
             <span className="max-w-28 truncate">{folderName ?? "Folders"}</span>
@@ -153,8 +151,9 @@ export function GalleryToolbar({
             size="sm"
             aria-pressed={selecting}
             onClick={() => onSelectingChange(!selecting)}
+            className={selecting ? "border border-safelight-ink text-safelight-ink" : undefined}
           >
-            <CheckSquareIcon aria-hidden="true" />
+            <SquareDashedIcon aria-hidden="true" />
             {selecting ? "Done" : "Select"}
           </Button>
         </div>
@@ -163,30 +162,26 @@ export function GalleryToolbar({
       {(hiddenCount > 0 || filters.showHidden) && (
         <section
           aria-labelledby={`${hiddenSwitchId}-title`}
-          className="flex flex-col gap-3 rounded-xl border border-primary/20 bg-brand-soft/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-4"
+          className="grid gap-4 border border-foreground/15 bg-card p-3 text-sm sm:grid-cols-[9rem_minmax(0,1fr)_auto] sm:items-center sm:gap-5 sm:p-4"
         >
-          <div className="flex items-start gap-3">
-            <span
-              aria-hidden="true"
-              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white shadow-sm"
-            >
-              <SparklesIcon className="size-4" />
-            </span>
-            <div className="flex flex-col gap-0.5">
-              <h2 id={`${hiddenSwitchId}-title`} className="font-medium">
-                {filters.showHidden ? "Showing every result" : "Best shots only"}
-              </h2>
-              <p className="text-muted-foreground">
-                {filters.showHidden
-                  ? "Weaker results (lower likeness or quality) are marked Hidden. Unhide the ones you like."
-                  : hiddenCount === 1
-                    ? "Our best-shots picker hid 1 weaker result (lower likeness or quality). It's still yours to view, download or delete."
-                    : `Our best-shots picker hid ${hiddenCount.toLocaleString()} weaker results (lower likeness or quality). They're still yours to view, download or delete.`}
-              </p>
-            </div>
+          <MiniContactSheet className="w-36 max-sm:hidden" />
+          <div className="flex flex-col gap-1.5">
+            <p className="mono-caps text-safelight-ink">
+              {filters.showHidden ? "Contact sheet · every frame" : "Contact sheet · keepers circled"}
+            </p>
+            <h2 id={`${hiddenSwitchId}-title`} className="font-display text-2xl leading-none tracking-tight">
+              {filters.showHidden ? "Showing every result" : "Best shots only"}
+            </h2>
+            <p className="max-w-[62ch] text-muted-foreground">
+              {filters.showHidden
+                ? "Weaker results (lower likeness or quality) are marked Hidden. Unhide the ones you like."
+                : hiddenCount === 1
+                  ? "Our best-shots picker hid 1 weaker result (lower likeness or quality). It's still yours to view, download or delete."
+                  : `Our best-shots picker hid ${hiddenCount.toLocaleString()} weaker results (lower likeness or quality). They're still yours to view, download or delete.`}
+            </p>
           </div>
-          <span className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-            <Label htmlFor={hiddenSwitchId} className="whitespace-nowrap">
+          <span className="flex shrink-0 items-center gap-3 justify-self-start sm:justify-self-end">
+            <Label htmlFor={hiddenSwitchId} className="font-mono text-xs tracking-[0.1em] whitespace-nowrap uppercase">
               Show hidden ({hiddenCount.toLocaleString()})
             </Label>
             <Switch

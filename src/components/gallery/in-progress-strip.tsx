@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import useSWR from "swr";
-import { CircleAlertIcon, LoaderCircleIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -58,19 +58,24 @@ export function InProgressStrip({ onFinished }: { onFinished: () => void }) {
       {live.length > 0 && (
         <section
           aria-label="In progress"
-          className="flex flex-col gap-2 rounded-xl border bg-card px-3 py-2.5 text-sm shadow-xs sm:px-4"
+          className="flex flex-col gap-2 border-y border-foreground/15 py-3 text-sm"
         >
-          <div className="flex items-center gap-2">
-            <LoaderCircleIcon aria-hidden="true" className="size-4 shrink-0 animate-spin text-primary motion-reduce:animate-none" />
+          <div className="flex items-center gap-3">
+            {/* The safelight is on: something is in the developer. */}
+            <span aria-hidden="true" className="relative flex size-2.5 shrink-0">
+              <span className="absolute inset-0 animate-ping rounded-full bg-safelight/60 motion-reduce:animate-none" />
+              <span className="relative size-2.5 rounded-full bg-safelight" />
+            </span>
+            <span className="mono-caps shrink-0 text-safelight-ink">Developing</span>
             <p className="min-w-0 flex-1 truncate font-medium">{inProgressLabel(summary)}</p>
-            <span className="text-muted-foreground tabular-nums">{summary.percent}%</span>
+            <span className="font-mono text-xs text-muted-foreground tabular-nums">{summary.percent}%</span>
           </div>
           <Progress
             value={Math.max(4, summary.percent)}
             aria-label="Progress of photos and videos being made"
             aria-valuetext={`${summary.percent}%`}
-            className="h-1.5"
-            indicatorClassName="bg-brand-gradient"
+            className="h-1 rounded-none bg-foreground/10"
+            indicatorClassName="bg-safelight"
           />
           <p className="text-xs text-muted-foreground">
             {live.slice(0, 3).map((j, i) => (
@@ -97,9 +102,12 @@ export function InProgressStrip({ onFinished }: { onFinished: () => void }) {
             return (
               <li
                 key={j.id}
-                className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/5 px-3 py-2 text-sm"
+                className="flex items-start gap-3 border-l-2 border-safelight-ink bg-card px-3 py-2 text-sm"
               >
-                <CircleAlertIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+                <span className="mono-caps mt-1 shrink-0 text-safelight-ink">
+                  {j.status === "succeeded" ? "Partly printed" : j.status === "canceled" ? "Canceled" : "Failed"}
+                  {refund ? " · Refunded" : ""}
+                </span>
                 <p className="min-w-0 flex-1">
                   <span className="font-medium">
                     {JOB_TYPE_LABELS[j.type]}
