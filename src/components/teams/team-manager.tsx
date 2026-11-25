@@ -1,16 +1,16 @@
 "use client";
 
-import { CoinsIcon, ImagesIcon, PlusIcon, TriangleAlertIcon } from "lucide-react";
+import { CoinsIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 
 import { PageHeader } from "@/components/app/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { Stamp } from "@/components/gallery/readout";
+import { LabNotice } from "@/components/billing/lab-notice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatCredits } from "@/components/billing/format";
@@ -61,9 +61,9 @@ export function TeamManager({ initialDetail, teams, packs, canCreateTeam }: Team
           <>
             Owned by {me.isOwner ? "you" : team.ownerName} · {team.memberCount}{" "}
             {team.memberCount === 1 ? "member" : "members"} ·{" "}
-            <Badge variant={me.role === "member" ? "outline" : "soft"} className="align-middle">
+            <Stamp tone={me.role === "member" ? "muted" : "ink"} className="align-middle">
               {ROLE_LABELS[me.role]}
-            </Badge>
+            </Stamp>
           </>
         }
         actions={
@@ -80,15 +80,11 @@ export function TeamManager({ initialDetail, teams, packs, canCreateTeam }: Team
       />
 
       {lostAccess && (
-        <Alert variant="warning" className="mb-6">
-          <TriangleAlertIcon aria-hidden="true" />
-          <AlertTitle>You no longer have access to this team</AlertTitle>
-          <AlertDescription>
-            <Link href="/app/team" className="underline underline-offset-2">
-              Back to your teams
-            </Link>
-          </AlertDescription>
-        </Alert>
+        <LabNotice tone="warning" label="Lab notice · access removed" title="You no longer have access to this team" className="mb-6">
+          <Link href="/app/team" className="underline underline-offset-4">
+            Back to your teams
+          </Link>
+        </LabNotice>
       )}
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -164,10 +160,7 @@ function CreditsCard({ isOwner, ownerName, onTransfer }: { isOwner: boolean; own
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CoinsIcon aria-hidden="true" className="size-4 text-primary" />
-          Credits
-        </CardTitle>
+        <CardTitle>Credits</CardTitle>
         <CardDescription>
           {isOwner
             ? "Everyone spends their own balance. Send credits to teammates who need more."
@@ -175,8 +168,13 @@ function CreditsCard({ isOwner, ownerName, onTransfer }: { isOwner: boolean; own
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">Your balance</p>
-        <p className="text-2xl font-semibold tabular-nums">{user ? formatCredits(user.credits) : "—"}</p>
+        <p className="mono-caps text-muted-foreground">Your balance</p>
+        <p className="mt-1 font-mono text-4xl leading-none font-medium tabular-nums">
+          {user ? formatCredits(user.credits) : "—"}
+          <span aria-hidden="true" className="ml-2 text-xs tracking-[0.16em] text-muted-foreground uppercase">
+            cr
+          </span>
+        </p>
       </CardContent>
       {isOwner && (
         <CardFooter>
@@ -193,10 +191,7 @@ function TeamGalleryNote() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ImagesIcon aria-hidden="true" className="size-4 text-primary" />
-          Team gallery
-        </CardTitle>
+        <CardTitle>Team gallery</CardTitle>
         <CardDescription>
           Photos stay in each person&apos;s private gallery — teammates never see your selfies, models or shots. To
           collect the team&apos;s headshots, ask everyone to share their picks with a link or download them as a zip.

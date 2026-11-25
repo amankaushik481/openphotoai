@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Check, Copy, KeyRound, Loader2, Plus, Sparkles, Trash2, TriangleAlert } from "lucide-react";
+import { BookOpen, Check, Copy, Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -14,9 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LabNotice } from "@/components/billing/lab-notice";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -52,6 +51,9 @@ const SCOPE_OPTIONS: { value: ApiKeyScope; label: string; hint: string }[] = [
     hint: "Create and cancel jobs and batches (spends credits), but can't read your gallery or job results.",
   },
 ];
+
+/** Column heads on the darkroom keyring. */
+const DARK_HEAD = "h-9 text-[10px] tracking-[0.16em] text-darkroom-muted uppercase";
 
 function scopeLabel(scopes: readonly ApiKeyScope[]): string {
   if (scopes.includes("*")) return "Full access";
@@ -94,8 +96,8 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
     <div className="grid grid-cols-1 gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">API keys</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">API keys</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
             Use the {APP.name} API to train models and generate photos from your own code.
           </p>
         </div>
@@ -124,78 +126,86 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
       {!apiAccess && <UpgradeCard planName={planName} />}
 
       {apiAccess && atLimit && (
-        <Alert variant="warning">
-          <TriangleAlert aria-hidden />
-          <AlertDescription>
-            You&apos;ve reached the limit of {maxKeys} active keys. Revoke one to create another.
-          </AlertDescription>
-        </Alert>
+        <LabNotice tone="warning" label="Lab notice · key limit">
+          You&apos;ve reached the limit of {maxKeys} active keys. Revoke one to create another.
+        </LabNotice>
       )}
 
-      <Card className="gap-0 py-0">
-        <CardHeader className="border-b py-5">
+      <Card>
+        <CardHeader>
           <CardTitle>Your keys</CardTitle>
           <CardDescription>
             Keys act on your behalf and spend your credits. Keep them secret and revoke any you don&apos;t use.
           </CardDescription>
         </CardHeader>
-        {keys.length === 0 ? (
-          <CardContent className="flex flex-col items-center gap-2 py-12 text-center">
-            <KeyRound className="size-8 text-muted-foreground" aria-hidden />
-            <p className="font-medium">No API keys yet</p>
-            <p className="max-w-xs text-sm text-muted-foreground">
-              {apiAccess ? "Create a key to start calling the API." : "Upgrade your plan to create API keys."}
-            </p>
-          </CardContent>
-        ) : (
-          <Table scrollLabel="Your API keys">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-6">Name</TableHead>
-                <TableHead>Key</TableHead>
-                <TableHead className="hidden sm:table-cell">Access</TableHead>
-                <TableHead className="hidden sm:table-cell">Last used</TableHead>
-                <TableHead className="hidden md:table-cell">Created</TableHead>
-                <TableHead className="pr-6 text-right">
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {keys.map((k) => (
-                <TableRow key={k.id}>
-                  <TableCell className="max-w-40 pl-6">
-                    <span className="block truncate font-medium">{k.name}</span>
-                    {/* Phones hide the Access / Last used columns: keep both visible under the name. */}
-                    <span className="block truncate text-xs text-muted-foreground sm:hidden">
-                      {scopeLabel(k.scopes)} · {k.lastUsedAt ? `used ${formatDate(k.lastUsedAt)}` : "never used"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{k.prefix}…</code>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Badge variant={k.scopes.includes("*") ? "secondary" : "outline"}>{scopeLabel(k.scopes)}</Badge>
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground sm:table-cell">
-                    {k.lastUsedAt ? formatDate(k.lastUsedAt) : "Never used"}
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground md:table-cell">{formatDate(k.createdAt)}</TableCell>
-                  <TableCell className="pr-6 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setRevokeTarget(k)}
-                      aria-label={`Revoke ${k.name}`}
-                    >
-                      <Trash2 aria-hidden />
-                    </Button>
-                  </TableCell>
+        {/* The keyring sits on a darkroom code surface: mono, dark in both themes. */}
+        <div className="bg-darkroom text-darkroom-foreground">
+          <p className="flex justify-between gap-3 border-b border-darkroom-line px-4 py-2.5 font-mono text-[10px] tracking-[0.18em] text-darkroom-muted uppercase sm:px-5">
+            <span>Keyring</span>
+            <span>
+              {keys.length} / {maxKeys} active
+            </span>
+          </p>
+          {keys.length === 0 ? (
+            <div className="flex flex-col gap-1.5 px-4 py-10 sm:px-5">
+              <p className="font-mono text-sm text-darkroom-foreground">No API keys yet</p>
+              <p className="max-w-sm text-sm text-darkroom-muted">
+                {apiAccess ? "Create a key to start calling the API." : "Upgrade your plan to create API keys."}
+              </p>
+            </div>
+          ) : (
+            <Table scrollLabel="Your API keys" className="font-mono">
+              <TableHeader>
+                <TableRow className="border-darkroom-line hover:bg-transparent">
+                  <TableHead className={DARK_HEAD + " pl-4 sm:pl-5"}>Name</TableHead>
+                  <TableHead className={DARK_HEAD}>Key</TableHead>
+                  <TableHead className={DARK_HEAD + " hidden sm:table-cell"}>Access</TableHead>
+                  <TableHead className={DARK_HEAD + " hidden sm:table-cell"}>Last used</TableHead>
+                  <TableHead className={DARK_HEAD + " hidden md:table-cell"}>Created</TableHead>
+                  <TableHead className={DARK_HEAD + " pr-4 text-right sm:pr-5"}>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+              </TableHeader>
+              <TableBody>
+                {keys.map((k) => (
+                  <TableRow key={k.id} className="border-darkroom-line hover:bg-darkroom-raised">
+                    <TableCell className="max-w-40 pl-4 sm:pl-5">
+                      <span className="block truncate font-sans font-medium text-darkroom-foreground">{k.name}</span>
+                      {/* Phones hide the Access / Last used columns: keep both visible under the name. */}
+                      <span className="block truncate text-[11px] text-darkroom-muted sm:hidden">
+                        {scopeLabel(k.scopes)} · {k.lastUsedAt ? `used ${formatDate(k.lastUsedAt)}` : "never used"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <code className="font-mono text-xs text-darkroom-safelight">{k.prefix}…</code>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <span className="border border-darkroom-line px-1.5 py-1 text-[10px] tracking-[0.12em] text-darkroom-foreground uppercase">
+                        {scopeLabel(k.scopes)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-darkroom-muted sm:table-cell">
+                      {k.lastUsedAt ? formatDate(k.lastUsedAt) : "Never used"}
+                    </TableCell>
+                    <TableCell className="hidden text-xs text-darkroom-muted md:table-cell">{formatDate(k.createdAt)}</TableCell>
+                    <TableCell className="pr-4 text-right sm:pr-5">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setRevokeTarget(k)}
+                        aria-label={`Revoke ${k.name}`}
+                        className="text-darkroom-foreground hover:bg-darkroom-raised hover:text-darkroom-safelight dark:hover:bg-darkroom-raised"
+                      >
+                        <Trash2 aria-hidden />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
       </Card>
 
       {apiAccess && <QuickStart />}
@@ -236,12 +246,10 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
 
 function UpgradeCard({ planName }: { planName: string }) {
   return (
-    <Card className="border-primary/25 bg-brand-soft/40">
+    <Card className="border-t-2 border-safelight-ink">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="size-4 text-primary" aria-hidden />
-          API access is included in Pro and Studio
-        </CardTitle>
+        <p className="mono-caps text-safelight-ink">Pro and Studio</p>
+        <CardTitle>API access is included in Pro and Studio</CardTitle>
         <CardDescription>
           You&apos;re on the {planName} plan. Upgrade to create keys, automate headshots for your team or product, and
           batch up to 50 photos per call.
@@ -267,14 +275,19 @@ function QuickStart() {
         <CardTitle>Quick start</CardTitle>
         <CardDescription>
           Send your key in the <code className="font-mono text-xs">Authorization</code> header.{" "}
-          <Link href="/docs/api" className="underline underline-offset-2 hover:text-foreground">
+          <Link href="/docs/api" className="underline underline-offset-4 hover:text-foreground">
             Read the API docs
           </Link>
           .
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-xs leading-relaxed">{snippet}</pre>
+        <pre className="overflow-x-auto bg-darkroom p-4 font-mono text-xs leading-relaxed text-darkroom-foreground sm:p-5">
+          <span aria-hidden="true" className="text-darkroom-muted select-none">
+            ${" "}
+          </span>
+          {snippet}
+        </pre>
       </CardContent>
     </Card>
   );
@@ -362,7 +375,7 @@ function CreateKeyDialog({
                 readOnly
                 value={secret}
                 aria-label="New API key"
-                className="font-mono text-xs"
+                className="border-darkroom-line bg-darkroom font-mono text-xs text-darkroom-safelight dark:bg-darkroom"
                 onFocus={(e) => e.currentTarget.select()}
                 onCopy={() => setCopied(true)}
               />
@@ -371,13 +384,10 @@ function CreateKeyDialog({
               </Button>
             </div>
             {warnClose && !copied && (
-              <Alert variant="warning" role="alert">
-                <TriangleAlert aria-hidden />
-                <AlertDescription>
-                  You haven&apos;t copied the key yet, and it can&apos;t be shown again. Copy it first, or close and
-                  revoke it later if you don&apos;t need it.
-                </AlertDescription>
-              </Alert>
+              <LabNotice role="alert" tone="warning" label="Lab notice · not copied">
+                You haven&apos;t copied the key yet, and it can&apos;t be shown again. Copy it first, or close and revoke
+                it later if you don&apos;t need it.
+              </LabNotice>
             )}
             <DialogFooter>
               <Button type="button" variant={warnClose && !copied ? "outline" : "default"} onClick={() => handleOpenChange(false)}>
@@ -419,7 +429,7 @@ function CreateKeyDialog({
                     <Label
                       key={o.value}
                       htmlFor={id}
-                      className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent/50"
+                      className="flex cursor-pointer items-start gap-3 border border-foreground/15 p-3 font-normal has-[[data-state=checked]]:border-safelight-ink has-[[data-state=checked]]:bg-accent/50"
                     >
                       <RadioGroupItem id={id} value={o.value} className="mt-0.5" />
                       <span className="grid gap-0.5">

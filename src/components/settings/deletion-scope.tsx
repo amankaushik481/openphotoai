@@ -22,7 +22,7 @@ export function DeletionScope({ className }: { className?: string }) {
   return (
     <div className={cn("grid gap-4 text-sm", className)}>
       <div className="grid gap-2">
-        <p className="font-medium">Permanently deleted</p>
+        <p className="mono-caps text-destructive">Permanently deleted</p>
         <ul className="grid gap-1.5">
           {DELETED.map((item) => (
             <li key={item} className="flex gap-2">
@@ -33,7 +33,7 @@ export function DeletionScope({ className }: { className?: string }) {
         </ul>
       </div>
       <div className="grid gap-2">
-        <p className="font-medium">Kept</p>
+        <p className="mono-caps text-muted-foreground">Kept</p>
         <ul className="grid gap-1.5 text-muted-foreground">
           {KEPT.map((item) => (
             <li key={item} className="flex gap-2">

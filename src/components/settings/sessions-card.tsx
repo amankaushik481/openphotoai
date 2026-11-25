@@ -7,9 +7,9 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { LocalDate, RelativeDay } from "@/components/billing/local-date";
-import { Badge } from "@/components/ui/badge";
+import { Stamp } from "@/components/gallery/readout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { api } from "@/lib/api-client";
 import type { SessionDTO } from "@/server/account/sessions";
 import { describeUserAgent, deviceName } from "./user-agent";
@@ -48,22 +48,20 @@ export function SessionsCard({ sessions }: { sessions: SessionDTO[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ul className="divide-y rounded-lg border" aria-label="Active sessions">
+        <ul className="divide-y divide-foreground/10 border-y border-foreground/15" aria-label="Active sessions">
           {visible.map((s) => {
             const { mobile } = describeUserAgent(s.userAgent);
             const Icon = mobile ? SmartphoneIcon : MonitorIcon;
             const name = deviceName(s.userAgent);
             return (
-              <li key={s.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
-                  <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
-                </span>
+              <li key={s.id} className="flex flex-wrap items-center gap-3 py-3">
+                <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
                 <div className="grid min-w-0 flex-1 gap-0.5">
                   <span className="flex flex-wrap items-center gap-2 text-sm font-medium">
                     {name}
-                    {s.current && <Badge variant="soft">This device</Badge>}
+                    {s.current && <Stamp tone="safelight">This device</Stamp>}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="font-mono text-[11px] tracking-[0.04em] text-muted-foreground">
                     {s.current ? (
                       "Active now"
                     ) : (

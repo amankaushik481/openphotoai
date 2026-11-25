@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { useId, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";

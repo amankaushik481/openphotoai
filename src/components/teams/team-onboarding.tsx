@@ -1,23 +1,20 @@
-import { CoinsIcon, MailIcon, PaletteIcon, SparklesIcon, UsersIcon } from "lucide-react";
+import { MailIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { CreateTeamForm } from "./create-team-form";
 
 const FEATURES = [
   {
-    icon: PaletteIcon,
     title: "Brand kits",
     body: "Save your background, outfit, style, lighting and aspect ratio once. Every teammate's headshots match.",
   },
   {
-    icon: UsersIcon,
     title: "Invite your team",
     body: "Send email invites. Each person trains their own private model — nobody sees anyone else's selfies.",
   },
   {
-    icon: CoinsIcon,
     title: "Share credits",
     body: "Give credits from your balance to teammates so they can shoot without buying their own.",
   },
@@ -34,17 +31,21 @@ export interface TeamOnboardingProps {
 export function TeamOnboarding({ canCreate, planName, seats }: TeamOnboardingProps) {
   return (
     <div className="grid gap-6">
-      <ul className="grid gap-3 sm:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, title, body }) => (
-          <li key={title} className="rounded-xl border bg-card p-4">
-            <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
-              <Icon aria-hidden="true" className="size-4" />
-            </div>
-            <h2 className="font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+      {/* An editorial index, not cards: numbered columns on hairlines. */}
+      <ol className="grid border-t border-foreground/80 sm:grid-cols-3">
+        {FEATURES.map(({ title, body }, i) => (
+          <li
+            key={title}
+            className="flex flex-col gap-2 border-b border-foreground/15 py-5 sm:border-b-0 sm:px-5 sm:first:pl-0 sm:last:pr-0 sm:[&+li]:border-l"
+          >
+            <span aria-hidden="true" className="mono-caps text-safelight-ink">
+              No. {String(i + 1).padStart(2, "0")}
+            </span>
+            <h2 className="font-display text-2xl leading-none tracking-tight">{title}</h2>
+            <p className="text-sm text-muted-foreground">{body}</p>
           </li>
         ))}
-      </ul>
+      </ol>
 
       {canCreate ? (
         <Card>
@@ -59,12 +60,10 @@ export function TeamOnboarding({ canCreate, planName, seats }: TeamOnboardingPro
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-primary/25 bg-brand-soft/40">
+        <Card className="border-t-2 border-safelight-ink">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <SparklesIcon aria-hidden="true" className="size-4 text-primary" />
-              Teams and brand kits are part of Studio
-            </CardTitle>
+            <p className="mono-caps text-safelight-ink">Studio plan</p>
+            <CardTitle>Teams and brand kits are part of Studio</CardTitle>
             <CardDescription>
               You&apos;re on the {planName} plan. Upgrade to Studio to create a team with up to 25 seats, shared brand
               kits and credit transfers.

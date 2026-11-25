@@ -1,15 +1,15 @@
 "use client";
 
-import { PackageIcon, PaletteIcon, PencilIcon, PlusIcon, SparklesIcon, Trash2Icon } from "lucide-react";
+import { ApertureIcon, PackageIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
-import { EmptyState } from "@/components/app/empty-state";
-import { Badge } from "@/components/ui/badge";
+import { EmptySheet } from "@/components/gallery/empty-sheet";
+import { Stamp } from "@/components/gallery/readout";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { api } from "@/lib/api-client";
 import type { BrandKitDTO } from "@/server/teams/types";
 import { BrandKitEditorDialog, type PackOption } from "./brand-kit-editor-dialog";
@@ -60,9 +60,10 @@ export function BrandKitsCard({ teamId, kits, canManage, packs, onChanged }: Bra
       </CardHeader>
       <CardContent>
         {kits.length === 0 ? (
-          <EmptyState
-            size="sm"
-            icon={<PaletteIcon />}
+          <EmptySheet
+            headingLevel={3}
+            frames={3}
+            label="No kit"
             title="No brand kits yet"
             description={
               canManage
@@ -79,18 +80,16 @@ export function BrandKitsCard({ teamId, kits, canManage, packs, onChanged }: Bra
             }
           />
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-px border-y border-foreground/15 bg-foreground/15 sm:grid-cols-2">
             {kits.map((kit) => {
               const fragment = brandKitFragment(kit);
               const pack = packName(kit.basePackId);
               return (
-                <li key={kit.id} className="flex flex-col gap-3 rounded-xl border p-4">
+                <li key={kit.id} className="flex flex-col gap-3 bg-background py-4 sm:p-4">
                   <div className="flex items-start gap-2">
                     <ColorSwatch color={kit.colorHex} className="mt-1.5" />
                     <h3 className="min-w-0 flex-1 truncate font-medium">{kit.name}</h3>
-                    <Badge variant="outline" className="tabular-nums">
-                      {kit.aspectRatio}
-                    </Badge>
+                    <Stamp tone="muted">{kit.aspectRatio}</Stamp>
                   </div>
                   <p className="line-clamp-3 text-sm text-muted-foreground">
                     {fragment || "Only sets the aspect ratio."}
@@ -106,7 +105,7 @@ export function BrandKitsCard({ teamId, kits, canManage, packs, onChanged }: Bra
                     )}
                     <Button asChild variant="ghost" size="sm" className={pack ? undefined : "-ml-2"}>
                       <Link href="/app/create">
-                        <SparklesIcon aria-hidden="true" />
+                        <ApertureIcon aria-hidden="true" />
                         Create with it
                       </Link>
                     </Button>

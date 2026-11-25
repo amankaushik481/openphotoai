@@ -31,6 +31,39 @@ export function CreditReadout({
   );
 }
 
+export type StampTone = "ink" | "muted" | "safelight" | "success" | "warning";
+
+const STAMP_TONE: Record<StampTone, string> = {
+  ink: "border-foreground/40 text-foreground",
+  muted: "border-foreground/25 text-muted-foreground",
+  safelight: "border-safelight-ink/60 text-safelight-ink",
+  success: "border-success/50 text-success",
+  warning: "border-warning/50 text-warning",
+};
+
+/** A lab stamp: a square-cornered mono label for statuses and roles ("PRINTED", "OWNER", "THIS DEVICE"). */
+export function Stamp({
+  tone = "ink",
+  className,
+  children,
+}: {
+  tone?: StampTone;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex w-fit shrink-0 items-center gap-1 border px-1.5 py-1 font-mono text-[10px] leading-none font-medium tracking-[0.14em] whitespace-nowrap uppercase",
+        STAMP_TONE[tone],
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
 /** A label ······· value row (a lab ledger / spec sheet line). Render inside a `<dl>`. */
 export function LeaderRow({
   label,
