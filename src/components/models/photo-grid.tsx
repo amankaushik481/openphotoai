@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, CircleAlertIcon, LoaderCircleIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, LoaderCircleIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GreasePencilCross } from "@/components/ui/darkroom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { PhotoIssue, TrainingPhotoDTO } from "@/types/domain";
 import { cn } from "@/lib/utils";
@@ -16,11 +17,20 @@ export interface TrainingPhotoGridProps {
   className?: string;
 }
 
-/** Uploaded training photos with per-photo status, issue chips and fix tips (tap a photo). */
+/**
+ * Uploaded training photos as a contact sheet: numbered frames, a red grease-pencil ✕ through the ones that
+ * can't be used with the reason written under them, and fix tips when you tap a frame.
+ */
 export function TrainingPhotoGrid({ photos, onDelete, className }: TrainingPhotoGridProps) {
   if (photos.length === 0) return null;
   return (
-    <ul className={cn("grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-6", className)} aria-label="Your training photos">
+    <ul
+      className={cn(
+        "grid grid-cols-3 gap-x-2 gap-y-3 rounded-xs border border-foreground/12 bg-card p-2.5 sm:grid-cols-4 sm:gap-x-3 sm:p-3.5 lg:grid-cols-6",
+        className,
+      )}
+      aria-label="Your training photos"
+    >
       {photos.map((photo, i) => (
         <PhotoTile key={photo.id} photo={photo} index={i + 1} onDelete={onDelete} />
       ))}
@@ -61,42 +71,41 @@ function PhotoTile({
   };
 
   return (
-    <li className="flex flex-col gap-1">
+    <li className="flex min-w-0 flex-col">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
             type="button"
             aria-label={`Photo ${index}: ${statusText}${first ? ` (${ISSUE_LABELS[first.code]})` : ""}. Show details`}
-            className={cn(
-              "group relative aspect-[4/5] overflow-hidden rounded-lg border bg-muted transition-shadow",
-              rejected && "border-destructive/60",
-            )}
+            className="group flex min-w-0 flex-col gap-1.5 rounded-[1px] text-left"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL */}
-            <img
-              src={photo.thumbUrl}
-              alt=""
-              loading="lazy"
-              className={cn("size-full object-cover transition-transform group-hover:scale-[1.03]", (rejected || deleting) && "opacity-55")}
-            />
-            <span className="absolute top-1.5 left-1.5">
-              <StatusDot rejected={rejected} warned={warnings.length > 0} />
+            <span className="relative block aspect-[4/5] w-full rounded-[1px] bg-darkroom">
+              <span className="absolute inset-0 overflow-hidden rounded-[1px]">
+                {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL */}
+                <img
+                  src={photo.thumbUrl}
+                  alt=""
+                  loading="lazy"
+                  className={cn(
+                    "size-full object-cover transition-[filter,opacity] group-hover:brightness-105",
+                    rejected && "opacity-60 grayscale",
+                    deleting && "opacity-40",
+                  )}
+                />
+              </span>
+              {rejected && <GreasePencilCross still />}
+              {deleting && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-white drop-shadow" />
+                </span>
+              )}
             </span>
-            {deleting && (
-              <span className="absolute inset-0 flex items-center justify-center">
-                <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-white drop-shadow" />
-              </span>
-            )}
-            {first && (
-              <span
-                className={cn(
-                  "absolute inset-x-1 bottom-1 truncate rounded-md px-1.5 py-0.5 text-[11px] font-medium shadow-sm",
-                  first.severity === "error" ? "bg-destructive text-destructive-foreground" : "bg-background/90 text-foreground",
-                )}
-              >
-                {ISSUE_LABELS[first.code]}
-              </span>
-            )}
+            <FrameCaption
+              index={index}
+              rejected={rejected}
+              warned={warnings.length > 0}
+              label={first ? ISSUE_LABELS[first.code] : null}
+            />
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-80 max-w-[calc(100vw-2rem)]" align="start">
@@ -128,22 +137,33 @@ function PhotoTile({
   );
 }
 
-function StatusDot({ rejected, warned }: { rejected: boolean; warned: boolean }) {
-  if (rejected) {
-    return (
-      <span className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow">
-        <CircleAlertIcon aria-hidden="true" className="size-3.5" />
-      </span>
-    );
-  }
+/** The mono line under a frame: its number, then ✓, a tip, or the reason in grease-pencil red on a reject. */
+function FrameCaption({
+  index,
+  rejected,
+  warned,
+  label,
+}: {
+  index: number;
+  rejected: boolean;
+  warned: boolean;
+  label: string | null;
+}) {
   return (
     <span
-      className={cn(
-        "flex size-6 items-center justify-center rounded-full shadow",
-        warned ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground",
-      )}
+      aria-hidden="true"
+      className="flex min-w-0 items-baseline justify-between gap-1 font-mono text-[0.625rem] leading-tight tracking-[0.1em] uppercase"
     >
-      {warned ? <TriangleAlertIcon aria-hidden="true" className="size-3.5" /> : <CheckIcon aria-hidden="true" className="size-3.5" />}
+      <span className={cn("shrink-0", rejected ? "text-safelight-ink" : "text-muted-foreground")}>
+        {String(index).padStart(2, "0")}
+      </span>
+      {rejected ? (
+        <span className="truncate text-safelight-ink">✕ {label}</span>
+      ) : warned ? (
+        <span className="truncate text-warning">{label ?? "Tip"}</span>
+      ) : (
+        <span className="text-success">✓ OK</span>
+      )}
     </span>
   );
 }

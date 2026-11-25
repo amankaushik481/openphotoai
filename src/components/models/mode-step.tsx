@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleAlertIcon, GaugeIcon, LoaderCircleIcon, SparklesIcon, TimerIcon, ZapIcon } from "lucide-react";
+import { ApertureIcon, CircleAlertIcon, CoinsIcon, FilmIcon, FocusIcon, LoaderCircleIcon, ScanFaceIcon, TimerIcon } from "lucide-react";
 
 import { CostHint } from "@/components/app/cost-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -18,26 +18,35 @@ import { modelsApi } from "./use-model";
 
 const OPTIONS: Record<
   IdentityMode,
-  { title: string; tagline: string; icon: typeof ZapIcon; points: { icon: typeof ZapIcon; text: string }[] }
+  {
+    title: string;
+    tagline: string;
+    /** Mono marginalia: the "process" letter, like a lab's development options. */
+    process: string;
+    icon: typeof FocusIcon;
+    points: { icon: typeof FocusIcon; text: string }[];
+  }
 > = {
   instant: {
     title: "Instant",
     tagline: "Free · ready in seconds",
-    icon: ZapIcon,
+    process: "Process A",
+    icon: FocusIcon,
     points: [
       { icon: TimerIcon, text: "Ready right away, no training" },
-      { icon: GaugeIcon, text: "Good likeness from your best photos" },
-      { icon: SparklesIcon, text: `Photos cost ${INSTANT_MODE_MULTIPLIER}× credits (drafts stay free)` },
+      { icon: ScanFaceIcon, text: "Good likeness from your best photos" },
+      { icon: CoinsIcon, text: `Photos cost ${INSTANT_MODE_MULTIPLIER}× credits (drafts stay free)` },
     ],
   },
   trained: {
     title: "Trained",
     tagline: `${CREDIT_COSTS.train} credits · about 20 minutes`,
-    icon: SparklesIcon,
+    process: "Process B",
+    icon: FilmIcon,
     points: [
-      { icon: SparklesIcon, text: "Best likeness: a private AI model trained on your photos" },
+      { icon: ScanFaceIcon, text: "Best likeness: a private AI model trained on your photos" },
       { icon: TimerIcon, text: "We'll email you when it's ready" },
-      { icon: GaugeIcon, text: "Standard photo prices, refund if training fails" },
+      { icon: CoinsIcon, text: "Standard photo prices, refund if training fails" },
     ],
   },
 };
@@ -93,9 +102,11 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
               key={key}
               htmlFor={id}
               className={cn(
-                "relative flex cursor-pointer flex-col gap-4 rounded-xl border-2 bg-card p-4 transition-colors sm:p-5",
+                "relative flex cursor-pointer flex-col gap-4 rounded-xs border bg-card p-4 transition-[border-color,box-shadow] sm:p-5",
                 "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-                mode === key ? "border-primary bg-brand-soft/40" : "border-border hover:border-primary/40",
+                mode === key
+                  ? "border-foreground shadow-[inset_0_-3px_0_var(--safelight-ink)]"
+                  : "border-foreground/20 hover:border-foreground/50",
               )}
             >
               <input
@@ -107,33 +118,34 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
                 onChange={() => setMode(key)}
                 className="sr-only"
               />
+              <div aria-hidden="true" className="flex items-center justify-between font-mono text-[0.625rem] tracking-[0.18em] uppercase">
+                <span className={mode === key ? "text-safelight-ink" : "text-muted-foreground"}>
+                  {mode === key ? "▸ " : ""}
+                  {option.process}
+                </span>
+                <Icon className="size-4 text-foreground/60" strokeWidth={1.5} />
+              </div>
               <div className="flex items-start justify-between gap-3">
-                <span className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "flex size-10 items-center justify-center rounded-lg",
-                      key === "trained" ? "bg-brand-gradient text-white" : "bg-brand-soft text-brand-soft-foreground",
-                    )}
-                  >
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="flex flex-col">
-                    <span className="text-lg font-semibold">{option.title}</span>
-                    <span className="text-sm text-muted-foreground">{option.tagline}</span>
-                  </span>
+                <span className="flex flex-col gap-1">
+                  <span className="font-display text-[2rem] leading-none">{option.title}</span>
+                  <span className="text-sm text-muted-foreground">{option.tagline}</span>
                 </span>
                 {key === "trained" && <Badge variant="soft">Best likeness</Badge>}
               </div>
-              <ul className="flex flex-col gap-2 text-sm">
+              <ul className="flex flex-col gap-2 border-t border-border pt-3 text-sm">
                 {option.points.map(({ icon: PointIcon, text }) => (
                   <li key={text} className="flex gap-2">
-                    <PointIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+                    <PointIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-foreground/55" strokeWidth={1.5} />
                     {text}
                   </li>
                 ))}
               </ul>
-              <p className={cn("text-xs", r.canTrain ? "text-success" : "text-muted-foreground")}>
+              <p
+                className={cn(
+                  "font-mono text-[0.6875rem] tracking-[0.1em] uppercase",
+                  r.canTrain ? "text-success" : "text-muted-foreground",
+                )}
+              >
                 {r.canTrain
                   ? `Ready: ${r.accepted} good photos`
                   : `Needs ${r.minRequired}+ good photos (you have ${r.accepted})`}
@@ -180,7 +192,7 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
           aria-busy={pending}
           onClick={() => void start()}
         >
-          {pending ? <LoaderCircleIcon className="animate-spin" /> : <SparklesIcon />}
+          {pending ? <LoaderCircleIcon className="animate-spin" /> : <ApertureIcon />}
           {mode === "instant" ? "Create Instant model" : `Train my model · ${CREDIT_COSTS.train} credits`}
         </Button>
       </div>

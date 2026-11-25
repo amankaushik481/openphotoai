@@ -1,31 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { BadgeCheckIcon, CameraIcon, LockIcon, MoveHorizontalIcon, ShieldCheckIcon, UserRoundCheckIcon } from "lucide-react";
 
 import type { ModelView } from "@/server/models/types";
 import { CameraCapture } from "./camera-capture";
 import { modelsApi } from "./use-model";
 
-const HOW = [
-  { icon: CameraIcon, label: "Selfie" },
-  { icon: MoveHorizontalIcon, label: "2 small head moves" },
-  { icon: BadgeCheckIcon, label: "Instant check" },
-] as const;
+const HOW = ["Selfie", "2 small head moves", "Instant check"] as const;
 
 const WHY = [
   {
-    icon: UserRoundCheckIcon,
     title: "Only you can create a model of you",
     body: "Every photo you upload is compared with this selfie. Photos of anyone else are refused.",
   },
   {
-    icon: BadgeCheckIcon,
     title: "Adults only",
     body: "We check that the person in the selfie is over 18. Models of minors are never allowed.",
   },
   {
-    icon: LockIcon,
     title: "Private, and deletable any time",
     body: "The selfie is stored privately, never shown to anyone, and deleted together with your model.",
   },
@@ -41,26 +33,27 @@ export function ConsentStep({ modelId, onVerified }: ConsentStepProps) {
   const token = React.useRef<string | null>(null);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start lg:gap-x-10">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start lg:gap-x-12">
       {/* Phones: intro → camera → why. Desktop: intro + why on the left, the camera on the right. */}
-      <div className="flex flex-col gap-4 lg:col-start-1">
+      <div className="flex flex-col gap-5 lg:col-start-1">
         <div className="flex flex-col gap-2">
-          <h2 className="flex items-center gap-2 text-xl font-semibold">
-            <ShieldCheckIcon aria-hidden="true" className="size-5 text-primary" />
-            Take a quick consent selfie
-          </h2>
+          <h2 className="font-display text-[1.75rem] leading-none sm:text-3xl">Take a quick consent selfie</h2>
           <p className="text-sm text-muted-foreground sm:text-base">
             About 20 seconds, once per model. It confirms you&apos;re the person in your photos and that you agree to an AI
             model of yourself, so your likeness stays yours.
           </p>
         </div>
-        <ol aria-label="How it works" className="grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
-          {HOW.map(({ icon: Icon, label }, i) => (
-            <li key={label} className="flex flex-col items-center gap-1.5 rounded-xl bg-muted/50 px-2 py-3">
-              <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
-                <Icon className="size-4" />
+        {/* The sequence as a mono exposure readout: 01 → 02 → 03. */}
+        <ol
+          aria-label="How it works"
+          className="grid grid-cols-3 divide-x divide-border border-y border-border font-mono text-[0.6875rem] tracking-[0.1em] uppercase"
+        >
+          {HOW.map((label, i) => (
+            <li key={label} className="flex flex-col gap-1 px-2 py-3 first:pl-0 sm:px-3">
+              <span aria-hidden="true" className="text-safelight-ink">
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <span>
+              <span className="leading-snug">
                 <span className="sr-only">Step {i + 1}: </span>
                 {label}
               </span>
@@ -90,25 +83,26 @@ export function ConsentStep({ modelId, onVerified }: ConsentStepProps) {
         className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
       />
 
-      <section aria-labelledby="consent-why" className="flex flex-col gap-4 lg:col-start-1">
-        <h3 id="consent-why" className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+      {/* Darkroom rules: a lab notice, numbered, on hairlines. */}
+      <section aria-labelledby="consent-why" className="flex flex-col gap-3 lg:col-start-1">
+        <h3 id="consent-why" className="mono-caps text-muted-foreground">
           Why we ask
         </h3>
-        <ul className="flex flex-col gap-4">
-          {WHY.map(({ icon: Icon, title, body }) => (
-            <li key={title} className="flex gap-3">
-              <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand-soft-foreground">
-                <Icon className="size-5" />
+        <ol className="flex flex-col">
+          {WHY.map(({ title, body }, i) => (
+            <li key={title} className="flex gap-4 border-t border-border py-3.5 last:border-b">
+              <span aria-hidden="true" className="w-6 shrink-0 pt-0.5 font-mono text-[0.6875rem] text-safelight-ink">
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="flex flex-col">
+              <span className="flex flex-col gap-0.5">
                 <span className="font-medium">{title}</span>
                 <span className="text-sm text-muted-foreground">{body}</span>
               </span>
             </li>
           ))}
-        </ul>
-        <details className="group rounded-lg border border-dashed px-3 py-2.5 text-sm text-muted-foreground">
-          <summary className="cursor-pointer rounded-sm font-medium text-foreground select-none">
+        </ol>
+        <details className="group rounded-xs border border-dashed border-foreground/25 px-3 py-2.5 text-sm text-muted-foreground">
+          <summary className="cursor-pointer rounded-xs font-medium text-foreground select-none">
             Why can&apos;t I upload a photo instead?
           </summary>
           <p className="mt-2">

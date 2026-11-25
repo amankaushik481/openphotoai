@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { CoinsIcon } from "lucide-react";
 
 import { creditCost } from "@/config/credits";
 import { useMe } from "@/hooks/use-me";
@@ -19,7 +18,7 @@ export interface CostHintProps {
   className?: string;
 }
 
-/** Shows what an action costs; warns when the balance is too low. */
+/** What an action costs, as a meter readout ("COSTS 40 CREDITS · YOU HAVE 288"); warns when the balance is too low. */
 export function CostHint({ input, credits, showBalance = true, className }: CostHintProps) {
   const t = useT();
   const { user } = useMe();
@@ -29,8 +28,8 @@ export function CostHint({ input, credits, showBalance = true, className }: Cost
 
   return (
     <div className={cn("flex flex-col gap-1 text-sm", className)}>
-      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-muted-foreground">
-        <CoinsIcon aria-hidden="true" className="size-4 text-primary" />
+      <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase tabular-nums">
+        <span aria-hidden="true" className="size-1.5 self-center rounded-full bg-safelight-ink" />
         <span className="font-medium text-foreground">
           {cost === 0 ? t("credits.costFree") : t.count("credits.cost", "credits.costOne", cost)}
         </span>

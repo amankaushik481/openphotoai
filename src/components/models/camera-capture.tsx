@@ -16,6 +16,7 @@ import {
 
 import { CopyButton } from "@/components/app/copy-button";
 import { Button } from "@/components/ui/button";
+import { CropMarks, darkroomMotion } from "@/components/ui/darkroom";
 import { scrollBehavior } from "@/lib/a11y";
 import { ApiClientError } from "@/lib/api-client";
 import { LIVENESS_PROMPTS, type LivenessStep } from "@/lib/liveness";
@@ -327,6 +328,18 @@ export function CameraCapture({
   const stageIndex = stage ? CAPTURE_STAGES.findIndex((s) => s.id === stage) : -1;
   // Only rendered after a client-side camera failure, so reading `window` here can't mismatch SSR.
   const pageUrl = phase === "error" && typeof window !== "undefined" ? window.location.href : "";
+  // Viewfinder readout (display only; the live region below carries the announcements).
+  const readout: Record<Phase, string> = {
+    idle: "Standby",
+    starting: "Warming up",
+    live: "Live",
+    countdown: `Self-timer · ${count}`,
+    step: `Move ${stepIndex + 1}/${steps.length}`,
+    review: "Review",
+    submitting: "Checking",
+    error: "No signal",
+  };
+  const lampOn = phase === "live" || phase === "countdown" || phase === "step";
 
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
@@ -334,7 +347,8 @@ export function CameraCapture({
       <div
         ref={viewfinderRef}
         className={cn(
-          "relative w-full max-w-sm overflow-hidden rounded-2xl border bg-muted shadow-sm",
+          // The viewfinder: a dark frame with crop marks and mono readouts, in both themes.
+          "relative w-full max-w-sm overflow-hidden rounded-xs bg-darkroom text-darkroom-foreground shadow-[0_24px_40px_-30px_rgb(0_0_0/0.7)] dark:ring-1 dark:ring-foreground/12",
           phase === "idle" || phase === "error" ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[3/4]",
         )}
       >
@@ -373,12 +387,36 @@ export function CameraCapture({
           </svg>
         )}
 
+        {/* Viewfinder chrome: crop marks and the readout line (decorative). */}
+        <CropMarks inset="0.75rem" size="1.125rem" weight="1.5px" className="text-darkroom-foreground/70" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-5 pt-4 font-mono text-[0.625rem] tracking-[0.18em] text-darkroom-foreground/85 uppercase [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]"
+        >
+          <span className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                lampOn ? "bg-darkroom-safelight shadow-[0_0_8px_var(--darkroom-safelight)]" : "bg-darkroom-foreground/40",
+                lampOn && darkroomMotion.blink,
+              )}
+            />
+            {readout[phase]}
+          </span>
+          <span>3:4 · Mirror</span>
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-5 pb-4 font-mono text-[0.625rem] tracking-[0.18em] text-darkroom-foreground/70 uppercase [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]"
+        >
+          <span>Consent</span>
+          <span>Frame 00</span>
+        </div>
+
         {phase === "idle" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-            <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
-              <CameraIcon className="size-7" />
-            </span>
-            <p className="text-sm text-muted-foreground">Your browser will ask to use the camera.</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center">
+            <CameraIcon aria-hidden="true" className="size-8 text-darkroom-foreground/70" strokeWidth={1.25} />
+            <p className="text-sm text-darkroom-muted">Your browser will ask to use the camera.</p>
           </div>
         )}
         {phase === "starting" && (
@@ -387,7 +425,7 @@ export function CameraCapture({
           </div>
         )}
         {phase === "live" && (
-          <p className="absolute inset-x-0 bottom-3 mx-auto w-fit rounded-full bg-black/55 px-3 py-1 text-xs font-medium text-white">
+          <p className="absolute inset-x-0 bottom-10 mx-auto w-fit rounded-xs bg-black/60 px-3 py-1 text-xs font-medium text-white">
             Center your face in the oval
           </p>
         )}
@@ -395,7 +433,7 @@ export function CameraCapture({
           <div className="absolute inset-0 flex items-center justify-center">
             <span
               key={count}
-              className="font-display text-8xl text-white drop-shadow-lg motion-safe:animate-in motion-safe:zoom-in-50 motion-safe:fade-in"
+              className="font-mono text-8xl font-medium text-white tabular-nums drop-shadow-lg motion-safe:animate-in motion-safe:zoom-in-50 motion-safe:fade-in"
             >
               {count}
             </span>
@@ -405,15 +443,15 @@ export function CameraCapture({
           <div
             data-liveness-step={currentStep}
             data-liveness-step-index={stepIndex}
-            className="absolute inset-0 flex flex-col items-center justify-between p-4 text-center text-white"
+            className="absolute inset-0 flex flex-col items-center justify-between px-4 pt-10 pb-10 text-center text-white"
           >
-            <p className="rounded-full bg-black/60 px-3 py-1 text-xs font-medium">
+            <p className="rounded-xs bg-black/60 px-3 py-1 text-xs font-medium">
               Head movement check · step {stepIndex + 1} of {steps.length}
             </p>
-            <span key={count} className="font-display text-7xl drop-shadow-lg motion-safe:animate-in motion-safe:fade-in">
+            <span key={count} className="font-mono text-7xl font-medium tabular-nums drop-shadow-lg motion-safe:animate-in motion-safe:fade-in">
               {count}
             </span>
-            <p className="flex items-center gap-2 rounded-xl bg-black/65 px-4 py-2 text-base font-semibold">
+            <p className="flex items-center gap-2 rounded-xs bg-black/65 px-4 py-2 text-base font-semibold">
               <StepIcon aria-hidden="true" className="size-5 shrink-0" />
               {LIVENESS_PROMPTS[currentStep]}
             </p>
@@ -426,28 +464,32 @@ export function CameraCapture({
           </div>
         )}
         {phase === "error" && cameraError && (
-          <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
-            <span aria-hidden="true" className="mb-1 flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-              <CameraOffIcon className="size-7" />
-            </span>
+          <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-8 text-center">
+            <CameraOffIcon aria-hidden="true" className="mb-1 size-8 text-darkroom-safelight" strokeWidth={1.25} />
             <p className="font-semibold">{CAMERA_ERRORS[cameraError].title}</p>
-            <p className="text-sm text-muted-foreground">{CAMERA_ERRORS[cameraError].body}</p>
+            <p className="text-sm text-darkroom-muted">{CAMERA_ERRORS[cameraError].body}</p>
           </div>
         )}
       </div>
 
       {/* Where the user is in the capture: selfie → head moves → check. */}
-      <ol aria-label="Capture progress" className="flex w-full max-w-sm items-center gap-2 text-xs">
+      <ol
+        aria-label="Capture progress"
+        className="flex w-full max-w-sm items-center gap-1.5 font-mono text-[0.625rem] tracking-[0.12em] uppercase"
+      >
         {CAPTURE_STAGES.map((s, i) => {
           const done = stageIndex > i || (phase === "submitting" && i < CAPTURE_STAGES.length - 1);
           const active = stageIndex === i;
           return (
-            <li key={s.id} className="flex flex-1 flex-col gap-1" aria-current={active ? "step" : undefined}>
+            <li key={s.id} className="flex flex-1 flex-col gap-1.5" aria-current={active ? "step" : undefined}>
               <span
                 aria-hidden="true"
-                className={cn("h-1 rounded-full transition-colors", done ? "bg-primary" : active ? "bg-brand-gradient" : "bg-muted")}
+                className={cn(
+                  "h-1 transition-colors",
+                  done ? "bg-foreground" : active ? "bg-safelight-ink" : "bg-foreground/15",
+                )}
               />
-              <span className={cn(active ? "font-medium text-foreground" : "text-muted-foreground")}>
+              <span className={cn(active ? "text-foreground" : "text-muted-foreground")}>
                 {s.id === "moves" && phase === "step" && steps.length > 0 ? `Move ${stepIndex + 1} of ${steps.length}` : s.label}
                 <span className="sr-only">{done ? " (done)" : active ? " (current)" : ""}</span>
               </span>
@@ -535,9 +577,9 @@ export function CameraCapture({
       </div>
 
       {phase === "error" && cameraError && cameraError !== "busy" && cameraError !== "interrupted" && (
-        <div className="flex w-full max-w-sm flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center">
+        <div className="flex w-full max-w-sm flex-col items-center gap-2 rounded-xs border border-dashed border-foreground/25 p-4 text-center">
           <p className="flex items-center gap-2 text-sm font-medium">
-            <SmartphoneIcon aria-hidden="true" className="size-4 text-primary" />
+            <SmartphoneIcon aria-hidden="true" className="size-4 text-safelight-ink" />
             {suggestOtherDevice(cameraError) ? "Continue on your phone" : "Or continue on another device"}
           </p>
           <p className="text-xs text-muted-foreground">

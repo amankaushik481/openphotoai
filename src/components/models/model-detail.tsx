@@ -4,13 +4,14 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CircleAlertIcon, LoaderCircleIcon, LockIcon, PencilIcon, RotateCcwIcon, ScanFaceIcon, SparklesIcon, Trash2Icon } from "lucide-react";
+import { ApertureIcon, CircleAlertIcon, LoaderCircleIcon, LockIcon, PencilIcon, RotateCcwIcon, ScanFaceIcon, Trash2Icon, UsersRoundIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { JobProgress } from "@/components/app/job-progress";
 import { PageHeader } from "@/components/app/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Sprockets } from "@/components/ui/darkroom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,9 +19,11 @@ import { useJob } from "@/hooks/use-job";
 import { useMe } from "@/hooks/use-me";
 import { ApiClientError } from "@/lib/api-client";
 import type { ModelDetailResponse, ModelView } from "@/server/models/types";
+import type { TrainingPhotoDTO } from "@/types/domain";
 import { ModeBadge, ModelStatusBadge } from "./model-status-badge";
 import { TrainingPhotoGrid } from "./photo-grid";
 import { ReadinessPanel } from "./readiness-panel";
+import { DarkroomTimer } from "./training-progress";
 import { trainingEta } from "./training-eta";
 import { useNow } from "./use-now";
 import { modelsApi, useModel, useRefreshModels } from "./use-model";
@@ -82,7 +85,7 @@ export function ModelDetail({ initial }: ModelDetailProps) {
             {model.status === "ready" && (
               <Button asChild variant="brand">
                 <Link href={model.shared ? "/app/together" : `/app/create?model=${model.id}`}>
-                  <SparklesIcon />
+                  {model.shared ? <UsersRoundIcon /> : <ApertureIcon />}
                   {model.shared ? "Together photos" : "Create photos"}
                 </Link>
               </Button>
@@ -99,7 +102,8 @@ export function ModelDetail({ initial }: ModelDetailProps) {
         }
       />
 
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
+        <FilmRoll model={model} photos={data.photos} />
         {model.status === "training" && model.trainingJobId && <TrainingCard jobId={model.trainingJobId} onDone={() => void mutate()} />}
         {model.status !== "training" && !model.shared && inSetup && model.trainingJobId && (
           <LastTrainingFailure jobId={model.trainingJobId} retryHref={setupHref} />
@@ -119,16 +123,16 @@ export function ModelDetail({ initial }: ModelDetailProps) {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
             <section aria-labelledby="photos-title" className="flex min-w-0 flex-col gap-3">
-              <div className="flex items-baseline justify-between gap-2">
-                <h2 id="photos-title" className="text-lg font-semibold">
+              <div className="flex items-end justify-between gap-2 border-b border-border pb-2">
+                <h2 id="photos-title" className="font-display text-[1.75rem] leading-none">
                   Training photos
                 </h2>
-                <p className="text-sm text-muted-foreground">Private · delete any time</p>
+                <p className="mono-caps text-muted-foreground">Private · delete any time</p>
               </div>
               {data.photos.length > 0 ? (
                 <TrainingPhotoGrid photos={data.photos} onDelete={removePhoto} />
               ) : (
-                <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                <p className="rounded-xs border border-dashed border-foreground/25 p-6 text-sm text-muted-foreground">
                   No training photos.{" "}
                   {inSetup && (
                     <Link href={setupHref} className="font-medium text-foreground underline underline-offset-4">
@@ -157,8 +161,14 @@ export function ModelDetail({ initial }: ModelDetailProps) {
         )}
 
         {!model.shared && (
-          <section aria-labelledby="danger-title" className="flex flex-col gap-3 rounded-xl border border-destructive/30 p-4 sm:p-5">
-            <h2 id="danger-title" className="font-semibold">
+          <section
+            aria-labelledby="danger-title"
+            className="flex flex-col gap-3 rounded-xs border border-destructive/35 border-l-2 border-l-destructive p-4 sm:p-5"
+          >
+            <p aria-hidden="true" className="mono-caps text-destructive">
+              Real deletion
+            </p>
+            <h2 id="danger-title" className="font-display text-2xl leading-none">
               Delete this model
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -172,7 +182,7 @@ export function ModelDetail({ initial }: ModelDetailProps) {
               confirmLabel="Delete forever"
               onConfirm={deleteModel}
               trigger={
-                <Button type="button" variant="outline" className="w-fit border-destructive/40 text-destructive hover:bg-destructive/10">
+                <Button type="button" variant="outline" className="w-fit border-destructive/60 text-destructive hover:border-destructive hover:bg-destructive/10">
                   <Trash2Icon />
                   Delete model
                 </Button>
@@ -182,6 +192,73 @@ export function ModelDetail({ initial }: ModelDetailProps) {
         )}
       </div>
     </>
+  );
+}
+
+/** "25 NOV 2026", like a date stamped on the film box (UTC: identical on server and client). */
+function stampDate(iso: string): string {
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(new Date(iso))
+    .toUpperCase();
+}
+
+/**
+ * The model shown as a roll of film: its edge print, a strip of its frames (the accepted training photos,
+ * else the cover, else unexposed frames) between sprocket holes, and its specs as a mono readout.
+ */
+function FilmRoll({ model, photos }: { model: ModelView; photos: TrainingPhotoDTO[] }) {
+  const shots = photos.filter((p) => p.status !== "rejected").map((p) => p.thumbUrl);
+  const frames = shots.length > 0 ? shots.slice(0, 12) : model.coverUrl ? [model.coverUrl] : [];
+  const count = Math.max(frames.length, 8);
+  return (
+    <div className="flex flex-col gap-3">
+      <div aria-hidden="true" className="overflow-hidden rounded-xs bg-darkroom py-2 text-darkroom-foreground">
+        <p className="flex items-center gap-4 px-3 pb-1.5 font-mono text-[0.5625rem] tracking-[0.22em] whitespace-nowrap text-darkroom-safelight uppercase sm:px-4">
+          <span>OpenShoot 400 · Safety film</span>
+          <span className="truncate text-darkroom-muted">{model.name}</span>
+          <span className="ml-auto text-darkroom-muted">{model.mode}</span>
+        </p>
+        <Sprockets className="text-darkroom-foreground/25" />
+        <ul className="flex gap-1.5 overflow-hidden px-1.5 py-2">
+          {Array.from({ length: count }, (_, i) => (
+            <li key={i} className="flex shrink-0 flex-col items-center gap-1">
+              <span className="block h-24 w-[4.8rem] overflow-hidden rounded-[1px] bg-darkroom-raised sm:h-32 sm:w-[6.4rem]">
+                {frames[i] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL
+                  <img src={frames[i]} alt="" loading="lazy" className="size-full object-cover" />
+                ) : (
+                  <span className="block size-full border border-dashed border-darkroom-line" />
+                )}
+              </span>
+              <span className="font-mono text-[0.5625rem] tracking-[0.14em] text-darkroom-safelight/80">
+                {i % 2 ? `${Math.ceil(i / 2)}A` : `▸ ${i / 2 + 1}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <Sprockets className="text-darkroom-foreground/25" />
+      </div>
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 font-mono text-[0.6875rem] tracking-[0.12em] uppercase">
+        <div className="flex gap-2">
+          <dt className="text-muted-foreground">Mode</dt>
+          <dd>{model.mode}</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="text-muted-foreground">Exposures</dt>
+          <dd className="tabular-nums">{model.acceptedPhotoCount}</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="text-muted-foreground">Loaded</dt>
+          <dd>{stampDate(model.createdAt)}</dd>
+        </div>
+        {model.trainedAt && (
+          <div className="flex gap-2">
+            <dt className="text-muted-foreground">Developed</dt>
+            <dd>{stampDate(model.trainedAt)}</dd>
+          </div>
+        )}
+      </dl>
+    </div>
   );
 }
 
@@ -198,7 +275,13 @@ function TrainingCard({ jobId, onDone }: { jobId: string; onDone: () => void }) 
   const eta = job && inFlight && now !== null ? trainingEta(job, now) : null;
   return (
     <div className="flex flex-col gap-2">
-      <JobProgress job={job} title={eta ? `Training your model · ${eta.label.toLowerCase()}` : "Training your model"} />
+      <DarkroomTimer job={job} />
+      {/* Announces status and progress (the timer above is visual). */}
+      <JobProgress
+        job={job}
+        title={eta ? `Training your model · ${eta.label.toLowerCase()}` : "Training your model"}
+        className="sr-only"
+      />
       <p className="text-sm text-muted-foreground">You can leave this page. We&apos;ll email you when it&apos;s ready.</p>
     </div>
   );
