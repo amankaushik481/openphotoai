@@ -6,6 +6,7 @@ import { CheckIcon, ImagePlusIcon, LoaderCircleIcon, RotateCwIcon, TriangleAlert
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ImageDecodeError, prepareImageForUpload, type OutputType } from "@/components/app/image-resize";
+import { UploadQueue, isInFlight, type UploadItem } from "@/components/app/upload-queue";
 import { uploadMultipart } from "@/components/app/upload-request";
 import { UPLOAD_LIMITS } from "@/config/app";
 import { ApiClientError } from "@/lib/api-client";
@@ -13,18 +14,7 @@ import { errorMessage } from "@/i18n";
 import { useT } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 
-export type UploadStatus = "queued" | "preparing" | "uploading" | "done" | "error";
-
-export interface UploadItem<T = unknown> {
-  id: string;
-  name: string;
-  previewUrl: string | null;
-  status: UploadStatus;
-  /** 0–100 */
-  progress: number;
-  error?: string;
-  result?: T;
-}
+export type { UploadItem, UploadStatus } from "@/components/app/upload-queue";
 
 export interface ImageDropzoneProps<T = unknown> {
   /** POST target, e.g. "/api/uploads" or `/api/models/${id}/photos`. */
@@ -53,6 +43,13 @@ export interface ImageDropzoneProps<T = unknown> {
   /** Drop successful items from the list (when the parent renders results itself). */
   removeOnSuccess?: boolean;
   hideList?: boolean;
+  /** Show only some items as tiles (e.g. hide rejections the parent explains itself). */
+  showItem?: (item: UploadItem<T>) => boolean;
+  /**
+   * Use this queue instead of a private one. Pass `sharedUploadQueue(key)` to keep uploads going (and
+   * visible) across in-app navigation.
+   */
+  queue?: UploadQueue<T>;
   title?: string;
   hint?: string;
   compact?: boolean;
@@ -63,13 +60,29 @@ export interface ImageDropzoneProps<T = unknown> {
   onIdle?: (items: UploadItem<T>[]) => void;
 }
 
-let seq = 0;
-const nextId = () => `up_${Date.now().toString(36)}_${(seq++).toString(36)}`;
-
 function isAccepted(file: File): boolean {
   if ((UPLOAD_LIMITS.acceptedMime as readonly string[]).includes(file.type)) return true;
   // Some platforms report HEIC with an empty type.
   return file.type === "" && /\.(heic|heif)$/i.test(file.name);
+}
+
+/** Subscribe to a queue's items (re-renders on every status/progress change). */
+export function useUploadItems<T>(queue: UploadQueue<T>): readonly UploadItem<T>[] {
+  return React.useSyncExternalStore(queue.subscribe, queue.getSnapshot, queue.getSnapshot);
+}
+
+/** Ask before a full page unload while files are still uploading (they would be lost). */
+export function useWarnBeforeUnload(active: boolean): void {
+  React.useEffect(() => {
+    if (!active) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Older browsers need returnValue set to show the prompt.
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [active]);
 }
 
 export function ImageDropzone<T = unknown>({
@@ -87,6 +100,8 @@ export function ImageDropzone<T = unknown>({
   enablePaste = true,
   removeOnSuccess = false,
   hideList = false,
+  showItem,
+  queue: externalQueue,
   title,
   hint,
   compact = false,
@@ -98,103 +113,58 @@ export function ImageDropzone<T = unknown>({
   const t = useT();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const inputId = React.useId();
-  const [items, setItems] = React.useState<UploadItem<T>[]>([]);
+  const [ownQueue] = React.useState(() => new UploadQueue<T>());
+  const queue = externalQueue ?? ownQueue;
+  const items = useUploadItems(queue);
   const [dragDepth, setDragDepth] = React.useState(0);
   const [announcement, setAnnouncement] = React.useState("");
   /** Visible counterpart of the "too many files" announcement (extra files are dropped). */
   const [limitNotice, setLimitNotice] = React.useState<string | null>(null);
+  useWarnBeforeUnload(items.some(isInFlight));
 
-  const files = React.useRef(new Map<string, File>());
-  const queue = React.useRef<string[]>([]);
-  const active = React.useRef(0);
-  const itemsRef = React.useRef(items);
-  const latest = React.useRef({ endpoint, fieldName, extraFields, headers, maxSide, quality, outputType, onUploaded, onError, onIdle, removeOnSuccess });
+  const describe = React.useCallback(
+    (err: unknown) =>
+      err instanceof ImageDecodeError
+        ? t("upload.unreadable")
+        : err instanceof ApiClientError
+          ? err.message || errorMessage(err.code)
+          : t("upload.failed"),
+    [t],
+  );
 
+  // The queue always runs with the latest props (a shared queue keeps the last ones after unmount).
   React.useEffect(() => {
-    itemsRef.current = items;
-    latest.current = { endpoint, fieldName, extraFields, headers, maxSide, quality, outputType, onUploaded, onError, onIdle, removeOnSuccess };
+    queue.setHandlers({
+      concurrency,
+      removeOnSuccess,
+      describeError: describe,
+      upload: async (file, control) => {
+        control.preparing();
+        const prepared = await prepareImageForUpload(file, { maxSide, quality, type: outputType });
+        if (prepared.file.size > UPLOAD_LIMITS.maxBytes) throw new ApiClientError("payload_too_large", t("upload.tooLarge"), 413);
+        const form = new FormData();
+        form.append(fieldName, prepared.file, prepared.file.name);
+        for (const [k, v] of Object.entries(extraFields ?? {})) form.append(k, v);
+        control.progress(0);
+        return uploadMultipart<T>(endpoint, form, { headers, onProgress: control.progress });
+      },
+      onUploaded: (result, file) => {
+        setAnnouncement(`${file.name}: ${t("upload.uploaded")}`);
+        onUploaded?.(result, file);
+      },
+      onError: (error, file) => {
+        setAnnouncement(`${file.name}: ${describe(error)}`);
+        onError?.(error, file);
+      },
+      onIdle: (settled) => onIdle?.([...settled]),
+    });
   });
 
-  // Revoke preview URLs on unmount.
-  React.useEffect(
-    () => () => {
-      for (const item of itemsRef.current) if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
-    },
-    [],
-  );
-
-  const patch = React.useCallback((id: string, update: Partial<UploadItem<T>>) => {
-    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...update } : it)));
-  }, []);
-
-  const processOne = React.useCallback(
-    async (id: string) => {
-      const original = files.current.get(id);
-      if (!original) return;
-      const cfg = latest.current;
-      try {
-        patch(id, { status: "preparing", progress: 0, error: undefined });
-        const prepared = await prepareImageForUpload(original, {
-          maxSide: cfg.maxSide,
-          quality: cfg.quality,
-          type: cfg.outputType,
-        });
-        if (prepared.file.size > UPLOAD_LIMITS.maxBytes) throw new ApiClientError("payload_too_large", t("upload.tooLarge"), 413);
-
-        const form = new FormData();
-        form.append(cfg.fieldName, prepared.file, prepared.file.name);
-        for (const [k, v] of Object.entries(cfg.extraFields ?? {})) form.append(k, v);
-
-        patch(id, { status: "uploading", progress: 1 });
-        const result = await uploadMultipart<T>(cfg.endpoint, form, {
-          headers: cfg.headers,
-          onProgress: (f) => patch(id, { progress: Math.max(1, Math.round(f * 100)) }),
-        });
-        patch(id, { status: "done", progress: 100, result });
-        setAnnouncement(`${original.name}: ${t("upload.uploaded")}`);
-        cfg.onUploaded?.(result, original);
-        if (cfg.removeOnSuccess) {
-          setItems((prev) => {
-            const gone = prev.find((it) => it.id === id);
-            if (gone?.previewUrl) URL.revokeObjectURL(gone.previewUrl);
-            return prev.filter((it) => it.id !== id);
-          });
-          files.current.delete(id);
-        }
-      } catch (err) {
-        const message =
-          err instanceof ImageDecodeError
-            ? t("upload.unreadable")
-            : err instanceof ApiClientError
-              ? err.message || errorMessage(err.code)
-              : t("upload.failed");
-        patch(id, { status: "error", error: message });
-        setAnnouncement(`${original.name}: ${message}`);
-        cfg.onError?.(err instanceof Error ? err : new Error(String(err)), original);
-      }
-    },
-    [patch, t],
-  );
-
-  /** Start workers (up to `concurrency`); each drains the shared queue. */
-  const pump = React.useCallback(() => {
-    while (active.current < concurrency && queue.current.length > 0) {
-      active.current += 1;
-      void (async () => {
-        try {
-          for (let id = queue.current.shift(); id !== undefined; id = queue.current.shift()) {
-            await processOne(id);
-          }
-        } finally {
-          active.current -= 1;
-          if (active.current === 0) {
-            // Read settled state after React applies the last patches.
-            setTimeout(() => latest.current.onIdle?.(itemsRef.current), 0);
-          }
-        }
-      })();
-    }
-  }, [concurrency, processOne]);
+  // A private queue goes away with the component: release its preview URLs.
+  React.useEffect(() => {
+    if (externalQueue) return;
+    return () => ownQueue.reset();
+  }, [externalQueue, ownQueue]);
 
   const addFiles = React.useCallback(
     (incoming: FileList | File[]) => {
@@ -207,7 +177,7 @@ export function ImageDropzone<T = unknown>({
       if (rejected.length > 0) setAnnouncement(t("upload.unsupported"));
 
       if (maxFiles !== undefined) {
-        const used = itemsRef.current.filter((it) => it.status !== "error").length;
+        const used = queue.getSnapshot().filter((it) => it.status !== "error").length;
         const room = Math.max(0, maxFiles - used);
         if (list.length > room) {
           setAnnouncement(t("upload.tooMany", { count: maxFiles }));
@@ -218,30 +188,12 @@ export function ImageDropzone<T = unknown>({
         }
       }
 
-      const unsupported: UploadItem<T>[] = rejected.map((f) => ({
-        id: nextId(),
-        name: f.name,
-        previewUrl: null,
-        status: "error",
-        progress: 0,
-        error: t("upload.unsupported"),
-      }));
-      const fresh: UploadItem<T>[] = list.map((file) => {
-        const id = nextId();
-        files.current.set(id, file);
-        queue.current.push(id);
-        return { id, name: file.name, previewUrl: URL.createObjectURL(file), status: "queued", progress: 0 };
-      });
-
       // Single-file mode replaces the previous item.
-      setItems((prev) => {
-        const base = multiple ? prev : [];
-        if (!multiple) for (const it of prev) if (it.previewUrl) URL.revokeObjectURL(it.previewUrl);
-        return [...base, ...fresh, ...unsupported];
-      });
-      pump();
+      if (!multiple) queue.reset();
+      queue.add(list);
+      for (const f of rejected) queue.addFailed(f.name, t("upload.unsupported"));
     },
-    [disabled, maxFiles, multiple, pump, t],
+    [disabled, maxFiles, multiple, queue, t],
   );
 
   React.useEffect(() => {
@@ -256,22 +208,9 @@ export function ImageDropzone<T = unknown>({
     return () => window.removeEventListener("paste", onPaste);
   }, [enablePaste, disabled, addFiles]);
 
-  const retry = (id: string) => {
-    if (!files.current.has(id)) return;
-    patch(id, { status: "queued", progress: 0, error: undefined });
-    queue.current.push(id);
-    pump();
-  };
-
-  const remove = (id: string) => {
-    queue.current = queue.current.filter((q) => q !== id);
-    files.current.delete(id);
-    setItems((prev) => {
-      const gone = prev.find((it) => it.id === id);
-      if (gone?.previewUrl) URL.revokeObjectURL(gone.previewUrl);
-      return prev.filter((it) => it.id !== id);
-    });
-  };
+  const retry = (id: string) => queue.retry(id);
+  const remove = (id: string) => queue.remove(id);
+  const tiles = showItem ? items.filter(showItem) : items;
 
   const dragging = dragDepth > 0;
   const heading = title ?? (multiple ? t("upload.dropzoneTitle") : t("upload.dropzoneTitleSingle"));
@@ -340,9 +279,9 @@ export function ImageDropzone<T = unknown>({
         </button>
       </div>
 
-      {!hideList && items.length > 0 && (
+      {!hideList && tiles.length > 0 && (
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6" aria-label={t("upload.uploading")}>
-          {items.map((item) => (
+          {tiles.map((item) => (
             <UploadTile key={item.id} item={item} onRetry={retry} onRemove={remove} />
           ))}
         </ul>

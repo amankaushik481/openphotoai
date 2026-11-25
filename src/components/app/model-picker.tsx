@@ -93,7 +93,8 @@ export function ModelPicker({
         {label ?? t("models.pick")}
       </Label>
       <Select
-        value={value ?? undefined}
+        // "" (not undefined) while nothing is chosen: the Select stays controlled when the auto-pick lands.
+        value={value ?? ""}
         disabled={disabled}
         onValueChange={(next) => {
           const model = options.find((m) => m.id === next);
