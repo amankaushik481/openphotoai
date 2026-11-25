@@ -317,8 +317,10 @@ photos.example.com {
 ```
 
 nginx or Traefik work the same way. Set `TRUSTED_PROXY_HOPS=1` (2 if a CDN such as Cloudflare sits in front of
-the proxy). Otherwise client IPs are unknown and the per-IP rate limits (magic links, reports, deletion
-confirmations) are shared by every visitor. Set the proxy's request body limit to about 10 MB (nginx:
+the proxy). Otherwise client IPs are unknown and the per-IP rate limits are shared by every visitor. That matters most
+for sign-in: Better Auth then allows about 5 magic-link requests a minute for the whole site, so anyone can keep
+everybody else from signing in. (Account-deletion confirmations, signed-in reporters and the demo button fall back to
+per-token, per-account and deployment-wide limits, so they keep working.) Set the proxy's request body limit to about 10 MB (nginx:
 `client_max_body_size 10m`): photo uploads are capped at 8 MB by the app, and the proxy limit bounds everything else.
 
 ### Webhooks

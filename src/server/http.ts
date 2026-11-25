@@ -263,8 +263,16 @@ export function route<P = Record<string, string>, A extends AuthMode = AuthMode>
       }
       const params = (segment?.params ? await segment.params : {}) as P;
       const result = await (handler as Handler<P, AuthMode>)({ req, params, user, apiKey } as AuthedRouteContext<P>);
-      if (result instanceof Response) return result;
-      return NextResponse.json(result ?? { ok: true });
+      const res = result instanceof Response ? result : NextResponse.json(result ?? { ok: true });
+      // Per-user data (signed URLs, balances, emails): never stored by a shared cache or the browser.
+      if ((user || apiKey) && !res.headers.has("cache-control")) {
+        try {
+          res.headers.set("Cache-Control", "private, no-store");
+        } catch {
+          // Immutable headers (e.g. Response.redirect): leave them as they are.
+        }
+      }
+      return res;
     } catch (err) {
       return errorResponse(err);
     }
