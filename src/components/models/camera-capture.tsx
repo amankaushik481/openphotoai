@@ -16,6 +16,7 @@ import {
 
 import { CopyButton } from "@/components/app/copy-button";
 import { Button } from "@/components/ui/button";
+import { scrollBehavior } from "@/lib/a11y";
 import { ApiClientError } from "@/lib/api-client";
 import { LIVENESS_PROMPTS, type LivenessStep } from "@/lib/liveness";
 import { cn } from "@/lib/utils";
@@ -110,6 +111,11 @@ export function CameraCapture({
     phaseRef.current = phase;
   }, [phase]);
   const controlsRef = React.useRef<HTMLDivElement>(null);
+  const viewfinderRef = React.useRef<HTMLDivElement>(null);
+  /** Keep the face, the oval and the prompts on screen while capturing (phones scroll a lot here). */
+  const revealViewfinder = React.useCallback(() => {
+    requestAnimationFrame(() => viewfinderRef.current?.scrollIntoView({ block: "center", behavior: scrollBehavior() }));
+  }, []);
   const primaryRef = React.useRef<HTMLButtonElement>(null);
 
   // Each phase swaps the buttons (Open camera → Take selfie → Retake / Use selfie). Once the user has
@@ -178,6 +184,7 @@ export function CameraCapture({
       }
       setPhase("live");
       setAnnouncement("Camera is on. Center your face in the oval.");
+      revealViewfinder();
     } catch (err) {
       stopCamera();
       const kind = cameraErrorKind(err);
@@ -185,7 +192,7 @@ export function CameraCapture({
       setPhase("error");
       setAnnouncement(CAMERA_ERRORS[kind].title);
     }
-  }, [stopCamera]);
+  }, [revealViewfinder, stopCamera]);
 
   const grabFrame = React.useCallback(async (): Promise<Blob | null> => {
     const video = videoRef.current;
@@ -269,6 +276,7 @@ export function CameraCapture({
   const startCountdown = React.useCallback(async () => {
     setError(null);
     setPhase("countdown");
+    revealViewfinder();
     setCount(countdownFrom);
     frontalRef.current = null;
     framesRef.current = [];
@@ -283,7 +291,7 @@ export function CameraCapture({
       return;
     }
     countDown(countdownFrom, () => void shoot(), stepsRef.current.length > 0 ? "Look straight at the camera" : "");
-  }, [countDown, countdownFrom, onCountdownStart, shoot]);
+  }, [countDown, countdownFrom, onCountdownStart, revealViewfinder, shoot]);
 
   const retake = () => {
     setSubmitFailed(false);
@@ -322,7 +330,14 @@ export function CameraCapture({
 
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
-      <div className="relative aspect-[3/4] w-full max-w-sm overflow-hidden rounded-2xl border bg-muted shadow-sm">
+      {/* Before the camera opens, a shorter frame on phones keeps "Open camera" in view. */}
+      <div
+        ref={viewfinderRef}
+        className={cn(
+          "relative w-full max-w-sm overflow-hidden rounded-2xl border bg-muted shadow-sm",
+          phase === "idle" || phase === "error" ? "aspect-[4/3] sm:aspect-[3/4]" : "aspect-[3/4]",
+        )}
+      >
         <video
           ref={videoRef}
           playsInline

@@ -23,7 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/app/empty-state";
 import { MediaGrid } from "@/components/app/media-grid";
-import { ONBOARDING_STEPS, onboardingState, type OnboardingState, type OnboardingStepId } from "@/components/app/onboarding";
+import {
+  ONBOARDING_STEPS,
+  onboardingState,
+  type OnboardingState,
+  type OnboardingStepId,
+} from "@/components/app/onboarding";
 import { useMe } from "@/hooks/use-me";
 import { useModels } from "@/hooks/use-models";
 import { ApiClientError, api, fetcher } from "@/lib/api-client";
@@ -40,7 +45,12 @@ const QUICK_ACTIONS = [
   { href: "/app/pose", icon: PersonStandingIcon, title: "dashboard.actions.pose", body: "dashboard.actions.poseBody" },
   { href: "/app/video", icon: ClapperboardIcon, title: "dashboard.actions.video", body: "dashboard.actions.videoBody" },
   { href: "/app/try-on", icon: ShirtIcon, title: "dashboard.actions.tryOn", body: "dashboard.actions.tryOnBody" },
-  { href: "/app/together", icon: UsersRoundIcon, title: "dashboard.actions.together", body: "dashboard.actions.togetherBody" },
+  {
+    href: "/app/together",
+    icon: UsersRoundIcon,
+    title: "dashboard.actions.together",
+    body: "dashboard.actions.togetherBody",
+  },
 ] as const;
 
 export function DashboardOverview() {
@@ -130,68 +140,78 @@ function OnboardingCard({ state }: { state: OnboardingState }) {
   const t = useT();
   const title = state.step === "model" && state.model ? ONBOARDING_TITLES.photos : ONBOARDING_TITLES[state.step];
   return (
-    <section aria-labelledby="onboarding-title" className="border-brand-gradient grain relative overflow-hidden rounded-2xl p-5 sm:p-8">
+    <section
+      aria-labelledby="onboarding-title"
+      className="border-brand-gradient grain relative overflow-hidden rounded-2xl p-5 sm:p-8"
+    >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-24 -right-24 -z-10 size-72 rounded-full bg-brand-gradient opacity-20 blur-3xl"
       />
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-semibold tracking-wider text-primary uppercase">
-          Get started · step {state.current + 1} of {ONBOARDING_STEPS.length}
-        </p>
-        <h2 id="onboarding-title" className="font-display text-3xl leading-tight">
-          {title}
-        </h2>
-        <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-          {state.status ?? t("dashboard.createModelBody")}
-        </p>
-      </div>
+      {/* Phones: the next action comes right after the intro; wider screens show the path first. */}
+      <div className="flex flex-col gap-5">
+        <div className="order-1 flex flex-col gap-1.5">
+          <p className="text-xs font-semibold tracking-wider text-primary uppercase">
+            Get started · step {state.current + 1} of {ONBOARDING_STEPS.length}
+          </p>
+          <h2 id="onboarding-title" className="font-display text-3xl leading-tight">
+            {title}
+          </h2>
+          <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+            {state.status ?? t("dashboard.createModelBody")}
+          </p>
+        </div>
 
-      <ol className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Your first steps">
-        {ONBOARDING_STEPS.map((step, i) => {
-          const done = i < state.current;
-          const active = i === state.current;
-          return (
-            <li
-              key={step.id}
-              aria-current={active ? "step" : undefined}
-              className={cn(
-                "flex gap-3 rounded-xl border p-3 transition-colors",
-                active ? "border-primary/50 bg-card shadow-xs" : "border-transparent bg-card/50",
-              )}
-            >
-              <span
-                aria-hidden="true"
+        <ol className="order-3 grid gap-2 sm:order-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Your first steps">
+          {ONBOARDING_STEPS.map((step, i) => {
+            const done = i < state.current;
+            const active = i === state.current;
+            return (
+              <li
+                key={step.id}
+                aria-current={active ? "step" : undefined}
                 className={cn(
-                  "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                  done ? "bg-success text-success-foreground" : active ? "bg-brand-gradient text-white" : "bg-muted text-muted-foreground",
+                  "flex gap-3 rounded-xl border p-2.5 transition-colors sm:p-3",
+                  active ? "border-primary/50 bg-card shadow-xs" : "border-transparent bg-card/50",
                 )}
               >
-                {done ? <CheckIcon className="size-4" /> : i + 1}
-              </span>
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className={cn("text-sm font-medium", !done && !active && "text-muted-foreground")}>
-                  {step.title}
-                  <span className="sr-only">{done ? " (done)" : active ? " (next)" : ""}</span>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                    done
+                      ? "bg-success text-success-foreground"
+                      : active
+                        ? "bg-brand-gradient text-white"
+                        : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {done ? <CheckIcon className="size-4" /> : i + 1}
                 </span>
-                <span className="text-xs text-muted-foreground">{step.body}</span>
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className={cn("text-sm font-medium", !done && !active && "text-muted-foreground")}>
+                    {step.title}
+                    <span className="sr-only">{done ? " (done)" : active ? " (next)" : ""}</span>
+                  </span>
+                  <span className={cn("text-xs text-muted-foreground", !active && "hidden sm:block")}>{step.body}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
-          <Link href={state.cta.href}>
-            {state.step === "create" ? <SparklesIcon /> : <ScanFaceIcon />}
-            {state.cta.label}
-          </Link>
-        </Button>
-        <p className="flex items-start gap-2 text-xs text-muted-foreground sm:max-w-sm">
-          <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-          Private by design: models need the live consent of the person in them, and you can delete yours any time.
-        </p>
+        <div className="order-2 flex flex-col gap-3 sm:order-3 sm:flex-row sm:items-center sm:justify-between">
+          <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
+            <Link href={state.cta.href}>
+              {state.step === "create" ? <SparklesIcon /> : <ScanFaceIcon />}
+              {state.cta.label}
+            </Link>
+          </Button>
+          <p className="flex items-start gap-2 text-xs text-muted-foreground sm:max-w-sm">
+            <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+            Private by design: models need the live consent of the person in them, and you can delete yours any time.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -253,7 +273,8 @@ function RecentMedia({ showCreateAction }: { showCreateAction: boolean }) {
           return current ? { ...current, media: optimistic(current.media) } : current;
         },
         {
-          optimisticData: (current) => (current ? { ...current, media: optimistic(current.media) } : { media: [], nextCursor: null }),
+          optimisticData: (current) =>
+            current ? { ...current, media: optimistic(current.media) } : { media: [], nextCursor: null },
           rollbackOnError: true,
           revalidate: false,
         },

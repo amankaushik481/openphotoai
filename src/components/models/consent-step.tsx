@@ -50,9 +50,8 @@ export function ConsentStep({ modelId, onVerified }: ConsentStepProps) {
             Take a quick consent selfie
           </h2>
           <p className="text-sm text-muted-foreground sm:text-base">
-            About 20 seconds, once per model. It confirms you are the person in your photos and that you agree to an AI
-            model of yourself. It&apos;s how we keep your likeness yours: models are only made with the live consent of the
-            person in them.
+            About 20 seconds, once per model. It confirms you&apos;re the person in your photos and that you agree to an AI
+            model of yourself, so your likeness stays yours.
           </p>
         </div>
         <ol aria-label="How it works" className="grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
@@ -68,13 +67,9 @@ export function ConsentStep({ modelId, onVerified }: ConsentStepProps) {
             </li>
           ))}
         </ol>
-        <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">For a smooth check:</span>
-          <span>good light</span>
-          <span aria-hidden="true">·</span>
-          <span>no sunglasses or mask</span>
-          <span aria-hidden="true">·</span>
-          <span>just you in the frame</span>
+        <p className="text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">For a smooth check:</span> good light, no sunglasses or mask, just
+          you in the frame.
         </p>
       </div>
 
