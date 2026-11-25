@@ -92,6 +92,10 @@ landing sections and the marketing footer use `render-lazy` (`content-visibility
 `scripts/compile-hints.mjs`, which marks the framework chunks (`rootMainFiles`) for eager, off-main-thread V8
 compilation; without it the hydration bootstrap task (~45 ms on a fast desktop, ~30 ms of it lazy compilation) is most
 of the page's Total Blocking Time. Keep that step if the build command changes (Docker and Vercel run `pnpm build`).
+The landing art is inline SVG (`PortraitArt` lighting studies, contact sheets): every element is parsed and hydrated,
+so keep studies small (~25 elements) and don't duplicate them per breakpoint. Animations on the hero must stay
+composited (`will-change: filter` on `.develop-now`): repainting the twelve frames on the main thread during load
+pushed the median TBT from ~100 ms to 300–700 ms.
 
 Verify function sizes after `next build`: `node scripts/trace-sizes.mjs` lists every route's trace size and which
 routes carry ffmpeg, the safety models, PGlite and each sharp libc build (expected: ffmpeg only on the job / batch /

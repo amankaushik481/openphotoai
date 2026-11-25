@@ -136,84 +136,74 @@ export interface PortraitArtProps {
   className?: string;
 }
 
-export function PortraitArt({ id, setup, hair = "short", tilt = 0, x = 0, flip = false, className }: PortraitArtProps) {
+/** Only ids made of these characters reach the markup (they come from slugs and literals). */
+const SAFE_ID = /^[a-z0-9-]+$/i;
+const n = (v: number) => String(Math.round(v * 1000) / 1000);
+
+/**
+ * The study as an SVG string. Built from this module's constants and numbers only, so it is safe to inject;
+ * as one opaque string it is neither diffed nor hydrated node by node (a page shows ~35 of these).
+ */
+export function portraitSvg({
+  id,
+  setup,
+  hair = "short",
+  tilt = 0,
+  x = 0,
+  flip = false,
+}: Omit<PortraitArtProps, "className">): string {
+  if (!SAFE_ID.test(id)) throw new Error(`PortraitArt: unsafe id ${JSON.stringify(id)}`);
   const s = STUDIES[setup];
   const [bgIn, bgOut, bcx, bcy, br] = s.bg;
   const hairTone = tone(Math.max(0, s.base - 0.06));
   const back = HAIR_BACK[hair];
   const cap = HAIR_CAP[hair];
-  // Kept deliberately small (a page shows ~40 of these, and every element is parsed and hydrated).
-  const art = (
-    <>
-      <rect width="200" height="200" fill={`url(#${id}-b)`} />
-      <g transform={`translate(${x} 0) rotate(${tilt} 100 140)`}>
-        {back && <path d={back} fill={hairTone} />}
-        {hair === "bun" && <circle cx="100" cy="47" r="13" fill={hairTone} />}
-        <path d={FIGURE} fill={tone(s.base)} />
-        {s.key && <path d={FIGURE} fill={`url(#${id}-k)`} />}
-        {s.split !== undefined && <path d={FIGURE} fill={`url(#${id}-s)`} />}
-        {s.triangle !== undefined && (
-          <path
-            d="M107 92C111 91 115 91 117 91C115 96 112 100 109 102C108 99 107 95 107 92Z"
-            fill={tone(0.9)}
-            opacity={s.triangle}
-          />
-        )}
-        {s.nose && <ellipse cx={s.nose === "loop" ? 106 : 100} cy="99" rx="5" ry="2.3" fill={tone(0)} opacity="0.32" />}
-        {cap && <path d={cap} fill={hairTone} />}
-        {s.rim && (
-          <path
-            d={OUTLINE}
-            fill="none"
-            stroke={`url(#${id}-r)`}
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        )}
-      </g>
-      <rect width="200" height="200" fill={`url(#${id}-v)`} />
-    </>
-  );
+  const stop = (offset: number, t: number, opacity = 1) =>
+    `<stop offset="${n(offset)}" stop-color="${tone(t)}" stop-opacity="${n(opacity)}"/>`;
+
+  const defs = [
+    `<radialGradient id="${id}-b" gradientUnits="userSpaceOnUse" cx="${bcx}" cy="${bcy}" r="${br}">${stop(0, bgIn)}${stop(1, bgOut)}</radialGradient>`,
+    s.key &&
+      `<radialGradient id="${id}-k" gradientUnits="userSpaceOnUse" cx="${s.key[0]}" cy="${s.key[1]}" r="${s.key[2]}">${stop(0, 1, s.key[3])}${stop(1, 0.85, 0)}</radialGradient>`,
+    s.split !== undefined &&
+      `<linearGradient id="${id}-s" gradientUnits="userSpaceOnUse" x1="40" x2="160">${stop(0, 0.8, s.split * 0.6)}${stop(0.49, 1, s.split)}${stop(0.53, 1, 0)}</linearGradient>`,
+    s.rim &&
+      `<linearGradient id="${id}-r" gradientUnits="userSpaceOnUse" x1="40" x2="160">${stop(0, 1, s.rim[0])}${stop(0.5, 1, s.rim[1] ? s.rim[0] * 0.4 : 0)}${stop(1, 1, s.rim[1] ? s.rim[0] : 0)}</linearGradient>`,
+    `<radialGradient id="${id}-v" cy="0.45" r="0.75">${stop(0.55, 0, 0)}${stop(1, 0, s.vignette)}</radialGradient>`,
+  ];
+  const figure = [
+    back && `<path d="${back}" fill="${hairTone}"/>`,
+    hair === "bun" && `<circle cx="100" cy="47" r="13" fill="${hairTone}"/>`,
+    `<path d="${FIGURE}" fill="${tone(s.base)}"/>`,
+    s.key && `<path d="${FIGURE}" fill="url(#${id}-k)"/>`,
+    s.split !== undefined && `<path d="${FIGURE}" fill="url(#${id}-s)"/>`,
+    s.triangle !== undefined &&
+      `<path d="M107 92C111 91 115 91 117 91C115 96 112 100 109 102C108 99 107 95 107 92Z" fill="${tone(0.9)}" opacity="${n(s.triangle)}"/>`,
+    s.nose &&
+      `<ellipse cx="${s.nose === "loop" ? 106 : 100}" cy="99" rx="5" ry="2.3" fill="${tone(0)}" opacity="0.32"/>`,
+    cap && `<path d="${cap}" fill="${hairTone}"/>`,
+    s.rim &&
+      `<path d="${OUTLINE}" fill="none" stroke="url(#${id}-r)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  ];
+  const art =
+    `<rect width="200" height="200" fill="url(#${id}-b)"/>` +
+    `<g transform="translate(${n(x)} 0) rotate(${n(tilt)} 100 140)">${figure.filter(Boolean).join("")}</g>` +
+    `<rect width="200" height="200" fill="url(#${id}-v)"/>`;
   return (
-    <svg
-      viewBox="0 0 200 200"
+    `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" focusable="false" width="100%" height="100%">` +
+    `<defs>${defs.filter(Boolean).join("")}</defs>` +
+    (flip ? `<g transform="matrix(-1 0 0 1 200 0)">${art}</g>` : art) +
+    `</svg>`
+  );
+}
+
+export function PortraitArt({ className, ...study }: PortraitArtProps) {
+  return (
+    <span
       aria-hidden="true"
-      focusable="false"
-      preserveAspectRatio="xMidYMid slice"
-      className={cn("absolute inset-0 size-full", className)}
-    >
-      <defs>
-        <radialGradient id={`${id}-b`} gradientUnits="userSpaceOnUse" cx={bcx} cy={bcy} r={br}>
-          <stop stopColor={tone(bgIn)} />
-          <stop offset="1" stopColor={tone(bgOut)} />
-        </radialGradient>
-        {s.key && (
-          <radialGradient id={`${id}-k`} gradientUnits="userSpaceOnUse" cx={s.key[0]} cy={s.key[1]} r={s.key[2]}>
-            <stop stopColor={tone(1)} stopOpacity={s.key[3]} />
-            <stop offset="1" stopColor={tone(0.85)} stopOpacity="0" />
-          </radialGradient>
-        )}
-        {s.split !== undefined && (
-          <linearGradient id={`${id}-s`} gradientUnits="userSpaceOnUse" x1="40" x2="160">
-            <stop stopColor={tone(0.8)} stopOpacity={s.split * 0.6} />
-            <stop offset="0.49" stopColor={tone(1)} stopOpacity={s.split} />
-            <stop offset="0.53" stopColor={tone(1)} stopOpacity="0" />
-          </linearGradient>
-        )}
-        {s.rim && (
-          <linearGradient id={`${id}-r`} gradientUnits="userSpaceOnUse" x1="40" x2="160">
-            <stop stopColor={tone(1)} stopOpacity={s.rim[0]} />
-            <stop offset="0.5" stopColor={tone(1)} stopOpacity={s.rim[1] ? s.rim[0] * 0.4 : 0} />
-            <stop offset="1" stopColor={tone(1)} stopOpacity={s.rim[1] ? s.rim[0] : 0} />
-          </linearGradient>
-        )}
-        <radialGradient id={`${id}-v`} cy="0.45" r="0.75">
-          <stop offset="0.55" stopColor={tone(0)} stopOpacity="0" />
-          <stop offset="1" stopColor={tone(0)} stopOpacity={s.vignette} />
-        </radialGradient>
-      </defs>
-      {flip ? <g transform="matrix(-1 0 0 1 200 0)">{art}</g> : art}
-    </svg>
+      className={cn("absolute inset-0 block size-full [&>svg]:block", className)}
+      // Static art from portraitSvg() (constants and numbers only; ids are checked).
+      dangerouslySetInnerHTML={{ __html: portraitSvg(study) }}
+    />
   );
 }

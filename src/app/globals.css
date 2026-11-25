@@ -354,6 +354,7 @@
       animation-range: entry 70% cover 45%;
     }
     .reveal .develop {
+      will-change: filter;
       animation: develop linear both;
       animation-timeline: --reveal;
       animation-range: entry 15% cover 40%;
