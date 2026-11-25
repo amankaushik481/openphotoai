@@ -1,6 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,8 @@ function appealMailto(email: string | null): string {
 
 export default async function SuspendedPage() {
   const user = await getCurrentUser();
+  // Not (or no longer) suspended: an expired ban is cleared on sign-in, so don't tell them they're blocked.
+  if (user && !user.banned) redirect("/app");
   const suspended = user?.banned ? user : null;
   const mailto = appealMailto(suspended?.email ?? null);
 

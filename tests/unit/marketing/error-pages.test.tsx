@@ -57,6 +57,11 @@ describe("/suspended", () => {
     expect(new URL(href!).searchParams.get("subject")).toContain("ana@example.com");
   });
 
+  it("sends a signed-in user who isn't suspended (any more) to the app", async () => {
+    session.user = { email: "ana@example.com", banned: false };
+    await expect(SuspendedPage()).rejects.toMatchObject({ digest: expect.stringContaining("/app") });
+  });
+
   it("works signed out, with a contact button", async () => {
     session.user = null;
     const html = renderToStaticMarkup(await SuspendedPage());
