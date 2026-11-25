@@ -1,16 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { BanIcon, CheckIcon, EyeOffIcon, LoaderCircleIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { BanIcon, CheckIcon, EyeOffIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Kbd } from "./kbd";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api-client";
-import { ActionDialog, Field, actionErrorMessage } from "./action-dialog";
+import { ActionDialog, Field } from "./action-dialog";
 
 type ReportAction = "dismiss" | "remove_media" | "suspend_user";
+
+/** Single-key shortcuts for the focused queue item (see TriageKeyboard). */
+export const TRIAGE_SHORTCUTS = { dismiss: "d", remove_media: "r", suspend_user: "s", review: "m" } as const;
 
 const ACTIONS: Record<
   ReportAction,
@@ -19,7 +21,7 @@ const ACTIONS: Record<
   dismiss: {
     label: "Dismiss",
     title: "Dismiss this report?",
-    description: "No action is taken against the user. The report is closed.",
+    description: "No action is taken against the user. The report is closed and recorded with your note.",
     submit: "Dismiss report",
     done: "Report dismissed.",
     icon: <XIcon aria-hidden="true" />,
@@ -64,13 +66,20 @@ export function ReportActions({
       {available.map((action) => {
         const meta = ACTIONS[action];
         const noteId = `note-${reportId}-${action}`;
+        const key = TRIAGE_SHORTCUTS[action];
         return (
           <ActionDialog
             key={action}
             trigger={
-              <Button size="sm" variant={meta.destructive ? "destructive" : "outline"}>
+              <Button
+                size="sm"
+                variant={meta.destructive ? "destructive" : "outline"}
+                data-shortcut={key}
+                aria-keyshortcuts={key.toUpperCase()}
+              >
                 {meta.icon}
                 {meta.label}
+                <Kbd>{key.toUpperCase()}</Kbd>
               </Button>
             }
             title={meta.title}
@@ -88,6 +97,7 @@ export function ReportActions({
             <Field
               id={noteId}
               label={action === "suspend_user" ? "Reason (sent to the user)" : "Internal note (optional)"}
+              hint="Ctrl+Enter (⌘+Enter on a Mac) to submit."
             >
               <Textarea
                 id={noteId}
@@ -95,6 +105,7 @@ export function ReportActions({
                 maxLength={1000}
                 required={action === "suspend_user"}
                 minLength={action === "suspend_user" ? 3 : undefined}
+                aria-describedby={`${noteId}-hint`}
               />
             </Field>
           </ActionDialog>
@@ -104,30 +115,25 @@ export function ReportActions({
   );
 }
 
-/** One-click "reviewed" for a safety event (no confirm: it only clears it from the queue). */
-export function MarkReviewedButton({ eventId }: { eventId: string }) {
-  const router = useRouter();
-  const [pending, startTransition] = React.useTransition();
-  const [busy, setBusy] = React.useState(false);
-
-  async function markReviewed() {
-    setBusy(true);
-    try {
-      await api(`/api/admin/moderation-events/${encodeURIComponent(eventId)}/review`, { method: "POST" });
-      toast.success("Marked as reviewed.");
-      startTransition(() => router.refresh());
-    } catch (err) {
-      toast.error(actionErrorMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const loading = busy || pending;
+/** "Reviewed" for a safety event: a quick confirm (Enter), recorded with the reviewer. */
+export function MarkReviewedButton({ eventId, kind }: { eventId: string; kind?: string }) {
+  const key = TRIAGE_SHORTCUTS.review;
   return (
-    <Button size="sm" variant="outline" onClick={markReviewed} disabled={loading} aria-busy={loading}>
-      {loading ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <CheckIcon aria-hidden="true" />}
-      Mark reviewed
-    </Button>
+    <ActionDialog
+      trigger={
+        <Button size="sm" variant="outline" data-shortcut={key} aria-keyshortcuts={key.toUpperCase()}>
+          <CheckIcon aria-hidden="true" />
+          Mark reviewed
+          <Kbd>{key.toUpperCase()}</Kbd>
+        </Button>
+      }
+      title="Mark this safety event as reviewed?"
+      description={`It leaves the queue${kind ? ` (${kind})` : ""}. It stays in the user's history with your name as the reviewer.`}
+      submitLabel="Mark reviewed"
+      onSubmit={async () => {
+        await api(`/api/admin/moderation-events/${encodeURIComponent(eventId)}/review`, { method: "POST" });
+        return "Marked as reviewed.";
+      }}
+    />
   );
 }

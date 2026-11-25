@@ -49,8 +49,14 @@ export function JobsTable({
         {jobs.length === 0 && <EmptyRow colSpan={columns}>{empty}</EmptyRow>}
         {jobs.map((job) => (
           <TableRow key={job.id}>
-            <TableCell className="text-muted-foreground">
-              <span title={job.id}>{formatDateTime(job.createdAt)}</span>
+            <TableCell>
+              <Link
+                href={`/admin/jobs/${encodeURIComponent(job.id)}`}
+                title={`Inspect job ${job.id}`}
+                className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {formatDateTime(job.createdAt)}
+              </Link>
             </TableCell>
             {showUser && (
               <TableCell className="max-w-56 truncate">
@@ -82,11 +88,16 @@ export function JobsTable({
             <TableCell className="text-right tabular-nums">{job.creditsRefunded}</TableCell>
             {showActions && (
               <TableCell className="text-right">
-                <JobRefundButton
-                  jobId={job.id}
-                  refundable={job.creditsCharged - job.creditsRefunded}
-                  userEmail={job.userEmail}
-                />
+                {/* Queued / running jobs may still succeed or are refunded automatically when they fail. */}
+                {job.status !== "queued" && job.status !== "running" ? (
+                  <JobRefundButton
+                    jobId={job.id}
+                    refundable={job.creditsCharged - job.creditsRefunded}
+                    userEmail={job.userEmail}
+                  />
+                ) : (
+                  <span className="text-xs text-muted-foreground">In progress</span>
+                )}
               </TableCell>
             )}
           </TableRow>

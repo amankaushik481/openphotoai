@@ -5,8 +5,10 @@ import { FlagIcon, ImageOffIcon, ShieldCheckIcon } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/admin/badges";
-import { formatDateTime, summarizeDetails } from "@/components/admin/format";
+import { formatDateTime, humanize, summarizeDetails } from "@/components/admin/format";
+import { Kbd } from "@/components/admin/kbd";
 import { MarkReviewedButton, ReportActions } from "@/components/admin/moderation-actions";
+import { TriageKeyboard } from "@/components/admin/triage-keyboard";
 import { EmptyRow, Section } from "@/components/admin/section";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,7 +25,12 @@ function ReportCard({ report, adminId }: { report: QueueReport; adminId: string 
   const canSuspend = Boolean(report.target && !report.target.banned && report.target.role !== "admin" && report.target.id !== adminId);
 
   return (
-    <li className="flex min-w-0 flex-col gap-4 rounded-xl border bg-card p-4 shadow-xs sm:flex-row">
+    <li
+      data-triage-item
+      tabIndex={-1}
+      aria-label={`Report: ${REPORT_REASON_LABELS[report.reason]}${report.target ? ` against ${report.target.email}` : ""}`}
+      className="flex min-w-0 scroll-mt-24 flex-col gap-4 rounded-xl border bg-card p-4 shadow-xs transition-colors focus-within:border-primary/40 sm:flex-row"
+    >
       <div className="size-28 shrink-0 overflow-hidden rounded-lg border bg-muted sm:size-32">
         {media?.thumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer
@@ -92,72 +99,100 @@ export default async function AdminModerationPage() {
         description="Abuse reports from share pages and safety events that blocked something. Newest first."
       />
 
-      <section aria-labelledby="reports-heading" className="mb-8">
-        <h2 id="reports-heading" className="mb-3 flex items-center gap-2 text-lg font-semibold">
-          <FlagIcon aria-hidden="true" className="size-5 text-muted-foreground" />
-          Open reports
-          <Badge variant={reports.length ? "warning" : "outline"}>{reports.length}</Badge>
-        </h2>
-        {reports.length === 0 ? (
-          <EmptyState size="sm" icon={<ShieldCheckIcon />} title="No open reports" description="New reports from share pages show up here." />
-        ) : (
-          <ul className="grid gap-3">
-            {reports.map((r) => (
-              <ReportCard key={r.id} report={r} adminId={admin.id} />
-            ))}
-          </ul>
-        )}
-      </section>
+      <p className="mb-6 hidden flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pointer-fine:flex">
+        <span className="font-medium text-foreground">Keyboard triage:</span>
+        <span>
+          <Kbd>J</Kbd> / <Kbd>K</Kbd> next / previous
+        </span>
+        <span>
+          <Kbd>D</Kbd> dismiss
+        </span>
+        <span>
+          <Kbd>R</Kbd> remove media
+        </span>
+        <span>
+          <Kbd>S</Kbd> suspend owner
+        </span>
+        <span>
+          <Kbd>M</Kbd> mark reviewed
+        </span>
+        <span>Every action asks to confirm: Enter (or Ctrl+Enter in a note) applies it, Esc cancels.</span>
+      </p>
 
-      <Section
-        id="events"
-        flush
-        title={`Safety events to review (${events.length})`}
-        description="Blocked prompts, outputs, references and failed consent checks. Marking an event reviewed removes it from this list."
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead scope="col">When</TableHead>
-              <TableHead scope="col">Kind</TableHead>
-              <TableHead scope="col">User</TableHead>
-              <TableHead scope="col">Details</TableHead>
-              <TableHead scope="col">
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {events.length === 0 && <EmptyRow colSpan={5}>Nothing to review.</EmptyRow>}
-            {events.map((e) => (
-              <TableRow key={e.id}>
-                <TableCell className="text-muted-foreground">{formatDateTime(e.createdAt)}</TableCell>
-                <TableCell>
-                  <StatusBadge value={e.kind} tone={e.kind === "underage" ? "destructive" : "outline"} />
-                </TableCell>
-                <TableCell className="max-w-56 truncate">
-                  {e.userId ? (
-                    <Link href={`/admin/users/${e.userId}`} className="underline-offset-4 hover:underline">
-                      {e.userEmail ?? e.userId}
-                    </Link>
-                  ) : (
-                    "—"
-                  )}
-                  {e.jobId && <span className="block truncate text-xs text-muted-foreground">job {e.jobId}</span>}
-                </TableCell>
-                <TableCell className="max-w-96 min-w-56 whitespace-normal">
-                  <code className="line-clamp-3 text-xs break-all" title={JSON.stringify(e.details)}>
-                    {summarizeDetails(e.details)}
-                  </code>
-                </TableCell>
-                <TableCell className="text-right">
-                  <MarkReviewedButton eventId={e.id} />
-                </TableCell>
+      <TriageKeyboard>
+        <section aria-labelledby="reports-heading" className="mb-8">
+          <h2 id="reports-heading" className="mb-3 flex items-center gap-2 text-lg font-semibold">
+            <FlagIcon aria-hidden="true" className="size-5 text-muted-foreground" />
+            Open reports
+            <Badge variant={reports.length ? "warning" : "outline"}>{reports.length}</Badge>
+          </h2>
+          {reports.length === 0 ? (
+            <EmptyState size="sm" icon={<ShieldCheckIcon />} title="No open reports" description="New reports from share pages show up here." />
+          ) : (
+            <ul className="grid gap-3">
+              {reports.map((r) => (
+                <ReportCard key={r.id} report={r} adminId={admin.id} />
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <Section
+          id="events"
+          flush
+          title={`Safety events to review (${events.length})`}
+          description="Blocked prompts, outputs, references and failed consent checks. Marking an event reviewed removes it from this list."
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">When</TableHead>
+                <TableHead scope="col">Kind</TableHead>
+                <TableHead scope="col">User</TableHead>
+                <TableHead scope="col">Details</TableHead>
+                <TableHead scope="col">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Section>
+            </TableHeader>
+            <TableBody>
+              {events.length === 0 && <EmptyRow colSpan={5}>Nothing to review.</EmptyRow>}
+              {events.map((e) => (
+                <TableRow
+                  key={e.id}
+                  data-triage-item
+                  tabIndex={-1}
+                  aria-label={`Safety event: ${humanize(e.kind)}`}
+                  className="scroll-mt-24 [--focus-offset:-2px]"
+                >
+                  <TableCell className="text-muted-foreground">{formatDateTime(e.createdAt)}</TableCell>
+                  <TableCell>
+                    <StatusBadge value={e.kind} tone={e.kind === "underage" ? "destructive" : "outline"} />
+                  </TableCell>
+                  <TableCell className="max-w-56 truncate">
+                    {e.userId ? (
+                      <Link href={`/admin/users/${e.userId}`} className="underline-offset-4 hover:underline">
+                        {e.userEmail ?? e.userId}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                    {e.jobId && <span className="block truncate text-xs text-muted-foreground">job {e.jobId}</span>}
+                  </TableCell>
+                  <TableCell className="max-w-96 min-w-56 whitespace-normal">
+                    <code className="line-clamp-3 text-xs break-all" title={JSON.stringify(e.details)}>
+                      {summarizeDetails(e.details)}
+                    </code>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <MarkReviewedButton eventId={e.id} kind={humanize(e.kind)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Section>
+      </TriageKeyboard>
     </>
   );
 }

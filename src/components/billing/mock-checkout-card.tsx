@@ -34,7 +34,12 @@ export function MockCheckoutCard({ checkoutId, item, email }: MockCheckoutCardPr
   const price = formatPrice(item.priceCents);
   const per = item.interval === "year" ? " / year" : item.interval === "month" ? " / month" : "";
 
+  // A ref, not state: a second click (or Enter auto-repeat) can land before the re-render disables the button.
+  const inFlight = React.useRef(false);
+
   async function pay() {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setPaying(true);
     setError(null);
     try {
@@ -46,6 +51,7 @@ export function MockCheckoutCard({ checkoutId, item, email }: MockCheckoutCardPr
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : "The test payment failed. Please try again.");
       setPaying(false);
+      inFlight.current = false;
     }
   }
 

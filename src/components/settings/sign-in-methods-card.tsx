@@ -31,7 +31,7 @@ export function SignInMethodsCard({ email, methods }: { email: string; methods: 
               </span>
               <div className="grid min-w-0 flex-1 gap-0.5">
                 <span className="text-sm font-medium">{LABELS[m.providerId] ?? m.providerId}</span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="text-xs break-words text-muted-foreground">
                   {m.providerId === "email" ? `A sign-in link sent to ${email}` : m.linkedAt && `Linked ${formatDate(m.linkedAt)}`}
                 </span>
               </div>

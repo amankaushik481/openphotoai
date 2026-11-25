@@ -1,6 +1,7 @@
 /** Row -> DTO mappers for teams, members and brand kits. */
 import type { BrandKitRow, TeamMemberRow, TeamRow } from "@/db/types";
 import { ASPECT_RATIOS, type AspectRatio, type TeamRole } from "@/types/domain";
+import { inviteExpiresAt } from "./access";
 import type { BrandKitDTO, TeamMemberDTO, TeamSummaryDTO } from "./types";
 
 const DEFAULT_ASPECT_RATIO: AspectRatio = "4:5";
@@ -40,6 +41,7 @@ export function toTeamMemberDTO(
     role: row.role,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
+    expiresAt: row.status === "invited" ? inviteExpiresAt(row.createdAt).toISOString() : null,
   };
 }
 

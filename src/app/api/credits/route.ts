@@ -1,6 +1,10 @@
-/** GET /api/credits — current balance + paginated ledger (newest first). Session or API key. */
+/**
+ * GET /api/credits — current balance + paginated ledger (newest first). Session or API key.
+ * `jobTypes` maps the page's job ids to their job type (for readable history rows).
+ */
 import { z } from "zod";
 import { getBalance, listLedger } from "@/server/credits/ledger";
+import { ledgerJobTypes } from "@/server/credits/ledger-jobs";
 import { parseQuery, route } from "@/server/http";
 
 const querySchema = z.object({
@@ -11,5 +15,11 @@ const querySchema = z.object({
 export const GET = route({ auth: "user_or_api" }, async ({ req, user }) => {
   const { cursor, limit } = parseQuery(req, querySchema);
   const [balance, page] = await Promise.all([getBalance(user.id), listLedger(user.id, { cursor, limit })]);
-  return { balance, ledger: page.entries, nextCursor: page.nextCursor };
+  const jobTypes = await ledgerJobTypes(user.id, page.entries);
+  return {
+    balance,
+    ledger: page.entries,
+    nextCursor: page.nextCursor,
+    ...(Object.keys(jobTypes).length > 0 ? { jobTypes } : {}),
+  };
 });

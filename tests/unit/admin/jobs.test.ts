@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
-import { creditLedger, jobs } from "@/db/schema";
+import { creditLedger, jobs, moderationEvents } from "@/db/schema";
 import type { UserRow } from "@/db/types";
 import { debitForJob, refundJob } from "@/server/credits/ledger";
-import { listJobs, refundJobAdmin } from "@/server/admin";
-import { createTestDb, createTestJob, createTestUser } from "../../helpers/factories";
+import { getAdminJobDetail, isTerminalJobStatus, listJobs, refundJobAdmin } from "@/server/admin";
+import { createTestDb, createTestJob, createTestMedia, createTestUser } from "../../helpers/factories";
 
 let admin: UserRow;
 let u: UserRow;
@@ -61,9 +61,52 @@ describe("refundJobAdmin", () => {
   });
 
   it("rejects jobs with nothing left to refund and unknown jobs", async () => {
-    const job = await chargedJob(2);
+    const job = await chargedJob(2, { status: "succeeded" });
     await refundJobAdmin(admin.id, job.id);
     await expect(refundJobAdmin(admin.id, job.id)).rejects.toMatchObject({ code: "conflict" });
     await expect(refundJobAdmin(admin.id, "job_missing")).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("refuses jobs that are still queued or running (they may succeed, or are refunded when they fail)", async () => {
+    for (const status of ["queued", "running"] as const) {
+      const job = await chargedJob(4, { status });
+      await expect(refundJobAdmin(admin.id, job.id)).rejects.toMatchObject({ code: "conflict" });
+      const [row] = await db.select().from(jobs).where(eq(jobs.id, job.id));
+      expect(row!.creditsRefunded).toBe(0);
+    }
+    expect(isTerminalJobStatus("blocked")).toBe(true);
+    expect(isTerminalJobStatus("running")).toBe(false);
+  });
+});
+
+describe("getAdminJobDetail (job inspector)", () => {
+  it("collects the job, its ledger, outputs and safety events, and redacts provider weight references", async () => {
+    const job = await chargedJob(6, {
+      status: "succeeded",
+      type: "train",
+      output: {
+        modelRef: "fal-lora-ref-123",
+        finalPrompt: "a photo",
+        plan: { identity: { url: "https://cdn.test/u/selfie.jpg?sig=x", key: "users/usr_1/photos/a.jpg" }, seeds: [1, 2] },
+      },
+    });
+    await refundJob(job.id, { amount: 2, tag: "likeness", note: "Low likeness" });
+    await createTestMedia(u.id, { jobId: job.id });
+    await db.insert(moderationEvents).values({ userId: u.id, jobId: job.id, kind: "output_blocked", details: { n: 1 } });
+
+    const detail = await getAdminJobDetail(job.id);
+    expect(detail.job).toMatchObject({ id: job.id, userEmail: "u@example.com", status: "succeeded" });
+    expect(detail.job.output).toEqual({
+      modelRef: "[redacted]",
+      finalPrompt: "a photo",
+      plan: { identity: { url: "[redacted]", key: "[redacted]" }, seeds: [1, 2] },
+    });
+    expect(detail.ledger.map((e) => [e.reason, e.delta])).toEqual([
+      ["job_debit", -6],
+      ["job_refund", 2],
+    ]);
+    expect(detail.media).toHaveLength(1);
+    expect(detail.events.map((e) => e.kind)).toEqual(["output_blocked"]);
+    await expect(getAdminJobDetail("job_missing")).rejects.toMatchObject({ code: "not_found" });
   });
 });

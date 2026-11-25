@@ -27,7 +27,10 @@ export interface TeamMemberDTO {
   image: string | null;
   role: TeamRole;
   status: TeamMemberStatus;
+  /** Joined, or (pending invites) when the latest invite link was sent. */
   createdAt: string;
+  /** Pending invites: when the link stops working (re-send to renew). Null for members. */
+  expiresAt: string | null;
 }
 
 export interface BrandKitDTO {
@@ -66,6 +69,9 @@ export interface TeamInvitePreview {
   inviterName: string;
   /** The invited address (the holder of the link received it there). */
   email: string;
+  expiresAt: string;
+  /** The link is past its expiry: it can't be accepted until the team re-sends it. */
+  expired: boolean;
 }
 
 export interface CreditTransferResult {

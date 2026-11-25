@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2Icon } from "lucide-react";
-import { useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -65,22 +65,33 @@ function TransferForm({
   const remaining = balance !== undefined && validAmount ? balance - credits : undefined;
   const tooMuch = remaining !== undefined && remaining < 0;
 
+  // One idempotency key per opened form and (recipient, amount): a double submit or a retry after a
+  // lost response returns the first transfer instead of sending the credits twice.
+  const [attempt] = useState(() => `xfer-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`);
+  const inFlight = useRef(false);
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!recipient || !validAmount) return;
+    if (!recipient || !validAmount || inFlight.current) return;
+    inFlight.current = true;
     setPending(true);
     try {
       const { transfer } = await api<{ transfer: CreditTransferResult }>(
         `/api/teams/${encodeURIComponent(teamId)}/credits/transfer`,
-        { method: "POST", body: { memberUserId: recipient, amount: credits } },
+        {
+          method: "POST",
+          body: { memberUserId: recipient, amount: credits },
+          headers: { "Idempotency-Key": `${attempt}:${recipient}:${credits}` },
+        },
       );
       const name = recipients.find((r) => r.userId === recipient);
-      toast.success(`Sent ${transfer.amount.toLocaleString()} credits to ${name?.name || name?.email || "your teammate"}.`);
+      toast.success(`Sent ${transfer.amount.toLocaleString("en-US")} credits to ${name?.name || name?.email || "your teammate"}.`);
       if (me) await mutateMe({ user: { ...me, credits: transfer.balance } }, { revalidate: true });
       onDone();
     } catch (err) {
       toast.error(apiErrorText(err));
     } finally {
+      inFlight.current = false;
       setPending(false);
     }
   }
@@ -136,10 +147,10 @@ function TransferForm({
               {balance === undefined
                 ? "Loading your balance…"
                 : tooMuch
-                  ? `You only have ${balance.toLocaleString()} credits.`
+                  ? `You only have ${balance.toLocaleString("en-US")} credits.`
                   : remaining !== undefined
-                    ? `You'll have ${remaining.toLocaleString()} of ${balance.toLocaleString()} credits left.`
-                    : `Your balance: ${balance.toLocaleString()} credits.`}
+                    ? `You'll have ${remaining.toLocaleString("en-US")} of ${balance.toLocaleString("en-US")} credits left.`
+                    : `Your balance: ${balance.toLocaleString("en-US")} credits.`}
             </p>
           </div>
         </>

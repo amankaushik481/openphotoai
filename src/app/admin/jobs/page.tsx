@@ -101,6 +101,7 @@ export default async function AdminJobsPage({ searchParams }: { searchParams: Pr
           pathname="/admin/jobs"
           query={{ status: filter.status, type: filter.type, userId: filter.userId }}
           cursor={nextCursor}
+          onLaterPage={Boolean(filter.cursor)}
         />
       </Section>
     </>

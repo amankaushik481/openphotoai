@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatCredits } from "@/components/billing/format";
 import { useMe } from "@/hooks/use-me";
 import { ApiClientError, fetcher } from "@/lib/api-client";
 import type { TeamDetailDTO, TeamSummaryDTO } from "@/server/teams/types";
@@ -90,12 +91,12 @@ export function TeamManager({ initialDetail, teams, packs, canCreateTeam }: Team
         </Alert>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="grid min-w-0 gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="grid min-w-0 grid-cols-1 gap-6">
           <MembersCard detail={detail} onChanged={refresh} onGiveCredits={(userId) => setTransferTo(userId)} />
           <BrandKitsCard teamId={teamId} kits={detail.brandKits} canManage={me.canManage} packs={packs} onChanged={refresh} />
         </div>
-        <div className="grid min-w-0 gap-6">
+        <div className="grid min-w-0 grid-cols-1 gap-6">
           <CreditsCard isOwner={me.isOwner} ownerName={team.ownerName} onTransfer={() => setTransferTo(null)} />
           <TeamGalleryNote />
           <TeamSettingsCard detail={detail} onChanged={refresh} />
@@ -175,7 +176,7 @@ function CreditsCard({ isOwner, ownerName, onTransfer }: { isOwner: boolean; own
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">Your balance</p>
-        <p className="text-2xl font-semibold tabular-nums">{user ? user.credits.toLocaleString() : "—"}</p>
+        <p className="text-2xl font-semibold tabular-nums">{user ? formatCredits(user.credits) : "—"}</p>
       </CardContent>
       {isOwner && (
         <CardFooter>

@@ -1,8 +1,7 @@
-import { Link } from "@react-email/components";
 import { APP } from "@/config/app";
 import type { EmailTemplates } from "@/server/email";
 import { EmailLayout } from "./_components/layout";
-import { Callout, Paragraph, Title } from "./_components/ui";
+import { Callout, Paragraph, TextLink, Title } from "./_components/ui";
 
 export default function AccountSuspendedEmail({ reason }: EmailTemplates["account_suspended"]) {
   return (
@@ -13,7 +12,7 @@ export default function AccountSuspendedEmail({ reason }: EmailTemplates["accoun
       <Title>Your account has been suspended</Title>
       <Paragraph>
         We&apos;ve suspended your {APP.name} account because of activity that appears to break our{" "}
-        <Link href={`${APP.url}/legal/acceptable-use`}>Acceptable Use Policy</Link>.
+        <TextLink href={`${APP.url}/legal/acceptable-use`}>Acceptable Use Policy</TextLink>.
       </Paragraph>
       <Callout label="Reason">{reason}</Callout>
       <Paragraph>While your account is suspended you can&apos;t sign in or create new content.</Paragraph>

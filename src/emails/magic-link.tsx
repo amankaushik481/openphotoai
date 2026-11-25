@@ -10,7 +10,7 @@ export default function MagicLinkEmail({ url }: EmailTemplates["magic_link"]) {
       reason="someone (hopefully you) asked to sign in with this email address"
     >
       <Title>Sign in to {APP.name}</Title>
-      <Paragraph>Click the button below to sign in. The link works once and expires shortly.</Paragraph>
+      <Paragraph>Click the button below to sign in. The link works once and expires in 15 minutes.</Paragraph>
       <CtaButton href={url}>Sign in</CtaButton>
       <LinkFallback href={url} />
       <Muted>
