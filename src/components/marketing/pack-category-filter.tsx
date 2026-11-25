@@ -28,7 +28,7 @@ function readQuery(): string {
   return new URLSearchParams(window.location.search).get("q") ?? "";
 }
 
-/** The page is static, so the server always renders the unfiltered gallery; the URL is read after hydration. */
+/** The page is static, so the server always renders the unfiltered index; the URL is read after hydration. */
 const serverCategory = () => ALL;
 const serverQuery = () => "";
 
@@ -47,10 +47,14 @@ export interface FilterCategory {
   count: number;
 }
 
+const quietButton =
+  "inline-flex h-10 items-center rounded-[3px] border border-foreground/40 px-4 text-sm font-medium transition-colors hover:border-foreground hover:bg-accent pointer-coarse:h-11";
+
 /**
- * Search box and category chips for the public pack gallery. The grid itself is server-rendered
- * (children with `data-slug` and `data-category` attributes); this island only hides non-matching items
- * with a scoped style rule and mirrors the choice in `?q=` / `?category=` so filtered views are linkable.
+ * Search box and category index for the public pack index. The list itself is server-rendered (items with
+ * `data-slug` and `data-category`, optional category groups with `data-group`); this island only hides
+ * what doesn't match with a scoped style rule and mirrors the choice in `?q=` / `?category=` so filtered
+ * views are linkable. Wide screens get the controls in the left margin, sticky beside the list.
  */
 export function PackCategoryFilter({
   categories,
@@ -58,7 +62,7 @@ export function PackCategoryFilter({
   children,
 }: {
   categories: FilterCategory[];
-  /** One entry per pack in the grid. */
+  /** One entry per pack in the list. */
   index: PackSearchEntry[];
   children: React.ReactNode;
 }) {
@@ -74,6 +78,10 @@ export function PackCategoryFilter({
   const countFor = (id: string) => index.filter((e) => (id === ALL || e.category === id) && inSearch(e)).length;
   const shown = countFor(active);
   const hidden = index.filter((e) => !inSearch(e) && SAFE_SLUG.test(e.slug)).map((e) => e.slug);
+  // Category groups with nothing left to show (other categories, or no search matches) are hidden too.
+  const hiddenGroups = categories
+    .filter((c) => SAFE_SLUG.test(c.id) && ((active !== ALL && c.id !== active) || countFor(c.id) === 0))
+    .map((c) => c.id);
 
   const select = (id: string) => (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
@@ -85,19 +93,19 @@ export function PackCategoryFilter({
     inputRef.current?.focus();
   };
 
-  const chips: FilterCategory[] = [{ id: ALL, label: "All", count: index.length }, ...categories];
+  const chips: FilterCategory[] = [{ id: ALL, label: "All packs", count: index.length }, ...categories];
   const activeLabel = chips.find((c) => c.id === active)?.label ?? "All";
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <div role="search" className="relative w-full sm:max-w-sm">
-          <label htmlFor={searchId} className="sr-only">
+    <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+      <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24 lg:col-span-3 lg:self-start">
+        <div role="search" className="relative w-full">
+          <label htmlFor={searchId} className="mono-caps mb-1 block text-muted-foreground">
             Search packs
           </label>
           <SearchIcon
             aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+            className="pointer-events-none absolute bottom-3.5 left-0 size-4 text-muted-foreground"
           />
           <input
             ref={inputRef}
@@ -107,7 +115,7 @@ export function PackCategoryFilter({
             enterKeyHint="search"
             autoComplete="off"
             spellCheck={false}
-            placeholder="Search packs: headshot, beach, Paris…"
+            placeholder="Headshot, beach, Paris…"
             value={query}
             onChange={(e) => setParam("q", e.target.value || null)}
             onKeyDown={(e) => {
@@ -116,46 +124,49 @@ export function PackCategoryFilter({
                 clearSearch();
               }
             }}
-            className="h-11 w-full rounded-full border bg-card pr-11 pl-10 text-base shadow-xs transition-colors outline-none placeholder:text-muted-foreground hover:border-input focus-visible:border-ring sm:text-sm [&::-webkit-search-cancel-button]:hidden"
+            className="h-11 w-full rounded-none border-0 border-b border-foreground bg-transparent pr-10 pl-6 text-base transition-colors [--focus-offset:3px] placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
           />
           {query && (
             <button
               type="button"
               onClick={clearSearch}
               aria-label="Clear search"
-              className="absolute top-1/2 right-1.5 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5"
+              className="absolute right-0 bottom-1.5 inline-flex size-8 items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5"
             >
               <XIcon aria-hidden="true" className="size-4" />
             </button>
           )}
         </div>
         <nav aria-label="Filter packs by category">
-          <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          <p className="mono-caps hidden pb-2 text-muted-foreground lg:block">Sections</p>
+          <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 sm:-mx-8 sm:px-8 lg:mx-0 lg:flex-col lg:gap-0 lg:overflow-visible lg:border-t lg:border-border lg:px-0 lg:pb-0">
             {chips.map((c) => {
               const current = c.id === active;
               const count = countFor(c.id);
               return (
-                <li key={c.id} className="shrink-0">
+                <li key={c.id} className="shrink-0 lg:border-b lg:border-border">
                   <a
                     href={c.id === ALL ? "/packs" : `/packs?category=${c.id}`}
                     onClick={select(c.id)}
                     aria-current={current ? "true" : undefined}
                     className={cn(
-                      "inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors [--focus-offset:-2px] pointer-coarse:h-11",
+                      "flex h-11 items-center gap-2 border-b-2 px-3 text-sm whitespace-nowrap transition-colors [--focus-offset:-2px] lg:h-auto lg:justify-between lg:border-b-0 lg:px-0 lg:py-1.5",
                       current
-                        ? "border-foreground bg-foreground text-background"
-                        : "bg-card text-muted-foreground hover:text-foreground",
+                        ? "border-safelight-ink font-medium text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {c.label}
-                    <span
-                      className={cn(
-                        "font-mono text-xs tabular-nums",
-                        current ? "text-background/70" : "text-muted-foreground",
-                      )}
-                    >
-                      {count}
+                    <span className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "hidden size-1.5 rounded-full lg:inline-block",
+                          current ? "bg-safelight-ink" : "bg-transparent",
+                        )}
+                      />
+                      {c.label}
                     </span>
+                    <span className="font-mono text-[11px] text-muted-foreground tabular-nums">{count}</span>
                   </a>
                 </li>
               );
@@ -163,50 +174,53 @@ export function PackCategoryFilter({
           </ul>
         </nav>
       </div>
-      <p className="sr-only" aria-live="polite">
-        {shown === 1 ? "Showing 1 pack" : `Showing ${shown} packs`}
-      </p>
-      {/* Category ids and slugs are validated above, so they are safe to put in CSS. */}
-      {(active !== ALL || hidden.length > 0) && (
-        <style>
-          {[
-            active !== ALL ? `[data-pack-filter="${scope}"] [data-category]:not([data-category="${active}"])` : null,
-            ...hidden.map((slug) => `[data-pack-filter="${scope}"] [data-slug="${slug}"]`),
-          ]
-            .filter(Boolean)
-            .join(",") + "{display:none}"}
-        </style>
-      )}
-      <div data-pack-filter={scope}>{children}</div>
-      {shown === 0 && matches && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed px-6 py-14 text-center">
-          <p className="font-medium">
-            No {active === ALL ? "" : `${activeLabel.toLowerCase()} `}packs match &ldquo;{query.trim()}&rdquo;.
-          </p>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Try a broader word like &ldquo;headshot&rdquo;, &ldquo;travel&rdquo; or &ldquo;dating&rdquo;
-            {active === ALL ? "" : ", or search all categories"}.
-          </p>
-          <div className="mt-1 flex flex-wrap justify-center gap-2">
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="inline-flex h-9 items-center rounded-full border bg-card px-4 text-sm font-medium transition-colors hover:bg-accent pointer-coarse:h-11"
-            >
-              Clear search
-            </button>
-            {active !== ALL && (
-              <button
-                type="button"
-                onClick={() => setParam("category", null)}
-                className="inline-flex h-9 items-center rounded-full border bg-card px-4 text-sm font-medium transition-colors hover:bg-accent pointer-coarse:h-11"
-              >
-                Search all categories
+
+      <div className="min-w-0 lg:col-span-9">
+        <p className="sr-only" aria-live="polite">
+          {shown === 1 ? "Showing 1 pack" : `Showing ${shown} packs`}
+        </p>
+        {/* Category ids and slugs are validated above, so they are safe to put in CSS. */}
+        {(active !== ALL || hidden.length > 0 || hiddenGroups.length > 0) && (
+          <style>
+            {[
+              active !== ALL ? `[data-pack-filter="${scope}"] [data-category]:not([data-category="${active}"])` : null,
+              ...hidden.map((slug) => `[data-pack-filter="${scope}"] [data-slug="${slug}"]`),
+              ...hiddenGroups.map((id) => `[data-pack-filter="${scope}"] [data-group="${id}"]`),
+            ]
+              .filter(Boolean)
+              .join(",") + "{display:none}"}
+          </style>
+        )}
+        <div data-pack-filter={scope}>{children}</div>
+        {shown === 0 && matches && (
+          <div className="border-y border-foreground py-12">
+            {/* An empty roll: unexposed frames. */}
+            <div aria-hidden="true" className="flex gap-3">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="aspect-[4/5] w-16 border border-dashed border-foreground/40 sm:w-20" />
+              ))}
+            </div>
+            <p className="mono-caps mt-6 text-muted-foreground">Nothing on this roll</p>
+            <p className="mt-2 font-display text-3xl leading-tight">
+              No {active === ALL ? "" : `${activeLabel.toLowerCase()} `}packs match &ldquo;{query.trim()}&rdquo;.
+            </p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Try a broader word like &ldquo;headshot&rdquo;, &ldquo;travel&rdquo; or &ldquo;dating&rdquo;
+              {active === ALL ? "" : ", or search all categories"}.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <button type="button" onClick={clearSearch} className={quietButton}>
+                Clear search
               </button>
-            )}
+              {active !== ALL && (
+                <button type="button" onClick={() => setParam("category", null)} className={quietButton}>
+                  Search all categories
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
