@@ -96,7 +96,7 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share", noun 
           shares.length > 0 && (
             <ul className="grid gap-3" aria-label="Active links">
               {shares.map((share) => (
-                <li key={share.id} className="grid gap-2 rounded-lg border p-3">
+                <li key={share.id} className="grid gap-2 border border-foreground/15 p-3">
                   <div className="flex items-center gap-2">
                     <Input
                       readOnly

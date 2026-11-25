@@ -105,7 +105,7 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
       <DialogContent>
         {done ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <CircleCheckIcon aria-hidden="true" className="size-10 text-emerald-500" />
+            <CircleCheckIcon aria-hidden="true" className="size-10 text-success" />
             {/* The form (and its focused submit button) was replaced: focus the new title so it's announced. */}
             <DialogTitle tabIndex={-1} ref={focusOnMount} className="focus:outline-hidden">
               Thanks — we received your report
@@ -154,7 +154,7 @@ export function ReportDialog({ shareToken, mediaId, triggerClassName }: ReportDi
                     <Label
                       key={r.value}
                       htmlFor={id}
-                      className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent/50"
+                      className="flex cursor-pointer items-start gap-3 border border-foreground/15 p-3 font-normal has-[[data-state=checked]]:border-safelight-ink has-[[data-state=checked]]:bg-accent/50"
                     >
                       <RadioGroupItem id={id} value={r.value} className="mt-0.5" />
                       <span className="grid gap-0.5">

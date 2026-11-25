@@ -41,10 +41,11 @@ function StatusIcon({ tone, children }: { tone: "danger" | "success" | "warning"
   return (
     <div
       className={cn(
-        "mb-2 flex size-12 items-center justify-center rounded-full",
-        tone === "danger" && "bg-destructive/10 text-destructive",
-        tone === "success" && "bg-success/10 text-success",
-        tone === "warning" && "bg-warning/10 text-warning",
+        // A square lab stamp, not a pastel icon bubble.
+        "mb-2 flex size-12 items-center justify-center border-2",
+        tone === "danger" && "border-destructive/60 text-destructive",
+        tone === "success" && "border-success/60 text-success",
+        tone === "warning" && "border-warning/60 text-warning",
       )}
     >
       {children}
@@ -107,7 +108,7 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
           <StatusIcon tone="success">
             <CircleCheckIcon className="size-6" aria-hidden />
           </StatusIcon>
-          <CardTitle as="h1" className="text-xl">
+          <CardTitle as="h1" className="font-display text-3xl font-normal">
             Your account and all data were deleted
           </CardTitle>
           <CardDescription>
@@ -131,7 +132,7 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
           <StatusIcon tone="warning">
             <TriangleAlertIcon className="size-6" aria-hidden />
           </StatusIcon>
-          <CardTitle as="h1" className="text-xl">
+          <CardTitle as="h1" className="font-display text-3xl font-normal">
             {expired ? "This link has expired" : "This link doesn't work"}
           </CardTitle>
           <CardDescription>
@@ -164,7 +165,7 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
             <Trash2Icon className="size-6" aria-hidden />
           )}
         </StatusIcon>
-        <CardTitle as="h1" className="text-xl">
+        <CardTitle as="h1" className="font-display text-3xl font-normal">
           {busy ? "Deleting your account…" : "Delete your account permanently"}
         </CardTitle>
         <CardDescription>
@@ -177,20 +178,20 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
         {busy ? (
           <div className="grid gap-2">
             <Progress value={progress} aria-label="Deletion progress" />
-            <p className="text-center text-sm text-muted-foreground">{stepLabel(progress)}</p>
+            <p className="text-center font-mono text-xs tracking-[0.06em] text-muted-foreground">{stepLabel(progress)}</p>
           </div>
         ) : (
           <>
             {phase.kind === "error" && (
               <p
                 role="alert"
-                className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                className="border-l-2 border-destructive bg-destructive/5 px-3 py-2 text-sm text-destructive"
               >
                 {phase.message}
               </p>
             )}
             {phase.kind === "in_progress" && (
-              <p role="status" className="rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+              <p role="status" className="border-l-2 border-foreground/30 bg-muted/40 px-3 py-2 text-sm">
                 Your deletion is already running. Give it a minute, then check again.
               </p>
             )}
