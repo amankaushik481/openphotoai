@@ -1,9 +1,10 @@
-import { ArrowRight, CircleCheck, KeyRound, TriangleAlert } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PrintSheet } from "@/components/auth/print-sheet";
+import { SheetKicker, SheetTitle } from "@/components/auth/sheet-heading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP } from "@/config/app";
 import { magicLinkVerifyApiPath, pendingMagicLinkEmail } from "@/server/auth/magic-link";
 import { firstParam, loginPathFor, safeLoginPath, safeNextPath } from "@/server/auth/redirect";
@@ -17,38 +18,27 @@ export const metadata: Metadata = {
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function StatusCard({
+/** A plain notice on the print sheet: status line, title, explanation, the way forward. */
+function StatusSheet({
   tone,
-  icon,
+  kicker,
   title,
   description,
   children,
 }: {
   tone: "warning" | "success";
-  icon: ReactNode;
+  kicker: string;
   title: string;
   description: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader className="justify-items-center text-center">
-        <div
-          className={
-            tone === "warning"
-              ? "mb-2 flex size-12 items-center justify-center rounded-full bg-warning/10 text-warning [&_svg]:size-6"
-              : "mb-2 flex size-12 items-center justify-center rounded-full bg-success/10 text-success [&_svg]:size-6"
-          }
-        >
-          {icon}
-        </div>
-        <CardTitle as="h1" className="text-xl">
-          {title}
-        </CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardFooter className="flex-col gap-2">{children}</CardFooter>
-    </Card>
+    <PrintSheet frame="02" caption="Sign-in link" mark={tone === "warning" ? "reject" : "keep"}>
+      <SheetKicker tone={tone}>{kicker}</SheetKicker>
+      <SheetTitle>{title}</SheetTitle>
+      <p className="mt-3 text-sm text-muted-foreground">{description}</p>
+      <div className="mt-6 flex flex-col gap-2">{children}</div>
+    </PrintSheet>
   );
 }
 
@@ -66,16 +56,16 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
 
   if (!token) {
     return (
-      <StatusCard
+      <StatusSheet
         tone="warning"
-        icon={<TriangleAlert aria-hidden />}
+        kicker="Link cut short"
         title="This link is incomplete"
         description="Part of the link may have been cut off. Open it straight from the email (don't copy part of it), or request a new one."
       >
-        <Button asChild variant="brand" size="lg" className="w-full">
+        <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
           <Link href={newLinkHref}>Request a new link</Link>
         </Button>
-      </StatusCard>
+      </StatusSheet>
     );
   }
 
@@ -85,9 +75,9 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
     // Links are single-use: the most common way here is clicking the same email twice.
     if (user && !user.banned) {
       return (
-        <StatusCard
+        <StatusSheet
           tone="success"
-          icon={<CircleCheck aria-hidden />}
+          kicker="Signed in"
           title="You're already signed in"
           description={
             <>
@@ -96,26 +86,26 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
             </>
           }
         >
-          <Button asChild variant="brand" size="lg" className="w-full">
+          <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
             <Link href={next}>
               Continue to {APP.name}
               <ArrowRight aria-hidden />
             </Link>
           </Button>
-        </StatusCard>
+        </StatusSheet>
       );
     }
     return (
-      <StatusCard
+      <StatusSheet
         tone="warning"
-        icon={<TriangleAlert aria-hidden />}
+        kicker="Link used up"
         title="This link has expired or was already used"
         description="Sign-in links work once and expire after 15 minutes. If you asked for several, only the newest one works."
       >
-        <Button asChild variant="brand" size="lg" className="w-full">
+        <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
           <Link href={newLinkHref}>Request a new link</Link>
         </Button>
-      </StatusCard>
+      </StatusSheet>
     );
   }
 
@@ -127,47 +117,42 @@ export default async function VerifyPage({ searchParams }: { searchParams: Searc
   const switching = user && user.email.toLowerCase() !== email.toLowerCase() ? user.email : null;
 
   return (
-    <Card>
-      <CardHeader className="justify-items-center text-center">
-        <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
-          <KeyRound className="size-6" aria-hidden />
-        </div>
-        <CardTitle as="h1" className="text-xl">
-          Confirm sign-in
-        </CardTitle>
-        <CardDescription>
-          Continue to sign in to {APP.name} on this device as{" "}
-          <strong className="font-medium break-all text-foreground" data-testid="verify-email">
-            {email}
-          </strong>
-          .
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
+    <PrintSheet frame="02" caption="Sign-in link · one click">
+      <SheetKicker tone="safelight">One more click</SheetKicker>
+      <SheetTitle>Confirm sign-in</SheetTitle>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Continue to sign in to {APP.name} on this device as{" "}
+        <strong className="font-medium break-all text-foreground" data-testid="verify-email">
+          {email}
+        </strong>
+        .
+      </p>
+      <div className="mt-6 grid gap-3">
         {switching && (
-          <p className="rounded-lg border bg-muted/40 px-3 py-2 text-center text-sm text-muted-foreground">
+          <p className="border-l-2 border-foreground py-1 pl-3 text-sm text-muted-foreground">
             You&apos;re signed in as <span className="font-medium break-all text-foreground">{switching}</span>.
             Continuing switches to the account above.
           </p>
         )}
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Not your email address? Don&apos;t continue: someone may be trying to sign you into their account.
         </p>
-        <Button asChild variant="brand" size="lg" className="w-full">
+        <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
           {/* Plain anchor: the API route sets the session cookie and redirects. */}
           <a href={href} rel="nofollow">
             Sign in to {APP.name}
           </a>
         </Button>
-      </CardContent>
-      <CardFooter>
-        <p className="w-full text-center text-xs text-muted-foreground">
-          Links work once and expire after 15 minutes.{" "}
-          <Link href={newLinkHref} className="underline underline-offset-2 hover:text-foreground">
-            Request a new link
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+      </div>
+      <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">
+        Links work once and expire after 15 minutes.{" "}
+        <Link
+          href={newLinkHref}
+          className="underline decoration-foreground/30 underline-offset-2 hover:text-foreground hover:decoration-safelight-ink"
+        >
+          Request a new link
+        </Link>
+      </p>
+    </PrintSheet>
   );
 }
