@@ -77,7 +77,21 @@ function createAuth() {
     },
     // Profile edits go through PATCH /api/me (validated, length-capped). Better Auth's update-user
     // would accept any `image` URL (rendered to teammates) and an unbounded `name` (used in emails).
-    disabledPaths: ["/update-user"],
+    // The account endpoints below are unused by the app and only widen what a stolen session (or XSS)
+    // can do: link-social attaches the attacker's own Google account (access that survives "sign out
+    // everywhere"); list-sessions / get-access-token / refresh-token / account-info hand session and
+    // Google tokens to page scripts. Google sign-in (implicit linking by verified email) is unaffected.
+    disabledPaths: [
+      "/update-user",
+      "/link-social",
+      "/unlink-account",
+      "/list-accounts",
+      "/account-info",
+      "/get-access-token",
+      "/refresh-token",
+      "/list-sessions",
+      "/update-session",
+    ],
     emailAndPassword: { enabled: false },
     socialProviders: googleEnabled
       ? {

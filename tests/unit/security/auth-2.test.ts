@@ -183,6 +183,29 @@ describe("verified: magic links, session fixation, OAuth state, disabled account
   });
 });
 
+describe("S2-12: unused account endpoints are off", () => {
+  it("a stolen session can't link the attacker's Google account or read session / OAuth tokens", async () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "gid");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "gsecret");
+    resetEnvCache();
+    resetAuth();
+    const cookie = await signIn("erin@example.com");
+    const get = (path: string) => authGet(new NextRequest(`${APP}/api/auth${path}`, { headers: { cookie } }));
+    expect((await post("/link-social", { provider: "google", callbackURL: "/app" }, { cookie })).status).toBe(404);
+    expect((await post("/unlink-account", { providerId: "google", accountId: "x" }, { cookie })).status).toBe(404);
+    expect((await post("/get-access-token", { providerId: "google" }, { cookie })).status).toBe(404);
+    expect((await post("/refresh-token", { providerId: "google" }, { cookie })).status).toBe(404);
+    expect((await post("/update-session", {}, { cookie })).status).toBe(404);
+    expect((await get("/list-sessions")).status).toBe(404);
+    expect((await get("/list-accounts")).status).toBe(404);
+    expect((await get("/account-info")).status).toBe(404);
+    // What the app does use still works.
+    expect((await post("/sign-in/social", { provider: "google", callbackURL: "/app" })).status).toBe(200);
+    expect((await get("/get-session")).status).toBe(200);
+    expect((await post("/revoke-sessions", {}, { cookie })).status).toBe(200);
+  });
+});
+
 describe("S2-5: production origin checks also run in tests", () => {
   it("refuses foreign callback URLs when a link is requested", async () => {
     for (const callbackURL of ["https://evil.example/x", "//evil.example", "/\\evil.example", "javascript:alert(1)"]) {
