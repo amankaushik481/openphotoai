@@ -9,7 +9,8 @@ import { KpiCard, PeriodLinks, Section } from "@/components/admin/section";
 import { getStats, listJobs } from "@/server/admin";
 import { requireAdminPage } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: "Overview" };
+// The admin layout's title template only applies to child segments, not to this page in the same segment.
+export const metadata: Metadata = { title: "Overview · Admin" };
 
 const PERIODS = [7, 30, 90];
 
