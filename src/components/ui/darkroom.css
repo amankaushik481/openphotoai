@@ -1,0 +1,110 @@
+/*
+ * Darkroom motion for the shared primitives (CSS only, cheap). Every animation is decorative and is
+ * switched off under `prefers-reduced-motion` (the global reduced-motion rule also collapses them).
+ */
+
+/* Skeleton: a sheet of paper with a slow sheen passing over it. */
+/* The element itself is positioned and clipped by the component (Tailwind classes), so callers can
+   still make it `absolute` without fighting this unlayered rule. */
+.os-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    /* Paper: a lighter sheen; darkroom: a slightly deeper band (card is darker than the skeleton there). */
+    color-mix(in oklab, var(--card) 75%, transparent) 50%,
+    transparent 80%
+  );
+  animation: os-shimmer 1.8s ease-in-out infinite;
+}
+@keyframes os-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/*
+ * A print developing in the tray: the frame arrives as a negative and slowly turns positive.
+ * Runs once when the element mounts (new results only).
+ */
+.os-develop {
+  animation: os-develop 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) both;
+}
+@keyframes os-develop {
+  0% {
+    filter: invert(1) grayscale(1) contrast(0.7) brightness(0.9);
+    opacity: 0.35;
+  }
+  45% {
+    filter: invert(0.55) grayscale(0.8) contrast(0.85);
+    opacity: 0.85;
+  }
+  100% {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+/* Every photo that mounts inside develops once (results arriving in a grid). */
+.os-develop-images img {
+  animation: os-develop 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) both;
+}
+
+/* A frame still in the tray: a faint negative that breathes under the safelight. */
+.os-latent {
+  animation: os-latent 2.4s ease-in-out infinite;
+}
+@keyframes os-latent {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Darkroom timer colon / "recording" lamp: a slow blink. */
+.os-blink {
+  animation: os-blink 1s steps(1, end) infinite;
+}
+@keyframes os-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Grease-pencil stroke drawn on once (set `pathLength="1"` on the path). */
+.os-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: os-draw 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s forwards;
+}
+@keyframes os-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .os-shimmer::after,
+  .os-latent,
+  .os-blink {
+    animation: none;
+  }
+  .os-develop,
+  .os-develop-images img {
+    animation: none;
+    filter: none;
+    opacity: 1;
+  }
+  .os-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

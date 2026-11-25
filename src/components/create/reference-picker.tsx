@@ -33,14 +33,14 @@ export function ReferencePicker({
     <div className="flex flex-col gap-2" role="group" aria-labelledby={labelId}>
       <Label id={labelId}>Style reference</Label>
       {value ? (
-        <div className="flex items-center gap-3 rounded-xl border bg-card p-2">
+        <div className="flex items-center gap-3 rounded-xs border border-foreground/15 bg-card p-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- private signed URL */}
           <img
             src={value.url}
             alt="Your style reference"
             width={value.width}
             height={value.height}
-            className="size-24 shrink-0 rounded-lg bg-muted object-cover"
+            className="size-24 shrink-0 rounded-[1px] bg-muted object-cover"
           />
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <p className="text-sm text-muted-foreground">

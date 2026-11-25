@@ -13,7 +13,7 @@ export interface PackCardProps {
   className?: string;
 }
 
-const FALLBACK_COLORS: [string, string] = ["#dc4320", "#7c33dc"];
+const FALLBACK_COLORS: [string, string] = ["#16140f", "#6b645a"];
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 function safeColors(colors: PackSummary["colors"]): [string, string] {

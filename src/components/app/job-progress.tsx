@@ -1,7 +1,5 @@
 "use client";
 
-import { CircleCheckIcon, CircleXIcon, LoaderCircleIcon, ShieldAlertIcon, ClockIcon, BanIcon } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,13 +9,11 @@ import { errorMessage } from "@/i18n";
 import { useT, type Translator } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 
-const STATUS_ICON: Record<JobStatus, typeof ClockIcon> = {
-  queued: ClockIcon,
-  running: LoaderCircleIcon,
-  succeeded: CircleCheckIcon,
-  failed: CircleXIcon,
-  canceled: BanIcon,
-  blocked: ShieldAlertIcon,
+/** Darkroom words for the two states people watch: a running job is developing, a finished one is ready. */
+const DARKROOM_LABEL: Partial<Record<JobStatus, string>> = {
+  queued: "In the tray",
+  running: "Developing",
+  succeeded: "Ready",
 };
 
 const STATUS_VARIANT: Record<JobStatus, "secondary" | "soft" | "success" | "destructive" | "outline" | "warning"> = {
@@ -29,13 +25,34 @@ const STATUS_VARIANT: Record<JobStatus, "secondary" | "soft" | "success" | "dest
   blocked: "warning",
 };
 
-export function JobStatusBadge({ status, className }: { status: JobStatus; className?: string }) {
+/**
+ * Lab-label status chip: DEVELOPING with a breathing safelight lamp while running, READY when done,
+ * FAILED · REFUNDED when credits came back.
+ */
+export function JobStatusBadge({
+  status,
+  refunded = false,
+  className,
+}: {
+  status: JobStatus;
+  /** Credits were refunded (adds "· refunded" to a failed / blocked / canceled job). */
+  refunded?: boolean;
+  className?: string;
+}) {
   const t = useT();
-  const Icon = STATUS_ICON[status];
+  const label = DARKROOM_LABEL[status] ?? t(`jobs.status.${status}`);
   return (
-    <Badge variant={STATUS_VARIANT[status]} className={className}>
-      <Icon aria-hidden="true" className={cn(status === "running" && "animate-spin")} />
-      {t(`jobs.status.${status}`)}
+    <Badge variant={STATUS_VARIANT[status]} className={cn("gap-1.5", className)}>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "size-1.5 shrink-0 rounded-full bg-current",
+          status === "running" && "motion-safe:animate-pulse",
+          status === "queued" && "opacity-50",
+        )}
+      />
+      {label}
+      {refunded && status !== "succeeded" ? " · refunded" : null}
     </Badge>
   );
 }
@@ -66,7 +83,7 @@ export function JobProgress({ job, title, className, bare = false }: JobProgress
 
   if (!job) {
     return (
-      <div className={cn(!bare && "rounded-xl border bg-card p-4", "flex flex-col gap-3", className)} aria-busy="true">
+      <div className={cn(!bare && "rounded-xs border bg-card p-4", "flex flex-col gap-3", className)} aria-busy="true">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2 w-full" />
       </div>
@@ -82,18 +99,17 @@ export function JobProgress({ job, title, className, bare = false }: JobProgress
     <div
       role="status"
       aria-live="polite"
-      className={cn(!bare && "rounded-xl border bg-card p-4", "flex flex-col gap-3", className)}
+      className={cn(!bare && "rounded-xs border bg-card p-4", "flex flex-col gap-3", className)}
     >
       <div className="flex items-center justify-between gap-3">
         <p className="truncate text-sm font-medium">{title ?? JOB_TYPE_LABELS[job.type]}</p>
-        <JobStatusBadge status={job.status} />
+        <JobStatusBadge status={job.status} refunded={refunded > 0} />
       </div>
       {(inFlight || job.status === "succeeded") && (
         <Progress
           value={value}
           aria-label={t("jobs.progressLabel")}
           className={cn(job.status === "queued" && "animate-pulse")}
-          indicatorClassName={cn(inFlight && "bg-brand-gradient")}
         />
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}

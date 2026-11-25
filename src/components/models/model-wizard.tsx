@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CircleAlertIcon, LayersIcon, LoaderCircleIcon, PartyPopperIcon, SparklesIcon } from "lucide-react";
+import { ApertureIcon, ArrowLeftIcon, ArrowRightIcon, CircleAlertIcon, LayersIcon, LoaderCircleIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { GreasePencilCircle } from "@/components/ui/darkroom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +30,16 @@ const STEPS: { id: Exclude<Step, "training">; label: string }[] = [
   { id: "mode", label: "Model type" },
   { id: "done", label: "Ready" },
 ];
+
+/** Loading a camera, step by step: the mono line above each step's title. */
+const STEP_EYEBROW: Record<Step, string> = {
+  details: "Load a new roll",
+  consent: "Expose · consent selfie",
+  photos: "Expose · your photos",
+  mode: "Develop · choose the process",
+  training: "Develop · in the tank",
+  done: "Print · ready to shoot",
+};
 
 const SUBJECTS: { value: Subject; label: string; hint: string }[] = [
   { value: "woman", label: "Woman", hint: "she / her" },
@@ -87,9 +98,17 @@ export function ModelWizard({ initial }: ModelWizardProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-5">
-        <nav aria-label="Progress">
-          <ol className="flex items-center gap-1.5 sm:gap-2">
+      <div className="flex flex-col gap-5 border-b border-border pb-6">
+        {/* The frame counter: film advancing one frame per step, the current one under safelight. */}
+        <nav aria-label="Progress" className="flex flex-col gap-2">
+          <div aria-hidden="true" className="flex items-center justify-between font-mono text-[0.625rem] tracking-[0.18em] text-muted-foreground uppercase">
+            <span>Frame counter</span>
+            <span className="tabular-nums">
+              <span className="text-safelight-ink">{String(Math.min(current + 1, STEPS.length)).padStart(2, "0")}</span> /{" "}
+              {String(STEPS.length).padStart(2, "0")}
+            </span>
+          </div>
+          <ol className="flex items-stretch gap-1">
             {STEPS.map((s, i) => {
               const done = i < current || step === "done";
               const active = i === current && step !== "done";
@@ -97,11 +116,23 @@ export function ModelWizard({ initial }: ModelWizardProps) {
                 <li key={s.id} className="flex flex-1 flex-col gap-1.5" aria-current={active ? "step" : undefined}>
                   <span
                     className={cn(
-                      "h-1.5 rounded-full transition-colors",
-                      done ? "bg-primary" : active ? "bg-brand-gradient" : "bg-muted",
+                      "h-2 rounded-[1px] border transition-colors",
+                      done
+                        ? "border-foreground bg-foreground"
+                        : active
+                          ? "border-safelight-ink bg-safelight-ink"
+                          : "border-dashed border-foreground/30 bg-transparent",
                     )}
                   />
-                  <span className={cn("hidden text-xs sm:block", active ? "font-medium text-foreground" : "text-muted-foreground")}>
+                  <span
+                    className={cn(
+                      "hidden font-mono text-[0.625rem] tracking-[0.14em] uppercase sm:block",
+                      active ? "text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    <span aria-hidden="true" className={cn("mr-1.5", active ? "text-safelight-ink" : "text-foreground/40")}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                     {s.label}
                     <span className="sr-only">{done ? " (done)" : active ? " (current)" : ""}</span>
                   </span>
@@ -109,13 +140,22 @@ export function ModelWizard({ initial }: ModelWizardProps) {
               );
             })}
           </ol>
-          <p className="mt-2 text-xs text-muted-foreground sm:hidden">
+          <p className="font-mono text-[0.625rem] tracking-[0.14em] text-muted-foreground uppercase sm:hidden">
             Step {Math.min(current + 1, STEPS.length)} of {STEPS.length}: {STEPS[Math.max(0, current)]?.label}
           </p>
         </nav>
-        <h1 ref={headingRef} tabIndex={-1} className="font-display text-3xl leading-tight tracking-tight focus:outline-hidden sm:text-4xl">
-          {title}
-        </h1>
+        <div className="flex flex-col gap-2">
+          <p aria-hidden="true" className="mono-caps text-safelight-ink">
+            {STEP_EYEBROW[step]}
+          </p>
+          <h1
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-[2.5rem] leading-[0.95] tracking-[-0.015em] focus:outline-hidden sm:text-5xl lg:text-[3.5rem]"
+          >
+            {title}
+          </h1>
+        </div>
       </div>
 
       {step === "details" && (
@@ -220,8 +260,15 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
         Your model learns what you look like from a live selfie and a few photos. Then you can create professional
         photos of yourself in any style. It&apos;s private, and you can delete it at any time.
       </p>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={nameId}>Model name</Label>
+      {/* The roll label: what you write on the film canister before it goes in the camera. */}
+      <div className="relative flex flex-col gap-2 rounded-xs border border-foreground/20 bg-card p-4 sm:p-5">
+        <div aria-hidden="true" className="flex items-center justify-between font-mono text-[0.625rem] tracking-[0.18em] text-muted-foreground uppercase">
+          <span>Roll label</span>
+          <span>OpenShoot 400 · 36 exp</span>
+        </div>
+        <Label htmlFor={nameId} className="mt-1">
+          Model name
+        </Label>
         <Input
           id={nameId}
           value={name}
@@ -230,7 +277,7 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
           maxLength={60}
           autoComplete="off"
           required
-          className="h-11"
+          className="h-12 rounded-none border-x-0 border-t-0 border-b-foreground/50 bg-transparent px-0 font-display text-2xl focus-visible:shadow-[inset_0_-1px_0_var(--ring)] md:text-2xl dark:bg-transparent"
         />
         <p className="text-xs text-muted-foreground">Only you see this name.</p>
       </div>
@@ -241,8 +288,10 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
             <label
               key={s.value}
               className={cn(
-                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg border-2 p-3 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-                subject === s.value ? "border-primary bg-brand-soft/40" : "border-border hover:border-primary/40",
+                "relative flex cursor-pointer flex-col items-center gap-0.5 rounded-xs border p-3 text-center transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
+                subject === s.value
+                  ? "border-foreground shadow-[inset_0_-2px_0_var(--safelight-ink)]"
+                  : "border-foreground/20 hover:border-foreground/50",
               )}
             >
               <input
@@ -290,45 +339,57 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
 
 function DoneStep({ model }: { model: ModelView }) {
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6 text-center">
-      <div className="relative">
-        {model.coverUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- signed URL
-          <img src={model.coverUrl} alt="" className="size-32 rounded-full border-4 border-background object-cover shadow-lg" />
-        ) : (
-          <span className="flex size-32 items-center justify-center rounded-full bg-brand-gradient text-white shadow-lg">
-            <PartyPopperIcon aria-hidden="true" className="size-12" />
-          </span>
-        )}
-        <span className="absolute -right-1 -bottom-1 flex size-10 items-center justify-center rounded-full border-4 border-background bg-success text-success-foreground">
-          <CheckIcon aria-hidden="true" className="size-5" />
-        </span>
+    <div className="flex w-full max-w-3xl flex-col gap-8 sm:flex-row sm:items-center">
+      {/* The first print out of the tray, circled in grease pencil. */}
+      <div className="relative w-44 shrink-0 self-center sm:w-52 sm:self-auto">
+        <div className="-rotate-2 rounded-[1px] border border-foreground/12 bg-card p-2 pb-7 shadow-[0_22px_36px_-26px_rgb(0_0_0/0.6)]">
+          <div className="relative aspect-[4/5] overflow-hidden bg-darkroom">
+            {model.coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- signed URL
+              <img src={model.coverUrl} alt="" className="size-full object-cover" />
+            ) : (
+              <span aria-hidden="true" className="flex size-full items-center justify-center font-display text-7xl text-darkroom-foreground/85">
+                {model.name.trim().charAt(0).toUpperCase() || "?"}
+              </span>
+            )}
+          </div>
+          <p aria-hidden="true" className="absolute right-2.5 bottom-2 left-2.5 flex justify-between font-mono text-[0.5625rem] tracking-[0.16em] text-muted-foreground uppercase">
+            <span>{model.mode}</span>
+            <span className="text-success">✓ Ready</span>
+          </p>
+          <GreasePencilCircle />
+        </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <p className="text-lg font-semibold">{model.name} is ready</p>
-        <p className="text-sm text-muted-foreground sm:text-base">
-          {model.mode === "instant"
-            ? "Your Instant model is ready. Start with free drafts and keep the shots you love."
-            : "Training finished. Time for your first photo shoot!"}
-        </p>
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <p className="font-display text-3xl leading-none">{model.name} is ready</p>
+          <p className="text-sm text-muted-foreground sm:text-base">
+            {model.mode === "instant"
+              ? "Your Instant model is ready. Start with free drafts and keep the shots you love."
+              : "Training finished. Time for your first photo shoot!"}
+          </p>
+        </div>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button asChild variant="brand" size="lg">
+            <Link href={`/app/create?model=${model.id}`}>
+              <ApertureIcon />
+              Create photos
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link href="/app/packs">
+              <LayersIcon />
+              Browse photo packs
+            </Link>
+          </Button>
+        </div>
+        <Link
+          href={`/app/models/${model.id}`}
+          className="w-fit rounded-xs text-sm text-muted-foreground underline decoration-foreground/30 underline-offset-4 hover:text-foreground hover:decoration-safelight-ink"
+        >
+          View model details
+        </Link>
       </div>
-      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-        <Button asChild variant="brand" size="lg">
-          <Link href={`/app/create?model=${model.id}`}>
-            <SparklesIcon />
-            Create photos
-          </Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href="/app/packs">
-            <LayersIcon />
-            Browse photo packs
-          </Link>
-        </Button>
-      </div>
-      <Link href={`/app/models/${model.id}`} className="text-sm text-muted-foreground underline-offset-4 hover:underline">
-        View model details
-      </Link>
     </div>
   );
 }

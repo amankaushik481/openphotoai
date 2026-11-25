@@ -9,12 +9,12 @@ import {
   LoaderCircleIcon,
   PencilIcon,
   SquareIcon,
-  WandSparklesIcon,
+  FocusIcon,
   XIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { darkroomMotion } from "@/components/ui/darkroom";
 import { JobProgress, JobStatusBadge } from "@/components/app/job-progress";
 import { MediaGrid } from "@/components/app/media-grid";
 import { useErrorToast } from "@/components/create/api-error-alert";
@@ -123,7 +123,7 @@ export function GenerationResult({
             {state === "pending" ? (
               <LoaderCircleIcon aria-hidden="true" className="size-3.5 animate-spin" />
             ) : (
-              <WandSparklesIcon aria-hidden="true" className="size-3.5" />
+              <FocusIcon aria-hidden="true" className="size-3.5" />
             )}
             {state === "started" ? "Rendering" : "Full quality"}
           </Button>
@@ -142,14 +142,14 @@ export function GenerationResult({
   return (
     <article
       aria-labelledby={headingId}
-      className={cn("@container flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-xs sm:p-4", className)}
+      className={cn("@container flex flex-col gap-3 rounded-xs border border-foreground/15 bg-card p-3 sm:p-4", className)}
     >
       <header className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col gap-0.5">
           <h3 id={headingId} className="truncate text-sm font-medium">
             {title}
           </h3>
-          <p className="text-xs text-muted-foreground">{describeJob(job)}</p>
+          <p className="font-mono text-[0.625rem] tracking-[0.12em] text-muted-foreground uppercase tabular-nums">{describeJob(job)}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {job.status === "succeeded" && <JobStatusBadge status={job.status} />}
@@ -182,21 +182,43 @@ export function GenerationResult({
         </p>
       )}
 
+      {/* Prints arrive as negatives and develop into positives (once, as each one lands). */}
       {visible.length > 0 && (
-        <MediaGrid
-          media={visible}
-          showHidden
-          onToggleFavorite={toggleFavorite}
-          renderActions={renderActions}
-          priorityCount={2}
-        />
+        <div className={darkroomMotion.developImages}>
+          <MediaGrid
+            media={visible}
+            showHidden
+            onToggleFavorite={toggleFavorite}
+            renderActions={renderActions}
+            priorityCount={2}
+          />
+        </div>
       )}
 
+      {/* Frames still in the developer: latent, breathing under the safelight. */}
       {pending > 0 && (
         <ul className="grid grid-cols-2 gap-2 sm:gap-3 @md:grid-cols-3" aria-label="Photos in progress">
           {Array.from({ length: pending }, (_, i) => (
-            <li key={i}>
-              <Skeleton className="w-full rounded-lg" style={{ aspectRatio: placeholderRatio }} />
+            <li key={i} className="flex flex-col gap-1.5">
+              <span
+                className="relative block w-full overflow-hidden rounded-[1px] bg-darkroom"
+                style={{ aspectRatio: placeholderRatio }}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute inset-[14%] rounded-[1px] bg-darkroom-foreground/10",
+                    darkroomMotion.latent,
+                  )}
+                />
+                <span className="absolute inset-x-0 bottom-2 flex items-center justify-center gap-1.5 font-mono text-[0.625rem] tracking-[0.18em] text-darkroom-safelight uppercase">
+                  <span aria-hidden="true" className={cn("size-1.5 rounded-full bg-darkroom-safelight", darkroomMotion.blink)} />
+                  Developing
+                </span>
+              </span>
+              <span aria-hidden="true" className="font-mono text-[0.625rem] text-muted-foreground">
+                {String(job.media.length + i + 1).padStart(2, "0")}
+              </span>
             </li>
           ))}
         </ul>

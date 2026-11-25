@@ -21,7 +21,7 @@ export function PackSwatch({ pack, className }: { pack: Pick<PackSummary, "color
   return (
     <span
       aria-hidden="true"
-      className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg text-xl shadow-xs", className)}
+      className={cn("flex size-10 shrink-0 items-center justify-center rounded-[1px] text-xl grayscale contrast-125", className)}
       style={{ backgroundImage: packGradient(pack.colors) }}
     >
       {pack.emoji ?? "📸"}
@@ -96,7 +96,7 @@ export function PackQuickPicker({ packs, value, onValueChange, className }: Pack
             {selected ? (
               <PackSwatch pack={selected} className="size-9 text-lg" />
             ) : (
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-[1px] bg-muted">
                 <LayersIcon aria-hidden="true" className="text-muted-foreground" />
               </span>
             )}

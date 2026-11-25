@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LightbulbIcon, LoaderCircleIcon, PlusIcon, SparklesIcon, Undo2Icon } from "lucide-react";
+import { ContrastIcon, FocusIcon, LightbulbIcon, LoaderCircleIcon, PlusIcon, Undo2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -130,13 +130,13 @@ export function PromptField({
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-end justify-between gap-2">
-        <Label htmlFor={fieldId}>
+        <Label htmlFor={fieldId} className="font-mono text-[0.6875rem] tracking-[0.16em] text-muted-foreground uppercase">
           {label}
           {required && <span className="sr-only"> (required)</span>}
         </Label>
         <span
           id={countId}
-          className={cn("text-xs text-muted-foreground tabular-nums", nearLimit && "text-warning")}
+          className={cn("font-mono text-[0.625rem] tracking-[0.08em] text-muted-foreground tabular-nums", nearLimit && "text-warning")}
         >
           {value.length.toLocaleString("en-US")}/{PROMPT_MAX_LENGTH.toLocaleString("en-US")}
         </span>
@@ -166,7 +166,7 @@ export function PromptField({
               key={text}
               type="button"
               onClick={() => applyStarter(text)}
-              className="inline-flex max-w-full items-center truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60 pointer-coarse:min-h-9 pointer-coarse:px-3"
+              className="inline-flex max-w-full items-center truncate rounded-xs border border-foreground/20 bg-background px-2.5 py-1 text-xs transition-colors hover:border-foreground/50 hover:bg-foreground/[0.04] pointer-coarse:min-h-9 pointer-coarse:px-3"
             >
               {text}
             </button>
@@ -191,7 +191,7 @@ export function PromptField({
           className="aria-disabled:opacity-50"
           aria-describedby={helperHint ? `${fieldId}-helper` : undefined}
         >
-          {improving ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" className="text-primary" />}
+          {improving ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <FocusIcon aria-hidden="true" className="text-safelight-ink" />}
           {improving ? "Improving…" : "Improve"}
         </Button>
         {history.length > 0 && (
@@ -222,12 +222,12 @@ export function PromptField({
                 onClick={() => applySuggestion(s)}
                 title={s.text}
                 aria-label={s.kind === "append" ? `Add “${s.text}” to the prompt` : `Use suggested prompt: ${s.text}`}
-                className="inline-flex max-w-full items-center gap-1 truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60 pointer-coarse:min-h-9 pointer-coarse:px-3"
+                className="inline-flex max-w-full items-center gap-1 truncate rounded-xs border border-foreground/20 bg-background px-2.5 py-1 text-xs transition-colors hover:border-foreground/50 hover:bg-foreground/[0.04] pointer-coarse:min-h-9 pointer-coarse:px-3"
               >
                 {s.kind === "append" ? (
-                  <PlusIcon aria-hidden="true" className="size-3 shrink-0 text-primary" />
+                  <PlusIcon aria-hidden="true" className="size-3 shrink-0 text-safelight-ink" />
                 ) : (
-                  <SparklesIcon aria-hidden="true" className="size-3 shrink-0 text-primary" />
+                  <ContrastIcon aria-hidden="true" className="size-3 shrink-0 text-safelight-ink" />
                 )}
                 <span className="truncate">{s.kind === "append" ? s.text : s.label}</span>
               </button>

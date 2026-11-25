@@ -2,16 +2,15 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDownIcon, ChevronUpIcon, LayersIcon, LoaderCircleIcon, SparklesIcon, WandSparklesIcon } from "lucide-react";
+import { ApertureIcon, ChevronDownIcon, ChevronUpIcon, FocusIcon, LoaderCircleIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AspectRatioPicker } from "@/components/app/aspect-ratio-picker";
 import { CostHint } from "@/components/app/cost-hint";
 import { ModelPicker } from "@/components/app/model-picker";
-import { packGradient, packTextScrim } from "@/components/app/pack-card";
+import { packGradient } from "@/components/app/pack-card";
 import { BrandKitSelect } from "@/components/teams/brand-kit-select";
 import { ApiErrorAlert } from "@/components/create/api-error-alert";
 import {
@@ -165,7 +164,7 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
       disabled={submitting !== null || !modelId}
       className={className}
     >
-      {submitting === "batch" ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" />}
+      {submitting === "batch" ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <ApertureIcon aria-hidden="true" />}
       {submitting === "batch" ? "Starting batch…" : generateLabel}
     </Button>
   );
@@ -180,7 +179,7 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
           onSubmit={generateBatch}
           noValidate
           aria-label={`Generate photos from ${pack.name}`}
-          className="flex flex-col gap-5 rounded-xl border bg-card p-4 shadow-xs sm:p-5 lg:order-2 lg:self-start"
+          className="flex flex-col gap-5 rounded-xs border border-foreground/15 bg-card p-4 sm:p-5 lg:order-2 lg:self-start"
         >
           <div className="flex flex-col gap-2">
             <ModelPicker
@@ -215,8 +214,9 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
           <BatchQualityControl value={quality} onValueChange={setQuality} mode={identityMode} />
           <BrandKitSelect value={brandKitId} onChange={setBrandKitId} />
 
-          <div className="flex flex-col gap-1 rounded-lg bg-muted/60 p-3">
-            <p className="text-sm font-medium tabular-nums">{costBreakdown({ count, quality, mode: identityMode })}</p>
+          {/* The lab's price slip for this batch. */}
+          <div className="flex flex-col gap-1.5 border-y border-dashed border-foreground/25 py-3">
+            <p className="font-mono text-sm font-medium tabular-nums">{costBreakdown({ count, quality, mode: identityMode })}</p>
             <CostHint credits={cost} />
             <p className="text-xs text-muted-foreground">Photos that fail or get blocked are refunded automatically.</p>
           </div>
@@ -235,7 +235,7 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
               {submitting === "draft" ? (
                 <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
               ) : (
-                <WandSparklesIcon aria-hidden="true" />
+                <FocusIcon aria-hidden="true" />
               )}
               Try 1 free draft first
             </span>
@@ -248,7 +248,7 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
         <div className="flex min-w-0 flex-col gap-8 lg:order-1">
           {session.entries.length > 0 && (
             <section aria-labelledby={`${formId}-drafts`} className="flex flex-col gap-3">
-              <h2 id={`${formId}-drafts`} className="text-lg font-semibold">
+              <h2 id={`${formId}-drafts`} className="border-b border-border pb-2 font-display text-[1.75rem] leading-none">
                 Your drafts
               </h2>
               <ol className="flex flex-col gap-4">
@@ -277,8 +277,8 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
       </div>
 
       <StickyActionBar>
-        <div className="flex min-w-0 flex-1 flex-col text-xs leading-tight">
-          <span className="font-semibold tabular-nums">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs leading-tight">
+          <span className="font-mono text-base leading-none font-medium tabular-nums">
             {cost} {plural(cost, "credit")}
           </span>
           <span className="truncate text-muted-foreground">
@@ -292,34 +292,36 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
   );
 }
 
+/**
+ * The pack's head: a darkroom band with the pack's prop as a toned monochrome print, the category and style
+ * count in mono, and the name large in the serif.
+ */
 function PackHero({ pack }: { pack: PackDetail }) {
   return (
     <section
       aria-labelledby="pack-title"
-      className="grain relative overflow-hidden rounded-2xl text-white shadow-sm"
+      className="grain relative overflow-hidden rounded-xs bg-darkroom text-darkroom-foreground"
       style={{ backgroundImage: packGradient(pack.colors) }}
     >
-      {/* Scrim sized to the pack's lightest color keeps the white text ≥ 5:1 (light packs get more). */}
-      <div
-        className="flex flex-col gap-4 bg-gradient-to-t from-black/45 via-black/15 to-transparent p-5 sm:flex-row sm:items-end sm:gap-6 sm:p-8"
-        style={{ backgroundColor: `rgb(0 0 0 / ${packTextScrim(pack.colors)})` }}
-      >
-        <span aria-hidden="true" className="text-6xl drop-shadow-sm sm:text-7xl">
-          {pack.emoji ?? "📸"}
+      <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-end sm:gap-8 sm:p-8">
+        <span
+          aria-hidden="true"
+          className="relative flex size-28 shrink-0 items-center justify-center rounded-[1px] border border-white/15 bg-black/25 text-6xl contrast-125 grayscale sm:size-36 sm:text-7xl"
+        >
+          <span className="absolute top-1.5 left-1.5 size-3 border-t border-l border-white/40" />
+          <span className="absolute right-1.5 bottom-1.5 size-3 border-r border-b border-white/40" />
+          {pack.emoji ?? "\u{1F4F7}"}
         </span>
-        <div className="flex min-w-0 flex-col gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            <Badge className="bg-white/90 text-neutral-900">{PACK_CATEGORY_LABELS[pack.category]}</Badge>
-            <Badge className="bg-black/35 text-white">
-              <LayersIcon aria-hidden="true" />
-              {pack.promptCount} styles
-            </Badge>
-            {pack.isNew && <Badge className="bg-white/90 text-neutral-900">New</Badge>}
-          </div>
-          <h1 id="pack-title" className="font-display text-3xl leading-tight tracking-tight sm:text-4xl">
+        <div className="flex min-w-0 flex-col gap-3">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.6875rem] tracking-[0.18em] uppercase">
+            <span className="text-darkroom-safelight">{PACK_CATEGORY_LABELS[pack.category]}</span>
+            <span className="text-darkroom-muted">{pack.promptCount} styles</span>
+            {pack.isNew && <span className="text-darkroom-foreground">New</span>}
+          </p>
+          <h1 id="pack-title" className="font-display text-[2.5rem] leading-[0.95] tracking-[-0.015em] sm:text-6xl">
             {pack.name}
           </h1>
-          <p className="max-w-2xl text-sm text-white/90 sm:text-base">{pack.tagline}</p>
+          <p className="max-w-2xl text-sm text-darkroom-foreground/85 sm:text-base">{pack.tagline}</p>
         </div>
       </div>
     </section>
@@ -335,23 +337,21 @@ function ShotList({ pack }: { pack: PackDetail }) {
   return (
     <section aria-labelledby={`${listId}-title`} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <h2 id={`${listId}-title`} className="text-lg font-semibold">
+        <h2 id={`${listId}-title`} className="font-display text-[1.75rem] leading-none">
           About this pack
         </h2>
         <p className="text-sm text-muted-foreground">{pack.description}</p>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium">
+        <h3 className="font-mono text-[0.6875rem] font-medium tracking-[0.12em] text-muted-foreground uppercase">
           {pack.prompts.length} {plural(pack.prompts.length, "shot")} — a batch cycles through them for variety
         </h3>
-        <ol id={listId} className="grid gap-2 sm:grid-cols-2">
+        {/* A shot list, set like a contents page: frame numbers in mono on hairlines. */}
+        <ol id={listId} className="grid sm:grid-cols-2 sm:gap-x-8">
           {shots.map((shot, i) => (
-            <li key={i} className="flex items-center gap-3 rounded-lg border bg-card px-3 py-2 text-sm">
-              <span
-                aria-hidden="true"
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[11px] font-semibold text-brand-soft-foreground tabular-nums"
-              >
-                {i + 1}
+            <li key={i} className="flex items-baseline gap-3 border-b border-border py-2.5 text-sm">
+              <span aria-hidden="true" className="w-6 shrink-0 font-mono text-[0.6875rem] text-safelight-ink tabular-nums">
+                {String(i + 1).padStart(2, "0")}
               </span>
               <span className="min-w-0 truncate">{shot.title}</span>
             </li>
@@ -392,8 +392,10 @@ function BatchSizeField({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
-        <Label id={labelId}>How many photos</Label>
-        <span className="text-2xl font-semibold tabular-nums" aria-hidden="true">
+        <Label id={labelId} className="font-mono text-[0.6875rem] tracking-[0.16em] text-muted-foreground uppercase">
+          How many photos
+        </Label>
+        <span className="font-mono text-[1.75rem] leading-none font-medium tabular-nums" aria-hidden="true">
           {count}
         </span>
       </div>
@@ -407,7 +409,7 @@ function BatchSizeField({
         onChange={(e) => onChange(Number(e.target.value))}
         aria-labelledby={labelId}
         aria-valuetext={`${count} ${plural(count, "photo")}`}
-        className="h-6 w-full cursor-pointer accent-primary"
+        className="h-6 w-full cursor-pointer accent-[var(--safelight)]"
       />
       <div className="flex flex-wrap items-center gap-1.5">
         {presets.map((n) => (
@@ -418,7 +420,7 @@ function BatchSizeField({
             variant="outline"
             aria-pressed={count === n}
             onClick={() => onChange(n)}
-            className={cn("h-7 px-2.5 tabular-nums", count === n && "border-primary bg-brand-soft text-brand-soft-foreground")}
+            className={cn("h-7 px-2.5 font-mono tabular-nums", count === n && "border-foreground shadow-[inset_0_-2px_0_var(--safelight-ink)]")}
           >
             {n}
           </Button>

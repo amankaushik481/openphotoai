@@ -1,21 +1,23 @@
 /**
- * Email design tokens, matching the app's light theme (src/app/globals.css: warm neutrals, violet
- * primary, coral → magenta → violet brand gradient). Email clients ignore CSS variables and most
+ * Email design tokens, matching the app's "Darkroom" theme (src/app/globals.css: warm paper and ink,
+ * one safelight-red accent). Email clients ignore CSS variables and most
  * stylesheets, so templates use inline styles built from these values; `emailDarkCss` re-colors them
  * (by class) in clients that support `prefers-color-scheme` (Apple Mail, iOS Mail, Outlook for Mac,
  * Outlook.com via `[data-ogsc]`). All text pairs meet WCAG AA in both palettes.
  */
 export const emailTheme = {
-  brand: "#8230d8",
+  // Darkroom safelight (white on it 5.7:1) and warm paper neutrals, matching the web app.
+  brand: "#c4280f",
   brandText: "#ffffff",
-  danger: "#b91c1c",
-  text: "#110d0b",
-  muted: "#605954",
-  border: "#e2dfdb",
-  page: "#fbf9f6",
-  card: "#fefefc",
-  calloutBg: "#ebe4fa",
-  gradient: "linear-gradient(120deg, #d13812 0%, #cd207c 52%, #7c33dc 100%)",
+  danger: "#9f1c12",
+  text: "#16140f",
+  muted: "#5c554b",
+  border: "#e2dccf",
+  page: "#f1ece3",
+  card: "#ffffff",
+  calloutBg: "#f6f1e8",
+  /** Top accent bar: solid safelight (no gradients in the darkroom). */
+  gradient: "none",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
   /** The app's display face (Instrument Serif) isn't available in mail clients: a close system serif. */
@@ -23,13 +25,13 @@ export const emailTheme = {
 } as const;
 
 export const emailDarkTheme = {
-  text: "#f6f3ee",
-  muted: "#a6a09a",
-  border: "#2a2523",
-  page: "#0d0a08",
-  card: "#14110f",
-  link: "#c28efb",
-  calloutBg: "#2b1f3f",
+  text: "#eee7db",
+  muted: "#a39a8c",
+  border: "#292724",
+  page: "#0e0d0b",
+  card: "#181613",
+  link: "#f8664a",
+  calloutBg: "#3a1a12",
 } as const;
 
 /** Class names the dark stylesheet targets (inline styles stay the light default). */

@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRightIcon, CameraIcon, RotateCwIcon, ShieldAlertIcon, SunIcon, UsersRoundIcon, XIcon } from "lucide-react";
+import { ArrowRightIcon, CameraIcon, RotateCwIcon, SunMediumIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import type { KeyedMutator } from "swr";
 
 import { ImageDropzone, useUploadItems } from "@/components/app/image-dropzone";
 import { isInFlight, sharedUploadQueue, type UploadItem } from "@/components/app/upload-queue";
 import { StickyActionBar, StickyActionBarSpacer } from "@/components/create/controls";
 import { Button } from "@/components/ui/button";
+import { GreasePencilCross } from "@/components/ui/darkroom";
 import { Progress } from "@/components/ui/progress";
 import type { AddPhotoResponse, ModelDetailResponse } from "@/server/models/types";
 import { cn } from "@/lib/utils";
@@ -18,7 +19,7 @@ import { modelKey, modelsApi } from "./use-model";
 
 const GUIDE = [
   { icon: CameraIcon, text: "Recent photos of just you: close-ups and head-and-shoulders shots" },
-  { icon: SunIcon, text: "Good light, sharp focus, different outfits, places and expressions" },
+  { icon: SunMediumIcon, text: "Good light, sharp focus, different outfits, places and expressions" },
   { icon: UsersRoundIcon, text: "No group photos, sunglasses, filters or heavy edits" },
 ] as const;
 
@@ -92,10 +93,14 @@ export function PhotosStep({ modelId, detail, mutate, onContinue }: PhotosStepPr
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
       <div className="flex min-w-0 flex-col gap-5">
-        <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
-          {GUIDE.map(({ icon: Icon, text }) => (
-            <li key={text} className="flex gap-2 rounded-lg bg-muted/50 px-3 py-2.5 sm:p-3">
-              <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+        {/* Shooting notes, like the instructions printed inside a film box. */}
+        <ul className="grid border-y border-border text-sm text-muted-foreground sm:grid-cols-3 sm:divide-x sm:divide-border">
+          {GUIDE.map(({ icon: Icon, text }, i) => (
+            <li key={text} className="flex gap-2.5 border-t border-border py-3 first:border-t-0 sm:border-t-0 sm:px-3 sm:first:pl-0">
+              <span aria-hidden="true" className="flex shrink-0 flex-col items-center gap-1 pt-0.5">
+                <span className="font-mono text-[0.625rem] text-safelight-ink">{String(i + 1).padStart(2, "0")}</span>
+                <Icon className="size-4 text-foreground/60" strokeWidth={1.5} />
+              </span>
               {text}
             </li>
           ))}
@@ -156,7 +161,7 @@ export function PhotosStep({ modelId, detail, mutate, onContinue }: PhotosStepPr
                 value={Math.min(100, Math.round((trained.accepted / Math.max(1, trained.minRequired)) * 100))}
                 aria-label={`${trained.accepted} of ${trained.minRequired} good photos`}
                 className="h-1.5"
-                indicatorClassName={cn(trained.canTrain ? "bg-success" : "bg-brand-gradient")}
+                indicatorClassName={cn(trained.canTrain && "bg-success")}
               />
               <p className="truncate text-xs text-muted-foreground" aria-live="polite">
                 {status.detail}
@@ -183,10 +188,15 @@ function NotSavedList({
   onClear: () => void;
 }) {
   return (
-    <section aria-labelledby="not-saved-title" className="flex flex-col gap-2 rounded-xl border border-destructive/40 p-4">
+    <section
+      aria-labelledby="not-saved-title"
+      className="flex flex-col gap-2 rounded-xs border border-destructive/35 border-l-2 border-l-destructive bg-card p-4"
+    >
       <div className="flex items-center justify-between gap-2">
         <h2 id="not-saved-title" className="flex items-center gap-2 text-sm font-semibold">
-          <ShieldAlertIcon aria-hidden="true" className="size-4 text-destructive" />
+          <span aria-hidden="true" className="font-mono text-[0.6875rem] tracking-[0.14em] text-safelight-ink uppercase">
+            ✕ Rejects
+          </span>
           {items.length === 1 ? "1 photo wasn't saved" : `${items.length} photos weren't saved`}
         </h2>
         <Button type="button" variant="ghost" size="sm" onClick={onClear}>
@@ -194,18 +204,25 @@ function NotSavedList({
         </Button>
       </div>
       <ul className="flex flex-col gap-3">
-        {items.map((item) => {
+        {items.map((item, i) => {
           const issues = rejectionIssues(item.errorDetails);
           // A rejected photo needs a different photo; anything else (network, busy server) can be retried.
           const retryable = !issues && item.previewUrl !== null;
           return (
-            <li key={item.id} className="flex items-start gap-3 border-t pt-3 first:border-t-0 first:pt-0">
-              {item.previewUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
-                <img src={item.previewUrl} alt="" className="size-14 shrink-0 rounded-md border object-cover opacity-80" />
-              ) : (
-                <span aria-hidden="true" className="size-14 shrink-0 rounded-md border bg-muted" />
-              )}
+            <li key={item.id} className="flex items-start gap-3 border-t border-border pt-3 first:border-t-0 first:pt-0">
+              {/* The reject, crossed out in grease pencil like on a contact sheet. */}
+              <span className="flex shrink-0 flex-col gap-1">
+                <span className="relative block h-[4.5rem] w-14 rounded-[1px] bg-darkroom">
+                  {item.previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+                    <img src={item.previewUrl} alt="" className="size-full rounded-[1px] object-cover opacity-70 grayscale" />
+                  ) : null}
+                  {issues && <GreasePencilCross />}
+                </span>
+                <span aria-hidden="true" className="font-mono text-[0.5625rem] tracking-[0.12em] text-safelight-ink">
+                  R{String(i + 1).padStart(2, "0")}
+                </span>
+              </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <p className="truncate text-xs font-medium text-muted-foreground" title={item.name}>
                   {item.name}

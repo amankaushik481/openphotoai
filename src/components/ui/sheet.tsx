@@ -27,7 +27,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/55 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-[oklch(0.13_0.006_40/0.62)] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ function SheetContent({
         data-slot="sheet-content"
         className={cn(
           // Content scrolls inside the sheet so every item stays reachable in landscape / at 200% zoom.
-          "fixed z-50 flex flex-col gap-4 overflow-y-auto overscroll-contain bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500",
+          "fixed z-50 flex flex-col gap-4 overflow-y-auto overscroll-contain bg-background transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500",
           side === "right" &&
             "inset-y-0 right-0 h-full w-3/4 border-l pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
           side === "left" &&
@@ -60,7 +60,7 @@ function SheetContent({
           side === "top" &&
             "inset-x-0 top-0 h-auto max-h-safe-screen border-b pt-[env(safe-area-inset-top)] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
           side === "bottom" &&
-            "inset-x-0 bottom-0 h-auto max-h-[min(85dvh,calc(100dvh_-_env(safe-area-inset-top)))] rounded-t-2xl border-t pr-[env(safe-area-inset-right)] pb-safe pl-[env(safe-area-inset-left)] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+            "inset-x-0 bottom-0 h-auto max-h-[min(85dvh,calc(100dvh_-_env(safe-area-inset-top)))] rounded-t-sm border-t border-foreground/20 pr-[env(safe-area-inset-right)] pb-safe pl-[env(safe-area-inset-left)] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
           className,
         )}
         {...props}
@@ -69,7 +69,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close
             className={cn(
-              "absolute top-2.5 right-2.5 inline-flex size-9 items-center justify-center rounded-md opacity-70 transition-opacity hover:bg-secondary hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none pointer-coarse:after:absolute pointer-coarse:after:-inset-1",
+              "absolute top-2.5 right-2.5 inline-flex size-9 items-center justify-center rounded-sm opacity-70 transition-opacity hover:bg-foreground/[0.06] hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none pointer-coarse:after:absolute pointer-coarse:after:-inset-1",
               side !== "bottom" && "top-[max(0.625rem,env(safe-area-inset-top))]",
               side !== "left" && "right-[max(0.625rem,env(safe-area-inset-right))]",
             )}
@@ -93,7 +93,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
-    <SheetPrimitive.Title data-slot="sheet-title" className={cn("font-semibold text-foreground", className)} {...props} />
+    <SheetPrimitive.Title data-slot="sheet-title" className={cn("font-display text-2xl leading-tight font-normal text-foreground", className)} {...props} />
   );
 }
 

@@ -19,7 +19,7 @@ export default async function DevEmailPage({ params }: { params: Promise<{ id: s
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-12">
-      <Link href="/dev/emails" className="text-sm text-violet-700 underline-offset-4 hover:underline dark:text-violet-300">
+      <Link href="/dev/emails" className="text-sm text-safelight-ink underline-offset-4 hover:underline">
         ← All emails
       </Link>
 
@@ -59,7 +59,7 @@ export default async function DevEmailPage({ params }: { params: Promise<{ id: s
                 <a
                   href={link}
                   rel="noreferrer"
-                  className="break-all text-violet-700 underline underline-offset-4 dark:text-violet-300"
+                  className="break-all text-safelight-ink underline underline-offset-4"
                   data-testid={i === 0 ? "primary-link" : undefined}
                 >
                   {link}

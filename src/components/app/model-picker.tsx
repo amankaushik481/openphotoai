@@ -72,7 +72,7 @@ export function ModelPicker({
 
   if (options.length === 0) {
     return (
-      <div className={cn("flex flex-col items-start gap-3 rounded-xl border border-dashed p-4", className)}>
+      <div className={cn("flex flex-col items-start gap-3 rounded-xs border border-dashed border-foreground/25 p-4", className)}>
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <ScanFaceIcon aria-hidden="true" className="size-4" />
           {t("models.none")}
@@ -133,9 +133,9 @@ function ModelOption({ model }: { model: IdentityModelDTO }) {
         : null;
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <Avatar className="size-6 rounded-md">
+      <Avatar className="size-6 rounded-[1px]">
         {model.coverUrl && <AvatarImage src={model.coverUrl} alt="" />}
-        <AvatarFallback className="rounded-md bg-brand-soft text-[10px] text-brand-soft-foreground">
+        <AvatarFallback className="rounded-none bg-foreground font-mono text-[10px] text-background">
           {model.name.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>

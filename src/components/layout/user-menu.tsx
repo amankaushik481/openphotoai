@@ -77,12 +77,13 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full"
+          className="rounded-xs"
           aria-label={`${initials(user.name, user.email)}, ${t("user.menu")}`}
         >
-          <Avatar className="size-8 ring-1 ring-border">
+          {/* A tiny contact print of you: square, hairline-framed, initials in mono. */}
+          <Avatar className="size-8 rounded-xs ring-1 ring-foreground/25">
             {user.image && <AvatarImage src={user.image} alt="" />}
-            <AvatarFallback className="bg-brand-soft text-xs text-brand-soft-foreground">
+            <AvatarFallback className="rounded-none bg-foreground font-mono text-[0.6875rem] tracking-[0.06em] text-background">
               {initials(user.name, user.email)}
             </AvatarFallback>
           </Avatar>
@@ -90,7 +91,7 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel className="flex flex-col gap-0.5">
-          <span className="truncate">{user.name || user.email}</span>
+          <span className="truncate font-display text-lg leading-tight font-normal">{user.name || user.email}</span>
           {user.name && <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -127,7 +128,7 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">{t("user.theme")}</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-mono text-[0.625rem] font-normal tracking-[0.16em] text-muted-foreground uppercase">{t("user.theme")}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={theme ?? "system"} onValueChange={setTheme}>
           <DropdownMenuRadioItem value="light">
             <SunIcon />

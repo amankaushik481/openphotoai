@@ -21,12 +21,9 @@ export default function NotFound() {
       id="main"
       className="grain relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12 text-center"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -z-10 size-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-gradient opacity-15 blur-3xl"
-      />
       <Logo className="mb-12" />
-      <p className="font-display text-8xl leading-none text-brand-gradient sm:text-9xl">404</p>
+      <p className="font-display text-8xl leading-none text-brand-gradient italic sm:text-9xl">404</p>
+      <p className="mt-3 mono-caps text-muted-foreground">Frame missing · not on this roll</p>
       <h1 className="mt-6 font-display text-3xl sm:text-4xl">{t("pages.notFoundTitle")}</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
         {t("pages.notFoundBody")} If you followed a link, it may have a typo or be out of date.

@@ -1,5 +1,3 @@
-import { TriangleAlert } from "lucide-react";
-
 export type MockedProvider = "ai" | "payments" | "email";
 
 const CONSEQUENCE: Record<MockedProvider, string> = {
@@ -20,9 +18,12 @@ export function DemoModeBanner({ mocked }: { mocked: readonly MockedProvider[] |
     <div
       role="status"
       data-testid="demo-mode-banner"
-      className="flex items-start justify-center gap-2 border-b border-warning/40 bg-warning/10 px-4 py-2 text-center text-sm text-foreground"
+      className="flex flex-col gap-1 border-b border-warning/40 bg-warning/10 px-4 py-2 text-sm text-foreground sm:flex-row sm:items-baseline sm:gap-3 sm:px-6 lg:px-8"
     >
-      <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
+      {/* A lab notice: mono label, then the plain consequences. */}
+      <span aria-hidden="true" className="shrink-0 font-mono text-[0.625rem] font-medium tracking-[0.18em] text-warning uppercase">
+        ◆ Lab notice
+      </span>
       <p>
         <strong className="font-semibold">Demo mode — mock providers.</strong> {details[0]?.toUpperCase()}
         {details.slice(1)}. Don&apos;t use real personal data.

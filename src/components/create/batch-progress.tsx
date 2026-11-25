@@ -10,7 +10,7 @@ import {
   LoaderCircleIcon,
   PencilIcon,
   RotateCcwIcon,
-  SparklesIcon,
+  ApertureIcon,
 } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -86,8 +86,8 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
   if (!batch) {
     return (
       <div className="flex flex-col gap-4" aria-busy={isLoading}>
-        <Skeleton className="h-28 w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-28 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
 
   return (
     <div className="flex flex-col gap-6">
-      <section aria-labelledby="batch-title" className="flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-xs sm:p-5">
+      <section aria-labelledby="batch-title" className="flex flex-col gap-4 rounded-xs border border-foreground/15 bg-card p-4 sm:p-5">
         <div className="flex items-start gap-3">
           {pack && <PackSwatch pack={pack} className="size-12 text-2xl" />}
           <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -153,7 +153,6 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
             value={progress.percent}
             aria-label="Batch progress"
             aria-valuetext={`${progress.done} of ${progress.total} done`}
-            indicatorClassName={!isTerminal ? "bg-brand-gradient" : undefined}
           />
           {progress.failed > 0 && (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -192,7 +191,7 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
           {pack && isTerminal && (
             <Button asChild variant="ghost">
               <Link href={`/app/packs/${pack.slug}`}>
-                <SparklesIcon aria-hidden="true" />
+                <ApertureIcon aria-hidden="true" />
                 Run this pack again
               </Link>
             </Button>
@@ -234,7 +233,7 @@ export function BatchProgressView({ batchId, pack, requested }: BatchProgressVie
           >
             {Array.from({ length: Math.min(pending, 10) }, (_, i) => (
               <li key={i}>
-                <Skeleton className="aspect-[4/5] w-full rounded-lg" />
+                <Skeleton className="aspect-[4/5] w-full rounded-[1px]" />
               </li>
             ))}
           </ul>

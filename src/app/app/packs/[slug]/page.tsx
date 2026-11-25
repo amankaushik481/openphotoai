@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeftIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 
 import { PackStudio } from "@/components/create/pack-studio";
 import { toPackDetail } from "@/app/api/packs/pack-detail";
@@ -27,9 +27,9 @@ export default async function PackPage({ params }: Props) {
     <>
       <Link
         href="/app/packs"
-        className="-ml-1 mb-4 inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="-ml-0.5 mb-4 inline-flex w-fit items-center gap-1.5 rounded-xs py-1 font-mono text-[0.6875rem] font-medium tracking-[0.14em] text-muted-foreground uppercase transition-colors hover:text-foreground"
       >
-        <ChevronLeftIcon aria-hidden="true" className="size-4" />
+        <ArrowLeftIcon aria-hidden="true" className="size-3.5" />
         All packs
       </Link>
       <PackStudio

@@ -45,10 +45,6 @@ export default function PricingPage() {
         ])}
       />
       <section aria-labelledby="pricing-title" className="relative isolate overflow-x-clip">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-56 left-1/2 -z-10 h-[30rem] w-[56rem] -translate-x-1/2 rounded-full bg-brand-gradient opacity-[0.12] blur-3xl dark:opacity-20"
-        />
         <div className="mx-auto flex max-w-6xl flex-col items-center px-4 pt-16 pb-10 text-center sm:px-6 sm:pt-24">
           <p className="font-mono text-xs font-medium tracking-[0.18em] text-brand-soft-foreground uppercase">
             Pricing

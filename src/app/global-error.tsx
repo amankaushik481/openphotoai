@@ -16,8 +16,8 @@ export default function GlobalError({ error, retry }: { error: unknown; reset: (
       <body>
         <title>Something went wrong</title>
         <style>{`
-          :root { color-scheme: light dark; --bg: #fbf9f6; --fg: #110d0b; --muted: #605954; --accent: #8230d8; }
-          @media (prefers-color-scheme: dark) { :root { --bg: #0d0a08; --fg: #f6f3ee; --muted: #a6a09a; --accent: #c28efb; } }
+          :root { color-scheme: light dark; --bg: #f1ece3; --fg: #16140f; --muted: #615a50; --accent: #c4280f; }
+          @media (prefers-color-scheme: dark) { :root { --bg: #0e0d0b; --fg: #eee7db; --muted: #a39a8c; --accent: #f8664a; } }
           body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg); color: var(--fg);
                  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; padding: 1rem; }
           h1 { font-family: ui-serif, Georgia, serif; font-weight: 400; font-size: 2.25rem; margin: 0 0 .75rem; }

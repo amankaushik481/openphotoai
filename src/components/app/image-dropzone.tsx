@@ -4,6 +4,7 @@ import * as React from "react";
 import { CheckIcon, ImagePlusIcon, LoaderCircleIcon, RotateCwIcon, TriangleAlertIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CropMarks, GreasePencilCross, darkroomMotion } from "@/components/ui/darkroom";
 import { Progress } from "@/components/ui/progress";
 import { ImageDecodeError, prepareImageForUpload, type OutputType } from "@/components/app/image-resize";
 import { UploadQueue, type UploadItem } from "@/components/app/upload-queue";
@@ -225,11 +226,13 @@ export function ImageDropzone<T = unknown>({
           if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
         }}
         className={cn(
-          "grain relative overflow-hidden rounded-xl border-2 border-dashed border-input/50 bg-card transition-colors",
-          "data-[dragging]:border-primary data-[dragging]:bg-brand-soft/50",
+          // An empty frame on the light table: dashed border, crop marks, safelight when something is dragged over.
+          "grain relative overflow-hidden rounded-xs border border-dashed border-foreground/35 bg-card transition-colors",
+          "data-[dragging]:border-solid data-[dragging]:border-safelight-ink data-[dragging]:bg-safelight/[0.06]",
           "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         )}
       >
+        <CropMarks inset="0.625rem" size="0.875rem" weight="1.5px" className="text-foreground/45" />
         <input
           ref={inputRef}
           id={inputId}
@@ -255,19 +258,14 @@ export function ImageDropzone<T = unknown>({
             compact ? "px-4 py-6" : "px-6 py-10 sm:py-14",
           )}
         >
-          <span
-            aria-hidden="true"
-            className="flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground"
-          >
-            <ImagePlusIcon className="size-6" />
-          </span>
+          <ImagePlusIcon aria-hidden="true" className="size-7 text-foreground/70" strokeWidth={1.25} />
           <span className="text-base font-semibold">{heading}</span>
           <span className="text-sm text-muted-foreground">{hint ?? t("upload.dropzoneHint")}</span>
         </button>
       </div>
 
       {!hideList && tiles.length > 0 && (
-        <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6" aria-label={t("upload.uploading")}>
+        <ul className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-4 sm:gap-x-3 lg:grid-cols-6" aria-label={t("upload.uploading")}>
           {tiles.map((item) => (
             <UploadTile key={item.id} item={item} onRetry={retry} onRemove={remove} />
           ))}
@@ -301,26 +299,28 @@ function UploadTile<T>({
   const busy = item.status === "preparing" || item.status === "uploading" || item.status === "queued";
   return (
     <li className="group relative flex flex-col gap-1.5">
-      <div
-        className={cn(
-          "relative aspect-square overflow-hidden rounded-lg border bg-muted",
-          item.status === "error" && "border-destructive/60",
-        )}
-      >
-        {item.previewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
-          <img src={item.previewUrl} alt="" className={cn("size-full object-cover", busy && "opacity-60")} />
-        )}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {busy && <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-white drop-shadow" />}
-          {item.status === "done" && (
-            <span className="flex size-7 items-center justify-center rounded-full bg-success text-success-foreground shadow">
-              <CheckIcon aria-hidden="true" className="size-4" />
-            </span>
+      {/* A contact-sheet frame: develops (latent → positive) while uploading; a reject gets the grease-pencil ✕. */}
+      <div className="relative aspect-square rounded-[1px] bg-darkroom">
+        <div className="absolute inset-0 overflow-hidden rounded-[1px]">
+          {item.previewUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+            <img
+              src={item.previewUrl}
+              alt=""
+              className={cn(
+                "size-full object-cover",
+                busy && cn("grayscale", darkroomMotion.latent),
+                item.status === "error" && "opacity-60 grayscale",
+              )}
+            />
           )}
-          {item.status === "error" && (
-            <span className="flex size-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow">
-              <TriangleAlertIcon aria-hidden="true" className="size-4" />
+        </div>
+        {item.status === "error" && <GreasePencilCross />}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {busy && <LoaderCircleIcon aria-hidden="true" className="size-5 animate-spin text-white drop-shadow" />}
+          {item.status === "done" && (
+            <span className="flex size-6 items-center justify-center rounded-xs bg-success text-success-foreground">
+              <CheckIcon aria-hidden="true" className="size-3.5" />
             </span>
           )}
         </div>
@@ -330,7 +330,7 @@ function UploadTile<T>({
               type="button"
               size="icon-sm"
               variant="secondary"
-              className="size-7 rounded-full"
+              className="size-7 rounded-xs"
               onClick={() => onRetry(item.id)}
               aria-label={t("upload.retryFile", { name: item.name })}
             >
@@ -342,7 +342,7 @@ function UploadTile<T>({
               type="button"
               size="icon-sm"
               variant="secondary"
-              className="size-7 rounded-full"
+              className="size-7 rounded-xs"
               onClick={() => onRemove(item.id)}
               aria-label={t("upload.removeFile", { name: item.name })}
             >
@@ -360,10 +360,13 @@ function UploadTile<T>({
       )}
       {/* Errors wrap in full (a one-line truncate hid the reason in narrow tiles). */}
       <p
-        className={cn("text-xs text-muted-foreground", item.status === "error" ? "break-words" : "truncate")}
+        className={cn(
+          "font-mono text-[0.625rem] tracking-[0.06em] text-muted-foreground",
+          item.status === "error" ? "break-words" : "truncate",
+        )}
         title={item.status === "error" ? `${item.name}: ${item.error}` : item.name}
       >
-        {item.status === "error" ? <span className="text-destructive">{item.error}</span> : item.name}
+        {item.status === "error" ? <span className="text-safelight-ink">✕ {item.error}</span> : item.name}
       </p>
     </li>
   );

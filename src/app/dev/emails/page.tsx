@@ -48,7 +48,7 @@ export default async function DevEmailsPage() {
                   <span className="block truncate text-sm text-zinc-600 dark:text-zinc-400">To: {email.to}</span>
                 </span>
                 <span className="flex shrink-0 flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded bg-violet-100 px-2 py-0.5 font-mono text-violet-900 dark:bg-violet-950 dark:text-violet-100">
+                  <span className="rounded bg-brand-soft px-2 py-0.5 font-mono text-brand-soft-foreground">
                     {email.template}
                   </span>
                   <span className={`rounded px-2 py-0.5 ${STATUS_STYLES[email.status] ?? ""}`}>{email.status}</span>

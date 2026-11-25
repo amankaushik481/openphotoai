@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ZapIcon } from "lucide-react";
+import { FocusIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ import { useBottomChromeHeight } from "@/components/layout/use-bottom-chrome";
 import { cn } from "@/lib/utils";
 
 const segmentItem =
-  "h-auto min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg border px-2 py-2 whitespace-normal first:rounded-lg last:rounded-lg data-[variant=outline]:border-l";
+  "h-auto min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-xs border px-2 py-2 whitespace-normal first:rounded-xs last:rounded-xs data-[variant=outline]:border-l";
 
 interface QualityOption {
   value: Quality;
@@ -66,7 +66,9 @@ export function QualityControl({ value, onValueChange, mode, draftsLeft = 0, inc
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label id={labelId}>Quality</Label>
+      <Label id={labelId} className="font-mono text-[0.6875rem] tracking-[0.16em] text-muted-foreground uppercase">
+        Quality
+      </Label>
       <ToggleGroup
         type="single"
         variant="outline"
@@ -81,7 +83,7 @@ export function QualityControl({ value, onValueChange, mode, draftsLeft = 0, inc
         {options.map((o) => (
           <ToggleGroupItem key={o.value} value={o.value} disabled={o.disabled} className={segmentItem}>
             <span className="text-sm font-medium">{o.title}</span>
-            <span className="text-[11px] leading-tight font-normal text-muted-foreground tabular-nums">{o.detail}</span>
+            <span className="font-mono text-[0.625rem] leading-tight font-normal tracking-[0.04em] text-muted-foreground tabular-nums">{o.detail}</span>
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
@@ -126,7 +128,9 @@ export function CountPicker({
   const labelId = React.useId();
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label id={labelId}>Number of photos</Label>
+      <Label id={labelId} className="font-mono text-[0.6875rem] tracking-[0.16em] text-muted-foreground uppercase">
+        Number of photos
+      </Label>
       <ToggleGroup
         type="single"
         variant="outline"
@@ -142,7 +146,7 @@ export function CountPicker({
             key={n}
             value={String(n)}
             aria-label={`${n} ${plural(n, "photo")}`}
-            className={cn(segmentItem, "min-h-10 tabular-nums")}
+            className={cn(segmentItem, "min-h-10 font-mono text-base tabular-nums")}
           >
             {n}
           </ToggleGroupItem>
@@ -161,7 +165,7 @@ export function InstantModeBadge({ mode, className }: { mode: IdentityMode | und
       <PopoverTrigger asChild>
         <Badge asChild variant="soft" className={cn("cursor-help", className)}>
           <button type="button">
-            <ZapIcon aria-hidden="true" />
+            <FocusIcon aria-hidden="true" />
             Instant model · {INSTANT_MODE_MULTIPLIER}× credits
           </button>
         </Badge>
@@ -187,7 +191,7 @@ export function StickyActionBar({ children, className }: { children: React.React
       ref={ref}
       data-sticky-action-bar=""
       className={cn(
-        "glass fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-border/70 px-safe py-2.5 md:hidden",
+        "fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-foreground/15 bg-card px-safe py-2.5 md:hidden",
         className,
       )}
     >

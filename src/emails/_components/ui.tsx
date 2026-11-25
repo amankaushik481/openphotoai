@@ -51,7 +51,7 @@ export function LinkFallback({ href }: { href: string }) {
   );
 }
 
-/** Inline link inside a paragraph (brand color, underlined; lighter violet in dark mode). */
+/** Inline link inside a paragraph (brand color, underlined; the brighter safelight in dark mode). */
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link href={href} style={styles.inlineLink} className={ec.link}>
