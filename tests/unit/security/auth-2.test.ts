@@ -11,7 +11,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as authGet, POST as authPost } from "@/app/api/auth/[...all]/route";
 import { db } from "@/db";
-import { session as sessionTable, user as userTable } from "@/db/schema";
+import { session as sessionTable, user as userTable, verification } from "@/db/schema";
 import { resetEnvCache } from "@/lib/env";
 import { resetAuth } from "@/server/auth/auth";
 import { magicLinkVerifyApiPath } from "@/server/auth/magic-link";
@@ -131,6 +131,55 @@ describe("S2-4: display names from sign-up are sanitized", () => {
     expect(sanitizeDisplayName("a\tb\r\nc")).toBe("a b c");
     expect(sanitizeDisplayName("x".repeat(200))).toHaveLength(80);
     expect(sanitizeDisplayName("")).toBe("");
+  });
+});
+
+describe("verified: magic links, session fixation, OAuth state, disabled account endpoints", () => {
+  it("an expired link doesn't sign in", async () => {
+    expect((await post("/sign-in/magic-link", { email: "late@example.com", callbackURL: "/app" })).status).toBe(200);
+    const token = lastLinkToken();
+    await db.update(verification).set({ expiresAt: new Date(Date.now() - 1000) });
+    const res = await authGet(new NextRequest(`${APP}${magicLinkVerifyApiPath({ token, callbackURL: "/app", errorCallbackURL: "/login" })}`));
+    expect(res.headers.get("location")).toBe(`${APP}/login?error=INVALID_TOKEN`);
+    expect(cookieOf(res)).toBe("");
+  });
+
+  it("signing in never adopts a session token planted before sign-in (no fixation)", async () => {
+    expect((await post("/sign-in/magic-link", { email: "fix@example.com", callbackURL: "/app" })).status).toBe(200);
+    const planted = "better-auth.session_token=attacker-chosen-token.c2lnbmF0dXJl";
+    const res = await authGet(
+      new NextRequest(`${APP}${magicLinkVerifyApiPath({ token: lastLinkToken(), callbackURL: "/app", errorCallbackURL: "/login" })}`, {
+        headers: { cookie: planted },
+      }),
+    );
+    const cookie = cookieOf(res);
+    expect(cookie).toContain("better-auth.session_token=");
+    expect(cookie).not.toContain("attacker-chosen-token");
+    expect(await currentUser(planted)).toBeNull();
+    expect((await currentUser(cookie))?.email).toBe("fix@example.com");
+  });
+
+  it("an OAuth callback with a forged state is refused before any token exchange", async () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "gid");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "gsecret");
+    resetEnvCache();
+    resetAuth();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("no network in tests"));
+    const res = await authGet(new NextRequest(`${APP}/api/auth/callback/google?code=stolen-code&state=forged-state`));
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toMatch(/^http:\/\/localhost:3000\/login\?error=/);
+    expect(cookieOf(res)).not.toContain("session_token");
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
+  it("email change and self-service deletion through Better Auth are off (account deletion is email-confirmed)", async () => {
+    const cookie = await signIn("dave@example.com");
+    const change = await post("/change-email", { newEmail: "mallory@example.com", callbackURL: "/app" }, { cookie });
+    expect(change.status).toBe(400);
+    expect((await post("/delete-user", {}, { cookie })).status).toBe(404);
+    const [row] = await db.select().from(userTable).where(eq(userTable.email, "dave@example.com"));
+    expect(row).toBeDefined();
   });
 });
 
