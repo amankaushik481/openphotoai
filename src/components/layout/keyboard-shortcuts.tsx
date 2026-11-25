@@ -62,11 +62,12 @@ export function KeyboardShortcuts() {
           <DialogTitle>Keyboard shortcuts</DialogTitle>
           <DialogDescription>Press these anywhere in the app, outside text fields.</DialogDescription>
         </DialogHeader>
-        <dl className="flex flex-col gap-2 text-sm">
+        {/* A lab card of shortcuts: one per hairline row, keys in mono on the right. */}
+        <dl className="flex flex-col border-t border-border text-sm">
           {SHORTCUTS.map((s) => (
-            <div key={s.keys.join("+")} className="flex items-center justify-between gap-4">
+            <div key={s.keys.join("+")} className="flex items-center justify-between gap-4 border-b border-border py-2">
               <dt>{s.label}</dt>
-              <dd className="flex items-center gap-1 text-xs text-muted-foreground">
+              <dd className="flex items-center gap-1 font-mono text-[0.625rem] tracking-[0.1em] text-muted-foreground uppercase">
                 {s.keys.map((k, i) => (
                   <React.Fragment key={`${k}-${i}`}>
                     {i > 0 && <span>then</span>}
