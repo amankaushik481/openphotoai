@@ -483,6 +483,7 @@ export function MediaViewer({
         open={shareOpen}
         onOpenChange={setShareOpen}
         title={media.kind === "video" ? "Share video" : "Share photo"}
+        noun={kindWord}
       />
     </div>
   );
