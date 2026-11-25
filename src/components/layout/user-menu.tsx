@@ -57,10 +57,15 @@ export function UserMenu({ user }: { user: ShellUser }) {
 
   return (
     <DropdownMenu>
+      {/* The name includes the visible initials (WCAG 2.5.3 label in name: voice users say what they see). */}
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full" aria-label={t("user.menu")}>
-          {/* Decorative: the button is named by aria-label (initials as visible text fail "label in name"). */}
-          <Avatar className="size-8 ring-1 ring-border" aria-hidden="true">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          aria-label={`${t("user.menu")} (${initials(user.name, user.email)})`}
+        >
+          <Avatar className="size-8 ring-1 ring-border">
             {user.image && <AvatarImage src={user.image} alt="" />}
             <AvatarFallback className="bg-brand-soft text-xs text-brand-soft-foreground">
               {initials(user.name, user.email)}
