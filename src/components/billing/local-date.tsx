@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { formatDate, formatDateTime } from "./format";
+import { formatDate, formatDateTime, formatRelativeDay } from "./format";
 
 const subscribeNoop = () => () => {};
 
@@ -15,6 +15,16 @@ export function useHydrated(): boolean {
     subscribeNoop,
     () => true,
     () => false,
+  );
+}
+
+/** "today" / "yesterday" / "3 days ago" once hydrated; the UTC date during the server render. */
+export function RelativeDay({ iso, className }: { iso: string; className?: string }) {
+  const hydrated = useHydrated();
+  return (
+    <time dateTime={iso} className={className} title={hydrated ? formatDateTime(iso) : undefined}>
+      {hydrated ? formatRelativeDay(iso) : formatDate(iso)}
+    </time>
   );
 }
 

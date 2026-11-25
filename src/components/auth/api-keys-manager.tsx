@@ -91,7 +91,7 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="grid gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">API keys</h1>
@@ -164,14 +164,22 @@ export function ApiKeysManager({ initialKeys, apiAccess, planName, maxKeys }: Ap
             <TableBody>
               {keys.map((k) => (
                 <TableRow key={k.id}>
-                  <TableCell className="max-w-40 truncate pl-6 font-medium">{k.name}</TableCell>
+                  <TableCell className="max-w-40 pl-6">
+                    <span className="block truncate font-medium">{k.name}</span>
+                    {/* Phones hide the Access / Last used columns: keep both visible under the name. */}
+                    <span className="block truncate text-xs text-muted-foreground sm:hidden">
+                      {scopeLabel(k.scopes)} · {k.lastUsedAt ? `used ${formatDate(k.lastUsedAt)}` : "never used"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{k.prefix}…</code>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant={k.scopes.includes("*") ? "secondary" : "outline"}>{scopeLabel(k.scopes)}</Badge>
                   </TableCell>
-                  <TableCell className="hidden text-muted-foreground sm:table-cell">{formatDate(k.lastUsedAt)}</TableCell>
+                  <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    {k.lastUsedAt ? formatDate(k.lastUsedAt) : "Never used"}
+                  </TableCell>
                   <TableCell className="hidden text-muted-foreground md:table-cell">{formatDate(k.createdAt)}</TableCell>
                   <TableCell className="pr-6 text-right">
                     <Button
@@ -288,9 +296,15 @@ function CreateKeyDialog({
   const [pending, setPending] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // The secret is shown once: closing before copying it asks again first (Esc / outside click included).
+  const [warnClose, setWarnClose] = useState(false);
 
   function handleOpenChange(next: boolean) {
     if (pending) return;
+    if (!next && secret && !copied && !warnClose) {
+      setWarnClose(true);
+      return;
+    }
     onOpenChange(next);
     if (!next) {
       // Forget the secret as soon as the dialog closes: it is shown exactly once.
@@ -298,6 +312,7 @@ function CreateKeyDialog({
       setName("");
       setScope("*");
       setCopied(false);
+      setWarnClose(false);
     }
   }
 
@@ -349,14 +364,24 @@ function CreateKeyDialog({
                 aria-label="New API key"
                 className="font-mono text-xs"
                 onFocus={(e) => e.currentTarget.select()}
+                onCopy={() => setCopied(true)}
               />
               <Button type="button" variant="outline" size="icon" onClick={copy} aria-label="Copy API key">
                 {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
               </Button>
             </div>
+            {warnClose && !copied && (
+              <Alert variant="warning" role="alert">
+                <TriangleAlert aria-hidden />
+                <AlertDescription>
+                  You haven&apos;t copied the key yet, and it can&apos;t be shown again. Copy it first, or close and
+                  revoke it later if you don&apos;t need it.
+                </AlertDescription>
+              </Alert>
+            )}
             <DialogFooter>
-              <Button type="button" onClick={() => handleOpenChange(false)}>
-                Done
+              <Button type="button" variant={warnClose && !copied ? "outline" : "default"} onClick={() => handleOpenChange(false)}>
+                {warnClose && !copied ? "Close without copying" : "Done"}
               </Button>
             </DialogFooter>
           </>
