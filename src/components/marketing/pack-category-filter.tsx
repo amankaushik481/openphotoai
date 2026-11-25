@@ -145,7 +145,6 @@ export function PackCategoryFilter({
                       current
                         ? "border-foreground bg-foreground text-background"
                         : "bg-card text-muted-foreground hover:text-foreground",
-                      !current && count === 0 && "opacity-60",
                     )}
                   >
                     {c.label}
