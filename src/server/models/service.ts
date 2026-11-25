@@ -163,9 +163,13 @@ export async function deleteModelCompletely(
   modelId: string,
   opts: DeleteModelOptions = {},
 ): Promise<DeleteModelResult> {
-  const model = await getOwnedModel(userId, modelId);
-  const owned = and(eq(identityModels.id, model.id), eq(identityModels.userId, userId));
-  await db.update(identityModels).set({ status: "deleting" }).where(owned);
+  const found = await getOwnedModel(userId, modelId);
+  const owned = and(eq(identityModels.id, found.id), eq(identityModels.userId, userId));
+  // Use the row as it is once "deleting" is set, not the one read before: a training that completed
+  // in between stored providerModelRef, and those provider weights must be deleted too. From here on
+  // nothing can make the model ready any more (completion requires status "training").
+  const [model] = await db.update(identityModels).set({ status: "deleting" }).where(owned).returning();
+  if (!model) throw errors.notFound("Model");
 
   // Stop training first so the provider can't finish (and store new weights) after deletion.
   const active = await db

@@ -47,8 +47,14 @@ export function shouldCopyWeights(provider: AIProviderName | null | undefined, m
   return Boolean(provider && COPY_WEIGHTS_PROVIDERS.includes(provider)) && /^https:\/\//i.test(modelRef);
 }
 
-export function weightsKey(userId: string, modelId: string, jobId: string): string {
-  return `${storageKeys.modelPrefix(userId, modelId)}weights/${jobId}.safetensors`;
+/**
+ * Storage key of a weights copy. `attempt` (the job's completion attempt) makes every attempt write its
+ * own object: an attempt that lost its lease can then delete its copy without touching the one the
+ * winning attempt stored (they used to share one key, and the loser's cleanup deleted the live weights).
+ */
+export function weightsKey(userId: string, modelId: string, jobId: string, attempt?: number): string {
+  const suffix = attempt !== undefined ? `-${attempt}` : "";
+  return `${storageKeys.modelPrefix(userId, modelId)}weights/${jobId}${suffix}.safetensors`;
 }
 
 /** Download the provider's weights file and store it under the model's prefix. */
@@ -57,10 +63,11 @@ export async function copyWeightsToStorage(args: {
   modelId: string;
   jobId: string;
   modelRef: string;
+  attempt?: number;
 }): Promise<StoredWeights> {
   const { bytes } = await fetchOutputBytes(args.modelRef, { maxBytes: WEIGHTS_MAX_BYTES, timeoutMs: WEIGHTS_FETCH_TIMEOUT_MS });
   if (bytes.byteLength === 0) throw new Error("The training provider returned an empty weights file.");
-  const key = weightsKey(args.userId, args.modelId, args.jobId);
+  const key = weightsKey(args.userId, args.modelId, args.jobId, args.attempt);
   await getStorage().put(key, bytes, { contentType: WEIGHTS_CONTENT_TYPE });
   return {
     key,

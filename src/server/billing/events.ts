@@ -190,30 +190,45 @@ interface BillingUser {
 
 const billingUserColumns = { id: user.id, name: user.name, email: user.email };
 
-/** Resolve the account an event belongs to: explicit user id first, then the provider customer id. */
+/**
+ * LOCK ORDER (every event): the account's user row FIRST, then its subscription / payment rows.
+ * All events of one account therefore serialize on one row. Locking a subscription or payment first
+ * deadlocked on real Postgres: a new subscription's checkout, subscription.created and invoice.paid
+ * events arrive together, and inserting a payment or subscription takes a KEY SHARE lock on the user
+ * row (foreign key) that a concurrent event then can't upgrade to FOR UPDATE (credit grant / plan).
+ */
+async function lockUserRow(ctx: Ctx, userId: string): Promise<void> {
+  await ctx.tx.select({ id: user.id }).from(user).where(eq(user.id, userId)).for("update");
+}
+
+/** Resolve (and lock, see LOCK ORDER) the account an event belongs to: explicit user id first, then the provider customer id. */
 async function resolveUser(tx: Tx, refs: { userId?: string | null; customerId?: string | null }): Promise<BillingUser | null> {
   if (refs.userId) {
-    const [row] = await tx.select(billingUserColumns).from(user).where(eq(user.id, refs.userId)).limit(1);
+    const [row] = await tx.select(billingUserColumns).from(user).where(eq(user.id, refs.userId)).limit(1).for("update");
     if (row) return row;
   }
   if (refs.customerId) {
-    const [row] = await tx
-      .select(billingUserColumns)
+    const [found] = await tx
+      .select({ id: user.id })
       .from(user)
       .where(eq(user.stripeCustomerId, refs.customerId))
       .orderBy(desc(user.createdAt))
       .limit(1);
-    if (row) return row;
+    if (found) {
+      const [row] = await tx.select(billingUserColumns).from(user).where(eq(user.id, found.id)).limit(1).for("update");
+      if (row) return row;
+    }
   }
   return null;
 }
 
+/** The subscription row, locked after its account's user row (LOCK ORDER). */
 async function findSubscription(ctx: Ctx, subscriptionId: string): Promise<SubscriptionRow | undefined> {
-  const [row] = await ctx.tx
-    .select()
-    .from(subscriptions)
-    .where(and(eq(subscriptions.provider, ctx.provider), eq(subscriptions.providerSubscriptionId, subscriptionId)))
-    .for("update");
+  const where = and(eq(subscriptions.provider, ctx.provider), eq(subscriptions.providerSubscriptionId, subscriptionId));
+  const [found] = await ctx.tx.select({ userId: subscriptions.userId }).from(subscriptions).where(where).limit(1);
+  if (!found) return undefined;
+  await lockUserRow(ctx, found.userId);
+  const [row] = await ctx.tx.select().from(subscriptions).where(where).for("update");
   return row;
 }
 
@@ -258,9 +273,9 @@ async function recomputeHasPaid(ctx: Ctx, userId: string): Promise<boolean> {
 
 /** user.plan = best plan among the user's entitled subscriptions (at the configured provider), else "free". */
 async function recomputeUserPlan(ctx: Ctx, userId: string): Promise<PlanId> {
-  // Lock the user first so concurrent events for two of their subscriptions can't each store a plan
-  // computed from a stale view of the other (lock order stays subscription → user).
-  await ctx.tx.select({ id: user.id }).from(user).where(eq(user.id, userId)).for("update");
+  // Lock the user (normally held already, see LOCK ORDER) so concurrent events for two of their
+  // subscriptions can't each store a plan computed from a stale view of the other.
+  await lockUserRow(ctx, userId);
   const rows = await ctx.tx
     .select({ planId: subscriptions.planId })
     .from(subscriptions)
@@ -386,9 +401,9 @@ async function upsertPaidSubscription(
     createdAt: Date;
   },
 ): Promise<void> {
-  const existing = await findSubscription(ctx, args.subscriptionId);
+  let existing = await findSubscription(ctx, args.subscriptionId);
   if (!existing) {
-    await ctx.tx
+    const inserted = await ctx.tx
       .insert(subscriptions)
       .values({
         userId: args.userId,
@@ -403,8 +418,13 @@ async function upsertPaidSubscription(
         cancelAtPeriodEnd: false,
         lastEventAt: args.createdAt,
       })
-      .onConflictDoNothing({ target: [subscriptions.provider, subscriptions.providerSubscriptionId] });
-    return;
+      .onConflictDoNothing({ target: [subscriptions.provider, subscriptions.providerSubscriptionId] })
+      .returning({ id: subscriptions.id });
+    if (inserted.length) return;
+    // A concurrent event created the row first (e.g. an `incomplete` subscription.created): this
+    // payment must still promote it, so lock the row it committed and continue as for an existing one.
+    existing = await findSubscription(ctx, args.subscriptionId);
+    if (!existing) throw new Error(`Subscription ${args.subscriptionId} vanished while recording it`);
   }
   const promotable: SubscriptionStatus[] = ["incomplete", "past_due", "unpaid"];
   if (promotable.includes(existing.status) && args.createdAt >= existing.lastEventAt) {
@@ -423,7 +443,6 @@ async function onSubscriptionCheckout(ctx: Ctx, e: EventOf<"checkout.completed">
     return { note: "subscription details missing; awaiting subscription events" };
   }
 
-  // Lock order everywhere: subscription row before user row (concurrent deliveries can't deadlock).
   await upsertPaidSubscription(ctx, {
     userId: buyer.id,
     subscriptionId: e.subscriptionId,
@@ -472,7 +491,7 @@ function queueProviderCancel(ctx: Ctx, subscriptionIds: string[]): void {
 /**
  * End a subscription now (full refund / chargeback of its invoice): canceled locally right away, so
  * the plan drops whatever the provider says, and at the provider after commit so it bills no more.
- * The caller must hold the payment lock only (lock order: subscription → user).
+ * The caller holds the account's user row (LOCK ORDER).
  */
 async function endSubscription(ctx: Ctx, subscriptionId: string | undefined, at: Date): Promise<boolean> {
   if (!subscriptionId) return false;
@@ -504,6 +523,14 @@ async function onInvoicePaid(ctx: Ctx, e: EventOf<"invoice.paid">): Promise<Outc
   const total = e.totalCents ?? e.amountCents;
   const credits = CREDIT_GRANTING_REASONS.has(e.billingReason) && total > 0 ? planGrantCredits(planId, interval) : 0;
   const description = planDescription(planId, interval);
+  await upsertPaidSubscription(ctx, {
+    userId: payer.id,
+    subscriptionId: e.subscriptionId,
+    customerId: e.customerId,
+    planId,
+    interval,
+    createdAt: e.createdAt,
+  });
   const payment = await recordPayment(ctx, {
     userId: payer.id,
     providerPaymentId: e.invoiceId,
@@ -527,14 +554,6 @@ async function onInvoicePaid(ctx: Ctx, e: EventOf<"invoice.paid">): Promise<Outc
     );
   }
   await saveCustomer(ctx, payer.id, e.customerId, e.amountCents > 0);
-  await upsertPaidSubscription(ctx, {
-    userId: payer.id,
-    subscriptionId: e.subscriptionId,
-    customerId: e.customerId,
-    planId,
-    interval,
-    createdAt: e.createdAt,
-  });
   await recomputeUserPlan(ctx, payer.id);
   if (payment.created) {
     queueReceipt(ctx, payer, { description, amountCents: e.amountCents, currency: e.currency, credits });
@@ -562,30 +581,7 @@ async function onSubscriptionChanged(
   const s = e.subscription;
   const incoming: SubscriptionStatus = deleted ? "canceled" : s.status;
   const existing = await findSubscription(ctx, s.subscriptionId);
-
-  if (existing) {
-    if (!deleted) {
-      if (e.createdAt < existing.lastEventAt) return { note: "stale event" };
-      // Canceled is terminal at every provider; nothing revives it.
-      if (existing.status === "canceled") return { note: "subscription already canceled" };
-    }
-    // "incomplete" only precedes the first payment; never let a late one overwrite a paid state.
-    const status = incoming === "incomplete" && existing.status !== "incomplete" ? existing.status : incoming;
-    await ctx.tx
-      .update(subscriptions)
-      .set({
-        planId: s.planId,
-        interval: s.interval,
-        status,
-        currentPeriodEnd: s.currentPeriodEnd ?? existing.currentPeriodEnd,
-        cancelAtPeriodEnd: deleted ? false : s.cancelAtPeriodEnd,
-        providerCustomerId: s.customerId || existing.providerCustomerId,
-        lastEventAt: e.createdAt > existing.lastEventAt ? e.createdAt : existing.lastEventAt,
-      })
-      .where(eq(subscriptions.id, existing.id));
-    await recomputeUserPlan(ctx, existing.userId);
-    return;
-  }
+  if (existing) return updateSubscriptionFromEvent(ctx, e, deleted, existing);
 
   const owner = await resolveUser(ctx.tx, { userId: s.userId, customerId: s.customerId });
   if (!owner) {
@@ -593,7 +589,7 @@ async function onSubscriptionChanged(
     if (s.userId) return { note: `subscription ${s.subscriptionId}: user ${s.userId} not found (deleted account?)` };
     return orphan(e, `subscription ${s.subscriptionId}: account not known`);
   }
-  await ctx.tx
+  const inserted = await ctx.tx
     .insert(subscriptions)
     .values({
       userId: owner.id,
@@ -607,17 +603,57 @@ async function onSubscriptionChanged(
       cancelAtPeriodEnd: deleted ? false : s.cancelAtPeriodEnd,
       lastEventAt: e.createdAt,
     })
-    .onConflictDoNothing({ target: [subscriptions.provider, subscriptions.providerSubscriptionId] });
+    .onConflictDoNothing({ target: [subscriptions.provider, subscriptions.providerSubscriptionId] })
+    .returning({ id: subscriptions.id });
+  if (!inserted.length) {
+    // A concurrent checkout / invoice event created the row first: apply this event on top of it
+    // (dropping it would lose e.g. cancel_at_period_end or the real period end).
+    const created = await findSubscription(ctx, s.subscriptionId);
+    if (!created) throw new Error(`Subscription ${s.subscriptionId} vanished while recording it`);
+    return updateSubscriptionFromEvent(ctx, e, deleted, created);
+  }
   await saveCustomer(ctx, owner.id, s.customerId);
   await recomputeUserPlan(ctx, owner.id);
 }
 
+/** Apply a subscription event to its (locked) row: newer events win, "canceled" is terminal. */
+async function updateSubscriptionFromEvent(
+  ctx: Ctx,
+  e: EventOf<"subscription.updated" | "subscription.deleted">,
+  deleted: boolean,
+  existing: SubscriptionRow,
+): Promise<Outcome> {
+  const s = e.subscription;
+  const incoming: SubscriptionStatus = deleted ? "canceled" : s.status;
+  if (!deleted) {
+    if (e.createdAt < existing.lastEventAt) return { note: "stale event" };
+    // Canceled is terminal at every provider; nothing revives it.
+    if (existing.status === "canceled") return { note: "subscription already canceled" };
+  }
+  // "incomplete" only precedes the first payment; never let a late one overwrite a paid state.
+  const status = incoming === "incomplete" && existing.status !== "incomplete" ? existing.status : incoming;
+  await ctx.tx
+    .update(subscriptions)
+    .set({
+      planId: s.planId,
+      interval: s.interval,
+      status,
+      currentPeriodEnd: s.currentPeriodEnd ?? existing.currentPeriodEnd,
+      cancelAtPeriodEnd: deleted ? false : s.cancelAtPeriodEnd,
+      providerCustomerId: s.customerId || existing.providerCustomerId,
+      lastEventAt: e.createdAt > existing.lastEventAt ? e.createdAt : existing.lastEventAt,
+    })
+    .where(eq(subscriptions.id, existing.id));
+  await recomputeUserPlan(ctx, existing.userId);
+}
+
+/** The payment row, locked after its account's user row (LOCK ORDER). */
 async function lockPayment(ctx: Ctx, providerPaymentId: string): Promise<PaymentRow | undefined> {
-  const [row] = await ctx.tx
-    .select()
-    .from(payments)
-    .where(and(eq(payments.provider, ctx.provider), eq(payments.providerPaymentId, providerPaymentId)))
-    .for("update");
+  const where = and(eq(payments.provider, ctx.provider), eq(payments.providerPaymentId, providerPaymentId));
+  const [found] = await ctx.tx.select({ userId: payments.userId }).from(payments).where(where).limit(1);
+  if (!found) return undefined;
+  await lockUserRow(ctx, found.userId);
+  const [row] = await ctx.tx.select().from(payments).where(where).for("update");
   return row;
 }
 

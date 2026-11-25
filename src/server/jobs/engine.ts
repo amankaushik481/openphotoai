@@ -18,7 +18,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { creditCost } from "@/config/credits";
 import { getPlan } from "@/config/plans";
-import { db } from "@/db";
+import { db, type Database, type Tx } from "@/db";
 import { batches, jobs, user as userTable, webhookEvents } from "@/db/schema";
 import type { BatchRow, JobRow, UserRow } from "@/db/types";
 import { env } from "@/lib/env";
@@ -85,6 +85,14 @@ export interface SyncJobOptions {
 }
 /** How long a finalization lease is valid before another worker may take over. */
 export const FINALIZE_LEASE_SEC = 300;
+/**
+ * The lease holder renews its lease this often while it ingests (slow downloads, video re-encodes,
+ * a LoRA weights copy can outlast FINALIZE_LEASE_SEC), so a healthy attempt is never taken over
+ * mid-way (which made two workers ingest the same outputs, and could starve a job of a winner)...
+ */
+export const FINALIZE_RENEW_INTERVAL_MS = 60_000;
+/** ...but only up to this long in total: a hung attempt must not hold the job until JOB_TIMEOUT_SEC. */
+export const FINALIZE_MAX_HOLD_SEC = 30 * 60;
 /** Completion (download + ingest) attempts before the job is failed and refunded. */
 export const MAX_FINALIZE_ATTEMPTS = 3;
 export const JOB_TIMEOUT_SEC = 2 * 60 * 60;
@@ -185,20 +193,22 @@ function assertBalanceNotNegative(user: UserRow): void {
   );
 }
 
-/** Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). */
-async function assertConcurrency(user: UserRow): Promise<void> {
+/**
+ * Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). A check
+ * outside a transaction is only a fast path: parallel requests all pass it, so the authoritative check
+ * runs again with `tx` while the user row is locked, right before the job / batch row is inserted.
+ */
+async function assertConcurrency(user: UserRow, tx: Database | Tx = db): Promise<void> {
   const plan = getPlan(user.plan);
   const limit = plan.limits.maxConcurrentJobs;
-  const [[active], [running]] = await Promise.all([
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(jobs)
-      .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId))),
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(batches)
-      .where(and(eq(batches.userId, user.id), eq(batches.status, "running"))),
-  ]);
+  const [active] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(jobs)
+    .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId)));
+  const [running] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(batches)
+    .where(and(eq(batches.userId, user.id), eq(batches.status, "running")));
   if (Number(active?.n ?? 0) + Number(running?.n ?? 0) >= limit) {
     const upgrade = user.plan === "studio" ? "" : " or upgrade your plan";
     throw errors.planLimit(
@@ -248,7 +258,11 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
       // Lock the user row BEFORE inserting the job: the jobs.user_id FK takes a KEY SHARE lock on the
       // user row, and the debit below takes FOR UPDATE. Two concurrent creates for the same user would
       // otherwise each hold KEY SHARE and wait on the other's FOR UPDATE -> Postgres deadlock (40P01).
-      if (credits > 0) await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      // The same lock serializes the concurrency check with the insert (parallel creates can't overshoot).
+      if (credits > 0 || !opts?.batchId) {
+        await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      }
+      if (!opts?.batchId) await assertConcurrency(user, tx);
       const [row] = await tx
         .insert(jobs)
         .values({
@@ -380,16 +394,21 @@ export async function createBatch(
   await rateLimit("jobsPerDay", subject, req.count);
   await assertConcurrency(user);
 
-  const [batch] = await db
-    .insert(batches)
-    .values({
-      userId: user.id,
-      modelId: req.modelId,
-      packId: pack.slug,
-      brandKitId: req.brandKitId ?? null,
-      total: req.count,
-    })
-    .returning();
+  const [batch] = await db.transaction(async (tx) => {
+    // Authoritative concurrency check under the user lock (see assertConcurrency).
+    await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+    await assertConcurrency(user, tx);
+    return tx
+      .insert(batches)
+      .values({
+        userId: user.id,
+        modelId: req.modelId,
+        packId: pack.slug,
+        brandKitId: req.brandKitId ?? null,
+        total: req.count,
+      })
+      .returning();
+  });
   const batchId = batch!.id;
 
   // Round-robin over the pack's prompts, one image per job for maximum variety.
@@ -584,6 +603,38 @@ async function acquireLease(jobId: string, token: string): Promise<JobRow | null
   return row ?? null;
 }
 
+/** Extend a lease this attempt still holds (heartbeat). */
+async function renewLease(jobId: string, token: string): Promise<void> {
+  await db
+    .update(jobs)
+    .set({ output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now()))` })
+    .where(and(eq(jobs.id, jobId), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`));
+}
+
+/** Renew the lease every FINALIZE_RENEW_INTERVAL_MS (up to FINALIZE_MAX_HOLD_SEC) until stopped. */
+function startLeaseHeartbeat(jobId: string, token: string): () => void {
+  const startedAt = Date.now();
+  const timer = setInterval(() => {
+    if (Date.now() - startedAt > FINALIZE_MAX_HOLD_SEC * 1000) {
+      clearInterval(timer);
+      return;
+    }
+    renewLease(jobId, token).catch((err) => console.warn(`[jobs] lease renewal failed for ${jobId}:`, errorMessage(err)));
+  }, FINALIZE_RENEW_INTERVAL_MS);
+  timer.unref?.();
+  return () => clearInterval(timer);
+}
+
+/** Run a completion hook that must not throw (afterCommit / discard). */
+async function runHook(jobId: string, name: string, hook: (() => Promise<void>) | undefined): Promise<void> {
+  if (!hook) return;
+  try {
+    await hook();
+  } catch (err) {
+    console.error(`[jobs] ${name} hook failed for ${jobId}:`, err);
+  }
+}
+
 /** Give the lease back so a later sync retries, after `retryAfterSec` (backoff). */
 async function releaseLease(jobId: string, token: string, retryAfterSec: number): Promise<void> {
   const ageSec = Math.max(0, FINALIZE_LEASE_SEC - retryAfterSec);
@@ -637,11 +688,13 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
   const handler = getHandler(leased.type);
   const plan = planDataOf(leased);
   let result: CompleteResult;
+  const stopHeartbeat = startLeaseHeartbeat(job.id, token);
   try {
     result = handler.complete
       ? await handler.complete({ job: leased, output, plan })
       : await defaultComplete(leased, output, plan);
   } catch (err) {
+    stopHeartbeat();
     console.error(`[jobs] completion attempt ${leased.attempts} failed for ${job.id}:`, err);
     // Deterministic failures (bad output, invalid data) fail + refund right away: retrying can't help.
     const final = isNonRetryable(err);
@@ -653,14 +706,33 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
     await releaseLease(job.id, token, 30 * leased.attempts);
     return loadJob(job.id);
   }
+  try {
+    return await finishCompletion(job, leased, token, handler, result);
+  } finally {
+    stopHeartbeat();
+  }
+}
 
+/** Refunds for blocked / missing outputs, then the lease-guarded running -> succeeded transition. */
+async function finishCompletion(
+  job: JobRow,
+  leased: JobRow,
+  token: string,
+  handler: ReturnType<typeof getHandler>,
+  result: CompleteResult,
+): Promise<JobRow> {
   const kept = result.mediaIds.length;
   const blocked = result.blockedCount;
   // Refunded (and discarded) by ingestion under the likeness guarantee: neither kept nor missing.
   const discarded = result.discardedCount ?? 0;
-  if (kept === 0 && blocked > 0) return failJob(job.id, MSG.allBlocked, "content_blocked", "blocked");
-  if (kept === 0 && discarded > 0) return failJob(job.id, MSG.lowLikeness, "low_likeness");
-  if (kept === 0 && !handler.complete) return failJob(job.id, MSG.noOutput, "provider_error");
+  const failWith = async (...args: Parameters<typeof failJob>) => {
+    const failed = await failJob(...args);
+    await runHook(job.id, "discard", result.discard);
+    return failed;
+  };
+  if (kept === 0 && blocked > 0) return failWith(job.id, MSG.allBlocked, "content_blocked", "blocked");
+  if (kept === 0 && discarded > 0) return failWith(job.id, MSG.lowLikeness, "low_likeness");
+  if (kept === 0 && !handler.complete) return failWith(job.id, MSG.noOutput, "provider_error");
 
   // Proportional refunds for blocked (and, by default ingestion, missing) outputs.
   const produced = kept + blocked + discarded;
@@ -683,13 +755,19 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
       .set({ status: "succeeded", progress: 100, output: nextOutput, completedAt: new Date(), error: null, errorCode: null })
       .where(and(eq(jobs.id, job.id), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`))
       .returning();
-    if (row?.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    if (!row) return undefined;
+    if (row.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    await result.commit?.(tx);
     return row;
   });
-  if (done) return done;
+  if (done) {
+    await runHook(job.id, "afterCommit", result.afterCommit);
+    return done;
+  }
 
   // Lost the lease (canceled meanwhile, or another worker took over): discard what we stored.
   await deleteMediaByIds(job.userId, result.mediaIds);
+  await runHook(job.id, "discard", result.discard);
   return loadJob(job.id);
 }
 
