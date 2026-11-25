@@ -49,7 +49,7 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPriceCents: 15000,
     monthlyCredits: 200,
     limits: { maxModels: 2, maxBatch: 25, maxConcurrentJobs: 3, apiAccess: false, teamSeats: 0, watermark: false },
-    highlights: ["200 credits / month", "2 identity models", "All 40+ photo packs", "No watermark", "Commercial use"],
+    highlights: ["200 credits / month", "2 identity models", "All 60+ photo packs", "No watermark", "Commercial use"],
   },
   pro: {
     id: "pro",
