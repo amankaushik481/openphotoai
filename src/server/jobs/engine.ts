@@ -85,6 +85,14 @@ export interface SyncJobOptions {
 }
 /** How long a finalization lease is valid before another worker may take over. */
 export const FINALIZE_LEASE_SEC = 300;
+/**
+ * The lease holder renews its lease this often while it ingests (slow downloads, video re-encodes,
+ * a LoRA weights copy can outlast FINALIZE_LEASE_SEC), so a healthy attempt is never taken over
+ * mid-way (which made two workers ingest the same outputs, and could starve a job of a winner)...
+ */
+export const FINALIZE_RENEW_INTERVAL_MS = 60_000;
+/** ...but only up to this long in total: a hung attempt must not hold the job until JOB_TIMEOUT_SEC. */
+export const FINALIZE_MAX_HOLD_SEC = 30 * 60;
 /** Completion (download + ingest) attempts before the job is failed and refunded. */
 export const MAX_FINALIZE_ATTEMPTS = 3;
 export const JOB_TIMEOUT_SEC = 2 * 60 * 60;
@@ -584,6 +592,38 @@ async function acquireLease(jobId: string, token: string): Promise<JobRow | null
   return row ?? null;
 }
 
+/** Extend a lease this attempt still holds (heartbeat). */
+async function renewLease(jobId: string, token: string): Promise<void> {
+  await db
+    .update(jobs)
+    .set({ output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now()))` })
+    .where(and(eq(jobs.id, jobId), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`));
+}
+
+/** Renew the lease every FINALIZE_RENEW_INTERVAL_MS (up to FINALIZE_MAX_HOLD_SEC) until stopped. */
+function startLeaseHeartbeat(jobId: string, token: string): () => void {
+  const startedAt = Date.now();
+  const timer = setInterval(() => {
+    if (Date.now() - startedAt > FINALIZE_MAX_HOLD_SEC * 1000) {
+      clearInterval(timer);
+      return;
+    }
+    renewLease(jobId, token).catch((err) => console.warn(`[jobs] lease renewal failed for ${jobId}:`, errorMessage(err)));
+  }, FINALIZE_RENEW_INTERVAL_MS);
+  timer.unref?.();
+  return () => clearInterval(timer);
+}
+
+/** Run a completion hook that must not throw (afterCommit / discard). */
+async function runHook(jobId: string, name: string, hook: (() => Promise<void>) | undefined): Promise<void> {
+  if (!hook) return;
+  try {
+    await hook();
+  } catch (err) {
+    console.error(`[jobs] ${name} hook failed for ${jobId}:`, err);
+  }
+}
+
 /** Give the lease back so a later sync retries, after `retryAfterSec` (backoff). */
 async function releaseLease(jobId: string, token: string, retryAfterSec: number): Promise<void> {
   const ageSec = Math.max(0, FINALIZE_LEASE_SEC - retryAfterSec);
@@ -637,11 +677,13 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
   const handler = getHandler(leased.type);
   const plan = planDataOf(leased);
   let result: CompleteResult;
+  const stopHeartbeat = startLeaseHeartbeat(job.id, token);
   try {
     result = handler.complete
       ? await handler.complete({ job: leased, output, plan })
       : await defaultComplete(leased, output, plan);
   } catch (err) {
+    stopHeartbeat();
     console.error(`[jobs] completion attempt ${leased.attempts} failed for ${job.id}:`, err);
     // Deterministic failures (bad output, invalid data) fail + refund right away: retrying can't help.
     const final = isNonRetryable(err);
@@ -653,14 +695,33 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
     await releaseLease(job.id, token, 30 * leased.attempts);
     return loadJob(job.id);
   }
+  try {
+    return await finishCompletion(job, leased, token, handler, result);
+  } finally {
+    stopHeartbeat();
+  }
+}
 
+/** Refunds for blocked / missing outputs, then the lease-guarded running -> succeeded transition. */
+async function finishCompletion(
+  job: JobRow,
+  leased: JobRow,
+  token: string,
+  handler: ReturnType<typeof getHandler>,
+  result: CompleteResult,
+): Promise<JobRow> {
   const kept = result.mediaIds.length;
   const blocked = result.blockedCount;
   // Refunded (and discarded) by ingestion under the likeness guarantee: neither kept nor missing.
   const discarded = result.discardedCount ?? 0;
-  if (kept === 0 && blocked > 0) return failJob(job.id, MSG.allBlocked, "content_blocked", "blocked");
-  if (kept === 0 && discarded > 0) return failJob(job.id, MSG.lowLikeness, "low_likeness");
-  if (kept === 0 && !handler.complete) return failJob(job.id, MSG.noOutput, "provider_error");
+  const failWith = async (...args: Parameters<typeof failJob>) => {
+    const failed = await failJob(...args);
+    await runHook(job.id, "discard", result.discard);
+    return failed;
+  };
+  if (kept === 0 && blocked > 0) return failWith(job.id, MSG.allBlocked, "content_blocked", "blocked");
+  if (kept === 0 && discarded > 0) return failWith(job.id, MSG.lowLikeness, "low_likeness");
+  if (kept === 0 && !handler.complete) return failWith(job.id, MSG.noOutput, "provider_error");
 
   // Proportional refunds for blocked (and, by default ingestion, missing) outputs.
   const produced = kept + blocked + discarded;
@@ -683,13 +744,19 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
       .set({ status: "succeeded", progress: 100, output: nextOutput, completedAt: new Date(), error: null, errorCode: null })
       .where(and(eq(jobs.id, job.id), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`))
       .returning();
-    if (row?.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    if (!row) return undefined;
+    if (row.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    await result.commit?.(tx);
     return row;
   });
-  if (done) return done;
+  if (done) {
+    await runHook(job.id, "afterCommit", result.afterCommit);
+    return done;
+  }
 
   // Lost the lease (canceled meanwhile, or another worker took over): discard what we stored.
   await deleteMediaByIds(job.userId, result.mediaIds);
+  await runHook(job.id, "discard", result.discard);
   return loadJob(job.id);
 }
 
