@@ -32,9 +32,15 @@ export function JobResults({ jobs, onCompare, compareId, title = "Results", clas
 
   return (
     <section aria-labelledby={headingId} className={cn("flex flex-col gap-4", className)}>
-      <h2 id={headingId} className="text-lg font-semibold">
-        {title}
-      </h2>
+      <div className="flex items-baseline gap-3 border-t border-foreground/80 pt-3">
+        <h2 id={headingId} className="font-display text-3xl leading-none tracking-tight">
+          {title}
+        </h2>
+        <span aria-hidden="true" className="mono-caps text-muted-foreground">
+          {media.length} {media.length === 1 ? "print" : "prints"}
+          {pending.length > 0 && ` · ${pending.length} developing`}
+        </span>
+      </div>
       {pending.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2">
           {pending.map((job) => (
@@ -59,12 +65,12 @@ export function JobResults({ jobs, onCompare, compareId, title = "Results", clas
                 aria-label="Compare with the original"
                 title="Compare with the original"
                 onClick={() => onCompare(m)}
-                className="bg-background/90 backdrop-blur-sm"
+                className="border border-foreground/15 bg-card"
               >
                 <SquareSplitHorizontalIcon />
               </Button>
             )}
-            <Button asChild size="sm" variant="secondary" className="h-8 bg-background/90 backdrop-blur-sm">
+            <Button asChild size="sm" variant="secondary" className="h-8 border border-foreground/15 bg-card">
               <Link href={`/app/edit/${m.id}`} title="Use as the new source and keep editing">
                 <PencilLineIcon />
                 Edit<span className="sr-only"> this result</span>

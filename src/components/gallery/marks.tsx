@@ -135,14 +135,14 @@ export function FilmStrip({
   frameClassName,
 }: {
   children: React.ReactNode;
-  /** Edge print along the bottom rebate, e.g. "OPENSHOOT 400 · ▸ 07". */
+  /** Edge print in the bottom rebate (between the image and the sprockets), e.g. "OPENSHOOT 400 · ▸ 07". */
   edge?: React.ReactNode;
   className?: string;
   frameClassName?: string;
 }) {
   return (
     <div
-      className={cn("relative bg-darkroom px-2 py-4 text-darkroom-foreground", className)}
+      className={cn("relative bg-darkroom px-2 pt-4 text-darkroom-foreground", edge ? "pb-7" : "pb-4", className)}
       style={{
         backgroundImage: `${SPROCKET}, ${SPROCKET}`,
         backgroundRepeat: "repeat-x, repeat-x",
@@ -154,7 +154,7 @@ export function FilmStrip({
       {edge && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute right-3 bottom-[-1px] translate-y-full font-mono text-[9px] leading-none tracking-[0.18em] text-darkroom-muted uppercase"
+          className="pointer-events-none absolute right-3 bottom-[13px] font-mono text-[9px] leading-none tracking-[0.18em] text-darkroom-muted uppercase"
         >
           {edge}
         </span>

@@ -8,12 +8,13 @@ export const INVITE_STATUS_LABEL: Record<InviteStatus, string> = {
   expired: "Expired",
 };
 
-export const INVITE_STATUS_VARIANT: Record<InviteStatus, "soft" | "success" | "outline" | "secondary"> = {
-  pending: "soft",
+/** Stamp tone per invite status (mono lab stamps; see `Stamp`). */
+export const INVITE_STATUS_TONE: Record<InviteStatus, "ink" | "success" | "muted"> = {
+  pending: "ink",
   accepted: "success",
-  declined: "outline",
-  revoked: "outline",
-  expired: "secondary",
+  declined: "muted",
+  revoked: "muted",
+  expired: "muted",
 };
 
 export function formatDate(iso: string): string {

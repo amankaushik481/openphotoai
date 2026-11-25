@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleCheckIcon, LoaderCircleIcon, PlusIcon, ShieldCheckIcon } from "lucide-react";
+import { LoaderCircleIcon, PlusIcon, ShieldCheckIcon } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -50,11 +50,9 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
     return (
       <Card>
         <CardHeader className="justify-items-center text-center">
-          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-success/10 text-success">
-            <CircleCheckIcon className="size-6" aria-hidden="true" />
-          </div>
+          <p className="mono-caps mb-1 border border-success/50 px-2 py-1.5 text-success">Sharing · accepted</p>
           {/* The form was replaced: move focus to the new page title so it's announced. */}
-          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
+          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="font-display text-3xl font-normal focus:outline-hidden">
             You&apos;re sharing {sharedName ? `“${sharedName}”` : "your model"} with {invite.from.name}
           </CardTitle>
           <CardDescription>
@@ -75,7 +73,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
     return (
       <Card>
         <CardHeader className="text-center">
-          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
+          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="font-display text-3xl font-normal focus:outline-hidden">
             Invite declined
           </CardTitle>
           <CardDescription>Nothing was shared. {invite.from.name} will see that you declined.</CardDescription>
@@ -92,7 +90,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle as="h1" className="text-xl">
+        <CardTitle as="h1" className="font-display text-3xl font-normal">
           {invite.from.name} wants to take photos with you
         </CardTitle>
         <CardDescription>
@@ -102,7 +100,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         {invite.message && (
-          <figure className="rounded-xl border bg-muted/40 px-4 py-3">
+          <figure className="border-l-2 border-foreground/30 bg-muted/40 px-4 py-3">
             <blockquote className="text-sm break-words whitespace-pre-line">{invite.message}</blockquote>
             <figcaption className="mt-1 text-xs text-muted-foreground">— {invite.from.name}</figcaption>
           </figure>
@@ -110,7 +108,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
 
         <section aria-labelledby="consent-title" className="flex flex-col gap-2">
           <h2 id="consent-title" className="flex items-center gap-2 text-sm font-semibold">
-            <ShieldCheckIcon className="size-4 text-primary" aria-hidden="true" />
+            <ShieldCheckIcon className="size-4 text-safelight-ink" aria-hidden="true" />
             What accepting means
           </h2>
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-muted-foreground">
@@ -134,7 +132,7 @@ export function InviteResponse({ inviteRef, invite, models }: InviteResponseProp
           value={modelId}
           onValueChange={setModelId}
           empty={
-            <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+            <div className="flex flex-col items-start gap-3 border border-dashed border-foreground/25 p-4 text-sm text-muted-foreground">
               <p>You need a model of yourself first. Create one, then come back to this page to accept.</p>
               <Button asChild size="sm" variant="outline">
                 <Link href="/app/models/new">

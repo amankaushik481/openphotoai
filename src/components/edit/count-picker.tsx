@@ -5,6 +5,7 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
+import { STUDIO_LABEL, STUDIO_TOGGLE } from "./studio";
 
 export interface CountPickerProps {
   value: number;
@@ -16,11 +17,20 @@ export interface CountPickerProps {
 }
 
 /** "How many images" segmented control. */
-export function CountPicker({ value, onValueChange, options, label = "Images", disabled = false, className }: CountPickerProps) {
+export function CountPicker({
+  value,
+  onValueChange,
+  options,
+  label = "Images",
+  disabled = false,
+  className,
+}: CountPickerProps) {
   const labelId = React.useId();
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label id={labelId}>{label}</Label>
+      <Label id={labelId} className={STUDIO_LABEL}>
+        {label}
+      </Label>
       <ToggleGroup
         type="single"
         variant="outline"
@@ -31,7 +41,12 @@ export function CountPicker({ value, onValueChange, options, label = "Images", d
         className="w-full max-w-64"
       >
         {options.map((n) => (
-          <ToggleGroupItem key={n} value={String(n)} aria-label={n === 1 ? "1 image" : `${n} images`} className="tabular-nums">
+          <ToggleGroupItem
+            key={n}
+            value={String(n)}
+            aria-label={n === 1 ? "1 image" : `${n} images`}
+            className={cn("font-mono tabular-nums", STUDIO_TOGGLE)}
+          >
             {n}
           </ToggleGroupItem>
         ))}

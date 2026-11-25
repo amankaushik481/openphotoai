@@ -41,7 +41,14 @@ export function EmptySheet({
         ))}
       </ol>
       <div className="flex max-w-xl flex-col gap-2">
-        <Heading className="font-display text-3xl leading-none tracking-tight sm:text-4xl">{title}</Heading>
+        <Heading
+          className={cn(
+            "font-display leading-none tracking-tight",
+            headingLevel === 2 ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl",
+          )}
+        >
+          {title}
+        </Heading>
         {description && <p className="max-w-[60ch] text-sm text-muted-foreground sm:text-base">{description}</p>}
         {action && <div className="mt-3 flex flex-wrap items-center gap-3">{action}</div>}
       </div>

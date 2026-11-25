@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ImagesIcon, UsersRoundIcon } from "lucide-react";
+import { ImagesIcon } from "lucide-react";
 
-import { EmptyState } from "@/components/app/empty-state";
+import { EmptySheet } from "@/components/gallery/empty-sheet";
 import { JobProgress } from "@/components/app/job-progress";
 import { MediaGrid } from "@/components/app/media-grid";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export function TogetherResults({ jobs }: TogetherResultsProps) {
   return (
     <section aria-labelledby="together-results-title" className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="together-results-title" className="text-lg font-semibold">
+        <h2 id="together-results-title" className="font-display text-3xl leading-none tracking-tight">
           Results
         </h2>
         {jobs.length > 0 && (
@@ -34,11 +34,13 @@ export function TogetherResults({ jobs }: TogetherResultsProps) {
         )}
       </div>
       {jobs.length === 0 ? (
-        <EmptyState
-          size="sm"
-          icon={<UsersRoundIcon />}
+        <EmptySheet
+          headingLevel={3}
+          frames={4}
+          label="Two up"
           title="Your together photos appear here"
           description="They're saved to your gallery. Your friend's model is only used for the photos you create together."
+          className="border-t-0 pt-0"
         />
       ) : (
         <div className="flex flex-col gap-6">

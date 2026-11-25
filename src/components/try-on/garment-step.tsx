@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ImageDropzone } from "@/components/app/image-dropzone";
 import { StepSection } from "@/components/try-on/step-section";
 import { GARMENT_TIPS, type GarmentUpload, type UploadResponse } from "@/components/try-on/types";
+import { PRINT } from "@/components/edit/studio";
+import { cn } from "@/lib/utils";
 
 export interface GarmentStepProps {
   garment: GarmentUpload | null;
@@ -28,7 +30,7 @@ export function GarmentStep({ garment, onUploaded, onClear, disabled = false, re
     >
       {garment ? (
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
-          <div className="relative aspect-[4/5] w-40 overflow-hidden rounded-lg border bg-muted sm:w-44">
+          <div className={cn("relative aspect-[4/5] w-40 overflow-hidden sm:w-44", PRINT)}>
             {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs must bypass the image optimizer */}
             <img src={garment.url} alt="Your garment photo" className="size-full object-contain" />
           </div>
@@ -51,9 +53,9 @@ export function GarmentStep({ garment, onUploaded, onClear, disabled = false, re
         />
       )}
 
-      <div className="rounded-lg bg-muted/60 p-3">
-        <p className="mb-1.5 flex items-center gap-1.5 text-sm font-medium">
-          <LightbulbIcon aria-hidden="true" className="size-4 text-primary" />
+      <div className="border-l-2 border-foreground/30 bg-muted/50 p-3">
+        <p className="mono-caps mb-1.5 flex items-center gap-1.5 text-muted-foreground">
+          <LightbulbIcon aria-hidden="true" className="size-3.5" />
           Tips for a great result
         </p>
         <ul className="list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CATEGORY_OPTIONS, type TryOnCategory } from "@/components/try-on/types";
 import { cn } from "@/lib/utils";
+import { STUDIO_LABEL, STUDIO_TOGGLE } from "@/components/edit/studio";
 
 export interface CategoryPickerProps {
   value: TryOnCategory;
@@ -19,7 +20,9 @@ export function CategoryPicker({ value, onValueChange, disabled = false, classNa
   const labelId = React.useId();
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label id={labelId}>Garment type</Label>
+      <Label id={labelId} className={STUDIO_LABEL}>
+        Garment type
+      </Label>
       <ToggleGroup
         type="single"
         variant="outline"
@@ -37,7 +40,10 @@ export function CategoryPicker({ value, onValueChange, disabled = false, classNa
             key={option.value}
             value={option.value}
             aria-label={`${option.label}: ${option.hint}`}
-            className="h-auto flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left whitespace-normal first:rounded-lg last:rounded-lg data-[variant=outline]:border-l"
+            className={cn(
+              "h-auto flex-col items-start gap-0.5 border px-3 py-2 text-left whitespace-normal data-[variant=outline]:border-l",
+              STUDIO_TOGGLE,
+            )}
           >
             <span className="text-sm font-medium">{option.label}</span>
             <span className="text-xs font-normal text-muted-foreground">{option.hint}</span>
