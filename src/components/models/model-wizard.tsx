@@ -191,13 +191,16 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
   const [name, setName] = React.useState("");
   const [subject, setSubject] = React.useState<Subject>("person");
   const [pending, setPending] = React.useState(false);
+  // Synchronous guard: a double tap / double Enter must not create two models (and hit the plan limit).
+  const inFlight = React.useRef(false);
   const [error, setError] = React.useState<ApiClientError | Error | null>(null);
   const nameId = React.useId();
   const groupId = React.useId();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || inFlight.current) return;
+    inFlight.current = true;
     setPending(true);
     setError(null);
     try {
@@ -206,6 +209,7 @@ function DetailsStep({ onCreated }: { onCreated: (model: ModelView) => void }) {
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Something went wrong."));
     } finally {
+      inFlight.current = false;
       setPending(false);
     }
   };

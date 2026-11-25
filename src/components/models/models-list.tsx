@@ -8,12 +8,15 @@ import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useJob } from "@/hooks/use-job";
+import { useMe } from "@/hooks/use-me";
 import { MODELS_KEY } from "@/hooks/use-models";
 import { useT } from "@/i18n/react";
 import { fetcher } from "@/lib/api-client";
 import type { ModelView } from "@/server/models/types";
 import { cn } from "@/lib/utils";
 import { ModeBadge, ModelStatusBadge } from "./model-status-badge";
+import { TYPICAL_TRAINING_MINUTES, trainingEta } from "./training-eta";
+import { useNow } from "./use-now";
 
 export interface ModelsListProps {
   initialModels: ModelView[];
@@ -155,12 +158,24 @@ function ModelCard({ model, onTrainingDone }: { model: ModelView; onTrainingDone
 }
 
 function TrainingBar({ jobId, onDone }: { jobId: string; onDone?: () => void }) {
-  const { job } = useJob(jobId, { onTerminal: () => onDone?.() });
+  const { mutate: refreshMe } = useMe();
+  const { job } = useJob(jobId, {
+    onTerminal: () => {
+      void refreshMe(); // a failed training is refunded
+      onDone?.();
+    },
+  });
   const value = job ? Math.max(5, job.progress) : 5;
+  const inFlight = !job || job.status === "queued" || job.status === "running";
+  const now = useNow(30_000, inFlight);
+  const eta = job && inFlight && now !== null ? trainingEta(job, now) : null;
   return (
     <div className="flex flex-col gap-1">
       <Progress value={value} aria-label="Training progress" indicatorClassName="bg-brand-gradient" />
-      <p className="text-xs text-muted-foreground">Training… about 20 minutes. We&apos;ll email you.</p>
+      <p className="text-xs text-muted-foreground">
+        Training… {eta ? `${eta.label.charAt(0).toLowerCase()}${eta.label.slice(1)}` : `about ${TYPICAL_TRAINING_MINUTES} minutes`}. We&apos;ll
+        email you.
+      </p>
     </div>
   );
 }

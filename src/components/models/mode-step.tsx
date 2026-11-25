@@ -60,7 +60,11 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
   const cost = mode === "trained" ? CREDIT_COSTS.train : 0;
   const short = user !== undefined && cost > user.credits;
 
+  // Synchronous guard against a double tap starting (and charging) training twice.
+  const inFlight = React.useRef(false);
   const start = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setPending(true);
     setError(null);
     try {
@@ -70,6 +74,7 @@ export function ModeStep({ modelId, readinessByMode, onStarted }: ModeStepProps)
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Something went wrong."));
     } finally {
+      inFlight.current = false;
       setPending(false);
     }
   };
