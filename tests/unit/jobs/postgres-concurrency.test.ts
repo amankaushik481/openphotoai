@@ -46,15 +46,24 @@ describe.skipIf(!pg.enabled)("job creation on real Postgres", () => {
   it("settles every job exactly once when completions, cancels and timeouts race (batch counters, refunds, media)", async () => {
     const { cancelJob, createBatch, failJob, syncJob } = await import("@/server/jobs/engine");
     const { db } = await import("@/db");
-    const { batches, jobs, media } = await import("@/db/schema");
+    const { batches, creditLedger, jobs, media, user: userTable } = await import("@/db/schema");
     const { eq, sql } = await import("drizzle-orm");
     const user = await createTestUser({ credits: 500, plan: "studio", hasPaid: true });
     const model = await createTestModel(user.id);
     const { batch, jobs: children } = await createBatch(user, { modelId: model.id, packId: "linkedin-headshots", count: 10, quality: "standard" });
 
+    const { handleAIWebhook } = await import("@/server/jobs/engine");
+    const { MOCK_WEBHOOK_HEADER, signMockWebhook } = await import("@/providers/mock/ai");
+    // The provider's completion webhook, delivered twice (providers retry), racing the pollers.
+    const webhook = (requestId: string) => {
+      const rawBody = JSON.stringify({ requestId, status: "completed" });
+      const headers = new Headers({ [MOCK_WEBHOOK_HEADER]: signMockWebhook(rawBody) });
+      return handleAIWebhook("mock", { rawBody, url: "http://localhost:3000/api/webhooks/ai/mock", headers });
+    };
     const races = children.flatMap((job, i) => [
       syncJob(job.id, { force: true }),
-      syncJob(job.id, { force: true }),
+      webhook(job.providerRequestId!),
+      webhook(job.providerRequestId!),
       i % 3 === 0 ? cancelJob(user.id, job.id) : i % 3 === 1 ? failJob(job.id, "timed out", "timeout") : syncJob(job.id, { force: true }),
     ]);
     const settled = await Promise.allSettled(races);
@@ -64,7 +73,10 @@ describe.skipIf(!pg.enabled)("job creation on real Postgres", () => {
     const rows = await db.select().from(jobs).where(eq(jobs.batchId, batch.id));
     for (const job of rows) {
       expect(["succeeded", "canceled", "failed"]).toContain(job.status);
-      const [ledger] = await db.execute<{ sum: number }>(sql`select coalesce(sum(delta), 0)::int as sum from credit_ledger where job_id = ${job.id}`);
+      const [ledger] = await db
+        .select({ sum: sql<number>`coalesce(sum(${creditLedger.delta}), 0)::int` })
+        .from(creditLedger)
+        .where(eq(creditLedger.jobId, job.id));
       expect(Number(ledger!.sum), job.id).toBe(job.creditsRefunded - job.creditsCharged);
       const kept = await db.$count(media, eq(media.jobId, job.id));
       if (job.status === "succeeded") {
@@ -79,10 +91,12 @@ describe.skipIf(!pg.enabled)("job creation on real Postgres", () => {
     expect(b!.completed + b!.failed).toBe(rows.length);
     expect(b!.completed).toBe(rows.filter((r) => r.status === "succeeded").length);
     expect(b!.status).not.toBe("running");
-    const [u] = await db.execute<{ credits: number; sum: number }>(
-      sql`select credits, (select coalesce(sum(delta), 0)::int from credit_ledger where user_id = ${user.id}) as sum from "user" where id = ${user.id}`,
-    );
+    const [u] = await db.select({ credits: userTable.credits }).from(userTable).where(eq(userTable.id, user.id));
+    const [{ sum } = { sum: 0 }] = await db
+      .select({ sum: sql<number>`coalesce(sum(${creditLedger.delta}), 0)::int` })
+      .from(creditLedger)
+      .where(eq(creditLedger.userId, user.id));
     // The 500 starting credits were set on the row directly (no ledger entry).
-    expect(Number(u!.sum)).toBe(Number(u!.credits) - 500);
+    expect(Number(sum)).toBe(u!.credits - 500);
   });
 });
