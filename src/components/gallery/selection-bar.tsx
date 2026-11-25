@@ -117,9 +117,16 @@ export function SelectionBar({
         <span className="sr-only sm:hidden">Download zip</span>
       </Button>
 
+      {/* Usable at 0 selected: on phones it holds "Select all loaded" (the bar's "Select all" is sm+ only). */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button type="button" variant="outline" size="icon-sm" disabled={disabled} aria-label="More actions">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={busy !== null || total === 0}
+            aria-label="More actions"
+          >
             {busy && busy !== "favorite" && busy !== "move" && busy !== "download" ? (
               <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
             ) : (
@@ -128,15 +135,15 @@ export function SelectionBar({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => void onAction("unfavorite")} disabled={overLimit}>
+          <DropdownMenuItem onSelect={() => void onAction("unfavorite")} disabled={disabled || overLimit}>
             <HeartOffIcon aria-hidden="true" />
             Remove from favorites
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => void onAction("hide")} disabled={overLimit}>
+          <DropdownMenuItem onSelect={() => void onAction("hide")} disabled={disabled || overLimit}>
             <EyeOffIcon aria-hidden="true" />
             Hide
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => void onAction("unhide")} disabled={overLimit}>
+          <DropdownMenuItem onSelect={() => void onAction("unhide")} disabled={disabled || overLimit}>
             <EyeIcon aria-hidden="true" />
             Unhide
           </DropdownMenuItem>
