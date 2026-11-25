@@ -66,7 +66,10 @@ export function PlanComparison() {
             <tr key={row.label} className="border-t border-border first:border-0">
               <th scope="row" className="py-3 pr-2 align-top font-medium break-words sm:pr-6">
                 <span className="flex gap-3">
-                  <span aria-hidden="true" className="hidden pt-px font-mono text-[11px] text-muted-foreground tabular-nums sm:inline">
+                  <span
+                    aria-hidden="true"
+                    className="hidden pt-px font-mono text-[11px] text-muted-foreground tabular-nums sm:inline"
+                  >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span>

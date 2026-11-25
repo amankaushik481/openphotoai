@@ -3,7 +3,7 @@ import Link from "next/link";
 import { isExternalHref, parseInline } from "@/content/inline";
 
 const linkClass =
-  "font-medium text-foreground underline decoration-primary/40 underline-offset-4 transition-colors hover:decoration-primary focus-visible:rounded-sm";
+  "font-medium text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-safelight-ink focus-visible:rounded-sm";
 
 /** Renders copy written with the tiny inline markup from `@/content/inline`. */
 export function InlineText({ text }: { text: string }) {
@@ -19,7 +19,7 @@ export function InlineText({ text }: { text: string }) {
             );
           case "code":
             return (
-              <code key={i} className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground">
+              <code key={i} className="rounded-[2px] bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground">
                 {token.text}
               </code>
             );

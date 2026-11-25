@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ScaleIcon } from "lucide-react";
 
+import { folio, MarginIndex, Masthead, PAGE } from "@/components/marketing/editorial";
 import { InlineText } from "@/components/marketing/inline-text";
 import { APP } from "@/config/app";
 import { LEGAL_PAGES, type LegalBlock, type LegalDocument } from "@/content/legal";
@@ -15,14 +15,18 @@ function formatDate(iso: string): string {
   });
 }
 
-export function LegalTemplateNotice() {
+/** "4. Consent: only you…" → ["4", "Consent: only you…"]; unnumbered headings keep their text. */
+function splitHeading(heading: string): [string | null, string] {
+  const m = /^(\d+)\.\s+(.*)$/.exec(heading);
+  return m ? [m[1]!, m[2]!] : [null, heading];
+}
+
+/** Set like a lab notice pinned above the text: the templates must be reviewed before anyone relies on them. */
+export function LegalTemplateNotice({ className }: { className?: string }) {
   return (
-    <div
-      role="note"
-      className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground"
-    >
-      <ScaleIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
-      <p>
+    <div role="note" className={cn("border-y-2 border-warning py-3 text-sm text-foreground", className)}>
+      <p className="mono-caps text-warning">Notice · template</p>
+      <p className="mt-1.5 max-w-[80ch]">
         <strong className="font-semibold">Template — have a lawyer review before launch.</strong> {APP.name} ships these
         documents as a starting point. Whoever operates this deployment must adapt them to their business and the laws
         that apply to them.
@@ -41,16 +45,21 @@ function Block({ block }: { block: LegalBlock }) {
       );
     case "note":
       return (
-        <p className="rounded-lg border-l-2 border-primary/50 bg-muted/50 px-4 py-3 text-sm">
+        <p className="border-l-2 border-foreground py-1 pl-4 text-[0.95rem] text-foreground">
           <InlineText text={block.text} />
         </p>
       );
     case "list":
       return (
-        <ul className="flex list-disc flex-col gap-2 pl-5 marker:text-muted-foreground">
+        <ul className="flex flex-col gap-2">
           {block.items.map((item, i) => (
-            <li key={i}>
-              <InlineText text={item} />
+            <li key={i} className="grid grid-cols-[1.25rem_minmax(0,1fr)]">
+              <span aria-hidden="true" className="font-mono text-muted-foreground">
+                –
+              </span>
+              <span>
+                <InlineText text={item} />
+              </span>
             </li>
           ))}
         </ul>
@@ -62,13 +71,13 @@ function Block({ block }: { block: LegalBlock }) {
           tabIndex={0}
           role="region"
           aria-label={`Table: ${block.head.join(", ")}`}
-          className="overflow-x-auto rounded-xl border [--focus-offset:-2px]"
+          className="overflow-x-auto border-y border-foreground [--focus-offset:-2px]"
         >
           <table className="w-full min-w-[32rem] border-collapse text-left text-sm">
             <thead>
-              <tr className="border-b bg-muted/50">
+              <tr className="border-b border-border">
                 {block.head.map((h) => (
-                  <th key={h} scope="col" className="px-4 py-2.5 font-medium text-foreground">
+                  <th key={h} scope="col" className="mono-caps py-2.5 pr-4 font-medium text-muted-foreground">
                     {h}
                   </th>
                 ))}
@@ -76,14 +85,14 @@ function Block({ block }: { block: LegalBlock }) {
             </thead>
             <tbody>
               {block.rows.map((row, r) => (
-                <tr key={r} className="border-b align-top last:border-0">
+                <tr key={r} className="border-b border-border align-top last:border-0">
                   {row.map((cell, c) =>
                     c === 0 ? (
-                      <th key={c} scope="row" className="px-4 py-2.5 font-medium text-foreground">
+                      <th key={c} scope="row" className="py-2.5 pr-4 font-medium text-foreground">
                         <InlineText text={cell} />
                       </th>
                     ) : (
-                      <td key={c} className="px-4 py-2.5">
+                      <td key={c} className="py-2.5 pr-4">
                         <InlineText text={cell} />
                       </td>
                     ),
@@ -97,115 +106,112 @@ function Block({ block }: { block: LegalBlock }) {
   }
 }
 
-const navLink = "block rounded-md px-3 py-1.5 text-sm transition-colors";
+/** The other legal documents, as a short numbered list. */
+function DocumentsNav({ current }: { current: LegalDocument["slug"] }) {
+  return (
+    <nav aria-label="Legal documents">
+      <p className="mono-caps pb-2">Documents</p>
+      <ol className="border-t border-border">
+        {LEGAL_PAGES.map((p, i) => {
+          const active = p.slug === current;
+          return (
+            <li key={p.slug} className="border-b border-border">
+              <Link
+                href={p.href}
+                aria-current={active ? "page" : undefined}
+                className="group flex items-baseline gap-3 py-3 text-sm text-muted-foreground transition-colors [--focus-offset:-2px] hover:text-foreground aria-[current=page]:font-medium aria-[current=page]:text-foreground lg:py-1.5"
+              >
+                <span className="font-mono text-[11px] tabular-nums group-aria-[current=page]:text-safelight-ink">
+                  {String.fromCharCode(65 + i)}
+                </span>
+                {p.title}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
 
 export function LegalDocumentView({ doc, lastUpdated }: { doc: LegalDocument; lastUpdated: string }) {
+  const index = doc.sections.map((s) => {
+    const [n, text] = splitHeading(s.heading);
+    return { href: `#${s.id}`, label: text, no: n ? folio(Number(n)) : undefined };
+  });
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pt-12 pb-20 sm:px-6 sm:pt-16">
-      <LegalTemplateNotice />
+    <>
+      <Masthead
+        section="Legal"
+        meta={
+          <>
+            Last updated <time dateTime={lastUpdated}>{formatDate(lastUpdated)}</time>
+          </>
+        }
+        title={doc.title}
+        lead={<>Operated by {APP.legalEntity}.</>}
+      />
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14">
-        <aside className="flex flex-col gap-8 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
-          <nav aria-label="Legal documents">
-            <p className="px-3 pb-2 text-xs font-semibold tracking-wider uppercase">Legal</p>
-            <ul className="flex flex-col gap-0.5">
-              {LEGAL_PAGES.map((p) => {
-                const current = p.slug === doc.slug;
-                return (
-                  <li key={p.slug}>
-                    <Link
-                      href={p.href}
-                      aria-current={current ? "page" : undefined}
-                      className={cn(
-                        navLink,
-                        current
-                          ? "bg-accent font-medium text-foreground"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {p.title}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-          <nav aria-label="On this page" className="hidden lg:block">
-            <p className="px-3 pb-2 text-xs font-semibold tracking-wider uppercase">On this page</p>
-            <ol className="flex flex-col gap-0.5">
-              {doc.sections.map((s) => (
-                <li key={s.id}>
-                  <a href={`#${s.id}`} className={cn(navLink, "py-1 text-muted-foreground hover:text-foreground")}>
-                    {s.heading}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
+      <div className={cn(PAGE, "mt-10 grid gap-10 pb-20 sm:mt-14 sm:pb-28 lg:grid-cols-12")}>
+        <aside className="flex flex-col gap-8 lg:sticky lg:top-24 lg:col-span-3 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto lg:pb-6">
+          <DocumentsNav current={doc.slug} />
+          <MarginIndex label="On this page" heading="On this page" items={index} mobile="fold" />
         </aside>
 
-        <article className="min-w-0">
-          <header>
-            <p className="font-mono text-xs font-medium tracking-[0.18em] text-brand-soft-foreground uppercase">
-              Legal
-            </p>
-            <h1 className="mt-3 font-display text-5xl leading-[1.02] tracking-tight sm:text-6xl">{doc.title}</h1>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Last updated <time dateTime={lastUpdated}>{formatDate(lastUpdated)}</time> · Operated by {APP.legalEntity}
-            </p>
-          </header>
+        <article className="min-w-0 lg:col-span-9 lg:max-w-[46rem]">
+          <LegalTemplateNotice />
 
-          {/* Phones/tablets: the sidebar table of contents is hidden, so offer a collapsible one here. */}
-          <details className="mt-6 rounded-xl border bg-card lg:hidden">
-            <summary className="cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold">On this page</summary>
-            <nav aria-label="On this page" className="px-1 pb-3">
-              <ol className="flex flex-col gap-0.5">
-                {doc.sections.map((s) => (
-                  <li key={s.id}>
-                    <a href={`#${s.id}`} className={cn(navLink, "text-muted-foreground hover:text-foreground")}>
-                      {s.heading}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          </details>
-
-          <section aria-labelledby="summary-title" className="mt-8 rounded-2xl border bg-card p-6 shadow-xs">
-            <h2 id="summary-title" className="text-sm font-semibold tracking-wider uppercase">
+          <section aria-labelledby="summary-title" className="mt-10">
+            <h2 id="summary-title" className="font-display text-3xl leading-tight">
               In plain words
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-[1.0625rem] leading-relaxed text-pretty text-foreground/85">
               <InlineText text={doc.summary} />
             </p>
-            <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+            <ol className="mt-6 border-t border-foreground">
               {doc.highlights.map((h, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-gradient" />
+                <li
+                  key={i}
+                  className="grid grid-cols-[2.5rem_minmax(0,1fr)] border-b border-border py-3 text-[0.95rem] leading-relaxed"
+                >
+                  <span aria-hidden="true" className="font-mono text-[11px] text-safelight-ink tabular-nums">
+                    {folio(i + 1)}
+                  </span>
                   <span>
                     <InlineText text={h} />
                   </span>
                 </li>
               ))}
-            </ul>
+            </ol>
           </section>
 
-          <div className="mt-12 flex flex-col gap-12 text-[0.95rem] leading-relaxed text-muted-foreground">
-            {doc.sections.map((s) => (
-              <section key={s.id} id={s.id} aria-labelledby={`${s.id}-heading`} className="scroll-mt-24">
-                <h2 id={`${s.id}-heading`} className="mb-4 text-xl font-semibold tracking-tight text-foreground">
-                  {s.heading}
-                </h2>
-                <div className="flex flex-col gap-4">
-                  {s.blocks.map((b, i) => (
-                    <Block key={i} block={b} />
-                  ))}
-                </div>
-              </section>
-            ))}
+          <div className="mt-16 flex flex-col gap-14 text-[0.975rem] leading-relaxed text-foreground/85">
+            {doc.sections.map((s) => {
+              const [n, text] = splitHeading(s.heading);
+              return (
+                <section key={s.id} id={s.id} aria-labelledby={`${s.id}-heading`} className="scroll-mt-24">
+                  <h2
+                    id={`${s.id}-heading`}
+                    className="flex items-baseline gap-3 border-t border-foreground pt-3 font-display text-[1.75rem] leading-tight text-foreground sm:text-3xl"
+                  >
+                    {n && (
+                      <span className="font-mono text-xs tracking-[0.12em] text-muted-foreground">
+                        §&nbsp;{folio(Number(n))}
+                      </span>
+                    )}
+                    <span>{text}</span>
+                  </h2>
+                  <div className="mt-5 flex flex-col gap-4">
+                    {s.blocks.map((b, i) => (
+                      <Block key={i} block={b} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </article>
       </div>
-    </div>
+    </>
   );
 }

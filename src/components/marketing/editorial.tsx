@@ -14,7 +14,7 @@ export function folio(n: number): string {
 }
 
 /** Width + gutters shared with the marketing header. */
-export const PAGE = "mx-auto w-full max-w-6xl px-4 sm:px-6";
+export const PAGE = "mx-auto w-full max-w-[90rem] px-4 sm:px-8 lg:px-12";
 
 /**
  * Page opener: a mono running head over an ink rule, then a big left-aligned serif title with the lead set
@@ -44,7 +44,7 @@ export function Masthead({
     <header className={cn(PAGE, "pt-10 sm:pt-16", className)}>
       <div className="flex items-baseline justify-between gap-4 border-b border-foreground pb-2.5">
         <p className="mono-caps">{section}</p>
-        {meta && <p className="mono-caps text-right text-muted-foreground">{meta}</p>}
+        {meta && <p className="mono-caps shrink-0 text-right whitespace-nowrap text-muted-foreground">{meta}</p>}
       </div>
       <div className="mt-8 grid gap-6 sm:mt-10 lg:grid-cols-12 lg:gap-10">
         <h1
@@ -112,7 +112,10 @@ export function Leader({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={cn("mx-2 h-[0.7em] min-w-4 flex-1 self-baseline border-b-2 border-dotted border-foreground/30", className)}
+      className={cn(
+        "mx-2 h-[0.7em] min-w-4 flex-1 self-baseline border-b-2 border-dotted border-foreground/30",
+        className,
+      )}
     />
   );
 }
@@ -146,6 +149,8 @@ export interface IndexItem {
   label: string;
   /** Overrides the running number. */
   no?: string;
+  /** Right-aligned mono note (a count, a page number). */
+  meta?: string;
   current?: boolean;
 }
 
@@ -175,7 +180,7 @@ export function MarginIndex({
           <a
             href={item.href}
             aria-current={item.current ? "page" : undefined}
-            className="group flex min-h-11 items-baseline gap-3 py-2 text-sm text-muted-foreground transition-colors [--focus-offset:-2px] hover:text-foreground aria-[current=page]:text-foreground lg:min-h-0 lg:py-1.5"
+            className="group flex items-baseline gap-3 py-3 text-sm text-muted-foreground transition-colors [--focus-offset:-2px] hover:text-foreground aria-[current=page]:text-foreground lg:py-1.5"
           >
             <span className="font-mono text-[11px] text-muted-foreground tabular-nums group-aria-[current=page]:text-safelight-ink">
               {item.no ?? folio(i + 1)}
@@ -183,6 +188,9 @@ export function MarginIndex({
             <span className="text-pretty group-hover:underline group-hover:underline-offset-4 group-aria-[current=page]:font-medium">
               {item.label}
             </span>
+            {item.meta && (
+              <span className="ml-auto pl-2 font-mono text-[11px] text-muted-foreground tabular-nums">{item.meta}</span>
+            )}
           </a>
         </li>
       ))}
@@ -276,7 +284,10 @@ export function Readout({ items, className }: { items: React.ReactNode[]; classN
       )}
     >
       {items.map((item, i) => (
-        <li key={i} className="mono-caps flex gap-2.5 bg-background py-3 pr-3 leading-normal text-foreground/80 not-first:pl-3 max-lg:odd:pl-0">
+        <li
+          key={i}
+          className="mono-caps flex gap-2.5 bg-background py-3 pr-3 leading-normal text-foreground/80 not-first:pl-3 max-lg:odd:pl-0"
+        >
           <span aria-hidden="true" className="text-safelight-ink tabular-nums">
             {folio(i + 1)}
           </span>

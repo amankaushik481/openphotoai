@@ -24,7 +24,8 @@ export const metadata: Metadata = marketingMetadata({
   path: "/pricing",
 });
 
-const textLink = "font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground";
+const textLink =
+  "font-medium text-foreground underline decoration-foreground/25 underline-offset-[5px] transition-colors hover:decoration-safelight-ink";
 
 function Section({ id, className, children }: { id: string; className?: string; children: React.ReactNode }) {
   return (

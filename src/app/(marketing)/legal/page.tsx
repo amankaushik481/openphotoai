@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRightIcon } from "lucide-react";
 
+import { Leader, Masthead, PAGE } from "@/components/marketing/editorial";
 import { LegalTemplateNotice } from "@/components/marketing/legal-document";
 import { APP } from "@/config/app";
 import { toPlainText } from "@/content/inline";
-import { getLegalDocument, LEGAL_PAGES } from "@/content/legal";
+import { getLegalDocument, LEGAL_LAST_UPDATED, LEGAL_PAGES } from "@/content/legal";
 import { marketingMetadata } from "@/content/site";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = marketingMetadata({
   title: "Legal",
@@ -16,30 +17,48 @@ export const metadata: Metadata = marketingMetadata({
 
 export default function LegalIndexPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-12 pb-20 sm:px-6 sm:pt-16">
-      <LegalTemplateNotice />
-      <h1 className="mt-10 font-display text-5xl leading-[1.02] tracking-tight sm:text-6xl">Legal</h1>
-      <ul className="mt-10 flex flex-col gap-4">
-        {LEGAL_PAGES.map((p) => (
-          <li key={p.slug}>
-            <Link
-              href={p.href}
-              className="group flex items-start justify-between gap-4 rounded-2xl border bg-card p-6 shadow-xs transition-colors hover:border-primary/40"
-            >
-              <span>
-                <span className="block text-lg font-semibold">{p.title}</span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  {toPlainText(getLegalDocument(p.slug).summary)}
-                </span>
-              </span>
-              <ArrowRightIcon
-                aria-hidden="true"
-                className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-              />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <Masthead
+        section="Legal"
+        meta={
+          <>
+            Updated <time dateTime={LEGAL_LAST_UPDATED}>{LEGAL_LAST_UPDATED}</time>
+          </>
+        }
+        title="The fine print, in full."
+        lead={`Everything that governs using ${APP.name}, each with a summary in plain words first.`}
+      />
+      <div className={cn(PAGE, "mt-12 pb-20 sm:mt-16 sm:pb-28 lg:grid lg:grid-cols-12 lg:gap-10")}>
+        <div className="lg:col-span-8 lg:col-start-4">
+          <LegalTemplateNotice />
+          <ol className="mt-10 border-t border-foreground">
+            {LEGAL_PAGES.map((p, i) => {
+              const doc = getLegalDocument(p.slug);
+              return (
+                <li key={p.slug} className="border-b border-border">
+                  <Link href={p.href} className="group block py-6 [--focus-offset:-2px]">
+                    <span className="flex items-baseline gap-4">
+                      <span aria-hidden="true" className="font-mono text-xs text-muted-foreground">
+                        {String.fromCharCode(65 + i)}
+                      </span>
+                      <span className="font-display text-4xl leading-none decoration-safelight-ink decoration-2 underline-offset-[6px] group-hover:underline sm:text-5xl">
+                        {p.title}
+                      </span>
+                      <Leader className="hidden sm:block" />
+                      <span className="mono-caps hidden shrink-0 text-muted-foreground sm:inline">
+                        {doc.sections.length} sections
+                      </span>
+                    </span>
+                    <span className="mt-3 block max-w-[62ch] pl-7 text-sm text-pretty text-muted-foreground sm:pl-8">
+                      {toPlainText(doc.summary)}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </>
   );
 }

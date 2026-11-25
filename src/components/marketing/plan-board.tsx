@@ -64,7 +64,7 @@ function PlanColumn({ plan, index }: { plan: Plan; index: number }) {
     free ? "/login" : publicCheckoutHref({ type: "plan", planId: plan.id as Exclude<PlanId, "free">, interval });
   // cn() lets the size's font-size win over the base one (cva alone keeps both classes).
   const ctaClass = cn(
-    buttonVariants({ variant: plan.popular ? "brand" : "outline", size: "lg", className: "w-full rounded-[2px]" }),
+    buttonVariants({ variant: plan.popular ? "brand" : "outline", size: "lg", className: "w-full rounded-[3px]" }),
   );
   const label = free ? "Start free" : `Get ${plan.name}`;
 
@@ -206,7 +206,7 @@ export function CreditPackBoard({ className }: { className?: string }) {
           <Link
             href={publicCheckoutHref({ type: "credit_pack", packId: pack.id })}
             className={cn(
-              buttonVariants({ variant: pack.popular ? "brand" : "outline", className: "rounded-[2px] sm:w-44" }),
+              buttonVariants({ variant: pack.popular ? "brand" : "outline", className: "rounded-[3px] sm:w-44" }),
             )}
           >
             Buy {pack.name}

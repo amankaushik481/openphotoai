@@ -22,14 +22,17 @@ export function CreditExamples() {
       {/* 1px gaps over the hairline colour draw the rules between cells, whatever the column count. */}
       <ul className="mt-5 grid grid-cols-2 gap-px border-y border-foreground bg-border sm:grid-cols-3 lg:grid-cols-6">
         {examples.map((e, i) => (
-          <li
-            key={e.key}
-            className="flex flex-col bg-background px-4 py-5"
-          >
-            <span className="font-mono text-[11px] text-muted-foreground tabular-nums">{String(i + 1).padStart(2, "0")}</span>
-            <span className="mt-2 font-display text-5xl leading-none tabular-nums">{e.count.toLocaleString("en-US")}</span>
+          <li key={e.key} className="flex flex-col bg-background px-4 py-5">
+            <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="mt-2 font-display text-5xl leading-none tabular-nums">
+              {e.count.toLocaleString("en-US")}
+            </span>
             <span className="mt-2 text-sm font-medium">{e.count === 1 ? e.label[0] : e.label[1]}</span>
-            <span className="mt-0.5 font-mono text-[11px] text-muted-foreground">{formatCreditCost(e.credits)} each</span>
+            <span className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+              {formatCreditCost(e.credits)} each
+            </span>
           </li>
         ))}
       </ul>

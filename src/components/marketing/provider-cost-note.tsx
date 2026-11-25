@@ -78,7 +78,7 @@ export function ProviderCostNote() {
           href={APP.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-2 self-start text-sm font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground focus-visible:rounded-sm"
+          className="mt-6 inline-flex items-center gap-2 self-start text-sm font-medium underline decoration-foreground/25 underline-offset-[5px] hover:decoration-safelight-ink focus-visible:rounded-sm"
         >
           <GithubIcon className="size-4" />
           Get the source
