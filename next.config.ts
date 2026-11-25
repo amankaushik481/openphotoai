@@ -100,9 +100,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  experimental: {
-    serverActions: { bodySizeLimit: "10mb" },
-  },
+  // No `experimental.serverActions.bodySizeLimit` override: the app has no server actions, so Next's
+  // 1 MB default caps what a forged `Next-Action` POST can make the server buffer (it used to be 10 MB).
   async headers() {
     const https = (process.env.NEXT_PUBLIC_APP_URL ?? "").startsWith("https://");
     return [
@@ -120,9 +119,15 @@ const nextConfig: NextConfig = {
       {
         // Pages only: API routes set their own (e.g. /api/files: `default-src 'none'; sandbox`).
         // Baseline directives that can't break rendering; a nonce-based script-src would make every
-        // page dynamic (see docs/KNOWN_ISSUES.md "Security").
+        // page dynamic (see docs/KNOWN_ISSUES.md "Security"). Every form posts to this origin (the zip
+        // download, admin filters), so `form-action 'self'` stops an injected form from sending data
+        // elsewhere. Sign-in, checkout and the billing portal are top-level navigations, never popups,
+        // so pages can drop their opener relationship with other origins (COOP).
         source: "/:path((?!api/).*)",
-        headers: [{ key: "Content-Security-Policy", value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'" }],
+        headers: [
+          { key: "Content-Security-Policy", value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+        ],
       },
     ];
   },

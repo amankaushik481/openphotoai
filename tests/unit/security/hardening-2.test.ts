@@ -1,9 +1,41 @@
 /**
  * Second security pass (docs/reviews/security-2.md), hardening findings.
  *   S2-6  the provider-output SSRF guard sees through IPv6 spellings of private IPv4 addresses
+ *   S2-9  page headers: form-action + COOP; no 10 MB server-action body limit (there are no actions)
  */
 import { describe, expect, it, vi } from "vitest";
 import { assertPublicHttpsUrl, fetchOutputBytes } from "@/providers/ai/shared/fetch-output";
+import nextConfig from "../../../next.config";
+
+describe("S2-9: security headers", () => {
+  async function headersFor(path: string) {
+    const rules = (await nextConfig.headers?.()) ?? [];
+    const out = new Map<string, string>();
+    for (const rule of rules) {
+      const pattern = new RegExp(`^${rule.source.replace("/:path*", "(/.*)?").replace("/:path((?!api/).*)", "/(?!api/).*")}$`);
+      if (pattern.test(path)) for (const h of rule.headers) out.set(h.key, h.value);
+    }
+    return out;
+  }
+
+  it("pages forbid off-site form posts and keep no opener relationship", async () => {
+    const page = await headersFor("/app/gallery");
+    expect(page.get("Content-Security-Policy")).toContain("form-action 'self'");
+    expect(page.get("Content-Security-Policy")).toContain("frame-ancestors 'self'");
+    expect(page.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+    expect(page.get("X-Content-Type-Options")).toBe("nosniff");
+  });
+
+  it("API routes keep their own CSP (e.g. /api/files' sandbox)", async () => {
+    const api = await headersFor("/api/files/users/u/media/m.jpg");
+    expect(api.has("Content-Security-Policy")).toBe(false);
+    expect(api.get("X-Content-Type-Options")).toBe("nosniff");
+  });
+
+  it("doesn't raise the server-action body limit (the app has no server actions)", () => {
+    expect(nextConfig.experimental?.serverActions?.bodySizeLimit).toBeUndefined();
+  });
+});
 
 describe("S2-6: SSRF guard on provider output URLs", () => {
   it.each([
