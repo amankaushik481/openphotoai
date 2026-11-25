@@ -4,13 +4,12 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { ComparisonTable } from "@/components/marketing/comparison-table";
 import { FaqList } from "@/components/marketing/faq-list";
-import { FeatureGrid } from "@/components/marketing/feature-grid";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { Hero } from "@/components/marketing/hero";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { OpenSource } from "@/components/marketing/open-source";
-import { PacksShowcase, pickShowcasePacks } from "@/components/marketing/packs-showcase";
+import { PacksShowcase } from "@/components/marketing/packs-showcase";
 import { PricingTeaser } from "@/components/marketing/pricing-teaser";
 import { PrivacySafety } from "@/components/marketing/privacy-safety";
 import { MarketingSection, SectionHeading } from "@/components/marketing/section-heading";
@@ -41,9 +40,6 @@ export default async function HomePage() {
       {/* Below the fold: rendered when scrolled near (see `render-lazy`); sizes are rough estimates. */}
       <div className="render-lazy [--render-size:1200px] md:[--render-size:700px]">
         <HowItWorks />
-      </div>
-      <div className="render-lazy [--render-size:3100px] md:[--render-size:2100px] lg:[--render-size:1350px]">
-        <FeatureGrid packCount={packs.length} packNames={pickShowcasePacks(packs, 7).map((p) => p.name)} />
       </div>
       <div className="render-lazy [--render-size:1650px] lg:[--render-size:1170px]">
         <PacksShowcase packs={packs} />

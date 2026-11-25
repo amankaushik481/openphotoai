@@ -26,7 +26,7 @@ export default async function DevEmailTemplatesPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-      <Link href="/dev/emails" className="text-sm text-violet-700 underline-offset-4 hover:underline dark:text-violet-300">
+      <Link href="/dev/emails" className="text-sm text-safelight-ink underline-offset-4 hover:underline">
         ← Dev mailbox
       </Link>
       <header className="mt-4 mb-8">
@@ -41,7 +41,7 @@ export default async function DevEmailTemplatesPage() {
             <a
               key={name}
               href={`#${name}`}
-              className="rounded bg-violet-100 px-2 py-1 font-mono text-violet-900 dark:bg-violet-950 dark:text-violet-100"
+              className="rounded bg-brand-soft px-2 py-1 font-mono text-brand-soft-foreground"
             >
               {name}
             </a>

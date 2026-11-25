@@ -1,150 +1,113 @@
 import Link from "next/link";
-import { ArrowRightIcon, BadgeCheckIcon, Undo2Icon } from "lucide-react";
+import { ArrowRightIcon, ArrowUpRightIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { DemoLoginButton } from "@/components/demo/demo-login-button";
 import { GithubIcon } from "@/components/layout/icons";
-import { PortraitArt, type PortraitHair } from "@/components/marketing/portrait-art";
+import { ContactSheet, Loupe, frameNumber, type SheetFrame } from "@/components/marketing/contact-sheet";
+import { GreasePencil } from "@/components/marketing/grease-pencil";
+import { Button } from "@/components/ui/button";
 import { APP } from "@/config/app";
 import { CREDIT_COSTS } from "@/config/credits";
 import { formatCreditCost } from "@/content/credit-costs";
-import { cn } from "@/lib/utils";
 
-interface Frame {
-  label: string;
-  colors: [string, string];
-  hair: PortraitHair;
-  tilt: number;
-  light: number;
-  score: number;
-  /** Below the likeness threshold: hidden from the gallery and refunded. */
-  refunded?: boolean;
-}
-
-const FRAMES: Frame[] = [
-  { label: "LinkedIn", colors: ["#1d4ed8", "#38bdf8"], hair: "short", tilt: -3, light: 34, score: 97 },
-  { label: "Golden hour", colors: ["#c2410c", "#fbbf24"], hair: "long", tilt: 4, light: 124, score: 95 },
-  { label: "Paris", colors: ["#9d174d", "#f472b6"], hair: "bun", tilt: -2, light: 46, score: 93 },
-  { label: "Old money", colors: ["#14532d", "#a8a29e"], hair: "short", tilt: 2, light: 118, score: 96 },
-  {
-    label: "Neon night",
-    colors: ["#6d28d9", "#06b6d4"],
-    hair: "curly",
-    tilt: -6,
-    light: 30,
-    score: 64,
-    refunded: true,
-  },
-  { label: "Studio B&W", colors: ["#1c1917", "#78716c"], hair: "long", tilt: 1, light: 112, score: 94 },
+/** Roll 01: twelve lighting studies of one (abstract) sitter. Scores are illustrative. */
+const ROLL: SheetFrame[] = [
+  { setup: "rembrandt", hair: "short", x: -16, tilt: -3, score: 0.86 },
+  { setup: "window", hair: "long", x: 14, tilt: 2, score: 0.88, keep: true },
+  { setup: "split", hair: "crop", x: -4, score: 0.79 },
+  { setup: "butterfly", hair: "bun", x: -8, tilt: 2, score: 0.9, keep: true },
+  { setup: "loop", hair: "long", x: 14, flip: true, score: 0.84 },
+  { setup: "low-key", hair: "short", x: -12, score: 0.74 },
+  { setup: "silhouette", hair: "curly", x: 12, score: 0.38, reject: true },
+  { setup: "rim", hair: "short", x: 0, score: 0.77 },
+  { setup: "high-key", hair: "long", x: -14, tilt: -2, score: 0.83 },
+  { setup: "rembrandt", hair: "curly", flip: true, x: 10, score: 0.85 },
+  { setup: "window", hair: "bun", flip: true, x: -6, score: 0.81 },
+  { setup: "loop", hair: "short", x: 8, tilt: 2, score: 0.92, keep: true },
 ];
+const START = 12;
+const LOUPE = 11;
 
 export function Hero() {
-  const kept = FRAMES.filter((f) => !f.refunded).length;
+  const kept = ROLL.filter((f) => !f.reject).length;
+  const best = ROLL.filter((f) => f.keep).length;
   return (
-    <section aria-labelledby="hero-title" className="grain relative overflow-hidden">
-      {/* will-change: own compositor layer, so the large blur is applied once instead of in every raster tile
-          (a shorter first frame: the hero headline is the LCP element). */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-48 left-1/2 -z-10 h-[34rem] w-[60rem] -translate-x-1/2 rounded-full bg-brand-gradient opacity-[0.16] blur-3xl will-change-transform dark:opacity-25"
-      />
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-14 pb-20 sm:px-6 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-24 lg:pb-28">
-        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-          <a
-            href={APP.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mb-7 inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs transition-colors hover:text-foreground"
-          >
-            <GithubIcon className="size-3.5" />
-            Open source · MIT · self-hostable
-            <span className="sr-only">(opens in a new tab)</span>
-          </a>
+    <section aria-labelledby="hero-title" className="grain relative overflow-x-clip">
+      <div className="mx-auto grid max-w-[90rem] gap-x-10 gap-y-14 px-4 pt-10 pb-16 sm:px-8 sm:pt-14 lg:grid-cols-12 lg:px-12 lg:pt-16 lg:pb-20">
+        <div className="flex flex-col lg:col-span-7 lg:pt-4">
+          <p className="mono-caps flex items-center gap-2.5 text-muted-foreground">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-safelight-ink" />
+            {APP.tagline}
+          </p>
           <h1
             id="hero-title"
-            className="font-display text-[3.25rem] leading-[0.98] tracking-tight sm:text-7xl lg:text-[5.25rem]"
+            className="mt-6 font-display text-[clamp(3.6rem,19vw,5.5rem)] leading-[0.86] tracking-[-0.035em] sm:text-[clamp(5rem,10.4vw,9.75rem)]"
           >
-            Your AI photographer.
-            <br />
-            <span className="text-brand-gradient pr-1 italic">Open source.</span>
+            Portraits that look like{" "}
+            <span className="relative inline-block pr-[0.06em] italic">
+              you.
+              <GreasePencil
+                mark="underline"
+                delay={900}
+                strokeWidth={3.2}
+                className="pencil-now absolute -bottom-[0.04em] left-[-0.04em] h-[0.16em] w-[1.12em]"
+              />
+            </span>
           </h1>
-          <p className="mt-6 max-w-xl text-base text-pretty text-muted-foreground sm:text-lg">
-            Take a live selfie, add a few photos, and get studio-quality headshots, dating photos, travel shots and
-            videos that actually look like you. Shots that miss on likeness are refunded automatically.
+          <p className="mt-7 max-w-[33rem] text-[1.0625rem] leading-relaxed text-pretty sm:mt-8 sm:text-xl sm:leading-relaxed">
+            Take a live selfie and add a few photos. {APP.name} learns your face, then shoots headshots, dating, travel
+            and editorial portraits. Every frame is scored against your selfie; the ones that miss are refunded.
           </p>
-          {/* Phones: the secondary buttons share a row, so the demo button appearing (after its probe) widens
-              "Self-host it" instead of pushing the content below down (no layout shift). */}
-          <div className="mt-9 flex w-full flex-wrap gap-3 sm:w-auto">
-            <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
+          <div className="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
+            <Button asChild variant="brand" size="lg" className="h-12 rounded-[3px] px-6 text-[15px] sm:w-auto">
               <Link href="/login">
-                Create your photos
-                <ArrowRightIcon />
+                Start shooting
+                <span aria-hidden="true" className="h-4 w-px bg-white/40" />
+                <span className="font-normal">free drafts</span>
+                <ArrowRightIcon aria-hidden="true" />
               </Link>
             </Button>
-            {/* Static page: the island asks the server whether DEMO_MODE is on and stays hidden otherwise. */}
-            <DemoLoginButton probe label="Try the demo" className="w-auto min-w-max flex-1 sm:flex-none" />
-            <Button asChild variant="outline" size="lg" className="min-w-max flex-1 sm:flex-none">
-              <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer">
+            {/* The demo link appears after its probe; it comes last so nothing moves when it does. */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px]">
+              <a
+                href={APP.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 font-medium underline decoration-foreground/25 underline-offset-[5px] transition-colors hover:decoration-safelight-ink sm:min-h-0"
+              >
                 <GithubIcon className="size-4" />
-                Self-host it
+                Self-host on GitHub
+                <ArrowUpRightIcon aria-hidden="true" className="size-3.5 text-muted-foreground" />
                 <span className="sr-only">(opens in a new tab)</span>
               </a>
-            </Button>
+              <DemoLoginButton
+                probe
+                variant="ghost"
+                label="Try the demo"
+                className="h-auto min-h-11 w-auto px-0 text-[15px] font-medium underline decoration-foreground/25 underline-offset-[5px] hover:bg-transparent hover:decoration-safelight-ink sm:min-h-0 dark:hover:bg-transparent [&_svg]:size-3.5"
+              />
+            </div>
           </div>
-          <p className="mt-5 text-sm text-muted-foreground">
+          <p className="mono-caps mt-7 leading-relaxed text-muted-foreground sm:mt-8">
             Free drafts <span aria-hidden="true">·</span> From {formatCreditCost(CREDIT_COSTS.generateStandard)} a photo{" "}
             <span aria-hidden="true">·</span> Credits never expire
           </p>
         </div>
 
-        <figure className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="rounded-2xl border bg-card/90 p-3 shadow-[0_30px_80px_-40px_rgb(0_0_0/0.45)] sm:p-4 lg:rotate-[1.25deg]">
-            <div className="mb-3 flex items-center justify-between gap-3 px-1 font-mono text-[11px] tracking-wide text-muted-foreground uppercase">
-              <span>Contact sheet · You</span>
-              <span className="inline-flex items-center gap-1 text-foreground">
-                <BadgeCheckIcon aria-hidden="true" className="size-3.5 text-success" />
-                Best shots first
-              </span>
-            </div>
-            <ul className="grid grid-cols-3 gap-2 sm:gap-3">
-              {FRAMES.map((frame, i) => (
-                <li key={frame.label}>
-                  <div
-                    className="grain relative aspect-[4/5] overflow-hidden rounded-lg ring-1 ring-black/5"
-                    style={{
-                      backgroundImage: `linear-gradient(150deg, ${frame.colors[0]} 0%, ${frame.colors[1]} 100%)`,
-                    }}
-                  >
-                    <PortraitArt hair={frame.hair} tilt={frame.tilt} light={frame.light} />
-                    <span className="absolute top-1.5 left-1.5 font-mono text-[10px] text-white/85">
-                      {String(i + 1).padStart(2, "0")}A
-                    </span>
-                    {frame.refunded && (
-                      <div className="absolute inset-0 flex items-end justify-center bg-background/60 p-1.5 backdrop-grayscale">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[10px] font-medium text-foreground shadow-xs">
-                          <Undo2Icon aria-hidden="true" className="size-3" />
-                          Refunded
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-1.5 flex items-center justify-between gap-1 px-0.5 text-[11px] leading-none">
-                    <span className="truncate text-muted-foreground">{frame.label}</span>
-                    <span
-                      className={cn(
-                        "font-mono tabular-nums",
-                        frame.refunded ? "text-muted-foreground line-through" : "font-medium text-success",
-                      )}
-                    >
-                      {frame.score}%
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <figure className="relative mx-auto w-full max-w-[34rem] lg:col-span-5 lg:mt-2 lg:max-w-none">
+          <div className="relative rotate-[-1.4deg] lg:rotate-[-1.8deg]">
+            <ContactSheet id="hero-sheet" frames={ROLL} start={START} motion="now" />
+            {/* Over the last frame, hanging off the sheet's corner onto the table. */}
+            <Loupe
+              id="hero-loupe"
+              frame={ROLL[LOUPE]!}
+              label={`${frameNumber(START, LOUPE)}A`}
+              className="absolute right-[-4%] bottom-[-7%] w-[40%] rotate-[1.8deg] drop-shadow-[0_22px_22px_rgb(0_0_0/0.35)] sm:right-[-8%]"
+            />
           </div>
-          <figcaption className="mt-4 text-center text-xs text-muted-foreground lg:text-left">
-            Illustration: {kept} shots kept, 1 below the likeness threshold hidden and its credits refunded.
+          <figcaption className="mono-caps mt-8 max-w-[62%] leading-relaxed text-muted-foreground sm:mt-10">
+            Fig. 1 — Illustration, not real output. Roll of {ROLL.length}: {kept} kept, {best} circled as best shots, 1
+            below the likeness threshold, hidden and refunded.
           </figcaption>
         </figure>
       </div>
