@@ -13,7 +13,7 @@ export function AuthShell({
   label = "The darkroom",
 }: {
   children: ReactNode;
-  width?: "sm" | "lg";
+  width?: "sm" | "lg" | "xl";
   /** Mono running head beside the wordmark (wide screens). */
   label?: string;
 }) {
@@ -27,7 +27,7 @@ export function AuthShell({
         id="main"
         className={cn(
           "mx-auto flex w-full flex-1 flex-col px-4 pt-8 pb-12 sm:justify-center sm:py-14",
-          width === "sm" ? "max-w-[27rem]" : "max-w-xl",
+          width === "sm" ? "max-w-[27rem]" : width === "lg" ? "max-w-xl" : "max-w-5xl",
         )}
       >
         {children}
