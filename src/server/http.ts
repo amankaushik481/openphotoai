@@ -323,6 +323,16 @@ export function clientIp(req: Request): string {
   return ip ?? "unknown";
 }
 
+/**
+ * The client IP, or null when it can't be known (no trusted proxy). A per-IP limit keyed on "unknown"
+ * is one bucket for every visitor of the deployment, so a single client could exhaust it for all:
+ * callers pick a per-user / per-target subject (or skip the per-IP limit) when this is null.
+ */
+export function knownClientIp(req: Request): string | null {
+  const ip = clientIp(req);
+  return ip === "unknown" ? null : ip;
+}
+
 /** The raw forwarded headers, kept next to the resolved IP as evidence (consent records). */
 export function forwardedChain(req: Request): { xForwardedFor: string | null; xRealIp: string | null } {
   const cap = (v: string | null) => (v ? v.slice(0, 512) : null);
