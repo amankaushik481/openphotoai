@@ -113,7 +113,7 @@ export default async function AdminOverviewPage({
         title="Recent failures"
         description="Newest failed jobs. Failed jobs are refunded automatically; refund the rest by hand if needed."
         action={
-          <Link href="/admin/jobs?status=failed" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/admin/jobs?status=failed" className="text-sm font-medium underline underline-offset-4">
             All failures
           </Link>
         }

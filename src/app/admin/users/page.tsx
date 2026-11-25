@@ -137,7 +137,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
               <EmptyRow colSpan={5}>
                 {filtered ? "No users match these filters." : "No users yet."}{" "}
                 {filtered && (
-                  <Link href="/admin/users" className="font-medium text-primary underline-offset-4 hover:underline">
+                  <Link href="/admin/users" className="font-medium underline underline-offset-4">
                     Reset filters
                   </Link>
                 )}

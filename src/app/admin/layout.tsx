@@ -28,10 +28,13 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
       <div className="flex min-h-dvh flex-col">
         <SkipLink />
         <DemoModeBanner mocked={env.demoBanner ? env.mockedProviders : null} />
-        <header className="glass sticky top-0 z-30 border-b border-border/70">
+        <header className="sticky top-0 z-30 border-b border-foreground/15 bg-background">
           <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
             <Logo href="/admin" showName={false} />
             <span className="font-display text-xl leading-none">{t("admin.title")}</span>
+            <span aria-hidden="true" className="mono-caps hidden text-muted-foreground sm:inline">
+              Lab office
+            </span>
             <div className="ml-auto flex items-center gap-2">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/app">
