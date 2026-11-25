@@ -8,6 +8,7 @@ import { FinalCta } from "@/components/marketing/final-cta";
 import { Hero } from "@/components/marketing/hero";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { JsonLd } from "@/components/marketing/json-ld";
+import { LikenessProof } from "@/components/marketing/likeness-proof";
 import { OpenSource } from "@/components/marketing/open-source";
 import { PacksShowcase } from "@/components/marketing/packs-showcase";
 import { PricingTeaser } from "@/components/marketing/pricing-teaser";
@@ -36,10 +37,13 @@ export default async function HomePage() {
     <>
       <JsonLd data={[buildSoftwareApplicationJsonLd(), buildOrganizationJsonLd()]} />
       <Hero />
-      <TrustStrip />
+      <TrustStrip packCount={packs.length} styleCount={packs.reduce((n, p) => n + p.promptCount, 0)} />
       {/* Below the fold: rendered when scrolled near (see `render-lazy`); sizes are rough estimates. */}
       <div className="render-lazy [--render-size:1200px] md:[--render-size:700px]">
         <HowItWorks />
+      </div>
+      <div className="render-lazy [--render-size:2100px] lg:[--render-size:1400px]">
+        <LikenessProof />
       </div>
       <div className="render-lazy [--render-size:1650px] lg:[--render-size:1170px]">
         <PacksShowcase packs={packs} />

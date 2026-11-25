@@ -10,15 +10,7 @@ import { cn } from "@/lib/utils";
 export type PortraitHair = "short" | "long" | "bun" | "curly" | "crop";
 
 export type LightingSetup =
-  | "rembrandt"
-  | "loop"
-  | "butterfly"
-  | "split"
-  | "rim"
-  | "window"
-  | "high-key"
-  | "low-key"
-  | "silhouette";
+  "rembrandt" | "loop" | "butterfly" | "split" | "rim" | "window" | "high-key" | "low-key" | "silhouette";
 
 export const LIGHTING_LABEL: Record<LightingSetup, string> = {
   rembrandt: "Rembrandt",
@@ -38,7 +30,11 @@ const PAPER: [number, number, number] = [239, 232, 220];
 /** Tone 0 (ink) … 1 (paper) as hex. */
 function tone(t: number): string {
   const k = Math.min(1, Math.max(0, t));
-  return `#${INK.map((c, i) => Math.round(c + (PAPER[i]! - c) * k).toString(16).padStart(2, "0")).join("")}`;
+  return `#${INK.map((c, i) =>
+    Math.round(c + (PAPER[i]! - c) * k)
+      .toString(16)
+      .padStart(2, "0"),
+  ).join("")}`;
 }
 
 interface Study {
@@ -76,7 +72,8 @@ const HEAD = "M100 55C116 55 126 68 126 86C126 104 115 118 100 118C85 118 74 104
 const NECK = "M88 108L112 108L115 138L85 138Z";
 const BODY = "M28 200C31 160 58 138 100 136C142 138 169 160 172 200Z";
 /** Outline traced by the rim light (shoulder, neck, head, neck, shoulder). */
-const OUTLINE = "M34 196C38 162 60 141 86 138L86 112C78 106 74 96 74 86C74 68 84 55 100 55C116 55 126 68 126 86C126 96 122 106 114 112L114 138C140 141 162 162 166 196";
+const OUTLINE =
+  "M34 196C38 162 60 141 86 138L86 112C78 106 74 96 74 86C74 68 84 55 100 55C116 55 126 68 126 86C126 96 122 106 114 112L114 138C140 141 162 162 166 196";
 
 /** Hair drawn behind the head (long, bun) and over it (the cap). */
 const HAIR_BACK: Partial<Record<PortraitHair, string>> = {
@@ -165,7 +162,11 @@ export function PortraitArt({ id, setup, hair = "short", tilt = 0, x = 0, flip =
           {s.key && <g fill={`url(#${id}-key)`}>{figure}</g>}
           {s.split !== undefined && <g fill={`url(#${id}-split)`}>{figure}</g>}
           {s.triangle !== undefined && (
-            <path d="M107 92C111 91 115 91 117 91C115 96 112 100 109 102C108 99 107 95 107 92Z" fill={tone(0.9)} opacity={s.triangle} />
+            <path
+              d="M107 92C111 91 115 91 117 91C115 96 112 100 109 102C108 99 107 95 107 92Z"
+              fill={tone(0.9)}
+              opacity={s.triangle}
+            />
           )}
           {s.nose === "butterfly" && <ellipse cx="100" cy="99" rx="5" ry="2.2" fill={tone(0)} opacity="0.35" />}
           {s.nose === "loop" && <ellipse cx="106" cy="99" rx="5" ry="2.4" fill={tone(0)} opacity="0.3" />}

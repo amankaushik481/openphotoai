@@ -297,6 +297,10 @@
     #100e0b;
   padding-block: var(--rebate);
   color: #b3aa9b;
+  /* In the dark the strip would vanish into the table: a faint edge keeps its outline. */
+  :where(.dark) & {
+    box-shadow: 0 0 0 1px rgb(238 231 219 / 0.07);
+  }
 }
 
 /* ---------------------------------------------------------------------------------------------
@@ -353,6 +357,13 @@
       animation-range: entry 15% cover 40%;
     }
   }
+}
+
+/* Pack index: the print beside the list follows the pointed/focused row; the first shows by default. */
+.pack-index:not(:has(li:hover)):not(:has(li:focus-within)) > li:first-child .pack-preview,
+.pack-index > li:hover .pack-preview,
+.pack-index > li:focus-within .pack-preview {
+  opacity: 1;
 }
 
 /* Frosted surface for sticky bars / floating panels. 90% keeps muted labels ≥ 5:1 over any photo. */
