@@ -102,11 +102,18 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
       return completedStatus(data);
     } catch (err) {
       const info = describeFalError(err);
-      // No HTTP status = transport problem fetching a finished result: let the engine poll again.
-      if (info.status === undefined) throw toProviderError(err, ref.endpoint);
+      // A transient problem fetching a finished result (network, 5xx, 429) or our own credentials:
+      // the result is still there, so let the engine poll again. A "failed" status is terminal for
+      // the engine (job failed + refunded, provider work and a finished training lost).
+      if (pollAgain(info)) throw toProviderError(err, ref.endpoint);
       if (/cancel/i.test(info.message)) return { state: "canceled" };
       return { state: "failed", error: info.message, retryable: info.retryable };
     }
+  }
+
+  /** Status/result errors that say nothing about the job itself: the engine should simply poll later. */
+  function pollAgain(info: { status?: number; retryable: boolean }): boolean {
+    return info.retryable || info.status === 401 || info.status === 403;
   }
 
   return {
@@ -119,7 +126,8 @@ export function createFalProvider(opts: FalProviderOptions): ImageProvider & Tra
         st = await client.queue.status(ref.endpoint, { requestId: ref.requestId, logs: true });
       } catch (err) {
         const info = describeFalError(err);
-        if (info.retryable) throw toProviderError(err, ref.endpoint);
+        // A rotated / revoked API key (401/403) must not fail and refund every running job.
+        if (pollAgain(info)) throw toProviderError(err, ref.endpoint);
         return { state: "failed", error: info.message, retryable: false };
       }
       const pending = pendingStatus(st);
