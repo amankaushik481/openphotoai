@@ -122,6 +122,23 @@ describe("sessions card", () => {
     expect(html).toContain("Sign out other devices");
   });
 
+  it("collapses a long list behind 'Show more'", () => {
+    const now = new Date().toISOString();
+    const many = Array.from({ length: 8 }, (_, i) => ({
+      id: `ses_${i}`,
+      current: i === 0,
+      userAgent: CHROME_MAC,
+      ipAddress: null,
+      createdAt: now,
+      lastActiveAt: now,
+      expiresAt: now,
+    }));
+    const html = renderToStaticMarkup(<SessionsCard revokeDelayMinutes={5} sessions={many} />);
+    expect(html.match(/<li /g)).toHaveLength(5);
+    expect(html).toContain("Show 3 more sessions");
+    expect(html).toContain("7 other devices are signed in.");
+  });
+
   it("parses common user agents", () => {
     expect(describeUserAgent(SAFARI_IPHONE)).toEqual({ browser: "Safari", os: "iPhone", mobile: true });
     expect(deviceName("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36 Edg/131.0")).toBe(

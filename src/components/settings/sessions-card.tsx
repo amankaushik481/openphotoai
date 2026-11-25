@@ -2,6 +2,7 @@
 
 import { LogOutIcon, MonitorIcon, SmartphoneIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -13,10 +14,16 @@ import { api } from "@/lib/api-client";
 import type { SessionDTO } from "@/server/account/sessions";
 import { describeUserAgent, deviceName } from "./user-agent";
 
+/** Sessions listed before "Show more" (the current one is always first). */
+const VISIBLE_SESSIONS = 5;
+
 /** Where you're signed in, with "sign out" per device and for every other device. */
 export function SessionsCard({ sessions, revokeDelayMinutes }: { sessions: SessionDTO[]; revokeDelayMinutes: number }) {
   const router = useRouter();
   const others = sessions.filter((s) => !s.current);
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? sessions : sessions.slice(0, VISIBLE_SESSIONS);
+  const hidden = sessions.length - visible.length;
   const delay = `Those devices are signed out within ${revokeDelayMinutes} minutes and need a new sign-in link.`;
 
   async function revoke(session: SessionDTO) {
@@ -42,7 +49,7 @@ export function SessionsCard({ sessions, revokeDelayMinutes }: { sessions: Sessi
       </CardHeader>
       <CardContent>
         <ul className="divide-y rounded-lg border" aria-label="Active sessions">
-          {sessions.map((s) => {
+          {visible.map((s) => {
             const { mobile } = describeUserAgent(s.userAgent);
             const Icon = mobile ? SmartphoneIcon : MonitorIcon;
             const name = deviceName(s.userAgent);
@@ -87,6 +94,11 @@ export function SessionsCard({ sessions, revokeDelayMinutes }: { sessions: Sessi
             );
           })}
         </ul>
+        {hidden > 0 && (
+          <Button variant="ghost" size="sm" className="mt-2" onClick={() => setShowAll(true)}>
+            Show {hidden} more {hidden === 1 ? "session" : "sessions"}
+          </Button>
+        )}
       </CardContent>
       {others.length > 0 && (
         <CardFooter className="flex-col items-start gap-2 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
