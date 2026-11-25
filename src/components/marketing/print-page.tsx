@@ -3,6 +3,7 @@
  * folio-numbered section openers, dotted price-list leaders, an edge-print rule and a margin index.
  * Server components; no client JS.
  */
+import { SHELL } from "@/components/marketing/editorial";
 import { InlineText } from "@/components/marketing/inline-text";
 import type { FaqItem } from "@/content/faq";
 import { paragraphs } from "@/content/inline";
@@ -13,8 +14,8 @@ export function folio(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-/** Width + gutters shared with the marketing header. */
-export const PAGE = "mx-auto w-full max-w-[90rem] px-4 sm:px-8 lg:px-12";
+/** Width + gutters: the landing page's editorial measure, shared with the marketing header. */
+export const PAGE = SHELL;
 
 /**
  * Page opener: a mono running head over an ink rule, then a big left-aligned serif title with the lead set

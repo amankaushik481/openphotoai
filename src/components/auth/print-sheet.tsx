@@ -55,9 +55,7 @@ export function ContactStrip({
               variant={1}
               delay={1400}
               strokeWidth={2.2}
-              // Scaling stroke: the default non-scaling one draws only part of the loop once the box is
-              // bigger than the mark's 100-unit viewBox.
-              className="pencil-now absolute -inset-x-[8%] -top-[14%] z-10 h-[128%] w-[116%] [&_path]:[vector-effect:none]"
+              className="pencil-now absolute -inset-x-[8%] -top-[14%] z-10 h-[128%] w-[116%]"
             />
           )}
           {mark === "reject" && i === 2 && (
@@ -65,7 +63,7 @@ export function ContactStrip({
               mark="cross"
               delay={1400}
               strokeWidth={3.4}
-              className="pencil-now absolute inset-x-[14%] top-[12%] z-10 h-[76%] w-[72%] [&_path]:[vector-effect:none]"
+              className="pencil-now absolute inset-x-[14%] top-[12%] z-10 h-[76%] w-[72%]"
             />
           )}
         </div>

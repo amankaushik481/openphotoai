@@ -7,6 +7,7 @@ import Link from "next/link";
 
 import {
   LIGHTING_LABEL,
+  packStudy as coverStudy,
   PortraitArt,
   type LightingSetup,
   type PortraitHair,
@@ -14,31 +15,10 @@ import {
 import { folio, Leader } from "@/components/marketing/print-page";
 import { CREDIT_COSTS } from "@/config/credits";
 import { cn } from "@/lib/utils";
-import type { PackCategory, PackSummary } from "@/types/pack";
-
-/** How each kind of shoot is lit (matches the landing page's pack index). */
-const LIGHT: Record<PackCategory, LightingSetup> = {
-  professional: "loop",
-  dating: "window",
-  lifestyle: "window",
-  travel: "high-key",
-  fashion: "butterfly",
-  fitness: "rim",
-  events: "rembrandt",
-  seasonal: "low-key",
-  creative: "split",
-  family: "high-key",
-};
+import type { PackSummary } from "@/types/pack";
 
 /** Studies cycled through a pack's contact sheet, starting from its own setup. */
 const ROLL: LightingSetup[] = ["loop", "rembrandt", "window", "butterfly", "split", "rim", "high-key", "low-key"];
-const HAIR: PortraitHair[] = ["short", "long", "bun", "curly", "crop"];
-
-function hash(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
 
 export interface Study {
   setup: LightingSetup;
@@ -48,18 +28,20 @@ export interface Study {
   flip: boolean;
 }
 
-/** The pack's cover study (frame 0) or the `frame`-th study on its contact sheet. */
+/**
+ * The pack's cover study (frame 0: the same sitter and light as on the landing page's pack index) or the
+ * `frame`-th study on its contact sheet (same sitter, the next setups on the roll, small shifts).
+ */
 export function packStudy(pack: Pick<PackSummary, "slug" | "category">, frame = 0): Study {
-  const h = hash(pack.slug);
-  const base = LIGHT[pack.category];
-  const setup = frame === 0 ? base : ROLL[(ROLL.indexOf(base) + frame) % ROLL.length]!;
-  const k = h + frame * 7;
+  const cover = coverStudy(pack);
+  if (frame === 0) return { ...cover, tilt: 0 };
+  const start = Math.max(0, ROLL.indexOf(cover.setup));
   return {
-    setup,
-    hair: HAIR[h % HAIR.length]!,
-    x: ((k % 5) - 2) * 6,
-    tilt: ((k >> 3) % 5) - 2,
-    flip: ((k >> 5) & 1) === 1,
+    setup: ROLL[(start + frame) % ROLL.length]!,
+    hair: cover.hair,
+    x: ((cover.x + frame * 7 + 8) % 17) - 8,
+    tilt: (frame % 5) - 2,
+    flip: frame % 2 === 1 ? !cover.flip : cover.flip,
   };
 }
 

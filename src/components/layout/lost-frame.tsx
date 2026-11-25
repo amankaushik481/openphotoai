@@ -61,9 +61,7 @@ export function LostFrame({
                 delay={600}
                 strokeWidth={variant === "overexposed" ? 1.1 : 2}
                 className={cn(
-                  // Scale the stroke with the box (the default non-scaling stroke draws only part of the
-                  // loop once the mark is much bigger than its 100-unit viewBox).
-                  "pencil-now absolute z-10 [&_path]:[vector-effect:none]",
+                  "pencil-now absolute z-10",
                   variant === "overexposed"
                     ? "-inset-x-[6%] -top-[12%] h-[124%] w-[112%]"
                     : "inset-x-[18%] top-[14%] h-[72%] w-[64%]",
