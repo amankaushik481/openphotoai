@@ -2,10 +2,26 @@
  * Second security pass (docs/reviews/security-2.md), hardening findings.
  *   S2-6  the provider-output SSRF guard sees through IPv6 spellings of private IPv4 addresses
  *   S2-9  page headers: form-action + COOP; no 10 MB server-action body limit (there are no actions)
+ *   S2-10 mock AI webhook signatures use a purpose-bound key, not BETTER_AUTH_SECRET directly
  */
+import { createHmac } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
+import { getEnv } from "@/lib/env";
 import { assertPublicHttpsUrl, fetchOutputBytes } from "@/providers/ai/shared/fetch-output";
+import { createMockAIProvider, MOCK_WEBHOOK_HEADER, signMockWebhook } from "@/providers/mock/ai";
 import nextConfig from "../../../next.config";
+
+describe("S2-10: mock AI webhooks are signed with a purpose-bound key", () => {
+  it("never with BETTER_AUTH_SECRET itself (which also signs session cookies)", async () => {
+    const body = JSON.stringify({ requestId: "mock-req", status: "completed" });
+    const raw = createHmac("sha256", getEnv().authSecret).update(body).digest("hex");
+    expect(signMockWebhook(body)).not.toBe(raw);
+    const ai = createMockAIProvider();
+    const req = (sig: string) => ({ headers: new Headers({ [MOCK_WEBHOOK_HEADER]: sig }), rawBody: body, url: "http://x" });
+    await expect(ai.parseWebhook(req(raw))).rejects.toThrow(/signature/);
+    await expect(ai.parseWebhook(req(signMockWebhook(body)))).resolves.toMatchObject({ requestId: "mock-req" });
+  });
+});
 
 describe("S2-9: security headers", () => {
   async function headersFor(path: string) {
