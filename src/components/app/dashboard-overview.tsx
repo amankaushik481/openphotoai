@@ -116,10 +116,6 @@ function CreateModelCta() {
   const t = useT();
   return (
     <section className="border-brand-gradient grain relative overflow-hidden rounded-2xl p-6 sm:p-8">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-24 -right-24 -z-10 size-72 rounded-full bg-brand-gradient opacity-20 blur-3xl"
-      />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="max-w-xl">
           <h2 className="font-display text-3xl leading-tight">{t("dashboard.createModelTitle")}</h2>

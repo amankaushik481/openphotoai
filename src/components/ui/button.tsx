@@ -17,8 +17,9 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/60",
         link: "text-primary underline-offset-4 hover:underline",
+        // Solid safelight; in the dark it glows faintly, like the lamp it's named after.
         brand:
-          "bg-brand-gradient font-semibold text-white shadow-[0_8px_24px_-12px_var(--brand-magenta)] hover:brightness-110 active:brightness-95",
+          "bg-brand-gradient font-semibold text-white hover:brightness-110 active:brightness-95 dark:shadow-[0_0_28px_-8px_var(--safelight)]",
       },
       // Touch screens: text buttons grow toward the 44px target; icon buttons keep their visual size
       // but get an invisible hit area (`after:`) so dense toolbars don't reflow.

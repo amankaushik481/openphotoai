@@ -13,7 +13,7 @@ import {
   ShieldAlertIcon,
   ShieldIcon,
   ShirtIcon,
-  SparklesIcon,
+  ApertureIcon,
   UsersIcon,
   UsersRoundIcon,
   DollarSignIcon,
@@ -37,7 +37,7 @@ export interface NavGroup {
 
 const item = {
   dashboard: { href: "/app", labelKey: "nav.dashboard", icon: LayoutDashboardIcon, match: "exact" },
-  create: { href: "/app/create", labelKey: "nav.create", icon: SparklesIcon },
+  create: { href: "/app/create", labelKey: "nav.create", icon: ApertureIcon },
   packs: { href: "/app/packs", labelKey: "nav.packs", icon: LayersIcon },
   models: { href: "/app/models", labelKey: "nav.models", icon: ScanFaceIcon },
   gallery: { href: "/app/gallery", labelKey: "nav.gallery", icon: ImagesIcon },

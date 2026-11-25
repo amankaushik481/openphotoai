@@ -3,15 +3,16 @@
  * templates use inline styles built from these values. Colors meet WCAG AA on white.
  */
 export const emailTheme = {
-  brand: "#6d28d9",
+  // Darkroom safelight (white on it 5.7:1) and warm paper neutrals, matching the web app.
+  brand: "#c4280f",
   brandText: "#ffffff",
-  danger: "#b91c1c",
-  text: "#18181b",
-  muted: "#52525b",
-  border: "#e4e4e7",
-  page: "#f4f4f5",
+  danger: "#9f1c12",
+  text: "#16140f",
+  muted: "#5c554b",
+  border: "#e2dccf",
+  page: "#f1ece3",
   card: "#ffffff",
-  calloutBg: "#f5f3ff",
+  calloutBg: "#f6f1e8",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
 } as const;

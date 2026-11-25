@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SparklesIcon } from "lucide-react";
+import { ApertureIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "@/components/app/credit-badge";
@@ -15,7 +15,7 @@ export function AppTopbar({ user }: { user: ShellUser }) {
         <div className="ml-auto flex items-center gap-2">
           <Button asChild variant="brand" size="sm" className="hidden md:inline-flex">
             <Link href="/app/create">
-              <SparklesIcon />
+              <ApertureIcon />
               {t("nav.create")}
             </Link>
           </Button>

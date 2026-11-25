@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from "next/font/google";
 
 import { Providers } from "@/components/providers";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
@@ -7,9 +7,16 @@ import { APP } from "@/config/app";
 import { DEFAULT_LOCALE } from "@/i18n";
 import "./globals.css";
 
-const sans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
-// Only used in code snippets; don't compete with the UI font for preload bandwidth.
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap", preload: false });
+// UI / body: a newspaper grotesk (variable weight, one file).
+const sans = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibsted", display: "swap" });
+// Edge print, frame numbers and readouts: tiny sizes, so it doesn't compete with the UI font for preload bandwidth.
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+  display: "swap",
+  preload: false,
+});
 const display = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
@@ -42,8 +49,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbf9f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d0a08" },
+    { media: "(prefers-color-scheme: light)", color: "#f1ece3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0d0b" },
   ],
   colorScheme: "light dark",
   width: "device-width",
