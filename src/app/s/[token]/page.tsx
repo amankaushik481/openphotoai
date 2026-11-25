@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { ArrowRightIcon, DownloadIcon, SparklesIcon } from "lucide-react";
+import { ArrowRightIcon, DownloadIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ReportDialog } from "@/components/gallery/report-dialog";
-import { LogoMark } from "@/components/layout/logo";
 import { APP } from "@/config/app";
 import type { MediaRow } from "@/db/types";
 import type { PublicMediaDTO } from "@/server/gallery/dto";
@@ -92,13 +90,11 @@ async function toSharedMedia(row: MediaRow): Promise<SharedMedia> {
   return { ...dto, downloadUrl };
 }
 
-function AiLabel() {
+/** The print's lab label: what it is, in mono. */
+function AiLabel({ className }: { className?: string }) {
   return (
-    <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-      <Badge variant="secondary">
-        <SparklesIcon aria-hidden="true" />
-        AI-generated
-      </Badge>
+    <p className={className ?? "font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase"}>
+      <span aria-hidden="true" className="mr-2 inline-block size-1.5 rounded-full bg-safelight-ink align-middle" />
       Made with {APP.name} (AI-generated)
     </p>
   );
@@ -145,33 +141,31 @@ function SharedItem({
   );
 }
 
-/** "Made with" card: what this is and how to make your own. */
+/** Colophon under the print: what this is and how to make your own. */
 function MadeWith() {
   return (
     <aside
       aria-labelledby="made-with-title"
-      className="flex w-full flex-col gap-5 rounded-2xl border bg-card p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:p-6"
+      className="grid w-full gap-5 border-t border-foreground pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-10"
     >
-      <div className="flex items-start gap-3">
-        <LogoMark className="mt-0.5 size-9 rounded-xl" />
-        <div>
-          <h2 id="made-with-title" className="font-semibold">
-            Made with {APP.name}
-          </h2>
-          <p className="mt-1 max-w-md text-sm text-pretty text-muted-foreground">
-            The open-source AI photographer: headshots, dating and travel photos of you from a few selfies. Free drafts,
-            and shots that miss on likeness are refunded.
-          </p>
-        </div>
+      <div>
+        <p className="mono-caps text-muted-foreground">Colophon</p>
+        <h2 id="made-with-title" className="mt-2 font-display text-3xl leading-tight">
+          Made with {APP.name}
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-pretty text-muted-foreground">
+          The open-source AI photographer: headshots, dating and travel photos of you from a few selfies. Free drafts,
+          and shots that miss on likeness are refunded.
+        </p>
       </div>
-      <div className="flex flex-col gap-2 sm:shrink-0 sm:flex-row">
-        <Button asChild variant="brand">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button asChild variant="brand" className="rounded-[3px]">
           <Link href="/">
             Create your own photos
             <ArrowRightIcon aria-hidden="true" />
           </Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" className="rounded-[3px]">
           <Link href="/packs">Browse photo packs</Link>
         </Button>
       </div>
@@ -193,16 +187,19 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
     const item = items[0]!;
     const noun = item.kind === "video" ? "video" : "photo";
     return (
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-8 sm:px-6 sm:py-14">
         <h1 className="sr-only">Shared {noun}</h1>
-        <figure className="flex w-full flex-col items-center gap-4">
-          <div className="flex w-full justify-center overflow-hidden rounded-2xl bg-muted">
-            <SharedItem item={item} full priority className="max-h-[78dvh] w-auto max-w-full object-contain" />
+        <figure className="mx-auto flex w-fit max-w-full flex-col">
+          {/* Matted print: the photo sits in a window cut into paper board, with a thin bevel. */}
+          <div className="print-paper max-w-full p-3 pb-12 shadow-print sm:p-8 sm:pb-16">
+            <div className="flex justify-center bg-[#0e0d0b] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.25),0_0_0_1px_rgb(255_255_255/0.6),0_0_0_2px_rgb(22_20_15/0.12)]">
+              <SharedItem item={item} full priority className="max-h-[72dvh] w-auto max-w-full object-contain" />
+            </div>
           </div>
-          <figcaption className="flex w-full flex-wrap items-center justify-between gap-3">
+          <figcaption className="mt-5 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <AiLabel />
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="brand" className="rounded-[3px]">
                 <a href={item.downloadUrl} download>
                   <DownloadIcon aria-hidden="true" />
                   Download {noun}
@@ -219,22 +216,42 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
 
   const noun = itemNoun(share.media);
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-10">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-2">
-          <h1 className="font-display text-3xl break-words sm:text-4xl">{share.folderName}</h1>
+    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-14">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-foreground pb-3">
+        <div className="flex min-w-0 flex-col gap-3">
+          <p className="mono-caps text-muted-foreground">
+            Shared folder · {items.length} {items.length === 1 ? "frame" : "frames"}
+          </p>
+          <h1 className="font-display text-4xl leading-none break-words sm:text-6xl">{share.folderName}</h1>
           <AiLabel />
         </div>
         <ReportDialog shareToken={token} triggerClassName="text-muted-foreground" />
       </div>
       {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed px-6 py-16 text-center text-muted-foreground">
-          This folder is empty right now. Check back later, or ask the person who shared it.
-        </p>
+        <div className="py-6">
+          <div aria-hidden="true" className="flex gap-3">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="aspect-[4/5] w-16 border border-dashed border-foreground/40 sm:w-20" />
+            ))}
+          </div>
+          <p className="mono-caps mt-5 text-muted-foreground">Empty roll</p>
+          <p className="mt-2 text-muted-foreground">
+            This folder is empty right now. Check back later, or ask the person who shared it.
+          </p>
+        </div>
       ) : (
-        <ul className="columns-2 gap-3 sm:columns-3" aria-label={`${items.length} ${noun}`}>
+        <ul className="columns-2 gap-4 sm:columns-3 sm:gap-6" aria-label={`${items.length} ${noun}`}>
           {items.map((item, i) => (
-            <li key={item.id} className="relative mb-3 break-inside-avoid overflow-hidden rounded-xl bg-muted">
+            <li
+              key={item.id}
+              className="print-paper relative mb-4 break-inside-avoid p-2 pb-7 shadow-print sm:mb-6 sm:p-2.5 sm:pb-8"
+            >
+              <span
+                aria-hidden="true"
+                className="absolute bottom-2 left-2.5 font-mono text-[9px] tracking-[0.14em] text-[#16140f]/70 sm:bottom-2.5"
+              >
+                ▸{String(i + 1).padStart(2, "0")}
+              </span>
               {item.kind === "video" ? (
                 <SharedItem item={item} className="w-full" />
               ) : (
@@ -242,7 +259,7 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block [--focus-offset:-5px] focus-visible:outline-background focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-inset"
+                  className="block bg-[#0e0d0b] [--focus-offset:-3px]"
                   aria-label={`Open photo ${i + 1} in full size (opens in a new tab)`}
                 >
                   <SharedItem item={item} priority={i < 2} className="h-auto w-full" />
@@ -252,9 +269,9 @@ export default async function SharedMediaPage({ params }: { params: Params }) {
                 href={item.downloadUrl}
                 download
                 aria-label={`Download ${item.kind === "video" ? "video" : "photo"} ${i + 1}`}
-                className="absolute top-2 right-2 inline-flex size-9 items-center justify-center rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black/75 focus-visible:outline-white pointer-coarse:size-11"
+                className="absolute right-1 bottom-0.5 inline-flex size-7 items-center justify-center rounded-[2px] text-[#16140f]/70 transition-colors hover:bg-[#16140f]/10 hover:text-[#16140f] pointer-coarse:after:absolute pointer-coarse:after:-inset-2"
               >
-                <DownloadIcon aria-hidden="true" className="size-4" />
+                <DownloadIcon aria-hidden="true" className="size-3.5" />
               </a>
             </li>
           ))}

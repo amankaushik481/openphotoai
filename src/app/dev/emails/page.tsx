@@ -25,7 +25,7 @@ export default async function DevEmailsPage() {
         </p>
         <Link
           href="/dev/emails/templates"
-          className="mt-2 inline-block text-sm text-violet-700 underline-offset-4 hover:underline dark:text-violet-300"
+          className="mt-2 inline-block text-sm text-safelight-ink underline-offset-4 hover:underline"
         >
           Preview every template (light and dark) →
         </Link>

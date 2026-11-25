@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
-import { PackCard } from "@/components/app/pack-card";
-import { MarketingSection, SectionHeading } from "@/components/marketing/section-heading";
-import { Button } from "@/components/ui/button";
+import { Folio, SHELL } from "@/components/marketing/editorial";
+import { LIGHTING_LABEL, PortraitArt, packStudy } from "@/components/marketing/portrait-art";
+import { CREDIT_COSTS } from "@/config/credits";
+import { cn } from "@/lib/utils";
 import type { PackSummary } from "@/types/pack";
 
 /** Featured packs first (registry order), then the rest, capped at `limit`. */
@@ -11,34 +12,93 @@ export function pickShowcasePacks(packs: readonly PackSummary[], limit = 8): Pac
   return [...packs.filter((p) => p.featured), ...packs.filter((p) => !p.featured)].slice(0, limit);
 }
 
+/**
+ * Packs as an editorial index: a numbered table of contents set in the display serif, dotted leaders to
+ * each pack's facts. On wide screens the print beside the list follows the row you point at (CSS only).
+ */
 export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
-  const showcase = pickShowcasePacks(packs);
+  const showcase = pickShowcasePacks(packs, 9);
   if (showcase.length === 0) return null;
+  const styles = packs.reduce((n, p) => n + p.promptCount, 0);
   return (
-    <MarketingSection labelledBy="packs-title" className="pt-4 sm:pt-8">
-      <div className="flex flex-col items-center justify-between gap-6 md:flex-row md:items-end">
-        <SectionHeading
+    <section aria-labelledby="packs-title" className="border-t border-border py-20 sm:py-28 lg:py-36">
+      <div className={cn(SHELL, "grid gap-y-6 lg:grid-cols-12 lg:gap-x-10")}>
+        <Folio no="03" label="Index" className="lg:col-span-12" />
+        <h2
           id="packs-title"
-          align="left"
-          className="items-center text-center md:items-start md:text-left"
-          eyebrow="Photo packs"
-          title="Pick a shoot. We'll handle the light."
-          lead={`${packs.length} curated packs, each a full set of distinct styles. Preview every one free with drafts.`}
-        />
-        <Button asChild variant="outline" className="shrink-0">
-          <Link href="/packs">
+          className="font-display text-[clamp(2.9rem,8vw,5.5rem)] leading-[0.92] tracking-[-0.03em] lg:col-span-7"
+        >
+          Pick a shoot. <span className="italic">We&apos;ll handle the light.</span>
+        </h2>
+        <div className="flex flex-col items-start gap-5 lg:col-span-4 lg:col-start-9 lg:self-end lg:pb-2">
+          <p className="text-lg leading-relaxed text-pretty text-muted-foreground">
+            {packs.length} curated packs, {styles.toLocaleString("en-US")} styles. Each pack is an open JSON file, and
+            you can preview every one free with drafts.
+          </p>
+          <Link
+            href="/packs"
+            className="inline-flex items-center gap-2 font-medium underline decoration-foreground/25 underline-offset-[5px] transition-colors hover:decoration-safelight-ink"
+          >
             Browse all {packs.length} packs
-            <ArrowRightIcon />
+            <ArrowRightIcon aria-hidden="true" className="size-4" />
           </Link>
-        </Button>
+        </div>
       </div>
-      <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-        {showcase.map((pack) => (
-          <li key={pack.slug}>
-            <PackCard pack={pack} />
-          </li>
-        ))}
-      </ul>
-    </MarketingSection>
+
+      <div className={cn(SHELL, "mt-14 sm:mt-20")}>
+        <ol className="pack-index relative border-t border-foreground lg:pr-[calc(33.333%+2.5rem)]">
+          {showcase.map((pack, i) => {
+            const study = packStudy(pack);
+            const setup = study.setup;
+            const no = String(i + 1).padStart(2, "0");
+            const credits = pack.promptCount * CREDIT_COSTS.generateStandard;
+            return (
+              <li key={pack.slug} className="group border-b border-border">
+                <Link
+                  href={`/packs/${pack.slug}`}
+                  className="grid grid-cols-[2.25rem_1fr_auto] items-center gap-x-3 py-4 sm:grid-cols-[3rem_1fr_auto] sm:py-5 lg:grid-cols-[3.5rem_auto_1fr_auto] lg:items-baseline"
+                >
+                  <span className="mono-caps text-muted-foreground transition-colors group-hover:text-safelight-ink lg:self-baseline">
+                    {no}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-display text-[2rem] leading-none tracking-[-0.01em] sm:text-[2.75rem] lg:text-[3.25rem] lg:group-hover:italic">
+                      {pack.name}
+                    </span>
+                    <span className="mono-caps mt-2 block text-[0.625rem] text-muted-foreground lg:hidden">
+                      {pack.promptCount} styles · {credits} cr full set
+                    </span>
+                  </span>
+                  {/* Dotted leader to the facts (wide screens). */}
+                  <span
+                    aria-hidden="true"
+                    className="mx-3 hidden h-px self-center border-b-2 border-dotted border-foreground/30 transition-colors group-hover:border-safelight-ink lg:block"
+                  />
+                  <span className="mono-caps hidden text-muted-foreground lg:inline">
+                    {pack.promptCount} styles · {credits} cr
+                  </span>
+                  {/* One print per row: a thumbnail at the end of the row on phones; on wide screens it sits
+                      beside the list and shows while its row is pointed at (the first by default). */}
+                  <span
+                    aria-hidden="true"
+                    className="pack-preview pointer-events-none relative col-start-3 row-start-1 block w-14 sm:w-16 lg:absolute lg:top-0 lg:right-0 lg:w-[33.333%] lg:p-3 lg:pb-10 lg:opacity-0 lg:shadow-print lg:transition-opacity lg:duration-300 lg:print-paper"
+                  >
+                    <span className="grain-over relative block aspect-[4/5] overflow-hidden rounded-[1px]">
+                      <PortraitArt id={`idx-${pack.slug}`} {...study} />
+                    </span>
+                    <span className="mt-3 hidden justify-between font-mono text-[0.625rem] tracking-[0.16em] text-[#16140f] uppercase lg:flex">
+                      <span>
+                        {no} · {pack.name}
+                      </span>
+                      <span>{LIGHTING_LABEL[setup]}</span>
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
   );
 }

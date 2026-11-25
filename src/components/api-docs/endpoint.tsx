@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import type {
   HttpMethod,
   JsonSchema,
@@ -7,7 +6,7 @@ import type {
   ParameterObject,
   ResponseObject,
 } from "@/server/openapi/types";
-import { CodeBlock, DocTable, InlineMarkdown, MethodBadge, TypeLabel } from "./primitives";
+import { CodeBlock, DocTable, inlineCode, InlineMarkdown, MethodBadge, TypeLabel } from "./primitives";
 import { SchemaTable } from "./schema-table";
 import { constraints, refName, typeParts } from "./schema-view";
 
@@ -37,7 +36,7 @@ function Paragraphs({ text }: { text: string }) {
 }
 
 function SubHeading({ children }: { children: React.ReactNode }) {
-  return <h5 className="mt-6 mb-2 text-sm font-semibold">{children}</h5>;
+  return <h5 className="mono-caps mt-7 mb-2.5 text-foreground">{children}</h5>;
 }
 
 function Parameters({ params }: { params: ParameterObject[] }) {
@@ -48,10 +47,14 @@ function Parameters({ params }: { params: ParameterObject[] }) {
         return (
           <tr key={`${p.in}:${p.name}`}>
             <td className="whitespace-nowrap">
-              <code className="font-mono text-xs font-semibold">{p.name}</code>
-              {p.required && <span className="ml-1.5 text-[11px] font-medium text-destructive">required</span>}
+              <code className="font-mono text-xs font-medium">{p.name}</code>
+              {p.required && (
+                <span className="ml-1.5 font-mono text-[10px] tracking-[0.1em] text-safelight-ink uppercase">
+                  required
+                </span>
+              )}
             </td>
-            <td className="text-xs text-muted-foreground">{p.in}</td>
+            <td className="font-mono text-xs text-muted-foreground">{p.in}</td>
             <td>
               <TypeLabel parts={typeParts(p.schema)} />
             </td>
@@ -87,22 +90,26 @@ function RequestBody({ doc, op }: { doc: OpenApiDocument; op: OperationObject })
           {variants.map(({ name, schema: v }) => {
             const type = v.properties?.type?.const;
             return (
-              <details key={name} id={`${op.operationId}-${String(type)}`} className="group rounded-lg border">
-                <summary className="cursor-pointer list-none px-3 py-2 text-sm [&::-webkit-details-marker]:hidden">
+              <details
+                key={name}
+                id={`${op.operationId}-${String(type)}`}
+                className="group border-b border-border first:border-t first:border-t-foreground"
+              >
+                <summary className="cursor-pointer list-none py-2.5 text-sm [--focus-offset:-2px] [&::-webkit-details-marker]:hidden">
                   <span
                     aria-hidden="true"
-                    className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90"
+                    className="mr-2 inline-block font-mono text-muted-foreground transition-transform group-open:rotate-45 group-open:text-safelight-ink"
                   >
-                    ›
+                    +
                   </span>
-                  <code className="font-mono text-xs font-semibold">type: &quot;{String(type)}&quot;</code>
+                  <code className={inlineCode}>type: &quot;{String(type)}&quot;</code>
                   {v.description && (
                     <span className="mt-0.5 block pl-4 text-muted-foreground sm:mt-0 sm:inline sm:pl-2">
                       <InlineMarkdown text={v.description.split(". ")[0]!.replace(/\.$/, "")} />
                     </span>
                   )}
                 </summary>
-                <div className="space-y-2 border-t p-3">
+                <div className="space-y-3 pt-1 pb-4 pl-4">
                   {v.description && (
                     <p className="text-sm text-muted-foreground">
                       <InlineMarkdown text={v.description} />
@@ -119,7 +126,7 @@ function RequestBody({ doc, op }: { doc: OpenApiDocument; op: OperationObject })
       )}
       {content.examples && (
         <details className="mt-3">
-          <summary className="cursor-pointer text-sm font-medium text-primary">Request examples</summary>
+          <summary className="mono-caps cursor-pointer text-safelight-ink">Request examples</summary>
           <div className="mt-2 space-y-3">
             {Object.entries(content.examples).map(([key, ex]) => (
               <CodeBlock key={key} label={ex.summary ?? key} language="json" code={JSON.stringify(ex.value, null, 2)} />
@@ -154,22 +161,20 @@ export function Endpoint({
   const scope = op["x-required-scope"];
 
   return (
-    <section id={op.operationId} aria-labelledby={`${op.operationId}-title`} className="scroll-mt-24 border-t pt-8">
-      <div className="flex flex-wrap items-center gap-2">
+    <section
+      id={op.operationId}
+      aria-labelledby={`${op.operationId}-title`}
+      className="scroll-mt-24 border-t border-foreground pt-5"
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <MethodBadge method={method} />
         <code className="font-mono text-sm break-all">
           {basePath}
           {path}
         </code>
-        {scope ? (
-          <Badge variant="outline" className="font-mono">
-            scope: {scope}
-          </Badge>
-        ) : (
-          <Badge variant="outline">public</Badge>
-        )}
+        <span className="mono-caps ml-auto text-muted-foreground">{scope ? `Scope · ${scope}` : "Public"}</span>
       </div>
-      <h4 id={`${op.operationId}-title`} className="mt-3 text-lg font-semibold tracking-tight">
+      <h4 id={`${op.operationId}-title`} className="mt-4 font-display text-3xl leading-tight">
         {op.summary}
       </h4>
       {op.description && <Paragraphs text={op.description} />}
@@ -190,7 +195,7 @@ export function Endpoint({
       {okContent && <SchemaTable schema={schemaOf(doc, okContent.schema)} caption={`${op.summary} response fields`} />}
       {okContent?.example !== undefined && (
         <details className="mt-3">
-          <summary className="cursor-pointer text-sm font-medium text-primary">Response example</summary>
+          <summary className="mono-caps cursor-pointer text-safelight-ink">Response example</summary>
           <div className="mt-2">
             <CodeBlock label="200 application/json" language="json" code={JSON.stringify(okContent.example, null, 2)} />
           </div>
@@ -203,7 +208,10 @@ export function Endpoint({
           <ul className="space-y-1 text-sm text-muted-foreground">
             {errorResponses.map(({ status, response }) => (
               <li key={status}>
-                <a href="#errors" className="font-mono text-xs font-semibold text-foreground hover:underline">
+                <a
+                  href="#errors"
+                  className="font-mono text-xs font-medium text-foreground underline decoration-foreground/25 underline-offset-4 hover:decoration-safelight-ink"
+                >
                   {status}
                 </a>{" "}
                 <InlineMarkdown text={response.description} />

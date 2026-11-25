@@ -46,6 +46,8 @@
 
   --safelight: oklch(0.55 0.2 31); /* #cc2a15 */
   --safelight-ink: oklch(0.5 0.185 30);
+  /* Photographic prints (contact sheets) are paper in both themes: dimmed, as under a lamp, in the dark. */
+  --print: oklch(0.98 0.009 85);
   /* The darkroom band stays dark in both themes. */
   --darkroom: oklch(0.159 0.004 85);
   --darkroom-raised: oklch(0.201 0.007 78);
@@ -112,6 +114,7 @@
 
   --safelight: oklch(0.57 0.2 31);
   --safelight-ink: oklch(0.69 0.185 33); /* the lamp: #f8664a-ish */
+  --print: oklch(0.86 0.016 78);
   --darkroom: oklch(0.13 0.006 40);
   --darkroom-raised: oklch(0.185 0.01 40);
   --darkroom-line: oklch(0.28 0.012 40);
@@ -245,6 +248,124 @@
     opacity: 0.09;
     mix-blend-mode: overlay;
   }
+}
+
+/* A print lying on the table: paper with one soft, low, physical shadow. */
+@utility print-paper {
+  background-color: var(--print);
+}
+@utility shadow-print {
+  box-shadow:
+    0 1px 1px rgb(22 20 15 / 0.08),
+    0 10px 18px -10px rgb(22 20 15 / 0.22),
+    0 34px 60px -28px rgb(22 20 15 / 0.32);
+  :where(.dark) & {
+    box-shadow:
+      0 1px 1px rgb(0 0 0 / 0.5),
+      0 16px 30px -12px rgb(0 0 0 / 0.7),
+      0 0 90px -30px color-mix(in oklab, var(--safelight) 45%, transparent);
+  }
+}
+
+/* Grain painted *over* content (prints, film frames), so the texture sits in the image like silver. */
+@utility grain-over {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: var(--grain-url);
+    background-size: 140px 140px;
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+  }
+}
+
+/*
+ * 35mm film rebate: a dark strip with a row of sprocket holes along its top and bottom edges.
+ * Size with `--rebate` (edge height), `--pitch` (hole spacing) and `--hole` (hole height).
+ */
+@utility film {
+  --rebate: 22px;
+  --pitch: 12px;
+  --hole: 7px;
+  --sprocket: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Crect x='2.6' y='0' width='6.8' height='8' rx='1.5' fill='%23e6dfd2'/%3E%3C/svg%3E");
+  background:
+    var(--sprocket) repeat-x left 0 top calc(var(--rebate) * 0.4) / var(--pitch) var(--hole),
+    var(--sprocket) repeat-x left 0 bottom calc(var(--rebate) * 0.4) / var(--pitch) var(--hole),
+    #100e0b;
+  padding-block: var(--rebate);
+  color: #b3aa9b;
+  /* In the dark the strip would vanish into the table: a faint edge keeps its outline. */
+  :where(.dark) & {
+    box-shadow: 0 0 0 1px rgb(238 231 219 / 0.07);
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Darkroom motion. Hero marks run on load (`*-now`); everything else is tied to scrolling into
+ * view where scroll-driven animations exist, and is simply static elsewhere or under reduced motion.
+ * ------------------------------------------------------------------------------------------- */
+.pencil path {
+  /* Dash longer than the path, gap longer still: nothing (not even a round cap) shows at offset 1.01. */
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+}
+@keyframes pencil-draw {
+  from {
+    stroke-dashoffset: 1.01;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes develop {
+  from {
+    filter: invert(1) contrast(0.7) brightness(1.1);
+  }
+  55% {
+    filter: invert(0.15) contrast(0.85) brightness(1.08);
+  }
+  to {
+    filter: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pencil-now .pencil path,
+  .pencil.pencil-now path {
+    animation: pencil-draw 0.65s cubic-bezier(0.55, 0.1, 0.3, 1) both;
+    animation-delay: calc(var(--pencil-delay, 0ms) + var(--pencil-i, 0) * 240ms);
+  }
+  .develop-now {
+    animation: develop 1.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 150ms);
+    /* Composited: the filter animates off the main thread instead of repainting the frames during load. */
+    will-change: filter;
+  }
+  /* `.reveal` names the scroll timeline (an HTML box); marks and frames inside it follow it. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      view-timeline-name: --reveal;
+    }
+    .reveal .pencil path {
+      animation: pencil-draw linear both;
+      animation-timeline: --reveal;
+      animation-range: entry 70% cover 45%;
+    }
+    .reveal .develop {
+      animation: develop linear both;
+      animation-timeline: --reveal;
+      animation-range: entry 15% cover 40%;
+    }
+  }
+}
+
+/* Pack index: the print beside the list follows the pointed/focused row; the first shows by default. */
+.pack-index:not(:has(li:hover)):not(:has(li:focus-within)) > li:first-child .pack-preview,
+.pack-index > li:hover .pack-preview,
+.pack-index > li:focus-within .pack-preview {
+  opacity: 1;
 }
 
 /* Frosted surface for sticky bars / floating panels. 90% keeps muted labels ≥ 5:1 over any photo. */

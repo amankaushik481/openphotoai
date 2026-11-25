@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { authErrorMessage } from "@/components/auth/auth-errors";
 import { LoginForm } from "@/components/auth/login-form";
+import { PrintSheet } from "@/components/auth/print-sheet";
 import { DemoLoginCallout } from "@/components/demo/demo-login-callout";
 import { env } from "@/lib/env";
 import { isGoogleAuthEnabled } from "@/server/auth/auth";
@@ -25,13 +26,15 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
 
   return (
     <>
-      <LoginForm
-        callbackURL={next}
-        errorCallbackURL={loginPathFor(next)}
-        googleEnabled={isGoogleAuthEnabled()}
-        devMailbox={env.devMailboxEnabled}
-        initialError={authErrorMessage(firstParam(params.error))}
-      />
+      <PrintSheet frame="01" caption="Sign-in · one-time links">
+        <LoginForm
+          callbackURL={next}
+          errorCallbackURL={loginPathFor(next)}
+          googleEnabled={isGoogleAuthEnabled()}
+          devMailbox={env.devMailboxEnabled}
+          initialError={authErrorMessage(firstParam(params.error))}
+        />
+      </PrintSheet>
       {env.DEMO_MODE ? <DemoLoginCallout ttlHours={DEMO_ACCOUNT_TTL_HOURS} /> : null}
     </>
   );

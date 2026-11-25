@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { CircleAlertIcon, MailWarningIcon, UsersRoundIcon } from "lucide-react";
 
+import { AuthShell } from "@/components/auth/auth-shell";
+import { PrintSheet, type StripMark } from "@/components/auth/print-sheet";
+import { SheetKicker, SheetTitle } from "@/components/auth/sheet-heading";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { InviteResponse } from "@/components/together/invite-response";
-import { InviteShell } from "@/components/together/invite-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUserPage } from "@/server/auth/session";
 import { getInvitePreview, listOwnModels } from "@/server/together";
 import type { ReceivedInviteDTO } from "@/server/together/types";
@@ -19,33 +19,29 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
+/** An invite that can't be answered here: status line, title, why, and where to go instead. */
 function Notice({
-  icon,
+  kicker,
+  tone = "muted",
+  mark = "none",
   title,
   description,
   children,
 }: {
-  icon: ReactNode;
+  kicker: string;
+  tone?: "muted" | "warning";
+  mark?: StripMark;
   title: ReactNode;
   description: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader className="justify-items-center text-center">
-        <div
-          aria-hidden="true"
-          className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground [&_svg]:size-6"
-        >
-          {icon}
-        </div>
-        <CardTitle as="h1" className="text-xl">
-          {title}
-        </CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      {children && <CardFooter className="flex-col gap-2 sm:flex-row sm:justify-center">{children}</CardFooter>}
-    </Card>
+    <PrintSheet frame="02" mark={mark} caption="Together · invitation">
+      <SheetKicker tone={tone}>{kicker}</SheetKicker>
+      <SheetTitle>{title}</SheetTitle>
+      <p className="mt-3 text-sm text-muted-foreground">{description}</p>
+      {children && <div className="mt-6 flex flex-col gap-2 sm:flex-row">{children}</div>}
+    </PrintSheet>
   );
 }
 
@@ -82,17 +78,19 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   if (preview.state === "pending") {
     const models = await listOwnModels(user.id);
     return (
-      <InviteShell>
+      <AuthShell width="lg" label="Together · invitation">
         <InviteResponse inviteRef={token} invite={preview.invite} models={models} />
-      </InviteShell>
+      </AuthShell>
     );
   }
 
   return (
-    <InviteShell>
+    <AuthShell label="Together · invitation">
       {preview.state === "not_found" && (
         <Notice
-          icon={<CircleAlertIcon />}
+          kicker="Link not on file"
+          tone="warning"
+          mark="reject"
           title="This invite link doesn't work"
           description="It may have been replaced by a newer invite (only the latest link works) or withdrawn. Ask the person who invited you to send it again."
         >
@@ -103,7 +101,8 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       )}
       {preview.state === "wrong_account" && (
         <Notice
-          icon={<MailWarningIcon />}
+          kicker="Wrong account"
+          tone="warning"
           title="This invite is for someone else"
           description={`It was sent to ${preview.invitedEmail}, but you're signed in as ${user.email}. Sign in with the invited address to respond.`}
         >
@@ -114,7 +113,8 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       )}
       {preview.state === "unverified" && (
         <Notice
-          icon={<MailWarningIcon />}
+          kicker="Email not verified"
+          tone="warning"
           title="Verify your email first"
           description={`Sign in with a link sent to ${user.email} to confirm the address, then open this invite again.`}
         >
@@ -125,7 +125,8 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       )}
       {preview.state === "own_invite" && (
         <Notice
-          icon={<UsersRoundIcon />}
+          kicker="Your invitation"
+          mark="keep"
           title="This is your own invite"
           description={`Only ${preview.inviteeEmail} can accept it. You'll see their model under Together once they do.`}
         >
@@ -135,12 +136,12 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         </Notice>
       )}
       {preview.state === "closed" && (
-        <Notice icon={<UsersRoundIcon />} {...closedCopy(preview.invite)}>
+        <Notice kicker="Invite closed" {...closedCopy(preview.invite)}>
           <Button asChild variant="outline">
             <Link href="/app/together">Go to Together</Link>
           </Button>
         </Notice>
       )}
-    </InviteShell>
+    </AuthShell>
   );
 }

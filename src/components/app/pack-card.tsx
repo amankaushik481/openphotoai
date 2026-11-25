@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { PortraitArt, packStudy } from "@/components/marketing/portrait-art";
 import type { PackSummary } from "@/types/pack";
 import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
@@ -20,10 +21,32 @@ function safeColors(colors: PackSummary["colors"]): [string, string] {
   return colors && HEX.test(colors[0]) && HEX.test(colors[1]) ? colors : FALLBACK_COLORS;
 }
 
-/** Pack colors come from JSON files; only allow plain hex so nothing odd reaches inline CSS. */
+/** Ink/paper tone (0 ink … 1 paper) as hex. */
+function tone(t: number): string {
+  const ink = [20, 18, 14];
+  const paper = [239, 232, 220];
+  return `#${ink
+    .map((c, i) =>
+      Math.round(c + (paper[i]! - c) * t)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+/**
+ * A pack's backdrop: a monochrome darkroom gradient whose depth follows the pack's own colours (light
+ * packs print lighter). Pack colours come from JSON files; only plain hex is read. Stops stay at or below
+ * tone 0.45, so `packTextScrim` (computed from the original, lighter colours) keeps white text ≥ AA.
+ */
 export function packGradient(colors: PackSummary["colors"]): string {
-  const [a, b] = safeColors(colors);
-  return `linear-gradient(135deg, ${a} 0%, ${b} 100%)`;
+  const l =
+    safeColors(colors)
+      .map(srgbChannels)
+      .reduce((sum, rgb) => sum + luminanceUnder(rgb, 0), 0) / 2;
+  const deep = tone(0.06 + 0.14 * l);
+  const lit = tone(0.22 + 0.23 * l);
+  return `radial-gradient(120% 90% at 30% 18%, ${lit} 0%, ${deep} 72%)`;
 }
 
 function srgbChannels(hex: string): [number, number, number] {
@@ -53,15 +76,9 @@ export function packTextScrim(colors: PackSummary["colors"]): number {
 
 export function PackCard({ pack, href, priority = false, className }: PackCardProps) {
   return (
-    <Link
-      href={href ?? `/packs/${pack.slug}`}
-      className={cn(
-        "group flex flex-col gap-3 rounded-xl",
-        className,
-      )}
-    >
+    <Link href={href ?? `/packs/${pack.slug}`} className={cn("group flex flex-col gap-3 rounded-xl", className)}>
       <div
-        className="grain relative aspect-[4/5] overflow-hidden rounded-xl shadow-xs"
+        className="grain-over relative aspect-[4/5] overflow-hidden rounded-[2px] shadow-xs"
         style={pack.cover ? undefined : { backgroundImage: packGradient(pack.colors) }}
       >
         {pack.cover ? (
@@ -77,12 +94,11 @@ export function PackCard({ pack, href, priority = false, className }: PackCardPr
             className="absolute inset-0 size-full object-cover text-transparent transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 flex items-center justify-center text-6xl drop-shadow-sm transition-transform duration-500 group-hover:scale-110 sm:text-7xl"
-          >
-            {pack.emoji ?? "📸"}
-          </span>
+          <PortraitArt
+            id={`pack-card-${pack.slug}`}
+            {...packStudy(pack)}
+            className="transition-transform duration-500 group-hover:scale-[1.03]"
+          />
         )}
         {(pack.isNew || pack.featured) && (
           <div className="absolute top-2 left-2 flex gap-1">

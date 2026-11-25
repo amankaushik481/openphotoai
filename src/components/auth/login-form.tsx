@@ -1,12 +1,11 @@
 "use client";
 
-import { ArrowLeft, ExternalLink, Inbox, Loader2, Mail, MailCheck, RotateCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, Inbox, Loader2, RotateCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { APP } from "@/config/app";
@@ -14,6 +13,7 @@ import { focusOnMount } from "@/lib/a11y";
 import { signIn } from "@/lib/auth-client";
 import { resendSecondsLeft, sendErrorMessage, suggestEmail, webmailFor, type SendError } from "./email-hints";
 import { GoogleIcon } from "./google-icon";
+import { SheetKicker, SheetTitle } from "./sheet-heading";
 
 interface LoginFormProps {
   /** Same-origin path to land on after sign-in (already sanitized by the server). */
@@ -143,21 +143,17 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
 
   if (status === "sent") {
     return (
-      <Card>
-        <CardHeader className="justify-items-center text-center">
-          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground">
-            <MailCheck className="size-6" aria-hidden />
-          </div>
-          {/* The form (and its focused button) was replaced: focus the new title so it's announced. */}
-          <CardTitle as="h1" tabIndex={-1} ref={focusOnMount} className="text-xl focus:outline-hidden">
-            Check your inbox
-          </CardTitle>
-          <CardDescription>
-            We sent a sign-in link to <span className="font-medium break-all text-foreground">{sentTo}</span>. It works
-            once and expires in 15 minutes.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3">
+      <div>
+        <SheetKicker tone="safelight">Link sent · single use</SheetKicker>
+        {/* The form (and its focused button) was replaced: focus the new title so it's announced. */}
+        <SheetTitle tabIndex={-1} ref={focusOnMount} className="focus:outline-hidden">
+          Check your inbox
+        </SheetTitle>
+        <p className="mt-3 text-sm text-muted-foreground">
+          We sent a sign-in link to <span className="font-medium break-all text-foreground">{sentTo}</span>. It works
+          once and expires in 15 minutes.
+        </p>
+        <div className="mt-6 grid gap-3">
           <p className="sr-only" role="status" aria-live="polite">
             {announcement}
           </p>
@@ -190,7 +186,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             </Alert>
           )}
           {devMailbox && (
-            <Button asChild variant="brand" size="lg" className="w-full">
+            <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
               <Link href="/dev/emails" target="_blank" rel="noopener">
                 <Inbox aria-hidden />
                 Open dev mailbox
@@ -199,7 +195,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             </Button>
           )}
           {webmail && (
-            <Button asChild variant="brand" size="lg" className="w-full">
+            <Button asChild variant="brand" size="lg" className="w-full rounded-[3px]">
               <a href={webmail.href} target="_blank" rel="noopener noreferrer">
                 <ExternalLink aria-hidden />
                 Open {webmail.label}
@@ -212,19 +208,19 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             No email after a minute? Check your spam or promotions folder, then resend.
           </p>
-        </CardContent>
-        <CardFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
-          <Button variant="ghost" className="w-full sm:w-auto" onClick={editEmail}>
+        </div>
+        <div className="mt-6 flex flex-col gap-2 border-t border-border pt-5 sm:flex-row sm:justify-between">
+          <Button variant="ghost" className="w-full rounded-[3px] sm:w-auto sm:-ml-3" onClick={editEmail}>
             <ArrowLeft aria-hidden />
             Use a different email
           </Button>
           {/* aria-disabled, not disabled: a focused button that becomes disabled drops focus to <body>. */}
           <Button
             variant="outline"
-            className="w-full tabular-nums aria-disabled:cursor-not-allowed aria-disabled:opacity-60 sm:w-auto"
+            className="w-full rounded-[3px] tabular-nums aria-disabled:cursor-not-allowed aria-disabled:opacity-60 sm:w-auto"
             onClick={() => onResend()}
             aria-disabled={resendBlocked || undefined}
             aria-describedby={cooldown > 0 && !resending ? `${hintId}-cooldown` : undefined}
@@ -241,24 +237,21 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               Available again in {cooldown} seconds.
             </span>
           )}
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   const sending = status === "sending";
   const describedBy = [error ? errorId : null, suggestion ? hintId : null].filter(Boolean).join(" ") || undefined;
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle as="h1" className="text-xl">
-          Sign in to {APP.name}
-        </CardTitle>
-        <CardDescription>
-          New here? Enter your email and we&apos;ll create your account. No password needed.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
+    <div>
+      <SheetKicker>Sign in or sign up</SheetKicker>
+      <SheetTitle>Sign in to {APP.name}</SheetTitle>
+      <p className="mt-3 text-sm text-muted-foreground">
+        New here? Enter your email and we&apos;ll create your account. No password needed.
+      </p>
+      <div className="mt-6 grid gap-4">
         {error && (
           <Alert variant="destructive" role="alert" id={errorId}>
             <AlertDescription>{error}</AlertDescription>
@@ -266,7 +259,9 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
         )}
         <form onSubmit={onSubmit} className="grid gap-3">
           <div className="grid gap-2">
-            <Label htmlFor={emailId}>Email</Label>
+            <Label htmlFor={emailId} className="font-mono text-[11px] tracking-[0.16em] uppercase">
+              Email
+            </Label>
             <Input
               ref={inputRef}
               id={emailId}
@@ -283,7 +278,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               onBlur={() => setTouched(true)}
               aria-invalid={error ? true : undefined}
               aria-describedby={describedBy}
-              className="h-11"
+              className="h-11 rounded-[3px] bg-background text-base sm:text-sm"
               autoFocus
             />
             <div id={hintId} aria-live="polite" className="empty:hidden">
@@ -305,15 +300,21 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               )}
             </div>
           </div>
-          <Button type="submit" variant="brand" size="lg" className="w-full" disabled={sending || googlePending}>
-            {sending ? <Loader2 className="animate-spin" aria-hidden /> : <Mail aria-hidden />}
+          <Button
+            type="submit"
+            variant="brand"
+            size="lg"
+            className="w-full rounded-[3px]"
+            disabled={sending || googlePending}
+          >
+            {sending && <Loader2 className="animate-spin" aria-hidden />}
             {sending ? "Sending link…" : "Send magic link"}
           </Button>
         </form>
 
         {googleEnabled && (
           <>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground uppercase">
+            <div className="mono-caps flex items-center gap-3 text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
               or
               <span className="h-px flex-1 bg-border" />
@@ -322,7 +323,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               type="button"
               variant="outline"
               size="lg"
-              className="w-full"
+              className="w-full rounded-[3px]"
               onClick={onGoogle}
               disabled={sending || googlePending}
               aria-busy={googlePending || undefined}
@@ -332,20 +333,24 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             </Button>
           </>
         )}
-      </CardContent>
-      <CardFooter>
-        <p className="w-full text-center text-xs text-muted-foreground">
-          By continuing you agree to our{" "}
-          <Link href="/legal/terms" className="underline underline-offset-2 hover:text-foreground">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/legal/privacy" className="underline underline-offset-2 hover:text-foreground">
-            Privacy Policy
-          </Link>
-          .
-        </p>
-      </CardFooter>
-    </Card>
+      </div>
+      <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">
+        By continuing you agree to our{" "}
+        <Link
+          href="/legal/terms"
+          className="underline decoration-foreground/30 underline-offset-2 hover:text-foreground hover:decoration-safelight-ink"
+        >
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link
+          href="/legal/privacy"
+          className="underline decoration-foreground/30 underline-offset-2 hover:text-foreground hover:decoration-safelight-ink"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
+    </div>
   );
 }
