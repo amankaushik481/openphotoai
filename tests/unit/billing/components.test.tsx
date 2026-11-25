@@ -122,14 +122,16 @@ describe("billing components (server render)", () => {
         mockPortal
       />,
     );
-    expect(html).toContain("Payment received");
+    // The only purchase is weeks old: this checkout isn't confirmed yet, so nothing claims "payment received".
+    expect(html).toContain("Confirming your payment");
+    expect(html).not.toContain("Payment received");
     expect(html).toContain("Test mode");
     expect(html).toContain("Test billing portal");
     expect(html).toContain("1,234");
     expect(html).toContain("Ends on");
     expect(html).toContain("Manage billing");
     expect(html).toContain("Plan credits");
-    expect(html).toContain("Load more");
+    expect(html).toContain("Show older entries");
   });
 
   it("BillingDashboard shows the empty history state for new users", () => {

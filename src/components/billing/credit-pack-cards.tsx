@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CREDIT_PACKS } from "@/config/plans";
 import { cn } from "@/lib/utils";
-import { formatCredits, formatPrice } from "./format";
+import { formatCredits, formatPerCredit, formatPrice } from "./format";
 import { publicCheckoutHref } from "./checkout-intent";
 import { useBillingActions } from "./use-billing-actions";
 
@@ -26,7 +26,7 @@ export function CreditPackCards({ mode, className }: CreditPackCardsProps) {
     <div className={cn("grid gap-4 sm:grid-cols-3", className)}>
       {CREDIT_PACKS.map((pack) => {
         const key = `pack:${pack.id}`;
-        const perCredit = (pack.priceCents / pack.credits).toFixed(1);
+        const perCredit = formatPerCredit(pack.priceCents, pack.credits);
         const titleId = `pack-${pack.id}-title`;
         return (
           <Card key={pack.id} aria-labelledby={titleId} className={cn("gap-4", pack.popular && "border-primary/50 shadow-md")}>
@@ -42,7 +42,7 @@ export function CreditPackCards({ mode, className }: CreditPackCardsProps) {
             <CardContent className="flex flex-1 flex-col gap-1">
               <p className="text-3xl font-semibold tracking-tight tabular-nums">{formatPrice(pack.priceCents)}</p>
               <p className="text-xs text-muted-foreground">
-                {perCredit}¢ per credit · {formatCredits(pack.credits)} credits that never expire
+                {perCredit} per credit · {formatCredits(pack.credits)} credits that never expire
               </p>
             </CardContent>
             <CardFooter>
