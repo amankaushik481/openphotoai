@@ -86,6 +86,9 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | POST | `/api/account/delete` | U | → `{ ok }` (emails confirmation link) |
 | POST | `/api/account/delete/confirm` | P | `{ token }` → `{ ok }` (real deletion, final email) |
 | GET | `/api/account/export` | U | → JSON export of the user's data |
+| GET | `/api/account/sessions` | U | → `{ sessions: SessionDTO[] }` (unexpired, current first; no tokens) |
+| DELETE | `/api/account/sessions` | U | sign out every other device → `{ revoked }` (401 if the current session is unknown) |
+| DELETE | `/api/account/sessions/:id` | U | sign out one other device → `{ ok }` (404 for others' sessions; the current one is refused) |
 
 ### Identity models (consent, photos, training)
 | Method | Path | Auth | Body → Response |
@@ -148,7 +151,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 ### Credits / billing
 | Method | Path | Auth | Body → Response |
 |---|---|---|---|
-| GET | `/api/credits` | UK | → `{ balance, ledger: CreditLedgerEntryDTO[], nextCursor }` |
+| GET | `/api/credits` | UK | → `{ balance, ledger: CreditLedgerEntryDTO[], nextCursor, jobTypes? }` (`jobTypes`: job id → type for the page's job entries, when any) |
 | POST | `/api/billing/checkout` | U | `{ item: CheckoutItem }` → `{ url }` |
 | POST | `/api/billing/portal` | U | → `{ url }` |
 | GET | `/api/billing/subscription` | U | → `{ subscription | null, plan }` |
@@ -161,7 +164,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 |---|---|---|---|
 | GET/POST | `/api/teams` | U | list mine / `{ name }` create (Studio plan) |
 | GET/PATCH/DELETE | `/api/teams/:id` | U | team detail (members, kits) |
-| POST | `/api/teams/:id/invites` | U | `{ email }` |
+| POST | `/api/teams/:id/invites` | U | `{ email }` (links expire after 14 days; re-inviting sends a new link and restarts it) |
 | POST | `/api/teams/invites/:token/accept` | U | join |
 | DELETE | `/api/teams/:id/members/:memberId` | U | remove |
 | PATCH | `/api/teams/:id/members/:memberId` | U | `{ role }` (owner only) |
@@ -194,7 +197,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 | GET/HEAD | `/api/files/[...key]` | signature (`?exp&sig&dl`) | local storage driver file serving (Range supported) |
 
 ### Admin (auth A)
-`GET /api/admin/stats`, `GET /api/admin/users?q`, `GET /api/admin/users/:id`,
+`GET /api/admin/stats`, `GET /api/admin/users?q&plan&status` (status: admin/suspended/paid/deleted), `GET /api/admin/users/:id`,
 `POST /api/admin/users/:id/credits {delta, note}`, `POST /api/admin/users/:id/suspend {reason}`,
 `POST /api/admin/users/:id/unsuspend`, `GET /api/admin/jobs?status&type`, `POST /api/admin/jobs/:id/refund`,
 `GET /api/admin/moderation` (open reports + unreviewed safety events),
@@ -204,7 +207,7 @@ All JSON. `auth`: P = public, U = session, A = admin, K = API key, UK = session 
 ### Dev mailbox / demo
 | Method | Path | Auth | Body → Response |
 |---|---|---|---|
-| GET | `/dev/emails`, `/dev/emails/[id]` (pages) | P (mock email only) | mailbox of mocked emails |
+| GET | `/dev/emails`, `/dev/emails/[id]`, `/dev/emails/templates` (pages) | P (mock email only) | mailbox of mocked emails; every template in light + dark |
 | GET | `/api/dev/emails/latest` | P (mock email only, 404 otherwise) | `?to&template?` → newest mocked email `{ id, to, template, subject, html, text, links, createdAt }` (Playwright follows magic links with it) |
 | GET | `/api/demo/login` | P (404 unless `DEMO_MODE`) | → `{ enabled: true }` (lets the static landing page show the demo button; cached 5 min) |
 | POST | `/api/demo/login` | P (`DEMO_MODE` only, same-origin, per-IP + global rate limits) | creates a demo account, sets the session cookie → `{ redirect }` |
@@ -221,9 +224,9 @@ App (`/app/**`, signed in): `/app` (dashboard), `/app/models`, `/app/models/new`
 upload → quality check → train), `/app/models/[id]`, `/app/create` (prompt / pack / reference, drafts, prompt helper),
 `/app/packs`, `/app/packs/[slug]` (batch), `/app/batches/[id]`, `/app/edit/[mediaId]` (edit / brush / upscale / bg),
 `/app/pose`, `/app/video`, `/app/try-on`, `/app/together` (multi-person), `/app/gallery`, `/app/gallery/[mediaId]`,
-`/app/billing`, `/app/settings` (profile, delete account, export), `/app/api-keys`, `/app/team`.
+`/app/billing`, `/app/settings` (profile, sessions, delete account, export), `/app/api-keys`, `/app/team`.
 
-Admin (`/admin/**`, role admin): `/admin`, `/admin/users`, `/admin/users/[id]`, `/admin/jobs`, `/admin/moderation`,
+Admin (`/admin/**`, role admin): `/admin`, `/admin/users`, `/admin/users/[id]`, `/admin/jobs`, `/admin/jobs/[id]` (job inspector), `/admin/moderation`,
 `/admin/revenue`.
 
 ## 6. Design system
