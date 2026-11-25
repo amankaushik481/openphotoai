@@ -2,13 +2,14 @@
 
 import { CalendarClockIcon, CreditCardIcon, LoaderCircleIcon, TriangleAlertIcon } from "lucide-react";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPlan } from "@/config/plans";
 import type { BillingSummaryDTO } from "@/server/billing/types";
-import { formatCredits, formatDate, SUBSCRIPTION_STATUS_LABELS } from "./format";
+import { formatCredits, SUBSCRIPTION_STATUS_LABELS } from "./format";
+import { LocalDate } from "./local-date";
 
 const STATUS_VARIANT = {
   active: "success",
@@ -30,6 +31,8 @@ export function CurrentPlanCard({ summary, onManage, managing }: CurrentPlanCard
   const sub = summary.subscription;
   const live = sub && sub.status !== "canceled" && sub.planId === summary.plan;
   const periodCredits = live && sub.interval === "year" ? plan.monthlyCredits * 12 : plan.monthlyCredits;
+  const paymentFailed = live && (sub.status === "past_due" || sub.status === "unpaid");
+  const testMode = summary.provider === "mock";
 
   return (
     <Card className="gap-4">
@@ -49,28 +52,54 @@ export function CurrentPlanCard({ summary, onManage, managing }: CurrentPlanCard
             </p>
             {sub.currentPeriodEnd && (
               <p className="flex items-center gap-2">
-                <CalendarClockIcon aria-hidden="true" className="size-4 text-muted-foreground" />
-                {sub.cancelAtPeriodEnd ? "Ends on " : "Renews on "}
-                <time dateTime={sub.currentPeriodEnd} className="font-medium">
-                  {formatDate(sub.currentPeriodEnd)}
-                </time>
+                <CalendarClockIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                <span>
+                  {sub.cancelAtPeriodEnd ? "Ends on " : paymentFailed ? "Payment was due on " : "Renews on "}
+                  <LocalDate iso={sub.currentPeriodEnd} className="font-medium" />
+                </span>
               </p>
             )}
-            {sub.cancelAtPeriodEnd && (
+            {paymentFailed ? (
+              <Alert variant="warning" role="alert">
+                <TriangleAlertIcon aria-hidden="true" />
+                <AlertTitle>Your last payment failed</AlertTitle>
+                <AlertDescription>
+                  {sub.status === "past_due"
+                    ? `We'll retry the charge over the next few days. Update your card to keep ${plan.name}; your credits are safe either way.`
+                    : `${plan.name} is paused until the payment goes through. Update your card to continue; your credits are safe.`}
+                  {summary.canManageBilling && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={onManage}
+                      disabled={managing}
+                      aria-busy={managing}
+                    >
+                      {managing ? (
+                        <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+                      ) : (
+                        <CreditCardIcon aria-hidden="true" />
+                      )}
+                      Update payment method
+                    </Button>
+                  )}
+                </AlertDescription>
+              </Alert>
+            ) : sub.cancelAtPeriodEnd ? (
               <Alert variant="warning">
                 <TriangleAlertIcon aria-hidden="true" />
                 <AlertDescription>
-                  Your subscription won&apos;t renew. You keep {plan.name} and your credits until the end of the period.
+                  Your subscription won&apos;t renew. You keep {plan.name} until the end of the period, then move to
+                  Free. Every credit you have stays on your account.
                 </AlertDescription>
               </Alert>
-            )}
-            {(sub.status === "past_due" || sub.status === "unpaid") && (
-              <Alert variant="warning">
-                <TriangleAlertIcon aria-hidden="true" />
-                <AlertDescription>
-                  Your last payment failed. Update your payment method in billing to keep your plan.
-                </AlertDescription>
-              </Alert>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {testMode ? "Cancel in the test billing portal" : "Cancel anytime in Manage billing"}: you keep{" "}
+                {plan.name} until the end of the period you paid for, then move to Free. Credits never disappear when
+                you cancel.
+              </p>
             )}
           </>
         ) : (

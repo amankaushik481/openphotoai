@@ -4,15 +4,16 @@ import { JsonLd } from "@/components/marketing/json-ld";
 import { LegalDocumentView } from "@/components/marketing/legal-document";
 import { toPlainText } from "@/content/inline";
 import { getLegalDocument, LEGAL_LAST_UPDATED } from "@/content/legal";
+import { marketingMetadata } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/content/structured-data";
 
 const doc = getLegalDocument("acceptable-use");
 
-export const metadata: Metadata = {
+export const metadata: Metadata = marketingMetadata({
   title: doc.title,
   description: toPlainText(doc.summary),
-  alternates: { canonical: "/legal/acceptable-use" },
-};
+  path: "/legal/acceptable-use",
+});
 
 export default function AcceptableUsePage() {
   return (

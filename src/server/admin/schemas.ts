@@ -1,6 +1,6 @@
 /** Zod schemas for the admin API (request bodies + query strings). */
 import { z } from "zod";
-import { JOB_STATUSES, JOB_TYPES } from "@/types/domain";
+import { JOB_STATUSES, JOB_TYPES, PLAN_IDS } from "@/types/domain";
 
 const id = z.string().trim().min(1).max(64);
 const cursor = id.optional();
@@ -9,8 +9,13 @@ export const statsQuery = z.object({
   days: z.coerce.number().int().min(1).max(365).default(30),
 });
 
+export const USER_STATUS_FILTERS = ["admin", "suspended", "paid", "deleted"] as const;
+export type UserStatusFilter = (typeof USER_STATUS_FILTERS)[number];
+
 export const usersQuery = z.object({
   q: z.string().trim().max(200).optional(),
+  plan: z.enum(PLAN_IDS).optional(),
+  status: z.enum(USER_STATUS_FILTERS).optional(),
   cursor,
   limit: z.coerce.number().int().min(1).max(100).optional(),
 });

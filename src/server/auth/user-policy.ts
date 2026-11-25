@@ -20,16 +20,33 @@ export function isAdminEmail(email: string, adminEmails: readonly string[]): boo
   return adminEmails.includes(normalizeEmail(email));
 }
 
+/** Longest display name (same cap as PATCH /api/me). */
+export const DISPLAY_NAME_MAX = 80;
+
+/** C0/C1 controls (NUL included: Postgres text refuses it) and the bidi overrides/isolates used for spoofing. */
+const NAME_STRIP = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g;
+
 /**
- * Applied to every user before insert: lowercase email and `role` derived from
- * ADMIN_EMAILS (never from client input).
+ * Display name as stored and shown to teammates and in invite emails: control and bidi characters
+ * removed, whitespace (tabs, newlines) collapsed to single spaces, trimmed, at most DISPLAY_NAME_MAX.
  */
-export function prepareNewUser<T extends { email: string }>(
+export function sanitizeDisplayName(raw: string): string {
+  return raw.replace(NAME_STRIP, "").replace(/\s+/g, " ").trim().slice(0, DISPLAY_NAME_MAX).trim();
+}
+
+/**
+ * Applied to every user before insert: lowercase email, sanitized name and `role` derived from
+ * ADMIN_EMAILS (never from client input). Only a verified address gets the admin role: an OAuth
+ * profile reporting `email_verified: false` for an admin's address stays a plain user. (Magic-link
+ * sign-ups are verified by construction: the user clicked the emailed link.)
+ */
+export function prepareNewUser<T extends { email: string; emailVerified?: boolean | null; name?: string | null }>(
   data: T,
   adminEmails: readonly string[],
 ): T & { email: string; role: UserRole } {
   const email = normalizeEmail(data.email);
-  return { ...data, email, role: isAdminEmail(email, adminEmails) ? "admin" : "user" };
+  const role: UserRole = data.emailVerified === true && isAdminEmail(email, adminEmails) ? "admin" : "user";
+  return { ...data, ...(typeof data.name === "string" ? { name: sanitizeDisplayName(data.name) } : {}), email, role };
 }
 
 type BanFields = Pick<UserRow, "banned" | "banExpires">;
@@ -62,7 +79,7 @@ export async function liftExpiredBan(row: UserRow): Promise<UserRow> {
 }
 
 /**
- * Runs before Better Auth creates a session. Lifts expired bans, promotes
+ * Runs before Better Auth creates a session. Lifts expired bans, promotes verified
  * ADMIN_EMAILS users added after signup, and reports whether sign-in is blocked.
  */
 export async function admitSignIn(userId: string): Promise<SignInBlock | null> {
@@ -70,7 +87,8 @@ export async function admitSignIn(userId: string): Promise<SignInBlock | null> {
   if (!found) return null; // Better Auth fails on its own for unknown users.
   const row = await liftExpiredBan(found);
   const block = signInBlockReason(row);
-  if (!block && row.role !== "admin" && isAdminEmail(row.email, env.ADMIN_EMAILS)) {
+  // Same rule as prepareNewUser: an unverified address is never promoted.
+  if (!block && row.role !== "admin" && row.emailVerified && isAdminEmail(row.email, env.ADMIN_EMAILS)) {
     await db.update(userTable).set({ role: "admin" }).where(eq(userTable.id, row.id));
   }
   return block;

@@ -7,9 +7,18 @@ import type { TeamMemberRow, TeamRow, UserRow } from "@/db/types";
 import { newToken } from "@/lib/ids";
 import { env } from "@/lib/env";
 import { sendEmail } from "@/server/email";
-import { errors } from "@/server/http";
+import { AppError, errors } from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
-import { getTeamForManager, getTeamForMember, getTeamForOwner, hashInviteToken, normalizeEmail } from "./access";
+import {
+  getTeamForManager,
+  getTeamForMember,
+  getTeamForOwner,
+  hashInviteToken,
+  inviteExpiresAt,
+  isInviteExpired,
+  TEAM_INVITE_TTL_DAYS,
+  normalizeEmail,
+} from "./access";
 import type { TeamInvitePreview } from "./types";
 
 export function teamInviteUrl(token: string): string {
@@ -49,9 +58,10 @@ export async function inviteMember(
       .limit(1);
     if (existing?.status === "active") throw errors.conflict(`${address} is already on this team.`);
     if (existing) {
+      // A fresh link also restarts the invite's expiry (createdAt = when the latest link was sent).
       const [row] = await tx
         .update(teamMembers)
-        .set({ inviteTokenHash: hashInviteToken(token) })
+        .set({ inviteTokenHash: hashInviteToken(token), createdAt: new Date() })
         .where(eq(teamMembers.id, existing.id))
         .returning();
       return { member: row!, resent: true };
@@ -75,6 +85,7 @@ export async function inviteMember(
     inviterName: actor.name.trim() || actor.email,
     teamName: team.name,
     url: teamInviteUrl(token),
+    expiresInDays: TEAM_INVITE_TTL_DAYS,
   });
   return result;
 }
@@ -105,6 +116,8 @@ export async function getInvitePreview(token: string): Promise<TeamInvitePreview
     teamName: invite.team.name,
     inviterName: owner?.name.trim() || owner?.email || "A teammate",
     email: invite.member.email,
+    expiresAt: inviteExpiresAt(invite.member.createdAt).toISOString(),
+    expired: isInviteExpired(invite.member.createdAt),
   };
 }
 
@@ -115,6 +128,11 @@ export async function getInvitePreview(token: string): Promise<TeamInvitePreview
 export async function acceptInvite(user: UserRow, token: string): Promise<{ team: TeamRow }> {
   const invite = await findPendingInvite(token);
   if (!invite) throw errors.notFound("Invite");
+  if (isInviteExpired(invite.member.createdAt)) {
+    throw new AppError("not_found", "This invite has expired. Ask the team owner to send you a new one.", {
+      reason: "expired",
+    });
+  }
   if (normalizeEmail(user.email) !== normalizeEmail(invite.member.email)) {
     throw errors.forbidden("This invite was sent to a different email address. Sign in with that address to join.");
   }

@@ -6,6 +6,11 @@ import { createMockEmailProvider } from "@/providers/email/mock";
 import { createTestDb } from "../../helpers/db";
 
 vi.mock("@/providers/registry", () => ({ getEmailProvider: () => createMockEmailProvider() }));
+// Pages call `connection()`, which needs a request scope: render them outside one.
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  connection: async () => undefined,
+}));
 vi.mock("@/server/auth/session", () => ({
   resolveRequestAuth: async () => ({ user: null, apiKey: null }),
 }));
@@ -81,6 +86,20 @@ describe("dev mailbox is unavailable unless the mock provider is active", () => 
     expect(res.status).toBe(404);
     expect(await res.json()).toMatchObject({ error: { code: "not_found" } });
     await expect(listDevEmails()).rejects.toMatchObject({ code: "not_found" });
+    // The template gallery too.
+    const { default: TemplatesPage } = await import("@/app/dev/emails/templates/page");
+    await expect(TemplatesPage()).rejects.toThrow(/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/);
+  });
+
+  it("the template gallery renders every template in light and dark mode", async () => {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { default: TemplatesPage } = await import("@/app/dev/emails/templates/page");
+    const { EMAIL_COMPONENTS } = await import("@/emails");
+    const html = renderToStaticMarkup(await TemplatesPage());
+    for (const name of Object.keys(EMAIL_COMPONENTS)) {
+      expect(html).toContain(`id="${name}"`);
+      expect(html).toContain(`title="${name} (dark mode)"`);
+    }
   });
 
   it("stays off in production when mock email is only the fallback for a missing RESEND_API_KEY", () => {

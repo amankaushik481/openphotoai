@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CheckSquareIcon, EyeOffIcon, FolderIcon, HeartIcon, ImagesIcon, VideoIcon, XIcon } from "lucide-react";
+import {
+  CheckSquareIcon,
+  FolderIcon,
+  HeartIcon,
+  ImageIcon,
+  ImagesIcon,
+  SparklesIcon,
+  VideoIcon,
+  XIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -61,15 +70,19 @@ export function GalleryToolbar({
           aria-label="Show"
         >
           <ToggleGroupItem value="all" className="px-3">
-            <ImagesIcon aria-hidden="true" />
+            <ImagesIcon aria-hidden="true" className="max-sm:hidden" />
             All
           </ToggleGroupItem>
           <ToggleGroupItem value="favorites" className="px-3">
-            <HeartIcon aria-hidden="true" />
+            <HeartIcon aria-hidden="true" className="max-sm:hidden" />
             Favorites
           </ToggleGroupItem>
+          <ToggleGroupItem value="photos" className="px-3">
+            <ImageIcon aria-hidden="true" className="max-sm:hidden" />
+            Photos
+          </ToggleGroupItem>
           <ToggleGroupItem value="videos" className="px-3">
-            <VideoIcon aria-hidden="true" />
+            <VideoIcon aria-hidden="true" className="max-sm:hidden" />
             Videos
           </ToggleGroupItem>
         </ToggleGroup>
@@ -148,14 +161,30 @@ export function GalleryToolbar({
       </div>
 
       {(hiddenCount > 0 || filters.showHidden) && (
-        <div className="flex flex-col gap-2 rounded-lg border bg-card px-3 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="flex items-start gap-2 text-muted-foreground">
-            <EyeOffIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-            <span>
-              Our best-shots picker hides weaker results (lower likeness or quality) to keep your gallery strong.
-              They&apos;re still yours to view, download or delete.
+        <section
+          aria-labelledby={`${hiddenSwitchId}-title`}
+          className="flex flex-col gap-3 rounded-xl border border-primary/20 bg-brand-soft/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-4"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white shadow-sm"
+            >
+              <SparklesIcon className="size-4" />
             </span>
-          </p>
+            <div className="flex flex-col gap-0.5">
+              <h2 id={`${hiddenSwitchId}-title`} className="font-medium">
+                {filters.showHidden ? "Showing every result" : "Best shots only"}
+              </h2>
+              <p className="text-muted-foreground">
+                {filters.showHidden
+                  ? "Weaker results (lower likeness or quality) are marked Hidden. Unhide the ones you like."
+                  : hiddenCount === 1
+                    ? "Our best-shots picker hid 1 weaker result (lower likeness or quality). It's still yours to view, download or delete."
+                    : `Our best-shots picker hid ${hiddenCount.toLocaleString()} weaker results (lower likeness or quality). They're still yours to view, download or delete.`}
+              </p>
+            </div>
+          </div>
           <span className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
             <Label htmlFor={hiddenSwitchId} className="whitespace-nowrap">
               Show hidden ({hiddenCount.toLocaleString()})
@@ -166,7 +195,7 @@ export function GalleryToolbar({
               onCheckedChange={(on) => onFiltersChange({ ...filters, showHidden: on || undefined })}
             />
           </span>
-        </div>
+        </section>
       )}
     </div>
   );

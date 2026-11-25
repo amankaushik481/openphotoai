@@ -102,7 +102,8 @@ test("explicit prompts are blocked for free; blocked outputs are refunded", asyn
     await page.goto("/app/billing");
     const history = page.getByRole("table");
     await expect(history.getByRole("row").filter({ hasText: "Refund" }).filter({ hasText: "+2" })).toBeVisible();
-    await expect(history.getByRole("row").filter({ hasText: "Used" }).filter({ hasText: "−2" })).toBeVisible();
+    // The debit row is titled with the job type (see describeLedgerEntry).
+    await expect(history.getByRole("row").filter({ hasText: "Photo generation" }).filter({ hasText: "−2" })).toBeVisible();
     const media = (await (await page.request.get("/api/media?showHidden=true")).json()) as { media: unknown[] };
     expect(media.media).toHaveLength(0);
   });

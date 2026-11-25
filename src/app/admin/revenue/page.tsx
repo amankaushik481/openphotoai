@@ -259,7 +259,12 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
               ))}
             </TableBody>
           </Table>
-          <NextPageLink pathname="/admin/revenue" query={{ days: String(days) }} cursor={paymentPage.nextCursor} />
+          <NextPageLink
+            pathname="/admin/revenue"
+            query={{ days: String(days) }}
+            cursor={paymentPage.nextCursor}
+            onLaterPage={Boolean(cursor)}
+          />
         </Section>
       </div>
     </>

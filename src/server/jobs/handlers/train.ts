@@ -13,8 +13,8 @@ import { zipSync } from "fflate";
 import { and, eq, inArray } from "drizzle-orm";
 import { APP, TRAINING } from "@/config/app";
 import { db } from "@/db";
-import { identityModels, user as userTable } from "@/db/schema";
-import type { JobRow } from "@/db/types";
+import { identityModels, jobs, user as userTable } from "@/db/schema";
+import type { IdentityModelRow, JobRow } from "@/db/types";
 import { getAIProvider, getTrainingProvider } from "@/providers/registry";
 import type { TrainingProvider } from "@/providers/types";
 import type { AIProviderName } from "@/types/domain";
@@ -140,20 +140,40 @@ export default defineHandler({
 
     // Providers that can't delete files (fal): keep our own copy of the weights under the model's
     // storage prefix, so deleting the model really deletes them (SAF-7). A failed copy throws (retried).
+    // Each completion attempt writes its own copy (see weightsKey).
     const weights =
       job.modelId && shouldCopyWeights(job.provider, modelRef)
-        ? await copyWeightsToStorage({ userId: job.userId, modelId: job.modelId, jobId: job.id, modelRef })
+        ? await copyWeightsToStorage({ userId: job.userId, modelId: job.modelId, jobId: job.id, modelRef, attempt: job.attempts })
         : null;
+    const dropOwnCopy = async () => {
+      if (weights) await getStorage().delete(weights.key).catch(() => undefined);
+    };
+    let coverMediaKey: string | null = null;
+    try {
+      if (job.modelId) coverMediaKey = await coverKeyFor({ id: job.modelId, userId: job.userId });
+    } catch (err) {
+      await dropOwnCopy();
+      throw err;
+    }
 
-    const [model] = job.modelId
-      ? await db
+    // The model turns ready in the same transaction that marks the job succeeded (engine `commit`):
+    // a cancel, or another attempt taking over, can then never leave a ready model on a canceled,
+    // refunded job, and an attempt that lost can't touch the model the winner made ready.
+    let ready: IdentityModelRow | undefined;
+    return {
+      mediaIds: [],
+      blockedCount: 0,
+      extra: { modelRef },
+      async commit(tx) {
+        if (!job.modelId) return;
+        [ready] = await tx
           .update(identityModels)
           .set({
             status: "ready",
             provider: job.provider,
             providerModelRef: modelRef,
             trainedAt: new Date(),
-            coverMediaKey: await coverKeyFor({ id: job.modelId, userId: job.userId }),
+            coverMediaKey,
             ...(weights ? { metadata: setWeightsSql(weights) } : {}),
           })
           .where(
@@ -164,17 +184,29 @@ export default defineHandler({
               eq(identityModels.status, "training"),
             ),
           )
-          .returning()
-      : [];
-
-    if (model) {
-      await notifyOwner(job, model, { template: "model_ready" });
-    } else {
-      await discardWeights(job.provider, modelRef, job.id);
-      if (weights) await getStorage().delete(weights.key).catch(() => undefined);
-    }
-    await deleteTrainingZip(job);
-    return { mediaIds: [], blockedCount: 0, extra: { modelRef } };
+          .returning();
+      },
+      async afterCommit() {
+        if (ready) {
+          await notifyOwner(job, ready, { template: "model_ready" });
+        } else {
+          // The model was deleted (or is being deleted) meanwhile: nothing will use these weights.
+          await discardWeights(job.provider, modelRef, job.id);
+          await dropOwnCopy();
+        }
+        await deleteTrainingZip(job);
+      },
+      async discard() {
+        await dropOwnCopy();
+        // The provider's copy is shared by every attempt: remove it only once the job can't succeed
+        // anymore (canceled / failed). While another attempt holds the lease, or after it succeeded,
+        // that attempt owns it.
+        const [current] = await db.select({ status: jobs.status }).from(jobs).where(eq(jobs.id, job.id)).limit(1);
+        if (!current || (current.status !== "running" && current.status !== "succeeded")) {
+          await discardWeights(job.provider, modelRef, job.id);
+        }
+      },
+    };
   },
 
   async onFailed({ job, error }) {

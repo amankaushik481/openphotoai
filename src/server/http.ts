@@ -263,8 +263,16 @@ export function route<P = Record<string, string>, A extends AuthMode = AuthMode>
       }
       const params = (segment?.params ? await segment.params : {}) as P;
       const result = await (handler as Handler<P, AuthMode>)({ req, params, user, apiKey } as AuthedRouteContext<P>);
-      if (result instanceof Response) return result;
-      return NextResponse.json(result ?? { ok: true });
+      const res = result instanceof Response ? result : NextResponse.json(result ?? { ok: true });
+      // Per-user data (signed URLs, balances, emails): never stored by a shared cache or the browser.
+      if ((user || apiKey) && !res.headers.has("cache-control")) {
+        try {
+          res.headers.set("Cache-Control", "private, no-store");
+        } catch {
+          // Immutable headers (e.g. Response.redirect): leave them as they are.
+        }
+      }
+      return res;
     } catch (err) {
       return errorResponse(err);
     }
@@ -321,6 +329,16 @@ export function clientIp(req: Request): string {
     }
   }
   return ip ?? "unknown";
+}
+
+/**
+ * The client IP, or null when it can't be known (no trusted proxy). A per-IP limit keyed on "unknown"
+ * is one bucket for every visitor of the deployment, so a single client could exhaust it for all:
+ * callers pick a per-user / per-target subject (or skip the per-IP limit) when this is null.
+ */
+export function knownClientIp(req: Request): string | null {
+  const ip = clientIp(req);
+  return ip === "unknown" ? null : ip;
 }
 
 /** The raw forwarded headers, kept next to the resolved IP as evidence (consent records). */

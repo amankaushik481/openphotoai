@@ -37,6 +37,8 @@ export interface PromptFieldProps {
   required?: boolean;
   /** Ctrl/Cmd+Enter. */
   onSubmitShortcut?: () => void;
+  /** Example requests offered as one-tap starters while the field is empty. */
+  starters?: readonly string[];
   className?: string;
 }
 
@@ -51,6 +53,7 @@ export function PromptField({
   hint,
   required = false,
   onSubmitShortcut,
+  starters,
   className,
 }: PromptFieldProps) {
   const fallbackId = React.useId();
@@ -110,12 +113,18 @@ export function PromptField({
     setStatus(s.kind === "append" ? `Added “${s.text}”.` : "Prompt replaced with the suggestion. You can undo it.");
   }
 
+  function applyStarter(text: string) {
+    onChange(text);
+    setStatus(`Added “${text}”. Edit it, or press Improve for a detailed prompt.`);
+    document.getElementById(fieldId)?.focus();
+  }
+
   const chips = suggestions.filter((s) => s.kind !== "tip");
   const tips = suggestions.filter((s) => s.kind === "tip");
   const helperHint = tooLong
     ? `The helper works on requests up to ${PROMPT_HELPER_MAX_LENGTH} characters.`
     : tooShort
-      ? "Write a few words, then let the helper turn them into a detailed prompt."
+      ? "Write a few words, then press Improve: the helper turns them into a detailed prompt."
       : undefined;
 
   return (
@@ -149,6 +158,21 @@ export function PromptField({
         }}
         className="max-h-72 min-h-24 resize-y"
       />
+      {starters && starters.length > 0 && !trimmed && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">Try:</span>
+          {starters.map((text) => (
+            <button
+              key={text}
+              type="button"
+              onClick={() => applyStarter(text)}
+              className="inline-flex max-w-full items-center truncate rounded-full border bg-background px-2.5 py-1 text-xs transition-colors hover:border-primary/40 hover:bg-brand-soft/60 pointer-coarse:min-h-9 pointer-coarse:px-3"
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+      )}
       {showHint && (
         <p id={hintId} className="text-xs text-muted-foreground">
           {value.includes("{subject}") ? "{subject} is replaced with you. " : ""}

@@ -12,13 +12,70 @@ export function formatPrice(cents: number): string {
   }).format(cents / 100);
 }
 
-export function formatDate(iso: string | null | undefined): string {
+/** Any currency, always with cents: "$39.00", "−$9.00", "€12.50". */
+export function formatMoney(cents: number, currency = "usd"): string {
+  const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(
+    Math.abs(cents) / 100,
+  );
+  return cents < 0 ? `−${formatted}` : formatted;
+}
+
+/**
+ * "Nov 25, 2026". Defaults to UTC so the server render never depends on the host's time zone
+ * (pass `timeZone: undefined` explicitly, after hydration, for the viewer's local day; see LocalDate).
+ */
+export function formatDate(iso: string | null | undefined, opts: { timeZone?: string | undefined } = { timeZone: "UTC" }): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: opts.timeZone });
+}
+
+/** "Nov 25, 2026, 3:04 PM" in the given time zone (local when undefined). */
+export function formatDateTime(iso: string, timeZone?: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone,
+    timeZoneName: timeZone === "UTC" ? "short" : undefined,
+  });
+}
+
+/**
+ * Day-level relative label in the viewer's time zone: "today", "yesterday", "3 days ago", else the
+ * date ("Nov 2, 2026"). Future dates count as today.
+ */
+export function formatRelativeDay(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(date)) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  return formatDate(iso, { timeZone: undefined });
 }
 
 export function formatCredits(n: number): string {
   return n.toLocaleString("en-US");
+}
+
+/** "+500" / "−20" with a real minus sign (never "+0"). */
+export function formatCreditDelta(delta: number): string {
+  if (delta === 0) return "0";
+  return `${delta > 0 ? "+" : "−"}${formatCredits(Math.abs(delta))}`;
+}
+
+/** Price per credit in cents, without a trailing ".0": "9¢", "7.8¢", "6.6¢". */
+export function formatPerCredit(priceCents: number, credits: number): string {
+  if (credits <= 0) return "—";
+  const perCredit = Math.round((priceCents / credits) * 10) / 10;
+  return `${perCredit.toLocaleString("en-US", { maximumFractionDigits: 1 })}¢`;
 }
 
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
@@ -27,9 +84,9 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
   subscription_grant: "Plan credits",
   job_debit: "Used",
   job_refund: "Refund",
-  admin_adjust: "Adjustment",
-  transfer_in: "Team transfer",
-  transfer_out: "Team transfer",
+  admin_adjust: "Adjustment by support",
+  transfer_in: "Received from your team",
+  transfer_out: "Sent to a teammate",
   purchase_reversal: "Payment refunded",
 };
 

@@ -13,13 +13,12 @@ const PRODUCT_LINKS = [
   { href: "/docs/api", label: t("nav.api") },
 ];
 
-const linkClass =
-  "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground";
+const linkClass = "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground";
 
 export function MarketingFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="render-lazy border-t border-border/70 [--render-size:570px] md:[--render-size:300px]">
+    <footer className="render-lazy border-t border-border/70 [--render-size:600px] md:[--render-size:300px]">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Logo />
@@ -40,11 +39,19 @@ export function MarketingFooter() {
           ))}
         </FooterColumn>
         <FooterColumn title={t("nav.resources")}>
-          <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-1.5`}>
+          <a
+            href={APP.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${linkClass} inline-flex items-center gap-1.5`}
+          >
             <GithubIcon className="size-4" />
             {t("nav.github")}
             <span className="sr-only">(opens in a new tab)</span>
           </a>
+          <Link href="/docs" className={linkClass}>
+            Self-hosting docs
+          </Link>
           <span className="text-sm text-muted-foreground">{t("app.openSource")}</span>
           <a href={`mailto:${APP.supportEmail}`} className={linkClass}>
             {APP.supportEmail}

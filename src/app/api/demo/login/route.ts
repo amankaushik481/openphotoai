@@ -13,7 +13,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { createDemoAccount } from "@/server/demo/seed";
 import { createDemoSessionCookies } from "@/server/demo/session";
-import { clientIp, errorResponse, errors, isSameOriginRequest, route } from "@/server/http";
+import { errorResponse, errors, isSameOriginRequest, knownClientIp, route } from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
 
 /** DEMO_MODE is a runtime setting (e.g. Docker env): never bake the probe answer in at build time. */
@@ -34,12 +34,14 @@ export async function GET(): Promise<Response> {
 export const POST = route({ auth: "public" }, async ({ req }) => {
   if (!env.DEMO_MODE) throw errors.notFound();
   if (!isSameOriginRequest(req)) throw errors.forbidden("Cross-site request refused.");
-  const ip = clientIp(req);
-  await rateLimit("demoLoginsPerHourPerIp", `ip:${ip}`);
+  // Without a known client IP the per-IP bucket would be one bucket for every visitor (5 demos an
+  // hour for the whole deployment); the deployment-wide limit still bounds it.
+  const ip = knownClientIp(req);
+  if (ip) await rateLimit("demoLoginsPerHourPerIp", `ip:${ip}`);
   await rateLimit("demoLoginsPerHour", "global");
 
   const account = await createDemoAccount({
-    ipAddress: ip === "unknown" ? null : ip,
+    ipAddress: ip,
     userAgent: req.headers.get("user-agent"),
   });
   const cookies = await createDemoSessionCookies(account.user.id, req.headers);

@@ -11,19 +11,21 @@ export interface ReadinessPanelProps {
   readiness: ReadinessDTO;
   /** Readiness for Instant mode, shown as a secondary milestone (wizard). */
   instant?: ReadinessDTO;
+  /** Show blockers and tips (default true). Off once a trained model no longer needs its photos. */
+  guidance?: boolean;
   className?: string;
 }
 
 /** Counts, progress toward the minimum, head-pose variety meter, blockers and tips. */
-export function ReadinessPanel({ readiness, instant, className }: ReadinessPanelProps) {
+export function ReadinessPanel({ readiness, instant, guidance = true, className }: ReadinessPanelProps) {
   const { accepted, minRequired, maxAllowed } = readiness;
   const pct = Math.min(100, Math.round((accepted / Math.max(1, minRequired)) * 100));
 
   return (
     <section aria-labelledby="readiness-title" className={cn("flex flex-col gap-5 rounded-xl border bg-card p-4 sm:p-5", className)}>
       <div className="flex flex-col gap-2">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="readiness-title" className="font-semibold">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <h2 id="readiness-title" className="font-semibold whitespace-nowrap">
             Training set
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -69,7 +71,7 @@ export function ReadinessPanel({ readiness, instant, className }: ReadinessPanel
         </ul>
       </div>
 
-      {readiness.blockers.length > 0 && (
+      {guidance && readiness.blockers.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <h3 className="text-sm font-medium">Before you can continue</h3>
           <ul className="flex flex-col gap-1.5">
@@ -83,7 +85,7 @@ export function ReadinessPanel({ readiness, instant, className }: ReadinessPanel
         </div>
       )}
 
-      {readiness.tips.length > 0 && (
+      {guidance && readiness.tips.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <h3 className="text-sm font-medium">Tips</h3>
           <ul className="flex flex-col gap-1.5">

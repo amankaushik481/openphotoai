@@ -26,7 +26,15 @@ export {
   type AdminUserItem,
   type SuspendResult,
 } from "./users";
-export { listJobs, refundJobAdmin, type AdminJobItem, type ListJobsFilter } from "./jobs";
+export {
+  getAdminJobDetail,
+  isTerminalJobStatus,
+  listJobs,
+  refundJobAdmin,
+  type AdminJobDetail,
+  type AdminJobItem,
+  type ListJobsFilter,
+} from "./jobs";
 export {
   listModerationQueue,
   markEventReviewed,

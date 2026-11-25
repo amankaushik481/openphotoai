@@ -12,6 +12,7 @@ const bodySchema = z.object({ checkoutId: z.string().min(1).max(2048) });
 export const POST = route({ auth: "user" }, async ({ req, user }) => {
   assertMockPayments();
   const { checkoutId } = await parseBody(req, bodySchema);
+  const since = Date.now();
   await completeMockCheckout(user, checkoutId);
-  return { ok: true, redirectUrl: "/app/billing?success=1" };
+  return { ok: true, redirectUrl: `/app/billing?success=1&since=${since}` };
 });

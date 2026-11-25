@@ -15,8 +15,8 @@ export function ProviderCostNote() {
   const examples = providerCostExamples();
   const { priceChangeNoticeDays } = getLegalVariables();
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-      <div className="rounded-2xl border bg-card p-6 shadow-xs sm:p-8">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="rounded-2xl border bg-card p-5 shadow-xs sm:p-8">
         <h3 className="text-lg font-semibold">Where your money goes</h3>
         <p className="mt-2 text-sm text-muted-foreground">
           A credit costs {formatCents(range.min)}–{formatCents(range.max)} depending on how you buy it. Here is what we
@@ -28,13 +28,13 @@ export function ProviderCostNote() {
             <caption className="sr-only">Credits charged compared with typical AI provider cost</caption>
             <thead>
               <tr className="border-b bg-muted/50 text-muted-foreground">
-                <th scope="col" className="px-4 py-2.5 font-medium">
+                <th scope="col" className="px-3 py-2.5 sm:px-4 font-medium">
                   Action
                 </th>
-                <th scope="col" className="px-4 py-2.5 text-right font-medium">
+                <th scope="col" className="px-3 py-2.5 sm:px-4 text-right font-medium">
                   You pay
                 </th>
-                <th scope="col" className="px-4 py-2.5 text-right font-medium">
+                <th scope="col" className="px-3 py-2.5 sm:px-4 text-right font-medium">
                   Provider cost
                 </th>
               </tr>
@@ -42,13 +42,13 @@ export function ProviderCostNote() {
             <tbody>
               {examples.map((e) => (
                 <tr key={e.label} className="border-b last:border-0">
-                  <th scope="row" className="px-4 py-2.5 font-medium">
+                  <th scope="row" className="px-3 py-2.5 sm:px-4 font-medium">
                     {e.label}
                   </th>
-                  <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap tabular-nums">
+                  <td className="px-3 py-2.5 sm:px-4 text-right font-mono whitespace-nowrap tabular-nums">
                     {formatCreditCost(e.credits)}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-mono whitespace-nowrap text-muted-foreground tabular-nums">
+                  <td className="px-3 py-2.5 sm:px-4 text-right font-mono whitespace-nowrap text-muted-foreground tabular-nums">
                     ≈ {usd(e.providerUsd)}
                   </td>
                 </tr>
@@ -61,7 +61,7 @@ export function ProviderCostNote() {
           {priceChangeNoticeDays} days&apos; notice before any price increase.
         </p>
       </div>
-      <div className="flex flex-col rounded-2xl border border-dashed bg-muted/30 p-6 sm:p-8">
+      <div className="flex flex-col rounded-2xl border border-dashed bg-muted/30 p-5 sm:p-8">
         <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-soft-foreground">
           <ServerIcon aria-hidden="true" className="size-5" />
         </span>

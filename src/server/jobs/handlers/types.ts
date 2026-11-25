@@ -11,6 +11,7 @@
  *     -> succeeded: handler.complete?() or default ingestion (images -> ingestImages, videos -> ingestVideos)
  *     -> failed/canceled: refund + handler.onFailed?()
  */
+import type { Tx } from "@/db";
 import type { JobRow, UserRow } from "@/db/types";
 import type { ProviderJobRef, ProviderOutput, SubmitOptions } from "@/providers/types";
 import type { JobInputOf, JobType } from "@/types/domain";
@@ -54,6 +55,19 @@ export interface CompleteResult {
   discardedCount?: number;
   /** Extra fields merged into jobs.output. */
   extra?: Record<string, unknown>;
+  /**
+   * State changes that must happen only if this completion attempt wins (e.g. a trained model turning
+   * ready). Runs inside the transaction that marks the job succeeded, so a cancel (or another attempt
+   * taking over the lease) can never leave them applied on a job that didn't succeed.
+   */
+  commit?(tx: Tx): Promise<void>;
+  /** After that transaction committed (emails, cleanup). Errors are logged, never thrown. */
+  afterCommit?(): Promise<void>;
+  /**
+   * This attempt's result is thrown away (job canceled / failed meanwhile, or another attempt took
+   * over): undo what complete() stored outside the database. Errors are logged, never thrown.
+   */
+  discard?(): Promise<void>;
 }
 
 export interface JobHandler<T extends JobType = JobType> {

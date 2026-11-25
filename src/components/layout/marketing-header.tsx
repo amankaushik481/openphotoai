@@ -6,31 +6,30 @@ import { GithubIcon } from "@/components/layout/icons";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { MarketingMobileNav } from "@/components/layout/marketing-mobile-nav";
 import { MARKETING_LINKS } from "@/components/layout/marketing-nav";
+import { MarketingNavLinks } from "@/components/layout/marketing-nav-links";
 import { t } from "@/i18n";
 
 const linkClass =
-  "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
+  "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-[current=page]:text-foreground";
 
 /** Static (no session read) so marketing pages stay statically rendered. */
 export function MarketingHeader() {
+  const internal = MARKETING_LINKS.filter((l) => !l.external).map((l) => ({ href: l.href, label: t(l.labelKey) }));
+  const external = MARKETING_LINKS.filter((l) => l.external);
   return (
     <header className="glass sticky top-0 z-40 border-b border-border/60">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <Logo />
         <nav aria-label={t("nav.mainNavigation")} className="ml-4 hidden items-center md:flex">
-          {MARKETING_LINKS.map((link) =>
-            link.external ? (
-              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                <GithubIcon className="size-4" />
-                {t(link.labelKey)}
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
-            ) : (
-              <Link key={link.href} href={link.href} className={linkClass}>
-                {t(link.labelKey)}
-              </Link>
-            ),
-          )}
+          {/* Marks the current section (aria-current); the rest of the header stays server-rendered. */}
+          <MarketingNavLinks links={internal} className={linkClass} />
+          {external.map((link) => (
+            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+              <GithubIcon className="size-4" />
+              {t(link.labelKey)}
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
+          ))}
         </nav>
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle className="hidden sm:inline-flex" />

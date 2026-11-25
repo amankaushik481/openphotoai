@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LocalDate } from "@/components/billing/local-date";
 import { api } from "@/lib/api-client";
 import type { TeamDetailDTO, TeamMemberDTO } from "@/server/teams/types";
 import { apiErrorText, initials, ROLE_LABELS } from "./team-ui";
@@ -41,7 +42,10 @@ export interface MembersCardProps {
 export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardProps) {
   const { team, me, members } = detail;
   const [removing, setRemoving] = useState<TeamMemberDTO | null>(null);
+  const [roleChange, setRoleChange] = useState<{ member: TeamMemberDTO; role: "admin" | "member" } | null>(null);
   const seatsFull = team.seatsUsed >= team.seats;
+  // Rendered on the server too: compare against a fixed "now" so both renders agree.
+  const [now] = useState(() => Date.now());
 
   async function invite(email: string): Promise<boolean> {
     try {
@@ -59,13 +63,9 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
   }
 
   async function setRole(member: TeamMemberDTO, role: "admin" | "member") {
-    try {
-      await api(memberPath(team.id, member.id), { method: "PATCH", body: { role } });
-      toast.success(`${label(member)} is now ${role === "admin" ? "an admin" : "a member"}.`);
-      await onChanged();
-    } catch (err) {
-      toast.error(apiErrorText(err));
-    }
+    await api(memberPath(team.id, member.id), { method: "PATCH", body: { role } });
+    toast.success(`${label(member)} is now ${role === "admin" ? "an admin" : "a member"}.`);
+    await onChanged();
   }
 
   async function remove(member: TeamMemberDTO) {
@@ -80,9 +80,14 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
         <CardTitle>Members</CardTitle>
         <CardDescription>
           {me.canManage
-            ? `${team.seatsUsed} of ${team.seats} seats used (pending invites count).`
+            ? `${team.seatsUsed} of ${team.seats} seats used. Seats come with the owner's plan; pending and expired invites hold a seat until they're accepted or revoked.`
             : `${team.memberCount} ${team.memberCount === 1 ? "member" : "members"}.`}
         </CardDescription>
+        <p className="text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">Owner</span>: billing, roles, credits and deleting the team ·{" "}
+          <span className="font-medium text-foreground">Admins</span>: invite and remove members, edit brand kits ·{" "}
+          <span className="font-medium text-foreground">Members</span>: use the brand kits.
+        </p>
       </CardHeader>
 
       {me.canManage && (
@@ -99,6 +104,7 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
           const canPromote = me.isOwner && m.role !== "owner";
           const canGive = me.isOwner && m.status === "active" && m.role !== "owner" && m.userId;
           const canResend = me.canManage && m.status === "invited";
+          const expired = m.status === "invited" && m.expiresAt !== null && Date.parse(m.expiresAt) <= now;
           const hasActions = canRemove || canPromote || canGive || canResend;
           return (
             <li key={m.id} className="flex items-center gap-3 px-6 py-3">
@@ -114,10 +120,27 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
                   {isMe && <span className="text-muted-foreground"> (you)</span>}
                 </p>
                 {m.name && <p className="truncate text-xs text-muted-foreground">{m.email}</p>}
+                {m.status === "invited" && me.canManage && (
+                  <p className="text-xs text-muted-foreground">
+                    {expired ? (
+                      <>
+                        Link expired <LocalDate iso={m.expiresAt} /> · resend to renew it
+                      </>
+                    ) : (
+                      <>
+                        Invited <LocalDate iso={m.createdAt} /> · link works until <LocalDate iso={m.expiresAt} />
+                      </>
+                    )}
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
                 {m.status === "invited" ? (
-                  <Badge variant="warning">Invited</Badge>
+                  expired ? (
+                    <Badge variant="destructive">Expired</Badge>
+                  ) : (
+                    <Badge variant="warning">Pending</Badge>
+                  )
                 ) : (
                   <Badge variant={m.role === "member" ? "outline" : "soft"}>{ROLE_LABELS[m.role]}</Badge>
                 )}
@@ -138,17 +161,17 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
                       {canResend && (
                         <DropdownMenuItem onSelect={() => void invite(m.email)}>
                           <SendIcon aria-hidden="true" />
-                          Resend invite
+                          {expired ? "Send a new link" : "Resend invite"}
                         </DropdownMenuItem>
                       )}
                       {canPromote &&
                         (m.role === "admin" ? (
-                          <DropdownMenuItem onSelect={() => void setRole(m, "member")}>
+                          <DropdownMenuItem onSelect={() => setRoleChange({ member: m, role: "member" })}>
                             <ShieldIcon aria-hidden="true" />
                             Make member
                           </DropdownMenuItem>
                         ) : (
-                          <DropdownMenuItem onSelect={() => void setRole(m, "admin")}>
+                          <DropdownMenuItem onSelect={() => setRoleChange({ member: m, role: "admin" })}>
                             <ShieldCheckIcon aria-hidden="true" />
                             Make admin
                           </DropdownMenuItem>
@@ -177,12 +200,31 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
         title={removing?.status === "invited" ? `Revoke the invite for ${removing.email}?` : `Remove ${removing ? label(removing) : ""}?`}
         description={
           removing?.status === "invited"
-            ? "The link in their email will stop working."
-            : "They lose access to the team's brand kits. Their own photos, models and credits stay with them."
+            ? "The link in their email stops working right away and the seat is freed."
+            : "They lose access to the team's brand kits right away and the seat is freed. Their own photos, models and credits (including credits you sent them) stay with them."
         }
         confirmLabel={removing?.status === "invited" ? "Revoke invite" : "Remove"}
         destructive
         onConfirm={() => (removing ? remove(removing) : undefined)}
+      />
+
+      <ConfirmDialog
+        open={roleChange !== null}
+        onOpenChange={(open) => !open && setRoleChange(null)}
+        title={
+          roleChange
+            ? roleChange.role === "admin"
+              ? `Make ${label(roleChange.member)} an admin?`
+              : `Make ${label(roleChange.member)} a member?`
+            : ""
+        }
+        description={
+          roleChange?.role === "admin"
+            ? "Admins can invite and remove members and create, edit or delete brand kits. Only you can change roles, send credits or delete the team."
+            : "They keep using the team's brand kits but can no longer invite people or edit kits."
+        }
+        confirmLabel={roleChange?.role === "admin" ? "Make admin" : "Make member"}
+        onConfirm={() => (roleChange ? setRole(roleChange.member, roleChange.role) : undefined)}
       />
     </Card>
   );

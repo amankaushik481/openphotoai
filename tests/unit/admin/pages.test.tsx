@@ -5,6 +5,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import AdminOverviewPage from "@/app/admin/page";
+import AdminJobPage from "@/app/admin/jobs/[id]/page";
 import AdminJobsPage from "@/app/admin/jobs/page";
 import AdminModerationPage from "@/app/admin/moderation/page";
 import AdminRevenuePage from "@/app/admin/revenue/page";
@@ -13,6 +14,7 @@ import AdminUsersPage from "@/app/admin/users/page";
 import { BarChart } from "@/components/admin/bar-chart";
 import type { UserRow } from "@/db/types";
 import { createLocalStorage } from "@/providers/storage/local";
+import { listJobs } from "@/server/admin";
 import { adminAdjust, debitForJob } from "@/server/credits/ledger";
 import { setStorageForTesting } from "@/server/storage";
 import { createTestDb, createTestJob, createTestMedia, createTestUser, sessionMock } from "../../helpers/factories";
@@ -105,6 +107,22 @@ describe("admin pages render", () => {
     expect(html).toContain('<option value="failed" selected="">');
     const invalid = renderToStaticMarkup(await AdminJobsPage(search({ status: "bogus" })));
     expect(invalid).toContain("Some filters were invalid");
+  });
+
+  it("job inspector: timing, credits, input and a refund action only once the job has finished", async () => {
+    const [failed] = (await listJobs({ status: "failed" })).jobs;
+    const html = renderToStaticMarkup(await AdminJobPage({ params: Promise.resolve({ id: failed!.id }) }));
+    expect(html).toContain("Generate job");
+    expect(html).toContain("Provider timed out");
+    expect(html).toContain("studio portrait of {subject}");
+    expect(html).toContain("Refund 4");
+    const running = await createTestJob(member.id, { status: "running", creditsCharged: 2 });
+    const live = renderToStaticMarkup(await AdminJobPage({ params: Promise.resolve({ id: running.id }) }));
+    expect(live).not.toContain("Refund 2");
+    // The jobs list links every row to the inspector and offers no refund on in-flight jobs.
+    const list = renderToStaticMarkup(await AdminJobsPage(search()));
+    expect(list).toContain(`/admin/jobs/${running.id}`);
+    expect(list).toContain("In progress");
   });
 
   it("moderation queue with a signed thumbnail and actions", async () => {

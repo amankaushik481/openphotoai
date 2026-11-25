@@ -91,6 +91,22 @@ describe("suspendUser", () => {
     expect(result.user).toMatchObject({ banned: false, banReason: null });
     expect((await unsuspendUser(admin.id, target.id)).unsuspended).toBe(false);
   });
+
+  it("unsuspendUser writes an audit event with the admin and the lifted reason (once)", async () => {
+    await suspendUser(admin.id, target.id, "spam links");
+    await unsuspendUser(admin.id, target.id);
+    await unsuspendUser(admin.id, target.id); // no-op: nothing new to record
+    const events = await db
+      .select()
+      .from(moderationEvents)
+      .where(and(eq(moderationEvents.userId, target.id), eq(moderationEvents.kind, "account_unsuspended")));
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ reviewed: true, details: { adminId: admin.id, previousReason: "spam links" } });
+  });
+
+  it("an admin can't lift their own suspension", async () => {
+    await expect(unsuspendUser(admin.id, admin.id)).rejects.toMatchObject({ code: "forbidden" });
+  });
 });
 
 describe("searchUsers", () => {
@@ -110,6 +126,19 @@ describe("searchUsers", () => {
     expect(second.nextCursor).toBeNull();
     const all = [...first.users, ...second.users].map((u) => u.id);
     expect(new Set(all).size).toBe(4);
+  });
+
+  it("filters by plan and status, combined with the search term", async () => {
+    await createTestUser({ email: "pro@x.com", plan: "pro", hasPaid: true });
+    await createTestUser({ email: "banned@x.com", banned: true });
+    const emails = async (opts: Parameters<typeof searchUsers>[2], q?: string) =>
+      (await searchUsers(q, null, opts)).users.map((u) => u.email).sort();
+    expect(await emails({ plan: "pro" })).toEqual(["pro@x.com"]);
+    expect(await emails({ status: "paid" })).toEqual(["pro@x.com"]);
+    expect(await emails({ status: "suspended" })).toEqual(["banned@x.com"]);
+    expect(await emails({ status: "admin" })).toEqual(["boss@example.com"]);
+    expect(await emails({ plan: "free" }, "jane")).toEqual(["jane@example.com"]);
+    expect(await emails({ plan: "pro" }, "jane")).toEqual([]);
   });
 });
 

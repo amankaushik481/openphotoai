@@ -1,4 +1,4 @@
-import { LinkIcon, TriangleAlertIcon, UsersIcon } from "lucide-react";
+import { ClockIcon, LinkIcon, TriangleAlertIcon, UsersIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP } from "@/config/app";
 import { requireUserPage } from "@/server/auth/session";
-import { getInvitePreview, listMyTeams } from "@/server/teams";
+import { getInvitePreview, listMyTeams, TEAM_INVITE_TTL_DAYS } from "@/server/teams";
 
 export const metadata: Metadata = { title: "Join a team", robots: { index: false, follow: false } };
 
@@ -47,6 +47,32 @@ export default async function JoinTeamPage({ params }: { params: Promise<{ token
   }
 
   const alreadyMember = (await listMyTeams(user.id)).some((t) => t.id === invite.teamId);
+
+  if (invite.expired && !alreadyMember) {
+    return (
+      <AuthShell>
+        <Card>
+          <CardHeader className="justify-items-center text-center">
+            <IconBubble tone="muted">
+              <ClockIcon className="size-6" aria-hidden="true" />
+            </IconBubble>
+            <CardTitle as="h1" className="text-xl">
+              This invite has expired
+            </CardTitle>
+            <CardDescription>
+              Invite links to {invite.teamName} work for {TEAM_INVITE_TTL_DAYS} days. Ask {invite.inviterName} to send you a
+              new one from their Team page; the new link arrives at {invite.email}.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/app">Go to the app</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      </AuthShell>
+    );
+  }
   const emailMatches = user.email.trim().toLowerCase() === invite.email.toLowerCase();
 
   return (

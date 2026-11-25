@@ -26,6 +26,8 @@ export interface ShareDialogProps {
   onOpenChange: (open: boolean) => void;
   /** e.g. "Share photo" / "Share “Trip” folder". */
   title?: string;
+  /** What a shared media item is called in the copy (default "photo"). */
+  noun?: "photo" | "video";
 }
 
 const NEVER = "never";
@@ -37,7 +39,7 @@ function describe(share: ShareDTO, locale: string): string {
   return `${views} · expires ${date}`;
 }
 
-export function ShareDialog({ target, open, onOpenChange, title = "Share" }: ShareDialogProps) {
+export function ShareDialog({ target, open, onOpenChange, title = "Share", noun = "photo" }: ShareDialogProps) {
   const t = useT();
   const expiryId = React.useId();
   const query = target.mediaId
@@ -83,7 +85,7 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Anyone with the link can view {target.mediaId ? "this photo" : "this folder"} without signing in. Shared
+            Anyone with the link can view {target.mediaId ? `this ${noun}` : "this folder"} without signing in. Shared
             pages are labeled AI-generated, hidden from search engines and have a report button.
           </DialogDescription>
         </DialogHeader>
@@ -163,7 +165,7 @@ export function ShareDialog({ target, open, onOpenChange, title = "Share" }: Sha
 
         <p className="flex items-start gap-2 text-xs text-muted-foreground">
           <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-          Deleting the {target.mediaId ? "photo" : "folder"} or revoking the link stops sharing immediately.
+          Deleting the {target.mediaId ? noun : "folder"} or revoking the link stops sharing immediately.
         </p>
       </DialogContent>
     </Dialog>

@@ -10,6 +10,8 @@ import {
   newIdempotencyKey,
   type GenerateRequestBody,
 } from "@/components/create/logic";
+import { parseSessionEntries, serializeSessionEntries, sessionResultsKey } from "@/components/create/persist";
+import { useStoredValue, writeStored } from "@/components/create/use-stored";
 import { useMe } from "@/hooks/use-me";
 import { api } from "@/lib/api-client";
 import type { JobDTO, MediaDTO } from "@/types/domain";
@@ -23,14 +25,30 @@ export interface SessionEntry {
 export type RerenderState = "pending" | "started";
 
 /**
- * Jobs started on this page (newest first, local state only), plus the shared actions around them:
- * submit with a fresh Idempotency-Key per click, "Full quality" re-renders and progress announcements.
+ * Jobs started on this page (newest first), plus the shared actions around them: submit with a fresh
+ * Idempotency-Key per click, "Full quality" re-renders and progress announcements. With `persistKey`
+ * the list is kept in this tab's sessionStorage, so a refresh or a trip to another page doesn't lose
+ * results that are still rendering.
  */
-export function useGenerationSession(opts: { nextPath: string; limit?: number }) {
-  const { nextPath, limit = SESSION_HISTORY_LIMIT } = opts;
+export function useGenerationSession(opts: { nextPath: string; limit?: number; persistKey?: string }) {
+  const { nextPath, limit = SESSION_HISTORY_LIMIT, persistKey } = opts;
   const { mutate: refreshMe } = useMe();
   const showError = useErrorToast();
   const [entries, setEntries] = React.useState<SessionEntry[]>([]);
+
+  // Restore once the stored list is readable (null during SSR + hydration), then mirror every change.
+  const storageKey = persistKey ? sessionResultsKey(persistKey) : null;
+  const stored = useStoredValue("session", storageKey, (raw) => parseSessionEntries(raw, limit));
+  const [restored, setRestored] = React.useState(false);
+  if (stored !== null && !restored) {
+    // Adjusting state while rendering (not in an effect): React re-renders before painting.
+    setRestored(true);
+    if (stored.length > 0) setEntries((current) => (current.length > 0 ? current : stored));
+  }
+  React.useEffect(() => {
+    if (!storageKey || !restored) return;
+    writeStored("session", storageKey, entries, (list) => (list.length > 0 ? serializeSessionEntries(list, limit) : null));
+  }, [entries, restored, storageKey, limit]);
   const [rerenders, setRerenders] = React.useState<Record<string, RerenderState>>({});
   const [announcement, setAnnouncement] = React.useState("");
 
@@ -70,10 +88,11 @@ export function useGenerationSession(opts: { nextPath: string; limit?: number })
     [nextPath, showError, submit],
   );
 
-  /** A job finished: announce it and refresh the balance (refunds land asynchronously). */
+  /** A job finished: announce it, keep its final state (and media) and refresh the balance (refunds land asynchronously). */
   const onTerminal = React.useCallback(
     (job: JobDTO, title: string) => {
       setAnnouncement(jobAnnouncement(job, title));
+      setEntries((prev) => (prev.some((e) => e.job.id === job.id) ? prev.map((e) => (e.job.id === job.id ? { ...e, job } : e)) : prev));
       void refreshMe();
     },
     [refreshMe],

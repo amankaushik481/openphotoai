@@ -26,6 +26,18 @@ export function hashInviteToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
+/** Team invite links work this long after they're sent (re-sending starts a new period). */
+export const TEAM_INVITE_TTL_DAYS = 14;
+
+/** When a pending invite's link stops working. For invited rows `createdAt` is when the latest link was sent. */
+export function inviteExpiresAt(sentAt: Date): Date {
+  return new Date(sentAt.getTime() + TEAM_INVITE_TTL_DAYS * 86_400_000);
+}
+
+export function isInviteExpired(sentAt: Date, now: Date = new Date()): boolean {
+  return inviteExpiresAt(sentAt).getTime() <= now.getTime();
+}
+
 /**
  * The team plus the caller's ACTIVE membership. Anyone else (strangers, pending invitees)
  * gets not_found, so team ids can't be probed.

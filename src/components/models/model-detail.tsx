@@ -15,11 +15,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useJob } from "@/hooks/use-job";
+import { useMe } from "@/hooks/use-me";
 import { ApiClientError } from "@/lib/api-client";
 import type { ModelDetailResponse, ModelView } from "@/server/models/types";
 import { ModeBadge, ModelStatusBadge } from "./model-status-badge";
 import { TrainingPhotoGrid } from "./photo-grid";
 import { ReadinessPanel } from "./readiness-panel";
+import { trainingEta } from "./training-eta";
+import { useNow } from "./use-now";
 import { modelsApi, useModel, useRefreshModels } from "./use-model";
 
 export interface ModelDetailProps {
@@ -55,7 +58,16 @@ export function ModelDetail({ initial }: ModelDetailProps) {
         title={
           <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
             {model.name}
-            {!model.shared && <RenameDialog model={model} onRenamed={(m) => void mutate((prev) => prev && { ...prev, model: m })} />}
+            {!model.shared && (
+              <RenameDialog
+                model={model}
+                onRenamed={(m) => {
+                  void mutate((prev) => prev && { ...prev, model: m });
+                  // The name also shows in the models list, the dashboard and every model picker.
+                  void refreshModels();
+                }}
+              />
+            )}
           </span>
         }
         description={
@@ -136,7 +148,11 @@ export function ModelDetail({ initial }: ModelDetailProps) {
                 </p>
               )}
             </section>
-            <ReadinessPanel readiness={data.readiness} />
+            <ReadinessPanel
+              readiness={data.readiness}
+              // Once a trained model exists (or is training), photo tips no longer apply.
+              guidance={!(model.status === "training" || (model.status === "ready" && model.mode === "trained"))}
+            />
           </div>
         )}
 
@@ -170,10 +186,19 @@ export function ModelDetail({ initial }: ModelDetailProps) {
 }
 
 function TrainingCard({ jobId, onDone }: { jobId: string; onDone: () => void }) {
-  const { job } = useJob(jobId, { onTerminal: onDone });
+  const { mutate: refreshMe } = useMe();
+  const { job } = useJob(jobId, {
+    onTerminal: () => {
+      void refreshMe(); // a failed training is refunded
+      onDone();
+    },
+  });
+  const inFlight = !job || job.status === "queued" || job.status === "running";
+  const now = useNow(30_000, inFlight);
+  const eta = job && inFlight && now !== null ? trainingEta(job, now) : null;
   return (
     <div className="flex flex-col gap-2">
-      <JobProgress job={job} title="Training your model (about 20 minutes)" />
+      <JobProgress job={job} title={eta ? `Training your model · ${eta.label.toLowerCase()}` : "Training your model"} />
       <p className="text-sm text-muted-foreground">You can leave this page. We&apos;ll email you when it&apos;s ready.</p>
     </div>
   );

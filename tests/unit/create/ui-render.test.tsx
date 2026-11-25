@@ -95,6 +95,17 @@ describe("CreateStudio", () => {
       expect(html).toContain(text);
     }
     expect(html).toContain("Your photos will appear here");
+    // Empty prompt: one-tap starters make the helper discoverable.
+    expect(html).toContain("Try:");
+    expect(html).toContain("Golden hour on a rooftop");
+    expect(html).toContain("press Improve");
+  });
+
+  it("hides the starters once a prompt is filled in", () => {
+    const html = renderToStaticMarkup(
+      <CreateStudio packs={[summary]} modelModes={{}} drafts={{ limit: 30, remaining: 7 }} initial={{ prompt: "me in Paris" }} />,
+    );
+    expect(html).not.toContain("Golden hour on a rooftop");
   });
 
   it("prefills a pack deep link and falls back to Standard when no drafts are left", () => {

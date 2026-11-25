@@ -580,11 +580,23 @@ describe("getStatus", () => {
     expect(st).toEqual({ state: "failed", retryable: false, error: "fal rejected the input: image_size.width: Input should be less than 2048" });
   });
 
-  it("maps a 500 result to a retryable failure", async () => {
+  it.each([500, 502, 429])("throws (so the engine re-polls) when fetching a finished result fails with HTTP %i", async (status) => {
+    // The job finished at fal; a transient error fetching its result must not fail (and refund) it:
+    // the engine treats every "failed" status as terminal.
     client.queue.status.mockResolvedValue({ status: "COMPLETED", request_id: "r", logs: [] });
-    client.queue.result.mockRejectedValue(apiError(500, { detail: "Internal error" }));
+    client.queue.result.mockRejectedValue(apiError(status, { detail: "Internal error" }));
     const provider = createFalProvider({ apiKey: API_KEY });
-    await expect(provider.getStatus(ref)).resolves.toMatchObject({ state: "failed", retryable: true });
+    await expect(provider.getStatus(ref)).rejects.toMatchObject({ name: "ProviderRequestError", retryable: true });
+  });
+
+  it.each([401, 403])("throws on HTTP %i (our API key, not the job, is the problem) instead of failing every running job", async (status) => {
+    client.queue.status.mockRejectedValue(apiError(status, { detail: "Unauthorized" }));
+    const provider = createFalProvider({ apiKey: API_KEY });
+    await expect(provider.getStatus(ref)).rejects.toBeInstanceOf(ProviderRequestError);
+
+    client.queue.status.mockResolvedValue({ status: "COMPLETED", request_id: "r", logs: [] });
+    client.queue.result.mockRejectedValue(apiError(status, { detail: "Unauthorized" }));
+    await expect(provider.getStatus(ref)).rejects.toBeInstanceOf(ProviderRequestError);
   });
 
   it("throws (so the engine re-polls) on network errors", async () => {

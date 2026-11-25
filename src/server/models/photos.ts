@@ -163,6 +163,17 @@ export async function addTrainingPhoto(user: UserRow, modelId: string, raw: Uint
       }
       const stillBlocked = uploadBlocked({ ...model, status: locked.status });
       if (stillBlocked) throw stillBlocked;
+      // The limits again, under the lock: parallel uploads all passed the check before the (slow) analysis.
+      const current = await tx
+        .select({ status: trainingPhotos.status })
+        .from(trainingPhotos)
+        .where(and(eq(trainingPhotos.modelId, model.id), eq(trainingPhotos.userId, user.id)));
+      if (current.filter((p) => p.status === "accepted").length >= TRAINING.maxPhotos) {
+        throw errors.conflict(`You already have ${TRAINING.maxPhotos} good photos, the most a model can use.`);
+      }
+      if (current.length >= MAX_STORED_PHOTOS) {
+        throw errors.conflict("Remove some of the photos we can't use before adding more.");
+      }
       const [inserted] = await tx
         .insert(trainingPhotos)
         .values({

@@ -193,6 +193,14 @@ describe("POST /api/demo/login", () => {
     expect(await demoUsers()).toHaveLength(0);
   });
 
+  it("doesn't put every visitor in one per-IP bucket when the client IP is unknown (S2-7)", async () => {
+    setEnv({ TRUSTED_PROXY_HOPS: "0" });
+    for (let i = 0; i < 5; i++) await checkRateLimit("demoLoginsPerHourPerIp", "ip:unknown");
+    const res = await demoLogin();
+    expect(res.status).toBe(200);
+    expect(await demoUsers()).toHaveLength(1);
+  });
+
   it("is rate-limited for the whole deployment", async () => {
     for (let i = 0; i < 120; i++) await checkRateLimit("demoLoginsPerHour", "global");
     const res = await demoLogin({ "x-forwarded-for": "198.51.100.10" });
