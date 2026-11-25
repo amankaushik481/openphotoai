@@ -44,9 +44,15 @@ export function ActionDialog({ trigger, title, description, submitLabel, destruc
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [pending, setPending] = React.useState(false);
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const submitRef = React.useRef<HTMLButtonElement>(null);
+  // A ref, not state: a second Enter can arrive before the re-render disables the button.
+  const inFlight = React.useRef(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (inFlight.current) return;
+    inFlight.current = true;
     setPending(true);
     try {
       const message = await onSubmit(new FormData(event.currentTarget));
@@ -56,6 +62,7 @@ export function ActionDialog({ trigger, title, description, submitLabel, destruc
     } catch (err) {
       toast.error(actionErrorMessage(err));
     } finally {
+      inFlight.current = false;
       setPending(false);
     }
   }
@@ -63,8 +70,27 @@ export function ActionDialog({ trigger, title, description, submitLabel, destruc
   return (
     <Dialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent>
-        <form onSubmit={handleSubmit} className="grid gap-4">
+      <DialogContent
+        // Fast triage: focus the first field, or the confirm button when there is nothing to fill in.
+        onOpenAutoFocus={(event) => {
+          const target = formRef.current?.querySelector<HTMLElement>("input, textarea, select") ?? submitRef.current;
+          if (!target) return;
+          event.preventDefault();
+          target.focus();
+        }}
+      >
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          onKeyDown={(event) => {
+            // Ctrl/⌘ + Enter submits from a textarea too.
+            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+              event.preventDefault();
+              event.currentTarget.requestSubmit();
+            }
+          }}
+          className="grid gap-4"
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && <DialogDescription>{description}</DialogDescription>}
@@ -76,7 +102,14 @@ export function ActionDialog({ trigger, title, description, submitLabel, destruc
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" variant={destructive ? "destructive" : "default"} disabled={pending} aria-busy={pending}>
+            <Button
+              ref={submitRef}
+              type="submit"
+              variant={destructive ? "destructive" : "default"}
+              disabled={pending}
+              aria-busy={pending}
+              aria-keyshortcuts={children ? "Control+Enter Meta+Enter" : undefined}
+            >
               {pending && <LoaderCircleIcon aria-hidden="true" className="animate-spin" />}
               {submitLabel}
             </Button>

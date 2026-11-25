@@ -1,5 +1,5 @@
 /** Admin user management: search, detail view, suspension. */
-import { and, count, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNotNull, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db, type Database, type Tx } from "@/db";
 import {
   creditLedger,
@@ -25,6 +25,7 @@ import { sendEmailSafe } from "@/server/email";
 import { errors } from "@/server/http";
 import type { ModelStatus, PlanId, Subject, UserRole } from "@/types/domain";
 import { listJobs, type AdminJobItem } from "./jobs";
+import type { UserStatusFilter } from "./schemas";
 import { afterCursor, escapeLike, num, pageSize, paginate } from "./util";
 
 export interface AdminUserItem {
@@ -61,12 +62,12 @@ function toUserItem(row: Omit<AdminUserItem, "banned"> & { banned: boolean | nul
 
 /**
  * Newest users first. `q` matches email or name (case-insensitive substring) or an exact user id.
- * `cursor` is the id of the last user of the previous page.
+ * `plan` / `status` narrow the list. `cursor` is the id of the last user of the previous page.
  */
 export async function searchUsers(
   q?: string | null,
   cursor?: string | null,
-  opts: { limit?: number } = {},
+  opts: { limit?: number; plan?: PlanId; status?: UserStatusFilter } = {},
 ): Promise<{ users: AdminUserItem[]; nextCursor: string | null }> {
   const limit = pageSize(opts.limit);
   const conditions: SQL[] = [];
@@ -75,6 +76,11 @@ export async function searchUsers(
     const pattern = `%${escapeLike(term)}%`;
     conditions.push(or(ilike(user.email, pattern), ilike(user.name, pattern), eq(user.id, term))!);
   }
+  if (opts.plan) conditions.push(eq(user.plan, opts.plan));
+  if (opts.status === "admin") conditions.push(eq(user.role, "admin"));
+  if (opts.status === "suspended") conditions.push(eq(user.banned, true));
+  if (opts.status === "paid") conditions.push(eq(user.hasPaid, true));
+  if (opts.status === "deleted") conditions.push(isNotNull(user.deletedAt));
   if (cursor) conditions.push(afterCursor(user, user, cursor));
 
   const rows = await db
@@ -290,14 +296,28 @@ export async function suspendUser(adminId: string, userId: string, reason: strin
   return result;
 }
 
-/** Lift a suspension. Share links revoked by the suspension stay revoked. */
+/**
+ * Lift a suspension and write the `account_unsuspended` audit event (with the reason that was
+ * lifted). Share links revoked by the suspension stay revoked. Idempotent: lifting a suspension
+ * that isn't there records nothing.
+ */
 export async function unsuspendUser(adminId: string, userId: string): Promise<{ user: UserRow; unsuspended: boolean }> {
   const target = await loadUserOrThrow(userId);
   if (target.id === adminId) throw errors.forbidden("You can't change your own suspension.");
-  const [updated] = await db
-    .update(user)
-    .set({ banned: false, banReason: null, banExpires: null })
-    .where(and(eq(user.id, userId), eq(user.banned, true)))
-    .returning();
-  return { user: updated ?? target, unsuspended: Boolean(updated) };
+  return db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(user)
+      .set({ banned: false, banReason: null, banExpires: null })
+      .where(and(eq(user.id, userId), eq(user.banned, true)))
+      .returning();
+    if (updated) {
+      await tx.insert(moderationEvents).values({
+        userId,
+        kind: "account_unsuspended",
+        reviewed: true,
+        details: { adminId, previousReason: target.banReason ?? null },
+      });
+    }
+    return { user: updated ?? target, unsuspended: Boolean(updated) };
+  });
 }
