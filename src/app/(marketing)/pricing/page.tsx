@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { CreditCostTable } from "@/components/marketing/credit-cost-table";
 import { CreditExamples } from "@/components/marketing/credit-examples";
-import { EdgeRule, FaqEntries, Masthead, PAGE, Readout, SectionHead } from "@/components/marketing/editorial";
+import { EdgeRule, FaqEntries, Masthead, PAGE, Readout, SectionHead } from "@/components/marketing/print-page";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { PlanComparison } from "@/components/marketing/plan-comparison";

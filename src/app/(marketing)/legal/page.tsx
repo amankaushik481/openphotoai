@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Leader, Masthead, PAGE } from "@/components/marketing/editorial";
+import { Leader, Masthead, PAGE } from "@/components/marketing/print-page";
 import { LegalTemplateNotice } from "@/components/marketing/legal-document";
 import { APP } from "@/config/app";
 import { toPlainText } from "@/content/inline";

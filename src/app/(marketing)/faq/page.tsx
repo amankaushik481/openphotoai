@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { FaqEntries, folio, MarginIndex, Masthead, PAGE } from "@/components/marketing/editorial";
+import { FaqEntries, folio, MarginIndex, Masthead, PAGE } from "@/components/marketing/print-page";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { APP } from "@/config/app";

@@ -1,5 +1,5 @@
 /**
- * Editorial building blocks for the public pages (pricing, packs, FAQ, legal, docs): a magazine masthead,
+ * Printed-page building blocks for the public pages (pricing, packs, FAQ, legal, docs): a magazine masthead,
  * folio-numbered section openers, dotted price-list leaders, an edge-print rule and a margin index.
  * Server components; no client JS.
  */

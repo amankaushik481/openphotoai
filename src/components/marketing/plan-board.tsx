@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { publicCheckoutHref } from "@/components/billing/checkout-intent";
 import { formatCredits, formatPerCredit, formatPrice } from "@/components/billing/format";
-import { Leader } from "@/components/marketing/editorial";
+import { Leader } from "@/components/marketing/print-page";
 import { buttonVariants } from "@/components/ui/button";
 import { CREDIT_PACKS, minYearlyMonthsFree, PLANS, type Plan } from "@/config/plans";
 import { cn } from "@/lib/utils";

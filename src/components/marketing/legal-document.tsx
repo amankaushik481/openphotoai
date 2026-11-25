@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { folio, MarginIndex, Masthead, PAGE } from "@/components/marketing/editorial";
+import { folio, MarginIndex, Masthead, PAGE } from "@/components/marketing/print-page";
 import { InlineText } from "@/components/marketing/inline-text";
 import { APP } from "@/config/app";
 import { LEGAL_PAGES, type LegalBlock, type LegalDocument } from "@/content/legal";
