@@ -11,11 +11,15 @@ export function SchemaTable({ schema, caption }: { schema: JsonSchema; caption: 
       {rows.map((row) => (
         <tr key={row.name}>
           <td className="whitespace-nowrap">
-            <code className="font-mono text-xs font-semibold">{row.name}</code>
+            <code className="font-mono text-xs font-medium">{row.name}</code>
             {row.required ? (
-              <span className="ml-1.5 text-[11px] font-medium text-destructive">required</span>
+              <span className="ml-1.5 font-mono text-[10px] tracking-[0.1em] text-safelight-ink uppercase">
+                required
+              </span>
             ) : (
-              <span className="ml-1.5 text-[11px] text-muted-foreground">optional</span>
+              <span className="ml-1.5 font-mono text-[10px] tracking-[0.1em] text-muted-foreground uppercase">
+                optional
+              </span>
             )}
           </td>
           <td className="max-w-[16rem]">
