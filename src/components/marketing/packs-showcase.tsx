@@ -2,35 +2,15 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Folio, SHELL } from "@/components/marketing/editorial";
-import {
-  LIGHTING_LABEL,
-  PortraitArt,
-  type LightingSetup,
-  type PortraitHair,
-} from "@/components/marketing/portrait-art";
+import { LIGHTING_LABEL, PortraitArt, packStudy } from "@/components/marketing/portrait-art";
 import { CREDIT_COSTS } from "@/config/credits";
 import { cn } from "@/lib/utils";
-import type { PackCategory, PackSummary } from "@/types/pack";
+import type { PackSummary } from "@/types/pack";
 
 /** Featured packs first (registry order), then the rest, capped at `limit`. */
 export function pickShowcasePacks(packs: readonly PackSummary[], limit = 8): PackSummary[] {
   return [...packs.filter((p) => p.featured), ...packs.filter((p) => !p.featured)].slice(0, limit);
 }
-
-/** How each kind of shoot is lit in the index's lighting studies. */
-const LIGHT: Record<PackCategory, LightingSetup> = {
-  professional: "loop",
-  dating: "window",
-  lifestyle: "window",
-  travel: "high-key",
-  fashion: "butterfly",
-  fitness: "rim",
-  events: "rembrandt",
-  seasonal: "low-key",
-  creative: "split",
-  family: "high-key",
-};
-const HAIR: PortraitHair[] = ["short", "long", "bun", "curly", "crop"];
 
 /**
  * Packs as an editorial index: a numbered table of contents set in the display serif, dotted leaders to
@@ -68,7 +48,8 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
       <div className={cn(SHELL, "mt-14 sm:mt-20")}>
         <ol className="pack-index relative border-t border-foreground lg:pr-[calc(33.333%+2.5rem)]">
           {showcase.map((pack, i) => {
-            const setup = LIGHT[pack.category];
+            const study = packStudy(pack);
+            const setup = study.setup;
             const no = String(i + 1).padStart(2, "0");
             const credits = pack.promptCount * CREDIT_COSTS.generateStandard;
             return (
@@ -101,12 +82,7 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
                     aria-hidden="true"
                     className="grain-over relative col-start-3 row-start-1 aspect-[4/5] w-14 overflow-hidden rounded-[1px] sm:w-16 lg:hidden"
                   >
-                    <PortraitArt
-                      id={`idx-m-${pack.slug}`}
-                      setup={setup}
-                      hair={HAIR[i % HAIR.length]}
-                      x={i % 2 ? 6 : -6}
-                    />
+                    <PortraitArt id={`idx-m-${pack.slug}`} {...study} />
                   </span>
                 </Link>
                 {/* Wide screens: the print for this row, shown while it is pointed at (the first by default). */}
@@ -116,12 +92,7 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
                 >
                   <div className="print-paper p-3 pb-10 shadow-print">
                     <div className="grain-over relative aspect-[4/5] overflow-hidden">
-                      <PortraitArt
-                        id={`idx-${pack.slug}`}
-                        setup={setup}
-                        hair={HAIR[i % HAIR.length]}
-                        x={i % 2 ? 8 : -8}
-                      />
+                      <PortraitArt id={`idx-${pack.slug}`} {...study} />
                     </div>
                     <figcaption className="mt-3 flex justify-between font-mono text-[0.625rem] tracking-[0.16em] text-[#16140f] uppercase">
                       <span>

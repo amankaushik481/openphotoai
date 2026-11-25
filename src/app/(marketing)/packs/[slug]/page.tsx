@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowRightIcon, ChevronRightIcon, ShieldCheckIcon, Undo2Icon, ZapIcon } from "lucide-react";
 
 import { PackCard, packGradient } from "@/components/app/pack-card";
+import { PortraitArt, packStudy } from "@/components/marketing/portrait-art";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +98,7 @@ export default async function PackPage({ params }: Params) {
 
         <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14">
           <div
-            className="grain relative mx-auto aspect-[16/10] w-full max-w-md overflow-hidden rounded-3xl sm:aspect-[4/5] shadow-[0_30px_80px_-40px_rgb(0_0_0/0.5)] lg:sticky lg:top-24"
+            className="grain-over relative mx-auto aspect-[16/10] w-full max-w-md overflow-hidden rounded-[2px] shadow-print sm:aspect-[4/5] lg:sticky lg:top-24"
             style={pack.cover ? undefined : { backgroundImage: packGradient(pack.colors) }}
           >
             {pack.cover ? (
@@ -110,12 +111,7 @@ export default async function PackPage({ params }: Params) {
                 className="object-cover"
               />
             ) : (
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 flex items-center justify-center text-[7rem] drop-shadow-sm sm:text-[9rem]"
-              >
-                {pack.emoji ?? "📸"}
-              </span>
+              <PortraitArt id={`pack-cover-${pack.slug}`} {...packStudy(pack)} />
             )}
             <span className="absolute bottom-4 left-4 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
               {pack.prompts.length} styles · {pack.defaultAspectRatio}

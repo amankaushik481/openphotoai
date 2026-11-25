@@ -24,6 +24,39 @@ export const LIGHTING_LABEL: Record<LightingSetup, string> = {
   silhouette: "Silhouette",
 };
 
+/** How each kind of shoot is lit in pack thumbnails (keyed by pack category). */
+export const PACK_LIGHT: Record<string, LightingSetup> = {
+  professional: "loop",
+  dating: "window",
+  lifestyle: "window",
+  travel: "high-key",
+  fashion: "butterfly",
+  fitness: "rim",
+  events: "rembrandt",
+  seasonal: "low-key",
+  creative: "split",
+  family: "high-key",
+};
+
+const HAIRS: PortraitHair[] = ["short", "long", "bun", "curly", "crop"];
+
+/** A stable lighting study for a pack: setup from its category, sitter details from its slug. */
+export function packStudy(pack: { slug: string; category: string }): {
+  setup: LightingSetup;
+  hair: PortraitHair;
+  x: number;
+  flip: boolean;
+} {
+  let h = 0;
+  for (const ch of pack.slug) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return {
+    setup: PACK_LIGHT[pack.category] ?? "loop",
+    hair: HAIRS[h % HAIRS.length]!,
+    x: ((h >> 3) % 17) - 8,
+    flip: ((h >> 7) & 1) === 1,
+  };
+}
+
 const INK: [number, number, number] = [20, 18, 14];
 const PAPER: [number, number, number] = [239, 232, 220];
 
