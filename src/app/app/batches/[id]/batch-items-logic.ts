@@ -63,3 +63,27 @@ export function batchItemTitle(job: Pick<JobDTO, "input">, index: number, prompt
   const i = job.input.type === "generate" ? job.input.packPromptIndex : undefined;
   return (i !== undefined ? promptTitles[i] : undefined) ?? `Photo ${index + 1}`;
 }
+
+/**
+ * Darkroom status for a frame on the batch contact sheet ("DEVELOPING", "PRINTED", "FAILED · REFUNDED"),
+ * shown as a mono chip beside the plain-language label, which keeps the details.
+ */
+export function darkroomStatus(state: Pick<BatchItemState, "kind" | "refunded">): string {
+  const refunded = state.refunded > 0 ? " · Refunded" : "";
+  switch (state.kind) {
+    case "waiting":
+      return "Queued";
+    case "running":
+      return "Developing";
+    case "done":
+      return "Printed";
+    case "partial":
+      return `Printed${refunded}`;
+    case "failed":
+      return `Failed${refunded}`;
+    case "blocked":
+      return `Blocked${refunded}`;
+    case "canceled":
+      return `Canceled${refunded}`;
+  }
+}

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   batchItemState,
   batchItemTitle,
+  darkroomStatus,
   retryCost,
   retryRequest,
 } from "@/app/app/batches/[id]/batch-items-logic";
@@ -57,6 +58,18 @@ describe("batch page: each photo", () => {
       canRetry: false,
     });
     expect(batchItemState(job({ status: "canceled", media: [] })).canRetry).toBe(false);
+  });
+
+  it("speaks darkroom on the contact sheet: developing, printed, failed · refunded", () => {
+    const status = (over: Partial<JobDTO>) => darkroomStatus(batchItemState(job(over)));
+    expect(status({ status: "queued", media: [] })).toBe("Queued");
+    expect(status({ status: "running", progress: 40, media: [] })).toBe("Developing");
+    expect(status({})).toBe("Printed");
+    expect(status({ creditsRefunded: 2 })).toBe("Printed · Refunded");
+    expect(status({ status: "failed", media: [], creditsRefunded: 2 })).toBe("Failed · Refunded");
+    expect(status({ status: "failed", media: [] })).toBe("Failed");
+    expect(status({ status: "blocked", media: [], creditsRefunded: 1 })).toBe("Blocked · Refunded");
+    expect(status({ status: "canceled", media: [] })).toBe("Canceled");
   });
 
   it("retries a failed photo with the same pack prompt and a new seed, at its original price", () => {
