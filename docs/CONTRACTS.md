@@ -65,13 +65,18 @@ If a signature must change, do it in a backward-compatible way (optional params)
    (+ `assembledTexts`, the provider-bound prompt, re-checked as a whole; docs/SAFETY.md "Assembled prompt").
 2. Engine: negative balance blocks, rate limits (`jobsPerMinute`, `jobsPerDay`; drafts per image against
    `draftsPerDay` / `draftsPerDayFree`), `assertTextAllowed`, plan concurrency limit, `creditCost(input)` (or
-   `JobPlan.credits`); in ONE transaction insert job + `debitForJob`.
+   `JobPlan.credits`); in ONE transaction (user row locked first: debit + authoritative concurrency check) insert
+   job + `debitForJob`.
 3. `handler.submit()` → `ProviderJobRef`; job `running`. Submit error → `failJob` (refund).
 4. Completion via `POST /api/webhooks/ai/[provider]` (verified), `GET /api/jobs/:id` (lazy sync, throttled per job:
    3 s, or 20 s / 60 s for training while webhooks are enabled), `/api/cron/jobs` (Vercel cron) or `pnpm worker`
    (Docker).
 5. Success → `handler.complete?()` or default `ingestImages`/`ingestVideos` (safety check per output; blocked outputs
    discarded + proportional refund; all blocked → status `blocked` + full refund). Failure → `failJob` + `onFailed`.
+   Completion runs under a finalization lease that the holder renews while it works. A `CompleteResult` may carry
+   `commit(tx)` (state that must only exist if the job succeeds, run inside the running → succeeded transaction,
+   e.g. a trained model turning ready), `afterCommit()` (emails) and `discard()` (undo what `complete()` stored
+   outside the DB when the attempt loses: job canceled meanwhile, or another attempt took over). DECISIONS #39.
 
 ## 4. API routes
 

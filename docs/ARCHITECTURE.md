@@ -139,7 +139,7 @@ Details worth knowing:
   `Idempotency-Key` is stored on its children as `<key>:<i>`.
 - **Training.** The train handler runs the final safety gate, zips the accepted (EXIF-stripped) photos into
   storage, hands the provider a URL, and on completion stores `identity_models.providerModelRef` and emails the
-  user. fal LoRA files are also copied into storage under the model's prefix (`weights/{jobId}.safetensors`,
+  user. fal LoRA files are also copied into storage under the model's prefix (`weights/{jobId}-{attempt}.safetensors`,
   [`src/server/models/weights.ts`](../src/server/models/weights.ts)) and generation uses that copy, because fal has no
   file-deletion API (its copy expires after a day). The zip is deleted when the job ends. Instant models skip
   training: they reference the training photos directly (`IdentityRef.referenceImageUrls`) and are ready
@@ -203,7 +203,7 @@ users/{userId}/
     photos/{photoId}.jpg          training photo (EXIF stripped)
     photos/{photoId}_thumb.webp
     training/{jobId}.zip          training set, deleted when the job ends
-    weights/{jobId}.safetensors   copy of a fal-trained LoRA (fal can't delete its own copy)
+    weights/{jobId}-{attempt}.safetensors   copy of a fal-trained LoRA (fal can't delete its own copy)
   media/{mediaId}.{ext}           generated image or video (AI-labeled, watermarked on the free tier)
   media/{mediaId}_thumb.webp
   uploads/{uploadId}.{ext}        pose references, garments, masks (deleted after 30 days)

@@ -125,6 +125,22 @@ probes, now asserting the bypass is blocked): `tests/unit/safety/{regressions,li
 | SAF-18 | Video thumbnails (extracted frames) carry no XMP AI label; the `hasPaid` watermark rule is unchanged (see SAF-15). | Low value: the MP4 itself carries the label. | Image thumbnails keep the label. |
 | SAF-19 | Re-rendering a draft more than 30 days later loses its style reference (the upload expired) and fails with a refund. | Privacy over convenience. | Uploads expire after 30 days (maintenance cron) and can be deleted any time (`DELETE /api/uploads/:id`). |
 
+## Correctness
+
+Fixed from `docs/reviews/correctness.md`: COR-1 to COR-7 in full. The deferred items below are the review's lower-value
+findings.
+
+| ID | What remains | Why deferred | Mitigation in place |
+|---|---|---|---|
+| COR-D1 | Replicate prediction groups (more images than one prediction makes): the first failed prediction fails the whole job immediately (full refund). The predictions that succeeded are discarded, and the ones still running are not canceled, so they keep billing. More generally, the engine doesn't cancel provider work when the provider itself reports a failure. | Waiting for every prediction and returning the partial result (refunding the missing images, which the engine already supports) changes when a job ends. A test encodes the current behaviour, so this is a product decision. | Users are refunded in full. Groups are only used above 4 images on Replicate. |
+| COR-D2 | Team invites never expire (`team_members` has no expiry). Re-inviting rotates the token but keeps `created_at`. | Needs a schema change (`src/db/schema.ts`). | The invite can only be accepted by a verified account with the invited address. Owners and admins can remove pending invites, which frees the seat. |
+| COR-D3 | The free daily draft allowance is counted when a draft job is created, so a provider failure still uses it up. | Restoring it needs a "release" for the fixed-window limiter and a hook on failure. | Drafts are free, and the job and its credits (none) follow the normal failure path. |
+| COR-D4 | `POST /api/jobs` with an `Idempotency-Key` that was already used for a different body returns the first job, where batches answer 409. | Comparing request bodies needs a canonical form of the stored input (jsonb reorders keys), and a false conflict would break legitimate retries. | Nothing is charged twice. |
+| COR-D5 | A training that fails after the provider finished, for example because the weights copy failed on every attempt, leaves the provider's copy of the weights (Replicate) in place. | `onFailed` doesn't receive the provider output. Keeping it needs the engine to store the output before completion. | On fal, the copy expires after 1 day. Replicate copies can be deleted from the Replicate dashboard. |
+| COR-D6 | An account-deletion run holds a 10-minute lease. A very large account (many models, slow provider deletions) can outlive it, so the maintenance cron starts a second run concurrently. | The steps are idempotent, so the only cost is duplicate provider and storage calls. | Each step skips work that is already done, and the report keeps the step results. |
+| COR-D7 | Daily limits (drafts, trainings, jobs) reset at 00:00 UTC (fixed windows), not at the user's local midnight, while the UI says "today". | Per-user time zones aren't stored. | Documented here. A rate-limited request carries the exact `Retry-After`. |
+| COR-D8 | `runMaintenance` stops at the first step that throws (for example on a database error), and the remaining steps wait for the next run. | Each step already catches per-item errors and every step is idempotent. Only infrastructure errors propagate. | The cron runs hourly, or every worker pass. |
+
 ## Verification limits & general
 
 | Item | Status | Notes |
