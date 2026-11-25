@@ -113,7 +113,7 @@ export function PhotosStep({ modelId, detail, mutate, onContinue }: PhotosStepPr
           hint={
             full
               ? "Remove a photo to add another."
-              : "Drop, paste or tap to choose from your camera roll. We check each one instantly."
+              : "Drop or paste photos, or choose them from your files or camera roll. We check each one instantly."
           }
           onUploaded={onUploaded}
           onIdle={() => void mutate()}
