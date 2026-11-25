@@ -220,9 +220,10 @@ browsers and AI providers only ever receive short-lived signed URLs. Keys are va
   with magic links (15-minute, single-use, stored hashed) and optional Google OAuth. Emailed links open `/verify`,
   which consumes the token only when the user clicks, so link scanners can't burn it (DECISIONS #25). Email and
   password sign-in is off.
-- **Sessions** are cookies valid for 30 days (with a 5-minute cookie cache). Suspended or deleted accounts are
-  refused when a session is created, and `route()` re-checks suspension on every request.
-- **Admins** have `user.role = "admin"`: set by `ADMIN_EMAILS` (applied at sign-up and at each sign-in) or by the
+- **Sessions** are cookies valid for 30 days. There is no cookie cache: every request reads the session row, so
+  sign-out and revocation apply at once. Suspended or deleted accounts are refused when a session is created, and
+  `route()` re-checks suspension on every request.
+- **Admins** have `user.role = "admin"`: set by `ADMIN_EMAILS` for verified addresses (applied at sign-up and at each sign-in) or by the
   seed script (`SEED_ADMIN_EMAIL`). Admin routes use `auth: "admin"`; admin pages call `requireAdminPage()`.
 - **API keys** (`/app/api-keys`) are shown once and stored as SHA-256 hashes, carry scopes (`*`, `read`,
   `generate`), need a plan with `apiAccess`, and are rate limited per key (`apiPerMinute`) on top of per-account
