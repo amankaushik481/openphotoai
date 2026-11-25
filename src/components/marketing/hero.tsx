@@ -49,7 +49,7 @@ export function Hero() {
               <GreasePencil
                 mark="underline"
                 delay={900}
-                strokeWidth={3.2}
+                strokeWidth={2.4}
                 className="pencil-now absolute -bottom-[0.04em] left-[-0.04em] h-[0.16em] w-[1.12em]"
               />
             </span>
