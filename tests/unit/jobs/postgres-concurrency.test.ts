@@ -1,38 +1,20 @@
 /**
- * Real-Postgres regression test (PGlite has a single connection and can't reproduce lock ordering):
+ * Real-Postgres regression tests (PGlite has a single connection and can't reproduce lock ordering):
  * concurrent job creation for the same user must not deadlock (jobs.user_id FK KEY SHARE vs debit
- * FOR UPDATE). Runs only when TEST_POSTGRES_URL points at a disposable Postgres database.
+ * FOR UPDATE). Runs only when TEST_POSTGRES_URL points at a disposable Postgres server; this file
+ * uses its own database (tests/helpers/postgres.ts).
  */
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import path from "node:path";
-import postgres from "postgres";
-import { setDb, type Database } from "@/db";
-import * as schema from "@/db/schema";
+import { describe, expect, it, vi } from "vitest";
 import { createTestModel, createTestUser } from "../../helpers/factories";
+import { setupPostgres } from "../../helpers/postgres";
 import { useTempStorage } from "./fixtures";
 
 vi.mock("@/server/safety", async () => (await import("./fixtures")).safetyMock);
 
-const url = process.env.TEST_POSTGRES_URL;
+const pg = setupPostgres("jobs");
 
-describe.skipIf(!url)("job creation on real Postgres", () => {
-  let client: ReturnType<typeof postgres>;
+describe.skipIf(!pg.enabled)("job creation on real Postgres", () => {
   useTempStorage();
-
-  beforeAll(async () => {
-    client = postgres(url!, { max: 10, onnotice: () => {} });
-    const db = drizzle(client, { schema, casing: "snake_case" });
-    await client.unsafe("DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public; DROP SCHEMA IF EXISTS drizzle CASCADE;");
-    await migrate(db, { migrationsFolder: path.resolve(process.cwd(), "drizzle") });
-    setDb(db as unknown as Database);
-  });
-
-  afterAll(async () => {
-    setDb(undefined);
-    await client?.end({ timeout: 5 });
-  });
 
   it("creates a full pack batch (parallel child jobs) without deadlocks", async () => {
     const { createBatch } = await import("@/server/jobs/engine");
