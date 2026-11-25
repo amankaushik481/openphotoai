@@ -10,7 +10,7 @@ export const OUTPUT_FETCH_TIMEOUT_MS = 120_000;
 export const MAX_OUTPUT_REDIRECTS = 3;
 
 function isPrivateIPv4(ip: string): boolean {
-  const [a = 0, b = 0] = ip.split(".").map(Number);
+  const [a = 0, b = 0, c = 0] = ip.split(".").map(Number);
   return (
     a === 0 ||
     a === 10 ||
@@ -18,17 +18,47 @@ function isPrivateIPv4(ip: string): boolean {
     (a === 100 && b >= 64 && b <= 127) || // CGNAT
     (a === 169 && b === 254) || // link-local / cloud metadata
     (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 0 && c === 0) || // IETF protocol assignments
     (a === 192 && b === 168) ||
     (a === 198 && (b === 18 || b === 19)) ||
     a >= 224 // multicast + reserved
   );
 }
 
+/** The eight 16-bit groups of an IPv6 literal (a trailing dotted quad included), or null when malformed. */
+function ipv6Groups(ip: string): number[] | null {
+  let v = ip.toLowerCase().split("%")[0]!;
+  const quad = v.match(/^(.*:)(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (quad) {
+    const [a, b, c, d] = quad.slice(2).map(Number) as [number, number, number, number];
+    v = `${quad[1]}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
+  }
+  const halves = v.split("::");
+  if (halves.length > 2) return null;
+  const head = halves[0] ? halves[0].split(":") : [];
+  const tail = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
+  const groups = halves.length === 2 ? [...head, ...Array<string>(8 - head.length - tail.length).fill("0"), ...tail] : head;
+  if (groups.length !== 8 || groups.some((g) => !/^[0-9a-f]{1,4}$/.test(g))) return null;
+  return groups.map((g) => Number.parseInt(g, 16));
+}
+
+const ipv4Of = (hi: number, lo: number) => `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
+
+/**
+ * Private / internal IPv6, including every spelling that embeds an IPv4 address (WHATWG URL prints
+ * `[::ffff:127.0.0.1]` as `[::ffff:7f00:1]`, so a dotted-quad pattern alone misses it).
+ */
 function isPrivateIPv6(ip: string): boolean {
-  const v = ip.toLowerCase();
-  const mapped = v.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
-  if (mapped) return isPrivateIPv4(mapped[1]!);
-  return v === "::" || v === "::1" || /^f[cd]/.test(v) || /^fe[89ab]/.test(v) || v.startsWith("ff");
+  const g = ipv6Groups(ip);
+  if (!g) return true;
+  const zeros = (n: number) => g.slice(0, n).every((x) => x === 0);
+  if (zeros(5) && g[5] === 0xffff) return isPrivateIPv4(ipv4Of(g[6]!, g[7]!)); // ::ffff:a.b.c.d (mapped)
+  if (zeros(6)) return true; // ::, ::1 and the deprecated IPv4-compatible ::a.b.c.d
+  if (g[0] === 0x64 && g[1] === 0xff9b) return g[2] !== 0 || isPrivateIPv4(ipv4Of(g[6]!, g[7]!)); // NAT64
+  if (g[0] === 0x2002) return isPrivateIPv4(ipv4Of(g[1]!, g[2]!)); // 6to4
+  if (g[0] === 0x2001 && (g[1] === 0 || g[1] === 0xdb8)) return true; // Teredo, documentation
+  if (g[0] === 0x100 && zeros(4)) return true; // discard-only 100::/64
+  return (g[0]! & 0xfe00) === 0xfc00 || (g[0]! & 0xffc0) === 0xfe80 || (g[0]! & 0xffc0) === 0xfec0 || g[0]! >= 0xff00;
 }
 
 /**
@@ -38,7 +68,8 @@ function isPrivateIPv6(ip: string): boolean {
  */
 export function assertPublicHttpsUrl(url: URL): void {
   if (url.protocol !== "https:") throw new Error("Output URL must use https.");
-  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  // `localhost.` resolves like `localhost`: drop the root label's dot before matching names.
+  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase().replace(/\.+$/, "");
   const kind = isIP(host);
   if (kind === 4 ? isPrivateIPv4(host) : kind === 6 ? isPrivateIPv6(host) : /(^|\.)(localhost|local|internal)$/.test(host)) {
     throw new Error("Output URL must point to a public host.");

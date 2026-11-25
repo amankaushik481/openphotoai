@@ -3,9 +3,9 @@
  * These rows contain live sign-in links, so every function refuses to run unless the
  * mailbox is enabled (callers should check `isDevMailboxEnabled()` first and 404).
  */
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, notInArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { emailOutbox } from "@/db/schema";
+import { emailOutbox, user as userTable } from "@/db/schema";
 import { env } from "@/lib/env";
 import { errors } from "@/server/http";
 import type { EmailStatus } from "@/types/domain";
@@ -25,6 +25,20 @@ export function isDevMailboxEnabled(): boolean {
 
 function assertEnabled(): void {
   if (!isDevMailboxEnabled()) throw errors.notFound("Page");
+}
+
+/**
+ * Rows the mailbox may show. In production (an all-mock demo deployment) the mailbox is public, so
+ * anyone could read a magic link: mail to an admin (ADMIN_EMAILS, or any account with the admin role)
+ * is never shown there. Admins of such a deployment sign in with Google or a real email provider.
+ */
+function visibleRows(): SQL | undefined {
+  if (!env.isProd) return undefined;
+  const admins = env.ADMIN_EMAILS;
+  return and(
+    admins.length ? notInArray(sql`lower(${emailOutbox.to})`, admins) : undefined,
+    sql`lower(${emailOutbox.to}) not in (select lower(${userTable.email}) from ${userTable} where ${userTable.role} = 'admin')`,
+  );
 }
 
 export interface DevEmailSummary {
@@ -77,13 +91,14 @@ export async function listDevEmails(limit = 100): Promise<DevEmailSummary[]> {
   return db
     .select(summaryColumns)
     .from(emailOutbox)
+    .where(visibleRows())
     .orderBy(desc(emailOutbox.createdAt), desc(emailOutbox.id))
     .limit(Math.min(Math.max(limit, 1), 500));
 }
 
 export async function getDevEmail(id: string): Promise<DevEmail | null> {
   assertEnabled();
-  const [row] = await db.select().from(emailOutbox).where(eq(emailOutbox.id, id)).limit(1);
+  const [row] = await db.select().from(emailOutbox).where(and(eq(emailOutbox.id, id), visibleRows())).limit(1);
   return row ? toDevEmail(row) : null;
 }
 
@@ -98,6 +113,7 @@ export async function getLatestDevEmail(filter: { to: string; template?: EmailTe
       and(
         sql`lower(${emailOutbox.to}) = ${recipient}`,
         filter.template ? eq(emailOutbox.template, filter.template) : undefined,
+        visibleRows(),
       ),
     )
     .orderBy(desc(emailOutbox.createdAt), desc(emailOutbox.id))

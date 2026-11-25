@@ -16,7 +16,8 @@
 # use the same endpoint. S3_ENDPOINT is http://localhost:9000, which the browser reaches through
 # MinIO's published port; inside web/worker, LOOPBACK_FORWARD (docker/loopback-forward.mjs) makes
 # localhost:9000 reach the minio service. On a remote server, put MinIO behind a public hostname
-# (or use R2/S3) and set S3_ENDPOINT to that URL instead.
+# (or use R2/S3) and set S3_ENDPOINT to that URL instead. Set MINIO_ROOT_PASSWORD to a random value first:
+# production refuses the published default password on an endpoint other machines can reach.
 
 name: openshoot
 
@@ -36,6 +37,10 @@ x-app: &app
   image: openshoot:local
   init: true
   restart: unless-stopped
+  # The app runs as the unprivileged `node` user and needs no Linux capabilities (port 3000, loopback
+  # forwards on unprivileged ports): drop them all and forbid privilege escalation (setuid binaries).
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
   env_file:
     - path: .env
       required: false
