@@ -55,7 +55,7 @@ export function ContactSheet({
   return (
     <div
       className={cn(
-        "print-paper @container relative rounded-[2px] p-[3.2%] pb-[2.6%] text-[#16140f] shadow-print",
+        "print-paper grain-over @container relative rounded-[2px] p-[3.2%] pb-[2.6%] text-[#16140f] shadow-print",
         !now && "reveal",
         className,
       )}
@@ -88,7 +88,7 @@ export function ContactSheet({
                   </span>
                   <div
                     className={cn(
-                      "grain-over relative aspect-[3/2] overflow-hidden bg-[#2a2620]",
+                      "relative aspect-[3/2] overflow-hidden bg-[#2a2620]",
                       now ? "develop-now" : "develop",
                     )}
                     style={{ "--i": i } as React.CSSProperties}

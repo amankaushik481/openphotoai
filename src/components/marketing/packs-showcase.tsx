@@ -77,31 +77,23 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
                   <span className="mono-caps hidden text-muted-foreground lg:inline">
                     {pack.promptCount} styles · {credits} cr
                   </span>
-                  {/* Phones: a small print at the end of the row. */}
+                  {/* One print per row: a thumbnail at the end of the row on phones; on wide screens it sits
+                      beside the list and shows while its row is pointed at (the first by default). */}
                   <span
                     aria-hidden="true"
-                    className="grain-over relative col-start-3 row-start-1 aspect-[4/5] w-14 overflow-hidden rounded-[1px] sm:w-16 lg:hidden"
+                    className="pack-preview pointer-events-none relative col-start-3 row-start-1 block w-14 sm:w-16 lg:absolute lg:top-0 lg:right-0 lg:w-[33.333%] lg:p-3 lg:pb-10 lg:opacity-0 lg:shadow-print lg:transition-opacity lg:duration-300 lg:print-paper"
                   >
-                    <PortraitArt id={`idx-m-${pack.slug}`} {...study} />
-                  </span>
-                </Link>
-                {/* Wide screens: the print for this row, shown while it is pointed at (the first by default). */}
-                <figure
-                  aria-hidden="true"
-                  className="pack-preview pointer-events-none absolute top-0 right-0 hidden w-[33.333%] opacity-0 transition-opacity duration-300 lg:block"
-                >
-                  <div className="print-paper p-3 pb-10 shadow-print">
-                    <div className="grain-over relative aspect-[4/5] overflow-hidden">
+                    <span className="grain-over relative block aspect-[4/5] overflow-hidden rounded-[1px]">
                       <PortraitArt id={`idx-${pack.slug}`} {...study} />
-                    </div>
-                    <figcaption className="mt-3 flex justify-between font-mono text-[0.625rem] tracking-[0.16em] text-[#16140f] uppercase">
+                    </span>
+                    <span className="mt-3 hidden justify-between font-mono text-[0.625rem] tracking-[0.16em] text-[#16140f] uppercase lg:flex">
                       <span>
                         {no} · {pack.name}
                       </span>
                       <span>{LIGHTING_LABEL[setup]}</span>
-                    </figcaption>
-                  </div>
-                </figure>
+                    </span>
+                  </span>
+                </Link>
               </li>
             );
           })}
