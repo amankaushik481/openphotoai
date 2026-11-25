@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { EraserIcon, ImageUpscaleIcon, LoaderCircleIcon, ScanFaceIcon } from "lucide-react";
+import { CoinsIcon, EraserIcon, ImageUpscaleIcon, LoaderCircleIcon, ScanFaceIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { friendlyJobError } from "@/components/app/job-progress";
@@ -17,6 +17,8 @@ import { useEnhanceJob } from "./use-enhance-job";
 export interface EnhanceQuickActionsProps {
   media: MediaDTO;
   onJobCreated?: (job: JobDTO) => void;
+  /** Show each action's name and credit cost on every screen (not only on touch screens). */
+  labeled?: boolean;
   className?: string;
 }
 
@@ -34,12 +36,18 @@ const QUICK_ACTIONS: readonly QuickAction[] = [
 ];
 
 /** Compact one-click enhancements for the gallery viewer: upscale 2×, restore face, remove background. */
-export function EnhanceQuickActions({ media, onJobCreated, className }: EnhanceQuickActionsProps) {
+export function EnhanceQuickActions({ media, onJobCreated, labeled = false, className }: EnhanceQuickActionsProps) {
   return (
     <div role="group" aria-label="Quick enhancements" className={cn("flex flex-wrap items-center gap-1", className)}>
       {QUICK_ACTIONS.map((spec) => (
         // Keyed by photo so a running job's spinner doesn't follow the viewer to the next photo.
-        <QuickActionButton key={`${media.id}:${spec.action}`} media={media} spec={spec} onJobCreated={onJobCreated} />
+        <QuickActionButton
+          key={`${media.id}:${spec.action}`}
+          media={media}
+          spec={spec}
+          labeled={labeled}
+          onJobCreated={onJobCreated}
+        />
       ))}
     </div>
   );
@@ -48,10 +56,12 @@ export function EnhanceQuickActions({ media, onJobCreated, className }: EnhanceQ
 function QuickActionButton({
   media,
   spec,
+  labeled,
   onJobCreated,
 }: {
   media: MediaDTO;
   spec: QuickAction;
+  labeled: boolean;
   onJobCreated?: (job: JobDTO) => void;
 }) {
   const t = useT();
@@ -94,14 +104,14 @@ function QuickActionButton({
       <TooltipTrigger asChild>
         <Button
           type="button"
-          size="icon-sm"
-          variant="ghost"
+          size={labeled ? "sm" : "icon-sm"}
+          variant={labeled ? "outline" : "ghost"}
           aria-label={availability.reason ? `${spec.label}: ${availability.reason}` : tooltip}
           aria-disabled={blocked || undefined}
           aria-busy={busy || undefined}
           // Touch has no hover tooltip: show the name and credit cost before a tap starts a paid job.
           className={cn(
-            "pointer-coarse:w-auto pointer-coarse:px-2.5",
+            !labeled && "pointer-coarse:w-auto pointer-coarse:px-2.5",
             !availability.available && "cursor-not-allowed opacity-50",
           )}
           onClick={() => {
@@ -109,9 +119,19 @@ function QuickActionButton({
           }}
         >
           {busy ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <spec.Icon aria-hidden="true" />}
-          <span aria-hidden="true" className="hidden text-xs pointer-coarse:inline">
-            {label}
-          </span>
+          {labeled ? (
+            <span aria-hidden="true" className="flex items-center gap-1.5">
+              {spec.label}
+              <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums">
+                <CoinsIcon className="size-3" />
+                {cost}
+              </span>
+            </span>
+          ) : (
+            <span aria-hidden="true" className="hidden text-xs pointer-coarse:inline">
+              {label}
+            </span>
+          )}
         </Button>
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
