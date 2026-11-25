@@ -5,9 +5,11 @@ import { BadgeCheckIcon, InfinityIcon, MousePointerClickIcon, Undo2Icon } from "
 import { CreditPackCards } from "@/components/billing/credit-pack-cards";
 import { PlanCards } from "@/components/billing/plan-cards";
 import { CreditCostTable } from "@/components/marketing/credit-cost-table";
+import { CreditExamples } from "@/components/marketing/credit-examples";
 import { FaqList } from "@/components/marketing/faq-list";
 import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
+import { PlanComparison } from "@/components/marketing/plan-comparison";
 import { ProviderCostNote } from "@/components/marketing/provider-cost-note";
 import { MarketingSection, SectionHeading } from "@/components/marketing/section-heading";
 import { APP } from "@/config/app";
@@ -81,10 +83,27 @@ export default function PricingPage() {
           </p>
         )}
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Credits never expire — from plans or packs. Prices in USD; taxes may apply at checkout.
-          Commercial use included on paid plans.
+          Credits never expire — from plans or packs. Prices in USD; taxes may apply at checkout. Commercial use
+          included on paid plans.{" "}
+          <a href="#compare" className="font-medium text-foreground underline underline-offset-4">
+            Compare every limit
+          </a>
         </p>
       </section>
+
+      <MarketingSection labelledBy="compare-title" className="max-w-4xl pt-8 sm:pt-12">
+        <div id="compare" className="scroll-mt-24">
+          <SectionHeading
+            id="compare-title"
+            eyebrow="Compare plans"
+            title="Every plan, side by side"
+            lead="The same tools and the same likeness guarantee on every plan. Paid plans add monthly credits and higher limits."
+          />
+        </div>
+        <div className="mt-10">
+          <PlanComparison />
+        </div>
+      </MarketingSection>
 
       <MarketingSection labelledBy="packs-title" className="pt-8 sm:pt-12">
         <SectionHeading
@@ -104,10 +123,13 @@ export default function PricingPage() {
             id="costs-title"
             eyebrow="Price list"
             title="What everything costs"
-            lead="One credit is roughly one standard photo. This table is generated from the same config the app charges from."
+            lead="One credit is roughly one standard photo. Every price here comes from the same config the app charges from."
           />
         </div>
         <div className="mx-auto mt-10 max-w-3xl">
+          <CreditExamples />
+        </div>
+        <div className="mx-auto mt-8 max-w-3xl">
           <CreditCostTable />
         </div>
         <div className="mt-6">

@@ -48,6 +48,10 @@ describe("marketing pages render", () => {
     for (const pack of CREDIT_PACKS) expect(html).toContain(pack.name);
     expect(html).toContain("Monthly");
     expect(html).toContain("Yearly");
+    // Plan comparison table (one column per plan) and "what credits buy".
+    expect(html).toContain("Plans compared feature by feature");
+    expect(count(html, /<th scope="col"[^>]*>/g)).toBeGreaterThanOrEqual(1 + Object.keys(PLANS).length);
+    expect(html).toContain(`What ${Math.min(...CREDIT_PACKS.map((p) => p.credits))} credits buy`);
   });
 
   it("faq page: FAQPage JSON-LD and native accordions", () => {

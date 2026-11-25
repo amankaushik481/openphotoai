@@ -2,9 +2,10 @@
  * Public credit price list, generated from CREDIT_COSTS so the pricing page can never drift from what we charge.
  * `Record<CreditCostKey, …>` makes TypeScript fail the build if a new cost is added without a label.
  */
-import { CREDIT_COSTS, INSTANT_MODE_MULTIPLIER } from "@/config/credits";
+import { CREDIT_COSTS, DRAFT_DAILY_LIMIT, DRAFT_DAILY_LIMIT_FREE, INSTANT_MODE_MULTIPLIER } from "@/config/credits";
 import { MODELS } from "@/config/models";
 import { CREDIT_PACKS, PAID_PLAN_IDS, PLANS } from "@/config/plans";
+import type { PlanId } from "@/types/domain";
 
 export type CreditCostKey = keyof typeof CREDIT_COSTS;
 
@@ -102,5 +103,89 @@ export function providerCostExamples(): ProviderCostExample[] {
     },
     { label: "Trained model", credits: CREDIT_COSTS.train, providerUsd: fal.train.costUsd },
     { label: "5 s video", credits: CREDIT_COSTS.video5s, providerUsd: fal.imageToVideo.costUsd },
+  ];
+}
+
+export interface CreditExample {
+  key: CreditCostKey;
+  /** How many of this action the budget covers. */
+  count: number;
+  /** Singular and plural label: "standard photo" / "standard photos". */
+  label: [string, string];
+  credits: number;
+}
+
+const EXAMPLE_ACTIONS: { key: CreditCostKey; label: [string, string] }[] = [
+  { key: "generateStandard", label: ["standard photo", "standard photos"] },
+  { key: "generateHigh", label: ["high-quality photo", "high-quality photos"] },
+  { key: "edit", label: ["edit", "edits"] },
+  { key: "upscale4x", label: ["4× upscale", "4× upscales"] },
+  { key: "video5s", label: ["5-second video", "5-second videos"] },
+  { key: "train", label: ["trained model", "trained models"] },
+];
+
+/** "What N credits buy": how many of each common action a budget covers, from CREDIT_COSTS. */
+export function creditExamples(budget: number): CreditExample[] {
+  return EXAMPLE_ACTIONS.map(({ key, label }) => {
+    const credits = CREDIT_COSTS[key];
+    return { key, label, credits, count: credits > 0 ? Math.floor(budget / credits) : 0 };
+  }).filter((e) => e.count > 0);
+}
+
+/** One value per plan in the comparison table: text, or a yes/no mark. */
+export type PlanCell = string | boolean;
+
+export interface PlanComparisonRow {
+  label: string;
+  /** Short explanation under the label. */
+  note?: string;
+  values: Record<PlanId, PlanCell>;
+}
+
+export const COMPARISON_PLAN_IDS: readonly PlanId[] = ["free", ...PAID_PLAN_IDS];
+
+function perPlan(fn: (plan: (typeof PLANS)[PlanId]) => PlanCell): Record<PlanId, PlanCell> {
+  return Object.fromEntries(COMPARISON_PLAN_IDS.map((id) => [id, fn(PLANS[id])])) as Record<PlanId, PlanCell>;
+}
+
+function usdShort(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
+}
+
+/** Plan-by-plan comparison built from PLANS (the limits the server enforces) and the draft allowances. */
+export function planComparisonRows(): PlanComparisonRow[] {
+  return [
+    { label: "Price per month", values: perPlan((p) => usdShort(p.monthlyPriceCents)) },
+    {
+      label: "Credits every month",
+      note: "They never expire",
+      values: perPlan((p) => (p.monthlyCredits > 0 ? p.monthlyCredits.toLocaleString("en-US") : "—")),
+    },
+    {
+      label: "Price per credit",
+      note: "Monthly billing",
+      values: perPlan((p) => (p.monthlyCredits > 0 ? formatCents(p.monthlyPriceCents / p.monthlyCredits) : "—")),
+    },
+    {
+      label: "Free drafts a day",
+      note: `Free plan: ${DRAFT_DAILY_LIMIT} after any purchase`,
+      values: perPlan((p) => String(p.monthlyPriceCents > 0 ? DRAFT_DAILY_LIMIT : DRAFT_DAILY_LIMIT_FREE)),
+    },
+    { label: "Identity models", note: "At the same time", values: perPlan((p) => String(p.limits.maxModels)) },
+    { label: "Photos per batch", note: "In one click", values: perPlan((p) => String(p.limits.maxBatch)) },
+    { label: "Jobs at once", values: perPlan((p) => String(p.limits.maxConcurrentJobs)) },
+    {
+      label: "No watermark",
+      note: "Free plan: after your first purchase",
+      values: perPlan((p) => !p.limits.watermark),
+    },
+    { label: "API access", values: perPlan((p) => p.limits.apiAccess) },
+    {
+      label: "Team seats",
+      note: "With shared brand kits",
+      values: perPlan((p) => (p.limits.teamSeats > 0 ? String(p.limits.teamSeats) : false)),
+    },
+    { label: "Every pack, edit and video tool", note: "Paid in credits", values: perPlan(() => true) },
+    { label: "Automatic refunds", note: "Failed, blocked and low-likeness shots", values: perPlan(() => true) },
   ];
 }
