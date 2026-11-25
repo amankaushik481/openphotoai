@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
-import { OPEN_SHORTCUTS_EVENT, SHORTCUTS, isTypingTarget, matchShortcut } from "@/components/layout/shortcuts";
+import {
+  OPEN_SHORTCUTS_EVENT,
+  SHORTCUTS,
+  isOverlayOpen,
+  isTypingTarget,
+  matchShortcut,
+} from "@/components/layout/shortcuts";
 
 /** How long the second key of a "g then x" sequence may take. */
 const SEQUENCE_MS = 1200;
@@ -26,7 +32,7 @@ export function KeyboardShortcuts() {
       if (e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
       if (isTypingTarget(e.target as HTMLElement | null)) return;
       // Leave dialogs, menus and other overlays their own keys.
-      if (document.querySelector("[role=dialog], [role=menu], [role=listbox]")) return;
+      if (isOverlayOpen(document)) return;
       const result = matchShortcut(prefix, e.key);
       reset();
       if (!result) return;

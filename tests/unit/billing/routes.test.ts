@@ -14,7 +14,15 @@ import { buildMockEvent, mockWebhookHeaders, serializeMockEvent } from "@/provid
 import { setProviderOverrides } from "@/providers/registry";
 import type { PaymentEvent } from "@/providers/types";
 import { callRoute, createTestDb, createTestUser, sessionMock } from "../../helpers/factories";
-import { invoicePaid, packCheckout, readPayments, readSubscription, readUser, readWebhookEvent, receipts } from "./fixtures";
+import {
+  invoicePaid,
+  packCheckout,
+  readPayments,
+  readSubscription,
+  readUser,
+  readWebhookEvent,
+  receipts,
+} from "./fixtures";
 
 vi.mock("@/server/auth/session", () => sessionMock);
 
@@ -132,7 +140,13 @@ describe("billing rate limit", () => {
 describe("GET /api/billing/subscription", () => {
   it("returns the free plan without a subscription", async () => {
     const res = await callRoute(subscriptionRoute, { url: "/api/billing/subscription" });
-    expect(res.json).toEqual({ subscription: null, plan: "free", hasPaid: false, canManageBilling: false, provider: "mock" });
+    expect(res.json).toEqual({
+      subscription: null,
+      plan: "free",
+      hasPaid: false,
+      canManageBilling: false,
+      provider: "mock",
+    });
   });
 
   it("returns the current subscription", async () => {
@@ -142,7 +156,13 @@ describe("GET /api/billing/subscription", () => {
       plan: "pro",
       hasPaid: true,
       canManageBilling: true,
-      subscription: { planId: "pro", interval: "year", status: "active", cancelAtPeriodEnd: false, currentPeriodEnd: expect.any(String) },
+      subscription: {
+        planId: "pro",
+        interval: "year",
+        status: "active",
+        cancelAtPeriodEnd: false,
+        currentPeriodEnd: expect.any(String),
+      },
     });
   });
 });
@@ -211,10 +231,15 @@ describe("mock checkout end-to-end", () => {
 
     const paid = await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId } });
     expect(paid.status).toBe(200);
-    expect(paid.json).toEqual({ ok: true, redirectUrl: "/app/billing?success=1" });
+    expect(paid.json).toEqual({
+      ok: true,
+      redirectUrl: expect.stringMatching(/^\/app\/billing\?success=1&since=\d{13}$/),
+    });
     expect(await readUser(u.id)).toMatchObject({ credits: 100, hasPaid: true, stripeCustomerId: `mock_cus_${u.id}` });
 
-    expect((await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId } })).status).toBe(200);
+    expect(
+      (await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId } })).status,
+    ).toBe(200);
     expect((await readUser(u.id)).credits).toBe(100);
     expect(await readPayments(u.id)).toHaveLength(1);
     expect(await receipts(u.email)).toHaveLength(1);
@@ -222,7 +247,10 @@ describe("mock checkout end-to-end", () => {
 
   it("plan: subscription active, credits granted, portal + cancel through the test portal", async () => {
     const { json } = await startCheckout({ type: "plan", planId: "starter", interval: "month" });
-    await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(json.url) } });
+    await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(json.url) },
+    });
     expect(await readUser(u.id)).toMatchObject({ plan: "starter", credits: 200 });
 
     const summary = await callRoute(subscriptionRoute, { url: "/api/billing/subscription" });
@@ -235,9 +263,15 @@ describe("mock checkout end-to-end", () => {
 
   it("upgrading cancels the previous plan", async () => {
     const first = await startCheckout({ type: "plan", planId: "starter", interval: "month" });
-    await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(first.json.url) } });
+    await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(first.json.url) },
+    });
     const second = await startCheckout({ type: "plan", planId: "pro", interval: "year" });
-    await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(second.json.url) } });
+    await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(second.json.url) },
+    });
 
     expect(await readUser(u.id)).toMatchObject({ plan: "pro", credits: 200 + 7200 });
     const summary = await callRoute(subscriptionRoute, { url: "/api/billing/subscription" });
@@ -251,15 +285,24 @@ describe("mock checkout end-to-end", () => {
     sessionMock.setUser(await createTestUser());
     const stolen = await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId } });
     expect(stolen.status).toBe(403);
-    const forged = await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: `${checkoutId}x` } });
+    const forged = await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: `${checkoutId}x` },
+    });
     expect(forged.status).toBe(400);
     expect((await readUser(u.id)).credits).toBe(0);
 
     sessionMock.setUser(u);
     const a = await startCheckout({ type: "plan", planId: "pro", interval: "month" });
     const b = await startCheckout({ type: "plan", planId: "pro", interval: "month" });
-    await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(a.json.url) } });
-    const dup = await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(b.json.url) } });
+    await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(a.json.url) },
+    });
+    const dup = await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(b.json.url) },
+    });
     expect(dup.status).toBe(409);
     expect((await readUser(u.id)).credits).toBe(600);
   });
@@ -267,11 +310,16 @@ describe("mock checkout end-to-end", () => {
   it("requires sign-in and is 404 outside mock mode", async () => {
     const { json } = await startCheckout({ type: "credit_pack", packId: "credits_100" });
     sessionMock.setUser(null);
-    expect((await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: "x" } })).status).toBe(401);
+    expect(
+      (await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: "x" } })).status,
+    ).toBe(401);
 
     sessionMock.setUser(u);
     useStripeEnv();
-    const res = await callRoute(mockCompleteRoute, { url: "/api/billing/mock/complete", body: { checkoutId: checkoutIdFrom(json.url) } });
+    const res = await callRoute(mockCompleteRoute, {
+      url: "/api/billing/mock/complete",
+      body: { checkoutId: checkoutIdFrom(json.url) },
+    });
     expect(res.status).toBe(404);
     expect((await callRoute(mockCancelRoute, { url: "/api/billing/mock/cancel", method: "POST" })).status).toBe(404);
     expect(await readSubscription()).toBeUndefined();

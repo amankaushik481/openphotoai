@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { newIdempotencyKey } from "@/components/create/logic";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { isTerminalStatus } from "@/hooks/job-status";
@@ -24,13 +25,7 @@ import { ApiClientError, api } from "@/lib/api-client";
 import { errorMessage } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { JobDTO } from "@/types/domain";
-import {
-  batchItemState,
-  batchItemTitle,
-  retryCost,
-  retryRequest,
-  type BatchItemKind,
-} from "./batch-items-logic";
+import { batchItemState, batchItemTitle, retryCost, retryRequest, type BatchItemKind } from "./batch-items-logic";
 
 const ICONS: Record<BatchItemKind, React.ReactNode> = {
   waiting: <HourglassIcon className="text-muted-foreground" />,
@@ -60,7 +55,6 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
   const { jobs: retryJobs } = useJobs(retryIds, { onAllTerminal: () => void refreshMe() });
   const retryById = React.useMemo(() => new Map(retryJobs.map((j) => [j.id, j])), [retryJobs]);
 
-  const attempts = React.useRef(new Map<string, number>());
   const latestRetry = (job: JobDTO) => {
     const r = retries[job.id];
     return r ? (retryById.get(r.id) ?? r) : null;
@@ -83,11 +77,12 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
         const { job: created } = await api<{ job: JobDTO }>("/api/jobs", {
           method: "POST",
           body: request,
-          // One retry per attempt, even on a double click.
-          headers: { "Idempotency-Key": `retry:${job.id}:${attempts.current.get(job.id) ?? 0}` },
+          // A fresh key per click: the server keeps keys forever, so a key derived from the job (and a
+          // counter that restarts on reload) handed back an earlier failed retry instead of a new job.
+          // Double clicks are covered by `submitting`.
+          headers: { "Idempotency-Key": newIdempotencyKey() },
         });
         started++;
-        attempts.current.set(job.id, (attempts.current.get(job.id) ?? 0) + 1);
         setRetries((prev) => ({ ...prev, [job.id]: created }));
       }
       if (started) toast.success(started === 1 ? "Trying that photo again" : `Trying ${started} photos again`);
@@ -120,13 +115,26 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
             </span>
             <ChevronDownIcon
               aria-hidden="true"
-              className={cn("size-4 text-muted-foreground transition-transform motion-reduce:transition-none", expanded && "rotate-180")}
+              className={cn(
+                "size-4 text-muted-foreground transition-transform motion-reduce:transition-none",
+                expanded && "rotate-180",
+              )}
             />
           </button>
         </h2>
         {failed.length > 1 && (
-          <Button type="button" size="sm" variant="outline" onClick={() => void retry(failed, "all")} disabled={submitting !== null}>
-            {submitting === "all" ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <RotateCcwIcon aria-hidden="true" />}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void retry(failed, "all")}
+            disabled={submitting !== null}
+          >
+            {submitting === "all" ? (
+              <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+            ) : (
+              <RotateCcwIcon aria-hidden="true" />
+            )}
             Retry {failed.length} failed · {creditsText(retryCost(failed))}
           </Button>
         )}
@@ -151,19 +159,25 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
                   )}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="truncate font-medium">{thumb ? <Link href={`/app/gallery/${thumb.id}`} className="underline-offset-4 hover:underline">{title}</Link> : title}</p>
-                  <p
-                    className={cn(
-                      "text-xs",
-                      state.kind === "failed" ? "text-destructive" : "text-muted-foreground",
+                  <p className="truncate font-medium">
+                    {thumb ? (
+                      <Link href={`/app/gallery/${thumb.id}`} className="underline-offset-4 hover:underline">
+                        {title}
+                      </Link>
+                    ) : (
+                      title
                     )}
-                  >
+                  </p>
+                  <p className={cn("text-xs", state.kind === "failed" ? "text-destructive" : "text-muted-foreground")}>
                     {state.label}
                     {retryState && (
                       <>
                         {" · Retry: "}
                         {retryJob?.status === "succeeded" && retryJob.media[0] ? (
-                          <Link href={`/app/gallery/${retryJob.media[0].id}`} className="font-medium text-foreground underline underline-offset-4">
+                          <Link
+                            href={`/app/gallery/${retryJob.media[0].id}`}
+                            className="font-medium text-foreground underline underline-offset-4"
+                          >
                             done, open it
                           </Link>
                         ) : (
@@ -173,7 +187,12 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
                     )}
                   </p>
                   {state.kind === "running" && (
-                    <Progress value={job.progress} aria-label={`${title} progress`} className="h-1" indicatorClassName="bg-brand-gradient" />
+                    <Progress
+                      value={job.progress}
+                      aria-label={`${title} progress`}
+                      className="h-1"
+                      indicatorClassName="bg-brand-gradient"
+                    />
                   )}
                 </div>
                 {canRetry(job) && (
@@ -185,16 +204,26 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
                     disabled={submitting !== null}
                     aria-label={`Retry ${title} (${creditsText(retryCost([job]))})`}
                   >
-                    {submitting === job.id ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <RotateCcwIcon aria-hidden="true" />}
+                    {submitting === job.id ? (
+                      <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+                    ) : (
+                      <RotateCcwIcon aria-hidden="true" />
+                    )}
                     Retry
-                    <span aria-hidden="true" className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums">
+                    <span
+                      aria-hidden="true"
+                      className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums"
+                    >
                       <CoinsIcon className="size-3" />
                       {retryCost([job]) || "Free"}
                     </span>
                   </Button>
                 )}
                 {retryJob && !isTerminalStatus(retryJob.status) && (
-                  <LoaderCircleIcon aria-hidden="true" className="size-4 animate-spin text-primary motion-reduce:animate-none" />
+                  <LoaderCircleIcon
+                    aria-hidden="true"
+                    className="size-4 animate-spin text-primary motion-reduce:animate-none"
+                  />
                 )}
               </li>
             );

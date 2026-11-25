@@ -18,7 +18,10 @@ export interface ViewerStageProps {
   /** Swipe (touch) to the previous / next photo. */
   onSwipe: (direction: NavDirection) => void;
   loadState: StageLoadState;
+  /** Changes when the element must be re-created to retry the same URL (see viewerLoadStep). */
+  loadKey?: number;
   onLoadError: () => void;
+  onLoaded?: () => void;
   onRetry: () => void;
   children?: React.ReactNode;
 }
@@ -47,7 +50,9 @@ export function ViewerStage({
   onZoomChange,
   onSwipe,
   loadState,
+  loadKey = 0,
   onLoadError,
+  onLoaded,
   onRetry,
   children,
 }: ViewerStageProps) {
@@ -156,6 +161,7 @@ export function ViewerStage({
       {isImage ? (
         // eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer
         <img
+          key={loadKey}
           ref={imgRef}
           src={media.url}
           alt={media.prompt ? media.prompt.slice(0, 200) : "Generated photo"}
@@ -167,6 +173,7 @@ export function ViewerStage({
             if (e.timeStamp - touchToggledAt.current > 600) toggleZoomAt(e.clientX, e.clientY);
           }}
           onError={onLoadError}
+          onLoad={onLoaded}
           style={zoom ? { transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})` } : undefined}
           className={cn(
             "max-h-[75dvh] w-auto max-w-full object-contain lg:max-h-full",
@@ -177,6 +184,7 @@ export function ViewerStage({
         />
       ) : (
         <video
+          key={loadKey}
           ref={videoRef}
           src={media.url}
           poster={media.thumbUrl !== media.url ? media.thumbUrl : undefined}
@@ -185,6 +193,7 @@ export function ViewerStage({
           loop
           preload="metadata"
           onError={onLoadError}
+          onLoadedMetadata={onLoaded}
           className="max-h-[75dvh] w-full lg:max-h-full"
         />
       )}
@@ -193,7 +202,10 @@ export function ViewerStage({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center" role="status">
           {loadState === "retrying" ? (
             <>
-              <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-muted-foreground motion-reduce:animate-none" />
+              <LoaderCircleIcon
+                aria-hidden="true"
+                className="size-6 animate-spin text-muted-foreground motion-reduce:animate-none"
+              />
               <p className="text-sm text-muted-foreground">Reloading…</p>
             </>
           ) : (

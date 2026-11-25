@@ -5,12 +5,21 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BillingDashboard } from "@/components/billing";
-import { checkoutConfirmation, CONFIRM_FAST_FOR_MS, RECENT_PAYMENT_MS } from "@/components/billing/checkout-status";
+import {
+  checkoutConfirmation,
+  CONFIRM_FAST_FOR_MS,
+  parseCheckoutSince,
+  RECENT_PAYMENT_MS,
+} from "@/components/billing/checkout-status";
 import { CreditHistory, describeLedgerEntry } from "@/components/billing/credit-history";
 import { CurrentPlanCard } from "@/components/billing/current-plan-card";
 import { formatCreditDelta, formatMoney, formatPerCredit } from "@/components/billing/format";
 import { lostFeatures } from "@/components/billing/plan-change";
-import { pendingBillingRedirect, resetBillingRedirect, startBillingRedirect } from "@/components/billing/use-billing-actions";
+import {
+  pendingBillingRedirect,
+  resetBillingRedirect,
+  startBillingRedirect,
+} from "@/components/billing/use-billing-actions";
 import { listPaymentHistory, paymentProductLabel } from "@/server/billing/payment-history";
 import type { BillingSummaryDTO } from "@/server/billing/types";
 import { ledgerJobTypes } from "@/server/credits/ledger-jobs";
@@ -50,7 +59,9 @@ describe("dates render the same on the server whatever its time zone (no hydrati
     // 03:00 UTC on Nov 25 is still Nov 24 in Los Angeles: the server render must not depend on that.
     for (const tz of ["America/Los_Angeles", "Asia/Tokyo", "UTC"]) {
       process.env.TZ = tz;
-      const html = renderToStaticMarkup(<CreditHistory firstPage={{ balance: 500, ledger: [entry()], nextCursor: null }} />);
+      const html = renderToStaticMarkup(
+        <CreditHistory firstPage={{ balance: 500, ledger: [entry()], nextCursor: null }} />,
+      );
       expect(html).toContain("Nov 25, 2026");
       expect(html).toContain('dateTime="2026-11-25T03:00:00.000Z"');
     }
@@ -87,7 +98,9 @@ describe("checkout return before the payment webhook", () => {
   it("is 'confirming' until a fresh purchase (or plan change) shows up, then 'confirmed' with the credits", () => {
     const old = entry({ createdAt: new Date(openedAt - RECENT_PAYMENT_MS - 1000).toISOString() });
     expect(checkoutConfirmation({ ...base, ledger: [old], now: openedAt + 1000 })).toEqual({ state: "confirming" });
-    expect(checkoutConfirmation({ ...base, ledger: [old], now: openedAt + CONFIRM_FAST_FOR_MS })).toEqual({ state: "delayed" });
+    expect(checkoutConfirmation({ ...base, ledger: [old], now: openedAt + CONFIRM_FAST_FOR_MS })).toEqual({
+      state: "delayed",
+    });
 
     const fresh = entry({ id: "crd_2", delta: 100, createdAt: new Date(openedAt + 5_000).toISOString() });
     expect(checkoutConfirmation({ ...base, ledger: [fresh, old], now: openedAt + 6_000 })).toEqual({
@@ -96,8 +109,15 @@ describe("checkout return before the payment webhook", () => {
       planChanged: false,
     });
     // A webhook processed just before the redirect landed is this checkout's too.
-    const justBefore = entry({ createdAt: new Date(openedAt - 3_000).toISOString(), reason: "subscription_grant", delta: 600 });
-    expect(checkoutConfirmation({ ...base, ledger: [justBefore], now: openedAt })).toMatchObject({ state: "confirmed", credits: 600 });
+    const justBefore = entry({
+      createdAt: new Date(openedAt - 3_000).toISOString(),
+      reason: "subscription_grant",
+      delta: 600,
+    });
+    expect(checkoutConfirmation({ ...base, ledger: [justBefore], now: openedAt })).toMatchObject({
+      state: "confirmed",
+      credits: 600,
+    });
     // A plan start without credits (100% coupon) still confirms through the plan change.
     expect(checkoutConfirmation({ ...base, plan: "pro", ledger: [], now: openedAt + 1000 })).toEqual({
       state: "confirmed",
@@ -107,6 +127,33 @@ describe("checkout return before the payment webhook", () => {
     // Spending isn't a payment.
     const spent = entry({ reason: "job_debit", delta: -4, createdAt: new Date(openedAt).toISOString() });
     expect(checkoutConfirmation({ ...base, ledger: [spent], now: openedAt + 1000 }).state).toBe("confirming");
+  });
+
+  // Regression: any purchase from the 5 minutes before the page opened counted as "this checkout", so
+  // buying a second pack within 5 minutes showed "Payment received" (with the first pack's credits)
+  // before the second webhook arrived, and polling stopped.
+  it("with the checkout's start time, an earlier purchase doesn't confirm this checkout", () => {
+    const openedAt = Date.parse("2026-11-25T12:00:00Z");
+    const since = openedAt - 60_000; // checkout created a minute before the return
+    const earlier = entry({ id: "crd_a", delta: 100, createdAt: new Date(since - 120_000).toISOString() });
+    const base = { plan: "free" as const, initialPlan: "free" as const, openedAt, since };
+    expect(checkoutConfirmation({ ...base, ledger: [earlier], now: openedAt + 1000 })).toEqual({ state: "confirming" });
+    const mine = entry({ id: "crd_b", delta: 500, createdAt: new Date(since + 30_000).toISOString() });
+    expect(checkoutConfirmation({ ...base, ledger: [mine, earlier], now: openedAt + 1000 })).toEqual({
+      state: "confirmed",
+      credits: 500,
+      planChanged: false,
+    });
+  });
+
+  it("parses the success URL's `since` defensively", () => {
+    const now = Date.parse("2026-11-25T12:00:00Z");
+    expect(parseCheckoutSince(String(now - 5_000), now)).toBe(now - 5_000);
+    expect(parseCheckoutSince(undefined, now)).toBeNull();
+    expect(parseCheckoutSince("abc", now)).toBeNull();
+    expect(parseCheckoutSince(String(now + 10 * 60_000), now)).toBeNull(); // future
+    expect(parseCheckoutSince(String(now - 3 * 86_400_000), now)).toBeNull(); // stale
+    expect(parseCheckoutSince(["1", "2"], now)).toBeNull();
   });
 
   it("the dashboard says 'confirming' (not 'payment received') when the webhook hasn't arrived", () => {
@@ -126,7 +173,11 @@ describe("checkout return before the payment webhook", () => {
     const html = renderToStaticMarkup(
       <BillingDashboard
         initialSummary={summary()}
-        initialCredits={{ balance: 100, ledger: [entry({ delta: 100, createdAt: new Date().toISOString() })], nextCursor: null }}
+        initialCredits={{
+          balance: 100,
+          ledger: [entry({ delta: 100, createdAt: new Date().toISOString() })],
+          nextCursor: null,
+        }}
         notice="success"
         mockPortal={false}
       />,

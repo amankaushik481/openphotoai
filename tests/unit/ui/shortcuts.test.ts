@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SHORTCUTS, isTypingTarget, matchShortcut } from "@/components/layout/shortcuts";
+import { SHORTCUTS, isOverlayOpen, isTypingTarget, matchShortcut } from "@/components/layout/shortcuts";
 
 describe("matchShortcut", () => {
   it("maps single keys and two-key sequences", () => {
@@ -44,5 +44,17 @@ describe("isTypingTarget", () => {
     expect(isTypingTarget(el("div", { role: "application" }))).toBe(true);
     expect(isTypingTarget(el("button"))).toBe(false);
     expect(isTypingTarget(null)).toBe(false);
+  });
+});
+
+// Regression: confirm dialogs (Radix AlertDialog, role="alertdialog") weren't treated as open
+// overlays, so "c" or "g g" pressed in "Delete this photo?" navigated away, and "?" stacked a modal.
+describe("isOverlayOpen", () => {
+  const docWith = (roles: string[]) => ({
+    querySelector: (selector: string) => (roles.some((r) => selector.includes(`[role=${r}]`)) ? ({} as Element) : null),
+  });
+  it("treats confirm dialogs, dialogs, menus and listboxes as open overlays", () => {
+    for (const role of ["alertdialog", "dialog", "menu", "listbox"]) expect(isOverlayOpen(docWith([role]))).toBe(true);
+    expect(isOverlayOpen(docWith([]))).toBe(false);
   });
 });

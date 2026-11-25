@@ -53,6 +53,8 @@ export interface BillingDashboardProps {
   mockPortal: boolean;
   /** Plan / pack picked on the public pricing page before signing in (`?plan=&interval=` / `?pack=`). */
   checkoutIntent?: CheckoutItem | null;
+  /** When the checkout being confirmed was created (from the success URL), if known. */
+  checkoutSince?: number | null;
 }
 
 export function BillingDashboard({
@@ -62,6 +64,7 @@ export function BillingDashboard({
   notice,
   mockPortal,
   checkoutIntent,
+  checkoutSince = null,
 }: BillingDashboardProps) {
   const router = useRouter();
   const { mutate: mutateGlobal } = useSWRConfig();
@@ -75,9 +78,13 @@ export function BillingDashboard({
   // The plan when the checkout returned (a server refresh later updates `initialSummary`).
   const [initialPlan] = React.useState(initialSummary.plan);
 
-  const { data: summary = initialSummary, mutate: mutateSummary } = useSWR<BillingSummaryDTO>(BILLING_SUMMARY_KEY, fetcher, {
-    fallbackData: initialSummary,
-  });
+  const { data: summary = initialSummary, mutate: mutateSummary } = useSWR<BillingSummaryDTO>(
+    BILLING_SUMMARY_KEY,
+    fetcher,
+    {
+      fallbackData: initialSummary,
+    },
+  );
   const { data: credits = initialCredits, mutate: mutateCredits } = useSWR<CreditsPage>(CREDITS_KEY, fetcher, {
     fallbackData: initialCredits,
   });
@@ -85,7 +92,14 @@ export function BillingDashboard({
 
   // Derived on every render (first render included, so a webhook that already arrived shows "received").
   const confirmation: CheckoutConfirmation | null = awaiting
-    ? checkoutConfirmation({ ledger: credits.ledger, plan: summary.plan, initialPlan, openedAt, now })
+    ? checkoutConfirmation({
+        ledger: credits.ledger,
+        plan: summary.plan,
+        initialPlan,
+        openedAt,
+        now,
+        since: checkoutSince,
+      })
     : null;
   const confirmed = confirmation?.state === "confirmed";
   const polling = awaiting && !confirmed && now - openedAt < POLL_GIVE_UP_MS;
@@ -247,7 +261,9 @@ export function BillingDashboard({
           <h2 id="credit-history" className="text-lg font-semibold">
             Credit history
           </h2>
-          <p className="text-sm text-muted-foreground">Every credit in and out, with the reason. Dates are in your time zone.</p>
+          <p className="text-sm text-muted-foreground">
+            Every credit in and out, with the reason. Dates are in your time zone.
+          </p>
         </div>
         <CreditHistory firstPage={credits} />
       </section>
@@ -297,7 +313,9 @@ function CheckoutNotice({
       <Alert role="status" className="pr-12">
         <InfoIcon aria-hidden="true" />
         <AlertTitle>Checkout canceled</AlertTitle>
-        <AlertDescription>No payment was made. You can pick a plan or credit pack whenever you&apos;re ready.</AlertDescription>
+        <AlertDescription>
+          No payment was made. You can pick a plan or credit pack whenever you&apos;re ready.
+        </AlertDescription>
         {dismiss}
       </Alert>
     );

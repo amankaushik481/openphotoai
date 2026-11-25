@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BillingDashboard } from "@/components/billing";
 import { parseCheckoutIntent } from "@/components/billing/checkout-intent";
+import { parseCheckoutSince } from "@/components/billing/checkout-status";
 import { CREDITS_PAGE_SIZE } from "@/components/billing/credit-history";
 import { requireUserPage } from "@/server/auth/session";
 import { getBillingSummary } from "@/server/billing";
@@ -30,6 +31,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Sear
       initialCredits={{ balance, ledger: page.entries, nextCursor: page.nextCursor, jobTypes }}
       initialPayments={payments}
       notice={notice}
+      checkoutSince={notice === "success" ? parseCheckoutSince(params.since) : null}
       mockPortal={params.mockPortal === "1"}
       checkoutIntent={notice ? null : parseCheckoutIntent(params)}
     />

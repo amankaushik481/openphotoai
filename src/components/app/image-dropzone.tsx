@@ -6,7 +6,7 @@ import { CheckIcon, ImagePlusIcon, LoaderCircleIcon, RotateCwIcon, TriangleAlert
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ImageDecodeError, prepareImageForUpload, type OutputType } from "@/components/app/image-resize";
-import { UploadQueue, isInFlight, type UploadItem } from "@/components/app/upload-queue";
+import { UploadQueue, type UploadItem } from "@/components/app/upload-queue";
 import { uploadMultipart } from "@/components/app/upload-request";
 import { UPLOAD_LIMITS } from "@/config/app";
 import { ApiClientError } from "@/lib/api-client";
@@ -71,20 +71,6 @@ export function useUploadItems<T>(queue: UploadQueue<T>): readonly UploadItem<T>
   return React.useSyncExternalStore(queue.subscribe, queue.getSnapshot, queue.getSnapshot);
 }
 
-/** Ask before a full page unload while files are still uploading (they would be lost). */
-export function useWarnBeforeUnload(active: boolean): void {
-  React.useEffect(() => {
-    if (!active) return;
-    const onBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      // Older browsers need returnValue set to show the prompt.
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [active]);
-}
-
 export function ImageDropzone<T = unknown>({
   endpoint,
   fieldName = "file",
@@ -120,7 +106,7 @@ export function ImageDropzone<T = unknown>({
   const [announcement, setAnnouncement] = React.useState("");
   /** Visible counterpart of the "too many files" announcement (extra files are dropped). */
   const [limitNotice, setLimitNotice] = React.useState<string | null>(null);
-  useWarnBeforeUnload(items.some(isInFlight));
+  // The queue itself asks before a page unload while files are in flight (see UploadQueue).
 
   const describe = React.useCallback(
     (err: unknown) =>
@@ -141,7 +127,8 @@ export function ImageDropzone<T = unknown>({
       upload: async (file, control) => {
         control.preparing();
         const prepared = await prepareImageForUpload(file, { maxSide, quality, type: outputType });
-        if (prepared.file.size > UPLOAD_LIMITS.maxBytes) throw new ApiClientError("payload_too_large", t("upload.tooLarge"), 413);
+        if (prepared.file.size > UPLOAD_LIMITS.maxBytes)
+          throw new ApiClientError("payload_too_large", t("upload.tooLarge"), 413);
         const form = new FormData();
         form.append(fieldName, prepared.file, prepared.file.name);
         for (const [k, v] of Object.entries(extraFields ?? {})) form.append(k, v);

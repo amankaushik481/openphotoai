@@ -4,9 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { CreditCardIcon, KeyboardIcon, LogOutIcon, MonitorIcon, MoonIcon, SettingsIcon, ShieldIcon, SunIcon } from "lucide-react";
+import {
+  CreditCardIcon,
+  KeyboardIcon,
+  LogOutIcon,
+  MonitorIcon,
+  MoonIcon,
+  SettingsIcon,
+  ShieldIcon,
+  SunIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { clearViewerStorage } from "@/components/create/use-stored";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +60,7 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
       // Loaded on demand: keeps the auth client out of the shell's initial bundle.
       const { authClient } = await import("@/lib/auth-client");
       await authClient.signOut();
+      clearViewerStorage();
       router.replace("/");
       router.refresh();
     } catch {

@@ -46,6 +46,7 @@ import { VIEWER_TOOL_COSTS, creditsLabel } from "./viewer-actions";
 import { requestNavFocus, takeNavFocus, type NavDirection, type Zoom } from "./viewer-gestures";
 import { ViewerRemix } from "./viewer-remix";
 import { ViewerStage, type StageLoadState } from "./viewer-stage";
+import { INITIAL_VIEWER_LOAD, viewerLoadStep, type ViewerLoad, type ViewerLoadEvent } from "./viewer-load";
 
 export interface MediaViewerProps {
   media: MediaDTO;
@@ -78,11 +79,13 @@ const LINEAGE_LABEL: Partial<Record<JobType, string>> = {
 };
 
 /** Widgets that use arrow keys / Escape themselves (a focused <video> seeks with arrows). */
-const KEY_OWNING_WIDGETS = "[role=slider],[role=radiogroup],[role=toolbar],[role=tablist],[role=listbox],[role=grid],[role=application]";
+const KEY_OWNING_WIDGETS =
+  "[role=slider],[role=radiogroup],[role=toolbar],[role=tablist],[role=listbox],[role=grid],[role=application]";
 
 function ownsKeys(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "VIDEO", "AUDIO"].includes(target.tagName)) return true;
+  if (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "VIDEO", "AUDIO"].includes(target.tagName))
+    return true;
   return target.closest(KEY_OWNING_WIDGETS) !== null;
 }
 
@@ -94,7 +97,10 @@ function overlayOpen(): boolean {
 /** Small price tag on an action ("2" credits, or "Free"); the full text is the button's description. */
 function CostTag({ credits, from = false }: { credits: number; from?: boolean }) {
   return (
-    <span aria-hidden="true" className="inline-flex items-center gap-0.5 text-xs font-normal text-muted-foreground tabular-nums">
+    <span
+      aria-hidden="true"
+      className="inline-flex items-center gap-0.5 text-xs font-normal text-muted-foreground tabular-nums"
+    >
       {credits > 0 && <CoinsIcon className="size-3" />}
       {credits > 0 ? `${credits}${from ? "+" : ""}` : "Free"}
     </span>
@@ -117,7 +123,13 @@ export function MediaViewer({
   const [media, setMedia] = React.useState(initial);
   const [shareOpen, setShareOpen] = React.useState(false);
   const [zoom, setZoom] = React.useState<Zoom | null>(null);
-  const [loadState, setLoadState] = React.useState<StageLoadState>("ok");
+  const [load, setLoad] = React.useState<ViewerLoad>(INITIAL_VIEWER_LOAD);
+  const loadState: StageLoadState = load.phase;
+  const onLoadEvent = (event: ViewerLoadEvent) => {
+    const step = viewerLoadStep(load, event);
+    if (step.state !== load) setLoad(step.state);
+    if (step.refresh) router.refresh();
+  };
   const [downloading, setDownloading] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   // Talking videos speak their script (stored as the media prompt): caption it. Other clips are silent.
@@ -128,7 +140,7 @@ export function MediaViewer({
   if (seenInitial !== initial) {
     setSeenInitial(initial);
     setMedia((cur) => ({ ...cur, url: initial.url, thumbUrl: initial.thumbUrl, downloadUrl: initial.downloadUrl }));
-    setLoadState("ok");
+    setLoad((cur) => viewerLoadStep(cur, { type: "data", sameItem: initial.id === seenInitial.id }).state);
   }
   // When the current signed URLs were issued (they last at least an hour).
   const urlsIssuedAt = React.useRef(0);
@@ -183,8 +195,7 @@ export function MediaViewer({
         if (active && active === prevRef.current) requestNavFocus("prev");
         else if (active && active === nextRef.current) requestNavFocus("next");
         goTo(e.key === "ArrowLeft" ? "prev" : "next");
-      }
-      else if (e.key === "Escape" && zoom) setZoom(null);
+      } else if (e.key === "Escape" && zoom) setZoom(null);
       else if (e.key === "Escape") {
         rememberReturn();
         router.push(backHref, { scroll: false });
@@ -255,12 +266,8 @@ export function MediaViewer({
     }
   }
 
-  /** The photo didn't load (usually a signed URL that expired while the page sat open): refresh once. */
-  const onLoadError = () => {
-    if (loadState !== "ok") return setLoadState("failed");
-    setLoadState("retrying");
-    router.refresh();
-  };
+  /** The photo didn't load (usually a signed URL that expired while the page sat open): see viewerLoadStep. */
+  const onLoadError = () => onLoadEvent({ type: "error" });
 
   const created = new Date(media.createdAt);
   const lineageLabel = (details.jobType && LINEAGE_LABEL[details.jobType]) ?? "Made from";
@@ -311,11 +318,10 @@ export function MediaViewer({
           onZoomChange={setZoom}
           onSwipe={goTo}
           loadState={loadState}
+          loadKey={load.key}
           onLoadError={onLoadError}
-          onRetry={() => {
-            setLoadState("retrying");
-            router.refresh();
-          }}
+          onLoaded={() => onLoadEvent({ type: "loaded" })}
+          onRetry={() => onLoadEvent({ type: "retry" })}
         >
           {media.hidden && (
             <Badge variant="secondary" className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm">
@@ -341,7 +347,12 @@ export function MediaViewer({
               {media.isFavorite ? "Favorited" : "Favorite"}
             </Button>
             <Button asChild variant="outline">
-              <a href={media.downloadUrl} download onClick={(e) => void download(e)} aria-busy={downloading || undefined}>
+              <a
+                href={media.downloadUrl}
+                download
+                onClick={(e) => void download(e)}
+                aria-busy={downloading || undefined}
+              >
                 {downloading ? (
                   <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
                 ) : (
@@ -350,7 +361,12 @@ export function MediaViewer({
                 {t("common.download")}
               </a>
             </Button>
-            <Button type="button" variant="outline" onClick={() => setShareOpen(true)} aria-describedby="viewer-cost-share">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShareOpen(true)}
+              aria-describedby="viewer-cost-share"
+            >
               <Share2Icon aria-hidden="true" />
               {t("common.share")}
               <CostTag credits={0} />
@@ -371,14 +387,20 @@ export function MediaViewer({
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/app/video?mediaId=${encodeURIComponent(media.id)}`} aria-describedby="viewer-cost-video">
+                  <Link
+                    href={`/app/video?mediaId=${encodeURIComponent(media.id)}`}
+                    aria-describedby="viewer-cost-video"
+                  >
                     <ClapperboardIcon aria-hidden="true" />
                     Make video
                     <CostTag credits={VIEWER_TOOL_COSTS.video} from />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/app/try-on?mediaId=${encodeURIComponent(media.id)}`} aria-describedby="viewer-cost-try-on">
+                  <Link
+                    href={`/app/try-on?mediaId=${encodeURIComponent(media.id)}`}
+                    aria-describedby="viewer-cost-try-on"
+                  >
                     <ShirtIcon aria-hidden="true" />
                     Try on
                     <CostTag credits={VIEWER_TOOL_COSTS.tryOn} />

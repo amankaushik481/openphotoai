@@ -30,6 +30,7 @@ export function checkoutConfirmation({
   initialPlan,
   openedAt,
   now,
+  since,
 }: {
   /** Newest-first ledger page. */
   ledger: readonly CreditLedgerEntryDTO[];
@@ -39,12 +40,25 @@ export function checkoutConfirmation({
   /** ms epoch when the page opened. */
   openedAt: number;
   now: number;
+  /**
+   * When this checkout was created (server ms epoch, carried in the success URL as `since`). Only
+   * payments from then on count, so a purchase finished a few minutes earlier isn't mistaken for
+   * this one. Without it (older links), anything from RECENT_PAYMENT_MS before the page opened counts.
+   */
+  since?: number | null;
 }): CheckoutConfirmation {
-  const since = openedAt - RECENT_PAYMENT_MS;
-  const recent = ledger.filter((e) => PAYMENT_REASONS.has(e.reason) && Date.parse(e.createdAt) >= since && e.delta > 0);
+  const from = since ?? openedAt - RECENT_PAYMENT_MS;
+  const recent = ledger.filter((e) => PAYMENT_REASONS.has(e.reason) && Date.parse(e.createdAt) >= from && e.delta > 0);
   const planChanged = plan !== initialPlan;
   if (recent.length > 0 || planChanged) {
     return { state: "confirmed", credits: recent.reduce((sum, e) => sum + e.delta, 0), planChanged };
   }
   return now - openedAt >= CONFIRM_FAST_FOR_MS ? { state: "delayed" } : { state: "confirming" };
+}
+
+/** `since` from the success URL: a plausible recent server timestamp, else null (fall back to the window). */
+export function parseCheckoutSince(raw: string | string[] | undefined, now = Date.now()): number | null {
+  if (typeof raw !== "string" || !/^\d{10,16}$/.test(raw)) return null;
+  const t = Number(raw);
+  return t <= now + 60_000 && t >= now - 24 * 60 * 60_000 ? t : null;
 }

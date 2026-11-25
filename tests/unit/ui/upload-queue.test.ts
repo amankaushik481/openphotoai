@@ -5,7 +5,12 @@ const file = (name: string) => new File([new Uint8Array([1, 2, 3])], name, { typ
 
 /** A controllable upload: each call waits until resolved/rejected by the test. */
 function deferredUploads<T>() {
-  const calls: { name: string; resolve: (v: T) => void; reject: (e: unknown) => void; progress: (f: number) => void }[] = [];
+  const calls: {
+    name: string;
+    resolve: (v: T) => void;
+    reject: (e: unknown) => void;
+    progress: (f: number) => void;
+  }[] = [];
   const upload: UploadQueueHandlers<T>["upload"] = (f, control) =>
     new Promise<T>((resolve, reject) => {
       calls.push({ name: f.name, resolve, reject, progress: control.progress });
@@ -52,7 +57,11 @@ describe("UploadQueue", () => {
     await flush();
     calls[0]!.reject(Object.assign(new Error("blurry"), { details: { quality: { issues: [] } } }));
     await flush();
-    expect(queue.getSnapshot()[0]).toMatchObject({ status: "error", error: "nope: blurry", errorDetails: { quality: { issues: [] } } });
+    expect(queue.getSnapshot()[0]).toMatchObject({
+      status: "error",
+      error: "nope: blurry",
+      errorDetails: { quality: { issues: [] } },
+    });
     expect(queue.pending).toBe(0);
 
     queue.retry(id!);
@@ -139,5 +148,38 @@ describe("UploadQueue", () => {
     expect(firstMount).not.toHaveBeenCalled();
     expect(secondMount.mock.calls.map((c) => c[0])).toEqual(["A", "B"]);
     expect(queue.getSnapshot().map((i) => i.status)).toEqual(["done", "done"]);
+  });
+  // Regression: the "leave page?" prompt lived in the dropzone, so after leaving the photos step (the
+  // shared queue keeps uploading) a reload or tab close dropped the remaining files without asking.
+  it("the queue itself guards page unload while files are in flight, even with no component mounted", async () => {
+    const listeners = new Set<(e: BeforeUnloadEvent) => void>();
+    vi.stubGlobal("window", {
+      addEventListener: (type: string, fn: (e: BeforeUnloadEvent) => void) =>
+        type === "beforeunload" && listeners.add(fn),
+      removeEventListener: (type: string, fn: (e: BeforeUnloadEvent) => void) =>
+        type === "beforeunload" && listeners.delete(fn),
+    });
+    try {
+      const { queue } = newQueue<string>();
+      const { calls, upload } = deferredUploads<string>();
+      queue.setHandlers({ upload, concurrency: 1 });
+      expect(listeners.size).toBe(0);
+      queue.add([file("a.jpg"), file("b.jpg")]);
+      expect(listeners.size).toBe(1);
+
+      const event = { preventDefault: vi.fn(), returnValue: "x" } as unknown as BeforeUnloadEvent;
+      for (const fn of listeners) fn(event);
+      expect(event.preventDefault).toHaveBeenCalled();
+
+      await flush();
+      calls[0]!.resolve("A");
+      await flush();
+      expect(listeners.size).toBe(1); // b.jpg is still uploading
+      calls[1]!.resolve("B");
+      await flush();
+      expect(listeners.size).toBe(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

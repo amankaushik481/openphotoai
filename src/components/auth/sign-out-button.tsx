@@ -4,6 +4,7 @@ import { Loader2, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type ComponentProps } from "react";
 import { toast } from "sonner";
+import { clearViewerStorage } from "@/components/create/use-stored";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
 
@@ -24,6 +25,7 @@ export function SignOutButton({ redirectTo = "/", children, disabled, ...props }
       toast.error(error.message || "Couldn't sign out. Please try again.");
       return;
     }
+    clearViewerStorage();
     router.replace(redirectTo);
     router.refresh();
   }

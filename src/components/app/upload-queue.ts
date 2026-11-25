@@ -146,7 +146,30 @@ export class UploadQueue<T = unknown> {
 
   private set(items: readonly UploadItem<T>[]): void {
     this.items = items;
+    this.syncUnloadGuard();
     for (const listener of [...this.listeners]) listener();
+  }
+
+  /**
+   * Ask before a full page unload while files are queued or uploading: they would be lost. The queue
+   * owns this (not the component showing it), so a shared queue that keeps uploading after its
+   * dropzone unmounts still warns on reload / tab close.
+   */
+  private unloadGuard: ((e: BeforeUnloadEvent) => void) | null = null;
+  private syncUnloadGuard(): void {
+    if (typeof window === "undefined" || typeof window.addEventListener !== "function") return;
+    const busy = this.items.some(isInFlight);
+    if (busy && !this.unloadGuard) {
+      this.unloadGuard = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        // Older browsers need returnValue set to show the prompt.
+        e.returnValue = "";
+      };
+      window.addEventListener("beforeunload", this.unloadGuard);
+    } else if (!busy && this.unloadGuard) {
+      window.removeEventListener("beforeunload", this.unloadGuard);
+      this.unloadGuard = null;
+    }
   }
 
   private patch(id: string, update: Partial<UploadItem<T>>): void {

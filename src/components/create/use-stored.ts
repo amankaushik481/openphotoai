@@ -53,3 +53,52 @@ export function writeStored<T>(area: Area, key: string, value: T, serialize: (va
     // Quota exceeded or blocked: keep the in-memory copy only.
   }
 }
+
+/** Every per-viewer key this app writes to browser storage starts with this. */
+export const VIEWER_STORAGE_PREFIX = "openshoot:";
+/** The account whose conveniences are in this browser's storage. */
+const VIEWER_OWNER_KEY = "openshoot:owner";
+
+/**
+ * Forget everything stored for the current viewer: remembered settings, this tab's results and
+ * unsent prompt, gallery return state (storage and the in-memory cache). Called on sign-out.
+ */
+export function clearViewerStorage(): void {
+  cache.clear();
+  for (const area of ["local", "session"] as const) {
+    const storage = storageOf(area);
+    if (!storage) continue;
+    try {
+      const keys: string[] = [];
+      for (let i = 0; i < storage.length; i++) {
+        const key = storage.key(i);
+        if (key?.startsWith(VIEWER_STORAGE_PREFIX)) keys.push(key);
+      }
+      for (const key of keys) storage.removeItem(key);
+    } catch {
+      // Blocked storage: nothing to clear.
+    }
+  }
+}
+
+/**
+ * Make `userId` the owner of this browser's stored conveniences. When another account used this
+ * browser last (a shared computer, a sign-in without signing out first), its prompt, results and
+ * settings are cleared before anything reads them.
+ */
+export function claimViewerStorage(userId: string): void {
+  const storage = storageOf("local");
+  let owner: string | null = null;
+  try {
+    owner = storage?.getItem(VIEWER_OWNER_KEY) ?? null;
+  } catch {
+    owner = null;
+  }
+  if (owner === userId) return;
+  clearViewerStorage();
+  try {
+    storage?.setItem(VIEWER_OWNER_KEY, userId);
+  } catch {
+    // Blocked storage: nothing was stored for anyone either.
+  }
+}

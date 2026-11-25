@@ -21,7 +21,8 @@ export const SHORTCUTS: readonly ShortcutDef[] = [
   { keys: ["?"], label: "Show keyboard shortcuts" },
 ];
 
-export type ShortcutResult = { type: "navigate"; href: string } | { type: "help" } | { type: "prefix"; key: string } | null;
+export type ShortcutResult =
+  { type: "navigate"; href: string } | { type: "help" } | { type: "prefix"; key: string } | null;
 
 /** What a key press does after `prefix` (the pending first key of a sequence, if any). */
 export function matchShortcut(prefix: string | null, key: string): ShortcutResult {
@@ -39,11 +40,23 @@ export function matchShortcut(prefix: string | null, key: string): ShortcutResul
 }
 
 /** Keys typed into fields, editable content or widgets that use letters must never trigger shortcuts. */
-export function isTypingTarget(target: { tagName?: string; isContentEditable?: boolean; getAttribute?: (n: string) => string | null } | null): boolean {
+export function isTypingTarget(
+  target: { tagName?: string; isContentEditable?: boolean; getAttribute?: (n: string) => string | null } | null,
+): boolean {
   if (!target) return false;
   const tag = (target.tagName ?? "").toUpperCase();
   if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
   if (target.isContentEditable) return true;
   const role = target.getAttribute?.("role");
   return role === "textbox" || role === "combobox" || role === "searchbox" || role === "application";
+}
+
+/**
+ * Open overlays that own their keys: dialogs, confirm dialogs (Radix AlertDialog renders
+ * role="alertdialog"), menus and listboxes. Global shortcuts stay quiet while one is open.
+ */
+export const OVERLAY_SELECTOR = "[role=dialog], [role=alertdialog], [role=menu], [role=listbox]";
+
+export function isOverlayOpen(doc: Pick<Document, "querySelector">): boolean {
+  return doc.querySelector(OVERLAY_SELECTOR) !== null;
 }
