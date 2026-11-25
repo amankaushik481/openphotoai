@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { CreditCardIcon, LogOutIcon, MonitorIcon, MoonIcon, SettingsIcon, ShieldIcon, SunIcon } from "lucide-react";
+import { CreditCardIcon, KeyboardIcon, LogOutIcon, MonitorIcon, MoonIcon, SettingsIcon, ShieldIcon, SunIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OPEN_SHORTCUTS_EVENT } from "@/components/layout/shortcuts";
+import { Kbd } from "@/components/ui/kbd";
 import { useT } from "@/i18n/react";
 
 export interface ShellUser {
@@ -35,7 +37,8 @@ export function initials(name: string, email: string): string {
   return letters.toUpperCase();
 }
 
-export function UserMenu({ user }: { user: ShellUser }) {
+/** `shortcuts`: offer the keyboard-shortcuts dialog (the shell that mounts <KeyboardShortcuts />). */
+export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcuts?: boolean }) {
   const t = useT();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -85,6 +88,18 @@ export function UserMenu({ user }: { user: ShellUser }) {
             {t("nav.billing")}
           </Link>
         </DropdownMenuItem>
+        {shortcuts && (
+          // Keyboard users only: phones and tablets have no use for it.
+          <DropdownMenuItem
+            className="hidden pointer-fine:flex"
+            // After the menu has closed and returned focus, so the dialog keeps it.
+            onSelect={() => window.setTimeout(() => window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT)), 0)}
+          >
+            <KeyboardIcon />
+            Keyboard shortcuts
+            <Kbd className="ml-auto">?</Kbd>
+          </DropdownMenuItem>
+        )}
         {user.isAdmin && (
           <DropdownMenuItem asChild>
             <Link href="/admin">

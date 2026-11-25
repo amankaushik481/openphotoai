@@ -5,6 +5,7 @@ import { DemoUserBanner } from "@/components/demo/demo-user-banner";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { DemoModeBanner } from "@/components/layout/demo-mode-banner";
+import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SkipLink } from "@/components/layout/skip-link";
 import { SwrProvider } from "@/components/providers/swr-provider";
@@ -40,6 +41,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
           </main>
         </div>
         <MobileBottomNav isAdmin={isAdmin} className="md:hidden" />
+        <KeyboardShortcuts />
       </div>
     </SwrProvider>
   );
