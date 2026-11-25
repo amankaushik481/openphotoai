@@ -5,6 +5,8 @@ import Link from "next/link";
 import useSWR from "swr";
 import {
   ArrowRightIcon,
+  CheckIcon,
+  ShieldCheckIcon,
   ClapperboardIcon,
   CoinsIcon,
   ImagesIcon,
@@ -21,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/app/empty-state";
 import { MediaGrid } from "@/components/app/media-grid";
+import { ONBOARDING_STEPS, onboardingState, type OnboardingState, type OnboardingStepId } from "@/components/app/onboarding";
 import { useMe } from "@/hooks/use-me";
 import { useModels } from "@/hooks/use-models";
 import { ApiClientError, api, fetcher } from "@/lib/api-client";
@@ -44,12 +47,14 @@ export function DashboardOverview() {
   const t = useT();
   const { user, isLoading: meLoading } = useMe();
   const { models, isLoading: modelsLoading } = useModels();
+  const { data: recent } = useRecentMedia();
   const readyModels = models?.filter((m) => m.status === "ready" && !m.shared).length ?? 0;
   const hasModels = (models?.filter((m) => !m.shared).length ?? 0) > 0;
+  const onboarding = onboardingState(models, recent ? recent.media.length > 0 : undefined);
 
   return (
     <div className="flex flex-col gap-10">
-      {!modelsLoading && models && !hasModels && <CreateModelCta />}
+      {onboarding && <OnboardingCard state={onboarding} />}
 
       <section aria-label={t("credits.label")} className="grid gap-4 sm:grid-cols-2">
         <StatCard
@@ -107,30 +112,86 @@ export function DashboardOverview() {
         </ul>
       </section>
 
-      <RecentMedia />
+      {/* While the first-run card is up it holds the one next action; the empty grid doesn't repeat it. */}
+      <RecentMedia showCreateAction={!onboarding} />
     </div>
   );
 }
 
-function CreateModelCta() {
+const ONBOARDING_TITLES: Record<OnboardingStepId, string> = {
+  model: "Create your model",
+  photos: "Pick up where you left off",
+  train: "Your model is training",
+  create: "Time for your first shoot",
+};
+
+/** First-run path: where the user stands, the one next action, and why consent matters. */
+function OnboardingCard({ state }: { state: OnboardingState }) {
   const t = useT();
+  const title = state.step === "model" && state.model ? ONBOARDING_TITLES.photos : ONBOARDING_TITLES[state.step];
   return (
-    <section className="border-brand-gradient grain relative overflow-hidden rounded-2xl p-6 sm:p-8">
+    <section aria-labelledby="onboarding-title" className="border-brand-gradient grain relative overflow-hidden rounded-2xl p-5 sm:p-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-24 -right-24 -z-10 size-72 rounded-full bg-brand-gradient opacity-20 blur-3xl"
       />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="max-w-xl">
-          <h2 className="font-display text-3xl leading-tight">{t("dashboard.createModelTitle")}</h2>
-          <p className="mt-2 text-sm text-muted-foreground sm:text-base">{t("dashboard.createModelBody")}</p>
-        </div>
-        <Button asChild variant="brand" size="lg" className="shrink-0">
-          <Link href="/app/models/new">
-            <ScanFaceIcon />
-            {t("dashboard.createModelCta")}
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs font-semibold tracking-wider text-primary uppercase">
+          Get started · step {state.current + 1} of {ONBOARDING_STEPS.length}
+        </p>
+        <h2 id="onboarding-title" className="font-display text-3xl leading-tight">
+          {title}
+        </h2>
+        <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+          {state.status ?? t("dashboard.createModelBody")}
+        </p>
+      </div>
+
+      <ol className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Your first steps">
+        {ONBOARDING_STEPS.map((step, i) => {
+          const done = i < state.current;
+          const active = i === state.current;
+          return (
+            <li
+              key={step.id}
+              aria-current={active ? "step" : undefined}
+              className={cn(
+                "flex gap-3 rounded-xl border p-3 transition-colors",
+                active ? "border-primary/50 bg-card shadow-xs" : "border-transparent bg-card/50",
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                  done ? "bg-success text-success-foreground" : active ? "bg-brand-gradient text-white" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {done ? <CheckIcon className="size-4" /> : i + 1}
+              </span>
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className={cn("text-sm font-medium", !done && !active && "text-muted-foreground")}>
+                  {step.title}
+                  <span className="sr-only">{done ? " (done)" : active ? " (next)" : ""}</span>
+                </span>
+                <span className="text-xs text-muted-foreground">{step.body}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
+          <Link href={state.cta.href}>
+            {state.step === "create" ? <SparklesIcon /> : <ScanFaceIcon />}
+            {state.cta.label}
           </Link>
         </Button>
+        <p className="flex items-start gap-2 text-xs text-muted-foreground sm:max-w-sm">
+          <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+          Private by design: models need the live consent of the person in them, and you can delete yours any time.
+        </p>
       </div>
     </section>
   );
@@ -168,14 +229,19 @@ function StatCard({
   );
 }
 
-function RecentMedia() {
-  const t = useT();
-  const { data, error, isLoading, mutate } = useSWR<{ media: MediaDTO[]; nextCursor: string | null }>(
+/** The newest media (shared by the recent grid and the first-run card). */
+function useRecentMedia() {
+  return useSWR<{ media: MediaDTO[]; nextCursor: string | null }>(
     RECENT_KEY,
     fetcher,
     // A missing route (404) or empty gallery is not worth retrying.
     { shouldRetryOnError: (err) => !(err instanceof ApiClientError && err.status < 500), revalidateOnFocus: false },
   );
+}
+
+function RecentMedia({ showCreateAction }: { showCreateAction: boolean }) {
+  const t = useT();
+  const { data, error, isLoading, mutate } = useRecentMedia();
   const media = data?.media ?? [];
 
   async function toggleFavorite(item: MediaDTO, next: boolean) {
@@ -203,12 +269,14 @@ function RecentMedia() {
       title={t("dashboard.recentEmptyTitle")}
       description={t("dashboard.recentEmptyBody")}
       action={
-        <Button asChild variant="brand">
-          <Link href="/app/create">
-            <SparklesIcon />
-            {t("dashboard.actions.create")}
-          </Link>
-        </Button>
+        showCreateAction ? (
+          <Button asChild variant="brand">
+            <Link href="/app/create">
+              <SparklesIcon />
+              {t("dashboard.actions.create")}
+            </Link>
+          </Button>
+        ) : undefined
       }
     />
   );
