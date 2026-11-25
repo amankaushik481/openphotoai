@@ -70,6 +70,14 @@ const MODES: { value: CreateMode; label: string; icon: typeof TypeIcon }[] = [
 
 const NEXT_PATH = "/app/create";
 
+/** One-tap starters for an empty prompt (the helper's "Improve" makes them detailed). */
+const PROMPT_STARTERS = [
+  "Professional headshot, modern office",
+  "Golden hour on a rooftop",
+  "Candid in a cozy café",
+  "Hiking in the mountains",
+] as const;
+
 export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial }: CreateStudioProps) {
   const t = useT();
   const formId = React.useId();
@@ -220,6 +228,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
               modelId={modelId}
               required
               label="Describe your photo"
+              starters={PROMPT_STARTERS}
               onSubmitShortcut={() => void onSubmit()}
             />
           </TabsContent>
