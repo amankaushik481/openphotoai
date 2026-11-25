@@ -7,6 +7,7 @@ import { BrushIcon, EyeIcon, PencilLineIcon, SparklesIcon, WandSparklesIcon } fr
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnhancePanel } from "@/components/enhance/enhance-panel";
+import { useExpiredMediaRefresh } from "@/components/gallery/use-expired-media-refresh";
 import type { MediaDTO } from "@/types/domain";
 import { scrollBehavior } from "@/lib/a11y";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,10 @@ export function EditStudio({ media, initialTab = "edit" }: EditStudioProps) {
   const [chosenId, setChosenId] = React.useState<string | null>(null);
   const painter = React.useRef<MaskPainterHandle>(null);
   const previewRef = React.useRef<HTMLDivElement>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const { jobs, add } = useSessionJobs();
+  // A long editing session outlives the photo's signed URL: reload the page data if it stops loading.
+  useExpiredMediaRefresh(rootRef);
 
   // The comparison shows the user's pick, else the newest finished result (new jobs reset the pick).
   const results = React.useMemo(
@@ -79,7 +83,7 @@ export function EditStudio({ media, initialTab = "edit" }: EditStudioProps) {
   const altText = media.prompt ? `Your photo: ${media.prompt.slice(0, 120)}` : "Your photo";
 
   return (
-    <div className="flex flex-col gap-10">
+    <div ref={rootRef} className="flex flex-col gap-10">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)] lg:items-start">
         <div ref={previewRef} className="flex scroll-mt-20 flex-col gap-3 lg:sticky lg:top-6">
           {brushMounted && (
