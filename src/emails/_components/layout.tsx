@@ -11,7 +11,13 @@ export interface EmailLayoutProps {
   children: ReactNode;
 }
 
-/** Shared frame for every transactional email: wordmark, brand bar, content card, legal footer. Light + dark. */
+/** Our own film stock's edge print (never a real manufacturer's). */
+const EDGE_PRINT = `${APP.name.toUpperCase()} 400 · SAFETY FILM`;
+
+/**
+ * Shared frame for every transactional email: the serif wordmark in ink, the message as a print on paper,
+ * a film-rebate edge print, and the legal footer. Light + dark.
+ */
 export function EmailLayout({ preview, reason, children }: EmailLayoutProps) {
   return (
     <Html lang="en" dir="ltr">
@@ -32,10 +38,18 @@ export function EmailLayout({ preview, reason, children }: EmailLayoutProps) {
                 {APP.name}
               </Text>
             </Section>
+            {/* The print: raised paper, a hairline edge, square corners. */}
             <Section style={styles.card} className={ec.card}>
-              {/* Safelight accent bar. */}
-              <div style={styles.bar} />
               <div style={styles.cardBody}>{children}</div>
+            </Section>
+            {/* Edge print: a strip of film rebate, as along the bottom of a contact sheet. Visual only. */}
+            <Section style={styles.film} className={ec.film} data-skip-in-text="true">
+              <div style={styles.sprockets} />
+              <Text style={styles.edgePrint}>
+                {EDGE_PRINT}
+                <span style={styles.edgeMark}> ▸ 01</span>
+              </Text>
+              <div style={styles.sprockets} />
             </Section>
             <Section style={styles.footer}>
               <Text style={styles.footerText} className={ec.muted}>
@@ -71,23 +85,33 @@ const styles = {
   container: { maxWidth: "560px", width: "100%", margin: "0 auto", padding: "0 12px" },
   header: { padding: "8px 8px 16px" },
   wordmark: {
-    color: t.brand,
+    color: t.text,
     fontFamily: t.displayFontFamily,
-    fontSize: "28px",
+    fontSize: "30px",
     fontWeight: 400,
     letterSpacing: "-0.01em",
-    lineHeight: "32px",
+    lineHeight: "34px",
     margin: 0,
   },
   card: {
     backgroundColor: t.card,
     border: `1px solid ${t.border}`,
-    borderRadius: "12px",
-    overflow: "hidden",
+    borderRadius: "2px",
   },
-  bar: { height: "4px", lineHeight: "4px", fontSize: "1px", backgroundColor: t.brand, backgroundImage: t.gradient },
-  cardBody: { padding: "28px 24px" },
-  footer: { padding: "20px 8px 0" },
+  cardBody: { padding: "32px 28px 28px" },
+  film: { backgroundColor: t.film, padding: "2px 14px", margin: "0" },
+  // Sprocket holes: a dashed rule (fluid width, no images, supported by every mail client).
+  sprockets: { borderTop: `4px dashed ${t.filmMuted}`, height: 0, lineHeight: 0, fontSize: 0, margin: "4px 0" },
+  edgePrint: {
+    color: t.filmText,
+    fontFamily: t.monoFontFamily,
+    fontSize: "10px",
+    letterSpacing: "0.2em",
+    lineHeight: "16px",
+    margin: "2px 0",
+  },
+  edgeMark: { color: "#f8664a" },
+  footer: { padding: "18px 8px 0" },
   footerText: { color: t.muted, fontSize: "12px", lineHeight: "18px", margin: "0 0 6px" },
   footerLink: { color: t.muted, textDecoration: "underline" },
 } satisfies Record<string, CSSProperties>;

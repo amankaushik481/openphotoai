@@ -10,28 +10,36 @@ export const emailTheme = {
   brand: "#c4280f",
   brandText: "#ffffff",
   danger: "#9f1c12",
+  /** Ink on paper. */
   text: "#16140f",
   muted: "#5c554b",
-  border: "#e2dccf",
+  /** Hairlines: ink at ~14% on paper. */
+  border: "#ddd5c8",
   page: "#f1ece3",
-  card: "#ffffff",
-  calloutBg: "#f6f1e8",
-  /** Top accent bar: solid safelight (no gradients in the darkroom). */
-  gradient: "none",
+  /** Raised paper (the print). */
+  card: "#fbf8f2",
+  calloutBg: "#efe8dc",
+  /** The film rebate along the footer: dark in both palettes. */
+  film: "#16140f",
+  filmText: "#d8cfc1",
+  filmMuted: "#8f8676",
   fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-  /** The app's display face (Instrument Serif) isn't available in mail clients: a close system serif. */
+    '"Schibsted Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  /** The app's display face (Instrument Serif) isn't available in most mail clients: a close system serif. */
   displayFontFamily: '"Instrument Serif", Georgia, "Times New Roman", serif',
+  /** Edge print, labels and figures. */
+  monoFontFamily: '"IBM Plex Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
 } as const;
 
 export const emailDarkTheme = {
   text: "#eee7db",
   muted: "#a39a8c",
-  border: "#292724",
+  border: "#2f2b26",
   page: "#0e0d0b",
   card: "#181613",
   link: "#f8664a",
-  calloutBg: "#3a1a12",
+  calloutBg: "#211e1a",
+  film: "#060605",
 } as const;
 
 /** Class names the dark stylesheet targets (inline styles stay the light default). */
@@ -44,6 +52,7 @@ export const ec = {
   wordmark: "os-wordmark",
   callout: "os-callout",
   rule: "os-rule",
+  film: "os-film",
 } as const;
 
 const d = emailDarkTheme;
@@ -53,9 +62,10 @@ const DARK_RULES: [className: string, declarations: string][] = [
   [ec.text, `color:${d.text}!important`],
   [ec.muted, `color:${d.muted}!important`],
   [ec.link, `color:${d.link}!important`],
-  [ec.wordmark, `color:${d.link}!important`],
+  [ec.wordmark, `color:${d.text}!important`],
   [ec.callout, `background-color:${d.calloutBg}!important`],
   [ec.rule, `border-color:${d.border}!important`],
+  [ec.film, `background-color:${d.film}!important`],
 ];
 
 const css = (prefix: string) => DARK_RULES.map(([cls, decl]) => `${prefix}.${cls}{${decl}}`).join("\n");
