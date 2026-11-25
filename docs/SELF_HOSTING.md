@@ -32,7 +32,9 @@ Rules enforced at startup in production (`NODE_ENV=production`, which both Verce
 - `BETTER_AUTH_SECRET` must be at least 32 characters, have some variety, and not be a published placeholder.
 - A real AI provider requires real payments **and** real email. Mock checkout would hand out free credits spent on
   your AI account, and the public dev mailbox would expose sign-in links. An all-mock deployment (a demo) is allowed
-  and shows a "Demo mode" banner.
+  and shows a "Demo mode" banner. Its `/dev/emails` mailbox is public, so anyone can sign in as any account there:
+  treat demo accounts as public. Mail to admins (`ADMIN_EMAILS` and every account with the admin role) is never shown
+  in that mailbox, so admins of a demo deployment sign in with Google (or configure real email).
 - A real AI provider requires real safety providers: `FACE_PROVIDER` and `MODERATION_PROVIDER` can't be `mock`
   (they default to `local`, which needs no keys).
 - Each selected provider needs its keys (for example `AI_PROVIDER=replicate` needs `REPLICATE_API_TOKEN` and
