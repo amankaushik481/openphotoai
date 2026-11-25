@@ -6,7 +6,7 @@
 /* Skeleton: a sheet of paper with a slow sheen passing over it. */
 /* The element itself is positioned and clipped by the component (Tailwind classes), so callers can
    still make it `absolute` without fighting this unlayered rule. */
-.shimmer::after {
+.os-shimmer::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -20,9 +20,9 @@
     color-mix(in oklab, var(--card) 75%, transparent) 50%,
     transparent 80%
   );
-  animation: shimmer 1.8s ease-in-out infinite;
+  animation: os-shimmer 1.8s ease-in-out infinite;
 }
-@keyframes shimmer {
+@keyframes os-shimmer {
   to {
     transform: translateX(100%);
   }
@@ -32,10 +32,10 @@
  * A print developing in the tray: the frame arrives as a negative and slowly turns positive.
  * Runs once when the element mounts (new results only).
  */
-.develop {
-  animation: develop 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) both;
+.os-develop {
+  animation: os-develop 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) both;
 }
-@keyframes develop {
+@keyframes os-develop {
   0% {
     filter: invert(1) grayscale(1) contrast(0.7) brightness(0.9);
     opacity: 0.35;
@@ -50,11 +50,16 @@
   }
 }
 
-/* A frame still in the tray: a faint negative that breathes under the safelight. */
-.latent {
-  animation: latent 2.4s ease-in-out infinite;
+/* Every photo that mounts inside develops once (results arriving in a grid). */
+.os-develop-images img {
+  animation: os-develop 1.6s cubic-bezier(0.3, 0.1, 0.2, 1) both;
 }
-@keyframes latent {
+
+/* A frame still in the tray: a faint negative that breathes under the safelight. */
+.os-latent {
+  animation: os-latent 2.4s ease-in-out infinite;
+}
+@keyframes os-latent {
   0%,
   100% {
     opacity: 0.55;
@@ -65,39 +70,40 @@
 }
 
 /* Darkroom timer colon / "recording" lamp: a slow blink. */
-.blink {
-  animation: blink 1s steps(1, end) infinite;
+.os-blink {
+  animation: os-blink 1s steps(1, end) infinite;
 }
-@keyframes blink {
+@keyframes os-blink {
   50% {
     opacity: 0.25;
   }
 }
 
 /* Grease-pencil stroke drawn on once (set `pathLength="1"` on the path). */
-.draw {
+.os-draw {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: draw 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s forwards;
+  animation: os-draw 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s forwards;
 }
-@keyframes draw {
+@keyframes os-draw {
   to {
     stroke-dashoffset: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shimmer::after,
-  .latent,
-  .blink {
+  .os-shimmer::after,
+  .os-latent,
+  .os-blink {
     animation: none;
   }
-  .develop {
+  .os-develop,
+  .os-develop-images img {
     animation: none;
     filter: none;
     opacity: 1;
   }
-  .draw {
+  .os-draw {
     animation: none;
     stroke-dashoffset: 0;
   }

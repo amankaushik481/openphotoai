@@ -4,7 +4,22 @@
  */
 import { cn } from "@/lib/utils";
 
-import styles from "./darkroom.module.css";
+import "./darkroom.css";
+
+/**
+ * Class names of the darkroom motion in `./darkroom.css` (global, `os-` prefixed; every one is off under
+ * reduced motion): `develop` turns a frame from negative to positive once, `developImages` does it for
+ * every <img> inside, `latent` breathes, `blink` is the timer/lamp blink, `draw` draws a grease-pencil
+ * stroke on once (`pathLength={1}`), `shimmer` is the skeleton sheen.
+ */
+export const darkroomMotion = {
+  develop: "os-develop",
+  developImages: "os-develop-images",
+  latent: "os-latent",
+  blink: "os-blink",
+  draw: "os-draw",
+  shimmer: "os-shimmer",
+} as const;
 
 /**
  * Viewfinder crop marks in the four corners of the nearest positioned ancestor.
@@ -51,7 +66,7 @@ export function GreasePencilCircle({ className, still = false }: { className?: s
         strokeWidth={2.5}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        className={still ? undefined : styles.draw}
+        className={still ? undefined : darkroomMotion.draw}
       />
     </svg>
   );
@@ -75,7 +90,7 @@ export function GreasePencilCross({ className, still = false }: { className?: st
         strokeWidth={2.75}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        className={still ? undefined : styles.draw}
+        className={still ? undefined : darkroomMotion.draw}
       />
     </svg>
   );
@@ -122,4 +137,3 @@ export function Sprockets({ className }: { className?: string }) {
   );
 }
 
-export const darkroomMotion = styles;
