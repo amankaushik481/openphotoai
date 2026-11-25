@@ -186,6 +186,27 @@ describe("train completion", () => {
   });
 });
 
+describe("model deletion racing a training completion", () => {
+  it("deletes the provider weights a completion stored between the deletion's read and its update", async () => {
+    // Stand-in for the completion's transaction committing in that window (a trigger, so it's deterministic).
+    await db.execute(
+      sql.raw(`create function sim_late_ready() returns trigger language plpgsql as $$
+        begin
+          if new.status = 'deleting' and old.provider_model_ref is null then
+            new.provider := 'fal';
+            new.provider_model_ref := '${LORA_URL}';
+          end if;
+          return new;
+        end $$`),
+    );
+    await db.execute(sql.raw(`create trigger sim_late_ready before update on identity_models for each row execute function sim_late_ready()`));
+    const { deleteModelCompletely } = await import("@/server/models/service");
+    const result = await deleteModelCompletely(u.id, model.id, { notify: false });
+    expect(fal.deleteModel).toHaveBeenCalledWith(LORA_URL);
+    expect(result.providerDeleted).toBe(true);
+  });
+});
+
 describe("finalization lease heartbeat", () => {
   afterEach(() => vi.useRealTimers());
 
