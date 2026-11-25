@@ -33,7 +33,7 @@ export function EmailLayout({ preview, reason, children }: EmailLayoutProps) {
               </Text>
             </Section>
             <Section style={styles.card} className={ec.card}>
-              {/* Brand gradient bar; a solid violet where gradients aren't supported. */}
+              {/* Safelight accent bar. */}
               <div style={styles.bar} />
               <div style={styles.cardBody}>{children}</div>
             </Section>
