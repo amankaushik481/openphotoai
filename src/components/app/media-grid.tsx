@@ -76,7 +76,7 @@ export function MediaGrid({
   };
 
   const hiddenBar = onShowHiddenChange && hiddenCount > 0 && (
-    <div className="mb-3 flex items-center justify-between gap-3 rounded-lg border bg-card px-3 py-2 text-sm">
+    <div className="mb-3 flex items-center justify-between gap-3 rounded-xs border border-foreground/15 bg-card px-3 py-2 text-sm">
       <span className="flex items-center gap-2 text-muted-foreground">
         <EyeOffIcon aria-hidden="true" className="size-4 shrink-0" />
         {t("media.hiddenCount", { count: hiddenCount })}
@@ -94,7 +94,7 @@ export function MediaGrid({
         <ul className={gridClass} style={gridStyle}>
           {Array.from({ length: skeletonCount }, (_, i) => (
             <li key={i} style={{ gridRowEnd: `span ${[5, 4, 6, 5, 4, 5, 6, 4][i % 8]}` }}>
-              <Skeleton className="size-full rounded-lg" />
+              <Skeleton className="size-full rounded-[1px]" />
             </li>
           ))}
         </ul>

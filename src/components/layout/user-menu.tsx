@@ -121,7 +121,7 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="mono-caps font-normal text-muted-foreground">{t("user.theme")}</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-mono text-[0.625rem] font-normal tracking-[0.16em] text-muted-foreground uppercase">{t("user.theme")}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={theme ?? "system"} onValueChange={setTheme}>
           <DropdownMenuRadioItem value="light">
             <SunIcon />

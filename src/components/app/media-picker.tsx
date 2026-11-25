@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import useSWRInfinite from "swr/infinite";
-import { HeartIcon, ImagesIcon, LoaderCircleIcon, RotateCwIcon, SparklesIcon } from "lucide-react";
+import { FilmIcon, HeartIcon, ImagesIcon, LoaderCircleIcon, RotateCwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -104,7 +104,7 @@ export function MediaPicker({ open, onOpenChange, onSelect, kind = "image", titl
   let body: React.ReactNode;
   if (error && items.length === 0) {
     body = (
-      <div role="alert" className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-4 py-10 text-center">
+      <div role="alert" className="flex flex-col items-center gap-3 rounded-xs border border-dashed border-foreground/25 px-4 py-10 text-center">
         <p className="text-sm text-muted-foreground">We couldn&apos;t load your {noun}s.</p>
         <Button variant="outline" size="sm" onClick={() => void mutate()}>
           <RotateCwIcon />
@@ -117,7 +117,7 @@ export function MediaPicker({ open, onOpenChange, onSelect, kind = "image", titl
       <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4" aria-busy="true" aria-label={`Loading ${noun}s`}>
         {Array.from({ length: 8 }, (_, i) => (
           <li key={i}>
-            <Skeleton className="aspect-square w-full rounded-lg" />
+            <Skeleton className="aspect-square w-full rounded-[1px]" />
           </li>
         ))}
       </ul>
@@ -138,7 +138,7 @@ export function MediaPicker({ open, onOpenChange, onSelect, kind = "image", titl
     ) : (
       <EmptyState
         size="sm"
-        icon={kind === "video" ? <ImagesIcon /> : <SparklesIcon />}
+        icon={kind === "video" ? <ImagesIcon /> : <FilmIcon />}
         title={`No ${noun}s yet`}
         description={
           kind === "video"

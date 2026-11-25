@@ -88,7 +88,7 @@ export function PackBrowser({ packs, initialQuery = "", initialCategory }: PackB
             <ToggleGroupItem
               key={c}
               value={c}
-              className="h-8 flex-none rounded-full border px-3 first:rounded-full last:rounded-full data-[state=on]:border-primary data-[state=on]:bg-brand-soft data-[state=on]:text-brand-soft-foreground"
+              className="h-8 flex-none rounded-xs border border-foreground/20 px-3 font-mono text-[0.6875rem] tracking-[0.12em] uppercase first:rounded-xs last:rounded-xs data-[state=on]:border-foreground data-[state=on]:bg-foreground data-[state=on]:text-background data-[state=on]:hover:bg-foreground data-[state=on]:hover:text-background pointer-coarse:h-10"
             >
               {c === "all" ? "All" : PACK_CATEGORY_LABELS[c]}
             </ToggleGroupItem>
@@ -96,7 +96,7 @@ export function PackBrowser({ packs, initialQuery = "", initialCategory }: PackB
         </ToggleGroup>
       </div>
 
-      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
+      <p role="status" aria-live="polite" className="border-b border-border pb-2 font-mono text-[0.6875rem] tracking-[0.14em] text-muted-foreground uppercase">
         {results.length === packs.length
           ? `${packs.length} packs`
           : `${results.length} ${plural(results.length, "pack")} of ${packs.length}`}
@@ -114,7 +114,7 @@ export function PackBrowser({ packs, initialQuery = "", initialCategory }: PackB
           }
         />
       ) : (
-        <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4">
           {results.map((pack, i) => (
             <li key={pack.slug}>
               <PackCard pack={pack} href={`/app/packs/${pack.slug}`} priority={i < 4} />

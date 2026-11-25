@@ -107,8 +107,8 @@ export function MediaCard({
       data-slot="media-card"
       data-selected={selected || undefined}
       className={cn(
-        "group relative isolate overflow-hidden rounded-lg bg-muted shadow-xs",
-        selected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        "group relative isolate overflow-hidden rounded-[1px] bg-darkroom ring-1 ring-foreground/10",
+        selected && "ring-2 ring-safelight-ink ring-offset-2 ring-offset-background",
         className,
       )}
       style={{ aspectRatio, ...style }}
@@ -117,11 +117,11 @@ export function MediaCard({
 
       {media.kind === "video" && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="flex size-10 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm">
+          <span className="flex size-10 items-center justify-center rounded-full bg-black/55 text-white">
             <PlayIcon aria-hidden="true" className="size-4 translate-x-px fill-current" />
           </span>
           {media.durationSec != null && (
-            <span className="absolute right-2 bottom-2 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white tabular-nums">
+            <span className="absolute right-2 bottom-2 rounded-xs bg-black/65 px-1.5 py-0.5 font-mono text-[11px] font-medium text-white tabular-nums">
               {formatDuration(media.durationSec)}
             </span>
           )}
@@ -133,20 +133,20 @@ export function MediaCard({
           <span
             aria-hidden="true"
             className={cn(
-              "flex size-6 items-center justify-center rounded-full border-2 border-white shadow transition-colors",
-              selected ? "bg-primary text-primary-foreground" : "bg-black/25",
+              "flex size-6 items-center justify-center rounded-xs border-2 border-white shadow transition-colors",
+              selected ? "bg-safelight text-white" : "bg-black/25",
             )}
           >
             {selected && <CheckIcon className="size-3.5" />}
           </span>
         )}
         {media.isDraft && (
-          <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">
+          <Badge variant="secondary" className="bg-background/90">
             {t("media.draft")}
           </Badge>
         )}
         {media.hidden && (
-          <Badge variant="secondary" className="bg-background/85 backdrop-blur-sm">
+          <Badge variant="secondary" className="bg-background/90">
             <EyeOffIcon aria-hidden="true" />
             {t("media.hidden")}
           </Badge>
@@ -163,12 +163,12 @@ export function MediaCard({
           className={cn(
             // Two-tone focus (background ring + ring-colored outline) reads on light and dark photos.
             // Touch: invisible 44px hit area around the 32px button.
-            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-opacity hover:bg-black/55 focus-visible:ring-2 focus-visible:ring-background pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5",
+            "absolute top-2 right-2 flex size-8 items-center justify-center rounded-xs bg-black/55 text-white transition-opacity hover:bg-black/70 focus-visible:ring-2 focus-visible:ring-background pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5",
             !media.isFavorite &&
               "pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100",
           )}
         >
-          <HeartIcon aria-hidden="true" className={cn("size-4", media.isFavorite && "fill-current text-rose-400")} />
+          <HeartIcon aria-hidden="true" className={cn("size-4", media.isFavorite && "fill-current text-darkroom-safelight")} />
         </button>
       )}
 

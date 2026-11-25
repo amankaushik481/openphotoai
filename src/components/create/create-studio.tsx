@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRightIcon, ImageIcon, LayersIcon, LoaderCircleIcon, SparklesIcon, TrashIcon, TypeIcon } from "lucide-react";
+import { ApertureIcon, ArrowRightIcon, FilmIcon, ImageIcon, LayersIcon, LoaderCircleIcon, TrashIcon, TypeIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -184,18 +184,27 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       aria-describedby={blockReason ? `${formId}-block-reason` : undefined}
       className={className}
     >
-      {submitting ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" />}
+      {submitting ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <ApertureIcon aria-hidden="true" />}
       {submitLabel}
     </Button>
   );
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,27rem)_minmax(0,1fr)]">
-      <form id={formId} onSubmit={onSubmit} noValidate aria-label="Create photos" className="flex flex-col gap-6">
-        <section className="flex flex-col gap-2 rounded-xl border bg-card p-4 shadow-xs">
+      {/* The studio control panel: numbered mono sections on one sheet of paper, hairlines between them. */}
+      <form
+        id={formId}
+        onSubmit={onSubmit}
+        noValidate
+        aria-label="Create photos"
+        className="flex flex-col self-start rounded-xs border border-foreground/15 bg-card"
+      >
+        <section className={panelSection}>
+          <PanelLabel no="01" label="Subject" />
           <ModelPicker
             value={modelId}
             includeShared={false}
+            hideLabel
             onValueChange={(id, m) => {
               setModelId(id);
               setModel(m);
@@ -210,8 +219,9 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
             setMode(v as CreateMode);
             setError(null);
           }}
-          className="gap-4 rounded-xl border bg-card p-4 shadow-xs"
+          className={cn(panelSection, "gap-4")}
         >
+          <PanelLabel no="02" label="Source" />
           <TabsList className="grid h-10 w-full grid-cols-3">
             {MODES.map(({ value, label, icon: Icon }) => (
               <TabsTrigger key={value} value={value} className="gap-1.5 px-1.5 text-xs sm:text-sm">
@@ -247,7 +257,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
                 <PackShotSelect slug={selectedPack.slug} value={packPromptIndex} onValueChange={setPackPromptIndex} />
                 <Link
                   href={`/app/packs/${selectedPack.slug}`}
-                  className="flex items-center gap-3 rounded-lg border border-dashed p-3 text-sm transition-colors hover:border-primary/40 hover:bg-accent/40"
+                  className="flex items-center gap-3 rounded-xs border border-dashed border-foreground/25 p-3 text-sm transition-colors hover:border-foreground/50 hover:bg-foreground/[0.03]"
                 >
                   <PackSwatch pack={selectedPack} className="size-8 text-base" />
                   <span className="min-w-0 flex-1">
@@ -282,7 +292,8 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
           </TabsContent>
         </Tabs>
 
-        <section className="flex flex-col gap-5 rounded-xl border bg-card p-4 shadow-xs" aria-label="Photo settings">
+        <section className={cn(panelSection, "gap-5")} aria-label="Photo settings">
+          <PanelLabel no="03" label="Exposure" />
           <AspectRatioPicker value={aspectRatio} onValueChange={setAspectRatio} />
           <CountPicker value={numImages} onValueChange={setNumImages} />
           <QualityControl value={quality} onValueChange={setQuality} mode={identityMode} draftsLeft={draftsLeft} />
@@ -295,8 +306,8 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
               if (kit) setAspectRatio(kit.aspectRatio);
             }}
           />
-          <details className="rounded-lg border px-3 py-2 text-sm">
-            <summary className="cursor-pointer rounded-sm font-medium select-none">
+          <details className="border-t border-border pt-3 text-sm">
+            <summary className="cursor-pointer rounded-xs font-mono text-[0.6875rem] font-medium tracking-[0.16em] text-muted-foreground uppercase select-none">
               Advanced
             </summary>
             <div className="mt-3 flex flex-col gap-2 pb-1">
@@ -317,28 +328,38 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
           </details>
         </section>
 
-        <ApiErrorAlert error={error} onDismiss={() => setError(null)} />
+        {error && (
+          <div className={panelSection}>
+            <ApiErrorAlert error={error} onDismiss={() => setError(null)} />
+          </div>
+        )}
 
-        <div className="flex flex-col gap-3">
-          <CostHint credits={cost} />
-          {submitButton("hidden w-full md:inline-flex")}
+        {/* Release: the cost as a meter readout beside the big safelight Generate button. */}
+        <div className={cn(panelSection, "gap-3 bg-background/50 dark:bg-transparent")}>
+          <div className="flex items-end gap-4">
+            <CostHint credits={cost} variant="readout" className="shrink-0" />
+            {submitButton("hidden h-14 flex-1 text-base md:inline-flex")}
+          </div>
           {blockReason && (
             <p id={`${formId}-block-reason`} className="text-sm text-muted-foreground" role="status">
               {blockReason}
             </p>
           )}
           <p className="hidden text-xs text-muted-foreground md:block">
-            Tip: press <kbd className="rounded border px-1 font-sans">Ctrl/⌘</kbd> +{" "}
-            <kbd className="rounded border px-1 font-sans">Enter</kbd> in the prompt to generate. Failed or blocked photos
-            are refunded automatically.
+            Tip: press <kbd className="rounded-xs border px-1 font-mono text-[0.6875rem]">Ctrl/⌘</kbd> +{" "}
+            <kbd className="rounded-xs border px-1 font-mono text-[0.6875rem]">Enter</kbd> in the prompt to generate. Failed
+            or blocked photos are refunded automatically.
           </p>
         </div>
       </form>
 
       <section ref={resultsRef} aria-labelledby={`${formId}-results`} className="flex scroll-mt-20 flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <h2 id={`${formId}-results`} className="text-lg font-semibold">
-            Results
+        <div className="flex items-end justify-between gap-3 border-b border-border pb-2">
+          <h2 id={`${formId}-results`} className="flex items-baseline gap-3">
+            <span aria-hidden="true" className="mono-caps text-safelight-ink">
+              The tray
+            </span>
+            <span className="font-display text-[1.75rem] leading-none">Results</span>
           </h2>
           {session.entries.length > 0 && (
             <Button type="button" variant="ghost" size="sm" onClick={session.clear}>
@@ -349,7 +370,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
         </div>
         {session.entries.length === 0 ? (
           <EmptyState
-            icon={<SparklesIcon />}
+            icon={<FilmIcon />}
             title={t("empty.createResults")}
             description={t("empty.createResultsBody")}
           />
@@ -376,8 +397,10 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       </section>
 
       <StickyActionBar>
-        <div className="flex min-w-0 flex-1 flex-col text-xs leading-tight">
-          <span className="font-semibold tabular-nums">{cost === 0 ? "Free" : `${cost} ${plural(cost, "credit")}`}</span>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-xs leading-tight">
+          <span className="font-mono text-base leading-none font-medium tabular-nums">
+            {cost === 0 ? "Free" : `${cost} ${plural(cost, "credit")}`}
+          </span>
           <span className={cn("text-muted-foreground", blockReason ? "line-clamp-2" : "truncate")}>
             {blockReason ??
               (quality === "draft" ? `${draftsLeft} free ${plural(draftsLeft, "draft")} left today` : "Refunded if it fails")}
@@ -387,6 +410,20 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       </StickyActionBar>
       <StickyActionBarSpacer />
     </div>
+  );
+}
+
+/** One section of the control panel (hairline between sections). */
+const panelSection = "flex flex-col gap-2 border-t border-border p-4 first:border-t-0 sm:p-5";
+
+/** "01 · Subject": the mono label that opens each panel section. */
+function PanelLabel({ no, label }: { no: string; label: string }) {
+  return (
+    <p aria-hidden="true" className="mono-caps -mt-0.5 mb-1 flex items-center gap-2 text-muted-foreground">
+      <span className="text-safelight-ink">{no}</span>
+      {label}
+      <span className="h-px flex-1 bg-border" />
+    </p>
   );
 }
 
