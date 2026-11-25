@@ -2,13 +2,14 @@
  * Second security pass (docs/reviews/security-2.md), production configuration findings.
  *   S2-1  an all-mock production deployment's public dev mailbox never shows mail to admins
  *         (it used to hand anyone an admin's magic link: GET /api/dev/emails/latest?to=<admin>)
+ *   S2-8  production refuses the published MinIO credentials on an S3 endpoint others can reach
  */
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as latestEmailGet } from "@/app/api/dev/emails/latest/route";
 import { db } from "@/db";
 import { emailOutbox } from "@/db/schema";
-import { resetEnvCache } from "@/lib/env";
+import { getEnv, resetEnvCache } from "@/lib/env";
 import { getDevEmail, getLatestDevEmail, isDevMailboxEnabled, listDevEmails } from "@/server/email/dev-mailbox";
 import { createTestDb, createTestUser } from "../../helpers/db";
 
@@ -66,11 +67,54 @@ describe("S2-1: the public dev mailbox withholds admins' mail in production", ()
     expect((await alice.json()).links[0]).toContain("token=t-alice@example.com");
   });
 
-  it("keeps showing everything outside production (local dev, e2e)", async () => {
+  it("keeps showing everything outside production (local dev, e2e) [S2-1]", async () => {
     vi.stubEnv("ADMIN_EMAILS", "boss@example.com");
     resetEnvCache();
     const toBoss = await mail("boss@example.com");
     expect((await latest("boss@example.com")).status).toBe(200);
     expect((await getDevEmail(toBoss.id))?.id).toBe(toBoss.id);
+  });
+});
+
+describe("S2-8: published MinIO credentials on a reachable S3 endpoint", () => {
+  const s3 = (endpoint: string | undefined, secret: string, user = "openshoot") => () => {
+    stub({
+      NODE_ENV: "production",
+      BETTER_AUTH_SECRET: STRONG,
+      MOCK_PROVIDERS: "true",
+      STORAGE_DRIVER: "s3",
+      S3_BUCKET: "openshoot",
+      S3_ACCESS_KEY_ID: user,
+      S3_SECRET_ACCESS_KEY: secret,
+      S3_ENDPOINT: endpoint,
+    });
+    return getEnv();
+  };
+
+  it.each([
+    ["a public MinIO hostname", "https://minio.example.com"],
+    ["a LAN address", "http://192.168.1.20:9000"],
+    ["AWS (no endpoint)", undefined],
+  ])("refuses the docker-compose default secret on %s", (_label, endpoint) => {
+    expect(s3(endpoint, "openshoot-dev-secret")).toThrow(/S3_SECRET_ACCESS_KEY.*published default/);
+    expect(s3(endpoint, "minioadmin", "minioadmin")).toThrow(/S3_SECRET_ACCESS_KEY.*published default/);
+  });
+
+  it("allows the defaults on the loopback / Docker-network endpoint compose uses, and real secrets anywhere", () => {
+    expect(s3("http://localhost:9000", "openshoot-dev-secret")).not.toThrow();
+    expect(s3("http://127.0.0.1:9000", "openshoot-dev-secret")).not.toThrow();
+    expect(s3("http://minio:9000", "openshoot-dev-secret")).not.toThrow();
+    expect(s3("https://minio.example.com", STRONG)).not.toThrow();
+  });
+
+  it("only applies in production", () => {
+    stub({
+      STORAGE_DRIVER: "s3",
+      S3_BUCKET: "b",
+      S3_ACCESS_KEY_ID: "openshoot",
+      S3_SECRET_ACCESS_KEY: "openshoot-dev-secret",
+      S3_ENDPOINT: "https://minio.example.com",
+    });
+    expect(() => getEnv()).not.toThrow();
   });
 });

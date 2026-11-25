@@ -35,6 +35,9 @@ Rules enforced at startup in production (`NODE_ENV=production`, which both Verce
   and shows a "Demo mode" banner. Its `/dev/emails` mailbox is public, so anyone can sign in as any account there:
   treat demo accounts as public. Mail to admins (`ADMIN_EMAILS` and every account with the admin role) is never shown
   in that mailbox, so admins of a demo deployment sign in with Google (or configure real email).
+- The bundled MinIO's published password (`openshoot-dev-secret`, or MinIO's own `minioadmin`) is refused as
+  `S3_SECRET_ACCESS_KEY` unless `S3_ENDPOINT` is loopback or a Docker service name: set `MINIO_ROOT_PASSWORD` to a
+  random value before putting MinIO behind a public hostname.
 - A real AI provider requires real safety providers: `FACE_PROVIDER` and `MODERATION_PROVIDER` can't be `mock`
   (they default to `local`, which needs no keys).
 - Each selected provider needs its keys (for example `AI_PROVIDER=replicate` needs `REPLICATE_API_TOKEN` and
