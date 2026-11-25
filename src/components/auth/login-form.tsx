@@ -153,8 +153,8 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             Check your inbox
           </CardTitle>
           <CardDescription>
-            We sent a sign-in link to <span className="font-medium break-all text-foreground">{sentTo}</span>. It
-            works once and expires in 15 minutes.
+            We sent a sign-in link to <span className="font-medium break-all text-foreground">{sentTo}</span>. It works
+            once and expires in 15 minutes.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3">
@@ -254,7 +254,9 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
         <CardTitle as="h1" className="text-xl">
           Sign in to {APP.name}
         </CardTitle>
-        <CardDescription>New here? Enter your email and we&apos;ll create your account. No password needed.</CardDescription>
+        <CardDescription>
+          New here? Enter your email and we&apos;ll create your account. No password needed.
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {error && (

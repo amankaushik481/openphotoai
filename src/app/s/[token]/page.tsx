@@ -80,7 +80,11 @@ type SharedMedia = PublicMediaDTO & { downloadUrl: string };
 
 /** Public DTO plus a signed URL that downloads (Content-Disposition: attachment) instead of opening. */
 async function toSharedMedia(row: MediaRow): Promise<SharedMedia> {
-  const brand = APP.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "media";
+  const brand =
+    APP.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "media";
   const [dto, downloadUrl] = await Promise.all([
     toPublicMediaDTO(row),
     signedUrl(row.storageKey, { downloadName: `${brand}-${row.id}.${extForMime(row.mimeType)}` }),
@@ -155,8 +159,8 @@ function MadeWith() {
             Made with {APP.name}
           </h2>
           <p className="mt-1 max-w-md text-sm text-pretty text-muted-foreground">
-            The open-source AI photographer: headshots, dating and travel photos of you from a few selfies. Free
-            drafts, and shots that miss on likeness are refunded.
+            The open-source AI photographer: headshots, dating and travel photos of you from a few selfies. Free drafts,
+            and shots that miss on likeness are refunded.
           </p>
         </div>
       </div>

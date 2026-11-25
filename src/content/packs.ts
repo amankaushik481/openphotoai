@@ -39,7 +39,10 @@ export interface PackSearchEntry {
 
 /** Lowercase, accent-free ("Café" matches "cafe"). */
 export function normalizeSearchText(s: string): string {
-  return s.normalize("NFD").replace(/\p{M}+/gu, "").toLowerCase();
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}+/gu, "")
+    .toLowerCase();
 }
 
 export function packSearchEntry(p: PackSummary): PackSearchEntry {
