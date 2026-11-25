@@ -29,6 +29,37 @@ export function packCategoryCounts(packs: readonly PackSummary[]): PackCategoryC
   })).filter((c) => c.count > 0);
 }
 
+/** What the public gallery's search box matches a pack against. */
+export interface PackSearchEntry {
+  slug: string;
+  category: PackCategory;
+  /** Normalized name, tagline, category, tags and sample shot titles. */
+  text: string;
+}
+
+/** Lowercase, accent-free ("Café" matches "cafe"). */
+export function normalizeSearchText(s: string): string {
+  return s.normalize("NFD").replace(/\p{M}+/gu, "").toLowerCase();
+}
+
+export function packSearchEntry(p: PackSummary): PackSearchEntry {
+  const text = [p.name, p.tagline, PACK_CATEGORY_INFO[p.category].label, ...p.tags, ...p.sampleTitles].join(" ");
+  return { slug: p.slug, category: p.category, text: normalizeSearchText(text).replace(/\s+/g, " ") };
+}
+
+/**
+ * Slugs of the packs matching every word of `query` (null for an empty query, i.e. no filter).
+ * Words match anywhere in a word ("head" → "headshots"); a trailing plural "s" is ignored.
+ */
+export function searchPacks(entries: readonly PackSearchEntry[], query: string): Set<string> | null {
+  const terms = normalizeSearchText(query)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean)
+    .map((t) => (t.length > 3 && t.endsWith("s") ? t.slice(0, -1) : t));
+  if (terms.length === 0) return null;
+  return new Set(entries.filter((e) => terms.every((t) => e.text.includes(t))).map((e) => e.slug));
+}
+
 /**
  * Packs to suggest from a pack page: same category first, then featured, then the rest.
  * Never includes the pack itself.
