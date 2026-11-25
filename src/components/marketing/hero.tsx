@@ -102,7 +102,8 @@ export function Hero() {
               id="hero-loupe"
               frame={ROLL[LOUPE]!}
               label={`${frameNumber(START, LOUPE)}A`}
-              className="absolute right-[-4%] bottom-[-7%] w-[40%] rotate-[1.8deg] drop-shadow-[0_22px_22px_rgb(0_0_0/0.35)] sm:right-[-8%]"
+              // Overhangs the sheet's corner, but stays inside the viewport (the sheet sits at the right margin on desktop).
+              className="absolute right-[-4%] bottom-[-7%] w-[40%] rotate-[1.8deg] drop-shadow-[0_22px_22px_rgb(0_0_0/0.35)] sm:right-[-8%] lg:right-[-3%] xl:right-[-5%]"
             />
           </div>
           <figcaption className="mono-caps mt-8 max-w-[62%] leading-relaxed text-muted-foreground sm:mt-10">

@@ -76,3 +76,13 @@ Live status of the autonomous build. Updated after every wave.
 | Docker compose re-verification after hardening | ✅ zero keys: auto-generated auth secret, sign-in → mock checkout → liveness consent → photos → instant model → job completed by the worker → image served from MinIO |
 | Final verification | ✅ typecheck, lint, packs:validate (64 packs), Vitest 1951 passed, Playwright 9/9, production build |
 | Push to GitHub (`main`) | ✅ |
+
+## Polish pass ("god mode")
+| Item | Status |
+|---|---|
+| Six parallel agents in owned areas: marketing UX, core flows, gallery and tools, account/billing/admin, offensive security, server correctness | ✅ merged. Security: 13 fixes (`docs/reviews/security-2.md`). Correctness: 7 fixes, plus ledger property tests and Postgres race tests (`docs/reviews/correctness.md`) |
+| Two independent reviewers on the merged changes (server and UI) | ✅ 9 findings, all fixed with regression tests (`docs/reviews/independent-review-3.md`) |
+| QA crawl of a production build: every page at 4 viewports in both themes, plus the key flows | ✅ Fixed the production DB client singleton (magic links under `pnpm start`), dialog focus return and tablet layouts. Axe serious/critical: 232 → 0. Console errors 0, broken links 0 |
+| Redesign: "The Darkroom" visual identity (DECISIONS #40): landing, public pages, app shell, every app screen, admin, emails | ✅ Lighthouse mobile on `/`: 95/96/95, with accessibility, best practices and SEO at 100 and CLS 0 |
+| Final verification | ✅ typecheck, lint, packs:validate, Vitest 2307 passed, Postgres tests 6/6, Playwright 9/9, production build |
+
