@@ -70,7 +70,7 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPriceCents: 99000,
     monthlyCredits: 2000,
     limits: { maxModels: 20, maxBatch: 50, maxConcurrentJobs: 10, apiAccess: true, teamSeats: 25, watermark: false },
-    highlights: ["2,000 credits / month", "20 identity models", "Team brand kits (25 seats)", "Priority queue", "API access"],
+    highlights: ["2,000 credits / month", "20 identity models", "Team brand kits (25 seats)", "10 jobs at once", "API access"],
   },
 };
 
