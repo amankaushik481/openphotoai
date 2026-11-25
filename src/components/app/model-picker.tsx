@@ -93,7 +93,8 @@ export function ModelPicker({
         {label ?? t("models.pick")}
       </Label>
       <Select
-        value={value ?? undefined}
+        // Always controlled ("" shows the placeholder): undefined -> id switched modes and React warned.
+        value={value ?? ""}
         disabled={disabled}
         onValueChange={(next) => {
           const model = options.find((m) => m.id === next);
