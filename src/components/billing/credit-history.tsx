@@ -40,7 +40,17 @@ export function describeLedgerEntry(
     const detail = [jobLabel, entry.note].filter(Boolean).join(" · ");
     return { title: CREDIT_REASON_LABELS.job_refund, detail: detail || null };
   }
-  return { title: CREDIT_REASON_LABELS[entry.reason], detail: entry.note };
+  const title = CREDIT_REASON_LABELS[entry.reason];
+  return { title, detail: withoutRepeatedTitle(entry.note, title) };
+}
+
+/** "100 credits credit pack" under the title "Credit pack" reads twice: keep just "100 credits". */
+function withoutRepeatedTitle(note: string | null, title: string): string | null {
+  if (!note) return null;
+  const n = note.trim();
+  if (n.toLowerCase() === title.toLowerCase()) return null;
+  if (n.toLowerCase().endsWith(` ${title.toLowerCase()}`)) return n.slice(0, -(title.length + 1)).trim() || null;
+  return n;
 }
 
 /** Credit ledger table; the first page comes from the parent (SWR), older pages load on demand. */

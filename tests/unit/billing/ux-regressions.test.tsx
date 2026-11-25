@@ -183,6 +183,12 @@ describe("readable ledger and money formatting", () => {
       detail: "Photo generation · Job failed",
     });
     expect(describeLedgerEntry({ reason: "job_debit", jobId: "job_unknown", note: null }).title).toBe("Used for a job");
+    // The purchase note repeats the row title ("Credit pack"): only the pack size is kept.
+    expect(describeLedgerEntry({ reason: "purchase", jobId: null, note: "100 credits credit pack" })).toEqual({
+      title: "Credit pack",
+      detail: "100 credits",
+    });
+    expect(describeLedgerEntry({ reason: "purchase", jobId: null, note: "Credit pack" }).detail).toBeNull();
     expect(describeLedgerEntry({ reason: "transfer_in", jobId: null, note: "From Acme" })).toEqual({
       title: "Received from your team",
       detail: "From Acme",
