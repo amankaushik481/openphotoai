@@ -9,11 +9,10 @@ import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { APP } from "@/config/app";
 import { CREDIT_COSTS } from "@/config/credits";
 import { formatCreditCost } from "@/content/credit-costs";
 import { PACK_CATEGORY_INFO, relatedPacks } from "@/content/packs";
-import { packPath, packSignupHref } from "@/content/site";
+import { marketingMetadata, packPath, packSignupHref } from "@/content/site";
 import { buildBreadcrumbJsonLd, buildPackJsonLd } from "@/content/structured-data";
 import { getPack, listPackSummaries, listPacks } from "@/server/packs/registry";
 
@@ -35,16 +34,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const pack = await getPack(slug);
   if (!pack) return {};
-  const title = `${pack.name} AI photo pack`;
-  const description = metaDescription(pack.tagline, pack.description);
-  return {
-    title,
-    description,
+  return marketingMetadata({
+    title: `${pack.name} AI photo pack`,
+    description: metaDescription(pack.tagline, pack.description),
+    path: packPath(pack.slug),
     keywords: pack.tags,
-    alternates: { canonical: packPath(pack.slug) },
-    openGraph: { type: "website", title: `${title} · ${APP.name}`, description, url: packPath(pack.slug) },
-    twitter: { card: "summary_large_image", title: `${title} · ${APP.name}`, description },
-  };
+    ownShareImage: true,
+  });
 }
 
 const SUBJECT_LABELS = { man: "Men", woman: "Women", person: "Everyone" } as const;

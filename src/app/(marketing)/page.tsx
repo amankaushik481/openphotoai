@@ -16,14 +16,16 @@ import { TrustStrip } from "@/components/marketing/trust-strip";
 import { Button } from "@/components/ui/button";
 import { APP } from "@/config/app";
 import { featuredFaqItems } from "@/content/faq";
+import { marketingMetadata } from "@/content/site";
 import { buildOrganizationJsonLd, buildSoftwareApplicationJsonLd } from "@/content/structured-data";
 import { listPackSummaries } from "@/server/packs/registry";
 
-export const metadata: Metadata = {
-  title: { absolute: `${APP.name} — ${APP.tagline}` },
+export const metadata: Metadata = marketingMetadata({
+  title: `${APP.name} — ${APP.tagline}`,
+  absoluteTitle: true,
   description: APP.description,
-  alternates: { canonical: "/" },
-};
+  path: "/",
+});
 
 export default async function HomePage() {
   const packs = await listPackSummaries();

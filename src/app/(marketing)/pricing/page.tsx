@@ -15,13 +15,14 @@ import { DRAFT_DAILY_LIMIT, DRAFT_DAILY_LIMIT_FREE } from "@/config/credits";
 import { PLANS } from "@/config/plans";
 import { pricingFaqItems } from "@/content/faq";
 import { getLegalVariables } from "@/content/legal";
+import { marketingMetadata } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/content/structured-data";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = marketingMetadata({
   title: "Pricing",
-  description: `Honest pricing for ${APP.name}: credits that never expire on packs, automatic refunds for failed or low-likeness photos, cancel in one click. Plans from free.`,
-  alternates: { canonical: "/pricing" },
-};
+  description: `Honest pricing for ${APP.name}: credits that never expire, automatic refunds for failed or low-likeness photos, every action's cost shown up front, cancel in one click. Plans from free.`,
+  path: "/pricing",
+});
 
 export default function PricingPage() {
   const legal = getLegalVariables();

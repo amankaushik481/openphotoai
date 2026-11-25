@@ -5,13 +5,14 @@ import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { APP } from "@/config/app";
 import { allFaqItems, getFaqCategories } from "@/content/faq";
+import { marketingMetadata } from "@/content/site";
 import { buildFaqPageJsonLd } from "@/content/structured-data";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = marketingMetadata({
   title: "FAQ",
   description: `Answers about ${APP.name}: how many selfies you need, likeness and refunds, privacy and face data, credits and billing, and self-hosting the open-source app.`,
-  alternates: { canonical: "/faq" },
-};
+  path: "/faq",
+});
 
 export default function FaqPage() {
   const categories = getFaqCategories();

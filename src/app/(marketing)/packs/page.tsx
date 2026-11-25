@@ -8,16 +8,17 @@ import { JsonLd } from "@/components/marketing/json-ld";
 import { PackCategoryFilter } from "@/components/marketing/pack-category-filter";
 import { APP } from "@/config/app";
 import { packCategoryCounts } from "@/content/packs";
+import { marketingMetadata } from "@/content/site";
 import { buildBreadcrumbJsonLd, buildPackListJsonLd } from "@/content/structured-data";
 import { listPackSummaries } from "@/server/packs/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
   const packs = await listPackSummaries();
-  return {
+  return marketingMetadata({
     title: "AI photo packs",
     description: `${packs.length} AI photo packs for LinkedIn headshots, dating, travel, fashion and more. Preview any pack free, then generate photos that look like you with ${APP.name}.`,
-    alternates: { canonical: "/packs" },
-  };
+    path: "/packs",
+  });
 }
 
 export default async function PacksPage() {

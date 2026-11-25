@@ -3,14 +3,16 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { LegalTemplateNotice } from "@/components/marketing/legal-document";
+import { APP } from "@/config/app";
 import { toPlainText } from "@/content/inline";
 import { getLegalDocument, LEGAL_PAGES } from "@/content/legal";
+import { marketingMetadata } from "@/content/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = marketingMetadata({
   title: "Legal",
-  description: "Terms of Service, Privacy Policy and Acceptable Use Policy.",
-  alternates: { canonical: "/legal" },
-};
+  description: `${APP.name}'s Terms of Service, Privacy Policy and Acceptable Use Policy, including refunds, biometric data and the takedown process.`,
+  path: "/legal",
+});
 
 export default function LegalIndexPage() {
   return (
