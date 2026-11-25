@@ -69,7 +69,7 @@ export function ContactSheet({
         </span>
         <span className="hidden min-[360px]:inline">Subject: you</span>
       </div>
-      <ol aria-hidden="true" className="grid grid-cols-3 gap-y-[2.2%]">
+      <ol aria-hidden="true" className="grid grid-cols-3 gap-y-[2.6cqw]">
         {frames.map((f, i) => {
           const n = frameNumber(start, i);
           return (
@@ -141,7 +141,7 @@ export function ContactSheet({
       </ol>
       <div
         aria-hidden="true"
-        className="mt-[2.4%] flex items-center justify-between gap-3 font-mono text-[clamp(7px,1.9cqw,10px)] tracking-[0.16em] uppercase"
+        className="mt-[2.4%] flex flex-wrap items-center gap-x-[5cqw] gap-y-1 font-mono text-[clamp(7px,1.9cqw,10px)] tracking-[0.16em] uppercase"
       >
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-2.5 rounded-full border-[1.5px] border-[#9e2310]" />
