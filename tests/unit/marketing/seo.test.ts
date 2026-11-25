@@ -1,10 +1,57 @@
+import type { Metadata } from "next";
 import { describe, expect, it } from "vitest";
 
+import { metadata as apiDocsMeta } from "@/app/(marketing)/docs/api/page";
+import { metadata as docsMeta } from "@/app/(marketing)/docs/page";
+import { metadata as faqMeta } from "@/app/(marketing)/faq/page";
+import { metadata as acceptableUseMeta } from "@/app/(marketing)/legal/acceptable-use/page";
+import { metadata as legalMeta } from "@/app/(marketing)/legal/page";
+import { metadata as privacyMeta } from "@/app/(marketing)/legal/privacy/page";
+import { metadata as termsMeta } from "@/app/(marketing)/legal/terms/page";
+import { metadata as homeMeta } from "@/app/(marketing)/page";
+import { generateMetadata as packMeta } from "@/app/(marketing)/packs/[slug]/page";
+import { generateMetadata as packsMeta } from "@/app/(marketing)/packs/page";
+import { metadata as pricingMeta } from "@/app/(marketing)/pricing/page";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { APP } from "@/config/app";
 import { ROBOTS_DISALLOW, STATIC_ROUTES, absoluteUrl, packSignupHref } from "@/content/site";
 import { listPacks } from "@/server/packs/registry";
+
+describe("marketing page metadata", () => {
+  const titleText = (m: Metadata) =>
+    typeof m.title === "string" ? m.title : (m.title as { absolute?: string; default?: string }).absolute;
+
+  it.each([
+    ["/", () => homeMeta],
+    ["/pricing", () => pricingMeta],
+    ["/packs", () => packsMeta()],
+    ["/packs/linkedin-headshots", () => packMeta({ params: Promise.resolve({ slug: "linkedin-headshots" }) })],
+    ["/faq", () => faqMeta],
+    ["/docs", () => docsMeta],
+    ["/docs/api", () => apiDocsMeta],
+    ["/legal", () => legalMeta],
+    ["/legal/terms", () => termsMeta],
+    ["/legal/privacy", () => privacyMeta],
+    ["/legal/acceptable-use", () => acceptableUseMeta],
+  ])("%s has its own canonical, og:url, og:title and description (not the home page's)", async (path, get) => {
+    const m = await get();
+    const title = titleText(m);
+    expect(title).toBeTruthy();
+    expect(m.description).toBeTruthy();
+    expect(m.alternates?.canonical).toBe(path);
+    expect(m.openGraph?.url).toBe(path);
+    expect(m.openGraph?.title).toContain(title!);
+    expect(m.openGraph?.description).toBe(m.description);
+    expect(m.openGraph?.siteName).toBe(APP.name);
+    expect(m.twitter?.title).toBe(m.openGraph?.title);
+    if (path !== "/") expect(m.openGraph?.description).not.toBe(APP.description);
+    // A page-level openGraph drops the root opengraph-image: reference it, except where the segment has its own.
+    const images = JSON.stringify([m.openGraph?.images, m.twitter?.images]);
+    if (path.startsWith("/packs/")) expect(m.openGraph?.images).toBeUndefined();
+    else expect(images).toMatch(/"url":"\/opengraph-image".*"url":"\/twitter-image"/);
+  });
+});
 
 describe("sitemap", () => {
   it("lists every static marketing route and every pack as absolute URLs", async () => {

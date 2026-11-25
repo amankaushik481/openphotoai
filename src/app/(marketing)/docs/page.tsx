@@ -5,14 +5,15 @@ import { ArrowRightIcon, BookOpenIcon, FileJsonIcon, ServerIcon, ShieldCheckIcon
 import { GithubIcon } from "@/components/layout/icons";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { APP } from "@/config/app";
+import { marketingMetadata } from "@/content/site";
 import { buildBreadcrumbJsonLd } from "@/content/structured-data";
 import { PACK_CATEGORIES } from "@/types/pack";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = marketingMetadata({
   title: "Docs: self-hosting, packs and API",
   description: `Run ${APP.name} on your own server with Docker Compose or Vercel, bring your own AI provider keys, write photo packs as JSON, and automate everything with the API.`,
-  alternates: { canonical: "/docs" },
-};
+  path: "/docs",
+});
 
 const SECTIONS = [
   { id: "quickstart", title: "Quickstart" },

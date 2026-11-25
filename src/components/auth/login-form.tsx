@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowLeft, Inbox, Loader2, Mail, MailCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, Inbox, Loader2, Mail, MailCheck, RotateCw } from "lucide-react";
 import Link from "next/link";
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { APP } from "@/config/app";
 import { focusOnMount } from "@/lib/a11y";
 import { signIn } from "@/lib/auth-client";
+import { resendSecondsLeft, sendErrorMessage, suggestEmail, webmailFor, type SendError } from "./email-hints";
 import { GoogleIcon } from "./google-icon";
 
 interface LoginFormProps {
@@ -27,45 +28,117 @@ interface LoginFormProps {
 
 type Status = "idle" | "sending" | "sent";
 
+/**
+ * Ticks once a second while `active`, so the resend countdown re-renders. The first reading can be
+ * stale; `resendSecondsLeft` clamps to the cooldown, so that only delays the first tick.
+ */
+function useNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+  return now;
+}
+
 export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMailbox, initialError }: LoginFormProps) {
   const emailId = useId();
   const errorId = useId();
+  const hintId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
+  /** The address the last link went to (the input may be edited afterwards). */
+  const [sentTo, setSentTo] = useState("");
+  const [sentAt, setSentAt] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("idle");
+  const [resending, setResending] = useState(false);
+  const [touched, setTouched] = useState(false);
   const [googlePending, setGooglePending] = useState(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
+  const [announcement, setAnnouncement] = useState("");
 
-  async function sendLink(): Promise<boolean> {
+  const now = useNow(status === "sent" && sentAt !== null);
+  const cooldown = resendSecondsLeft(sentAt, now);
+  const resendBlocked = resending || cooldown > 0;
+  const suggestion = touched ? suggestEmail(email) : null;
+  const sentSuggestion = status === "sent" ? suggestEmail(sentTo) : null;
+  const webmail = devMailbox ? null : webmailFor(sentTo);
+
+  // Back from Google via the back button: the page comes out of the bfcache with the spinner still on.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setGooglePending(false);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  /** Sends a link to `to`. Returns false (and shows why) when it couldn't. */
+  async function sendLink(to: string): Promise<boolean> {
     setError(null);
-    setStatus("sending");
-    const { error: err } = await signIn.magicLink({ email: email.trim(), callbackURL, errorCallbackURL });
+    let err: SendError | null = null;
+    try {
+      ({ error: err } = await signIn.magicLink({ email: to, callbackURL, errorCallbackURL }));
+    } catch {
+      err = { status: 0 };
+    }
     if (err) {
-      setStatus("idle");
-      setError(err.message || "We couldn't send the link. Please try again.");
+      setError(sendErrorMessage(err));
       return false;
     }
-    setStatus("sent");
+    setSentTo(to);
+    setSentAt(Date.now());
     return true;
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    await sendLink();
+    if (status === "sending") return;
+    setStatus("sending");
+    setStatus((await sendLink(email.trim())) ? "sent" : "idle");
   }
 
-  async function onResend() {
-    if (await sendLink()) toast.success("A new sign-in link is on its way.");
+  /** Resend (or send to the corrected address) without leaving the "check your inbox" view. */
+  async function onResend(to = sentTo) {
+    if (resending || (to === sentTo && cooldown > 0)) return;
+    setResending(true);
+    setAnnouncement("");
+    const ok = await sendLink(to);
+    setResending(false);
+    if (ok) {
+      setEmail(to);
+      const message = `A new sign-in link is on its way to ${to}.`;
+      setAnnouncement(message);
+      toast.success(message);
+    }
   }
 
   async function onGoogle() {
     setError(null);
     setGooglePending(true);
-    const { error: err } = await signIn.social({ provider: "google", callbackURL, errorCallbackURL });
+    let err: SendError | null = null;
+    try {
+      ({ error: err } = await signIn.social({ provider: "google", callbackURL, errorCallbackURL }));
+    } catch {
+      err = { status: 0 };
+    }
     // On success the browser is already navigating to Google.
     if (err) {
       setGooglePending(false);
-      setError(err.message || "Google sign-in is unavailable right now.");
+      setError(
+        err.status === 0
+          ? "We couldn't reach the server. Check your connection and try again."
+          : "Google sign-in isn't available right now. Use the email link instead.",
+      );
     }
+  }
+
+  function editEmail() {
+    setStatus("idle");
+    setError(null);
+    setAnnouncement("");
+    setTouched(false);
   }
 
   if (status === "sent") {
@@ -80,11 +153,34 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
             Check your inbox
           </CardTitle>
           <CardDescription>
-            We sent a sign-in link to <span className="font-medium break-all text-foreground">{email.trim()}</span>. It
-            expires in 15 minutes.
+            We sent a sign-in link to <span className="font-medium break-all text-foreground">{sentTo}</span>. It works
+            once and expires in 15 minutes.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3" aria-live="polite">
+        <CardContent className="grid gap-3">
+          <p className="sr-only" role="status" aria-live="polite">
+            {announcement}
+          </p>
+          {sentSuggestion && (
+            <Alert variant="warning">
+              <AlertDescription className="grid gap-2">
+                <p>
+                  Did you mean <span className="font-medium break-all text-foreground">{sentSuggestion}</span>? Links
+                  sent to a mistyped address never arrive.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="justify-self-start"
+                  disabled={resending}
+                  onClick={() => onResend(sentSuggestion)}
+                >
+                  Send to {sentSuggestion} instead
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
           {devMailbox && (
             <Alert variant="brand">
               <Inbox aria-hidden />
@@ -102,36 +198,65 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               </Link>
             </Button>
           )}
+          {webmail && (
+            <Button asChild variant="brand" size="lg" className="w-full">
+              <a href={webmail.href} target="_blank" rel="noopener noreferrer">
+                <ExternalLink aria-hidden />
+                Open {webmail.label}
+                <span className="sr-only">(opens in a new tab)</span>
+              </a>
+            </Button>
+          )}
           {error && (
             <Alert variant="destructive" role="alert">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
           <p className="text-center text-sm text-muted-foreground">
-            No email after a minute? Check your spam folder or resend.
+            No email after a minute? Check your spam or promotions folder, then resend.
           </p>
         </CardContent>
         <CardFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
-          <Button variant="ghost" className="w-full sm:w-auto" onClick={() => setStatus("idle")}>
+          <Button variant="ghost" className="w-full sm:w-auto" onClick={editEmail}>
             <ArrowLeft aria-hidden />
             Use a different email
           </Button>
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onResend}>
-            Resend link
+          {/* aria-disabled, not disabled: a focused button that becomes disabled drops focus to <body>. */}
+          <Button
+            variant="outline"
+            className="w-full tabular-nums aria-disabled:cursor-not-allowed aria-disabled:opacity-60 sm:w-auto"
+            onClick={() => onResend()}
+            aria-disabled={resendBlocked || undefined}
+            aria-describedby={cooldown > 0 && !resending ? `${hintId}-cooldown` : undefined}
+          >
+            {resending ? <Loader2 className="animate-spin" aria-hidden /> : <RotateCw aria-hidden />}
+            {/* The countdown ticks every second: keep it out of the accessible name. */}
+            <span aria-hidden="true">
+              {resending ? "Sending…" : cooldown > 0 ? `Resend in ${cooldown}s` : "Resend link"}
+            </span>
+            <span className="sr-only">{resending ? "Sending a new link" : "Resend link"}</span>
           </Button>
+          {cooldown > 0 && !resending && (
+            <span id={`${hintId}-cooldown`} className="sr-only">
+              Available again in {cooldown} seconds.
+            </span>
+          )}
         </CardFooter>
       </Card>
     );
   }
 
   const sending = status === "sending";
+  const describedBy = [error ? errorId : null, suggestion ? hintId : null].filter(Boolean).join(" ") || undefined;
   return (
     <Card>
       <CardHeader className="text-center">
         <CardTitle as="h1" className="text-xl">
           Sign in to {APP.name}
         </CardTitle>
-        <CardDescription>New here? Enter your email and we&apos;ll create your account.</CardDescription>
+        <CardDescription>
+          New here? Enter your email and we&apos;ll create your account. No password needed.
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {error && (
@@ -143,6 +268,7 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
           <div className="grid gap-2">
             <Label htmlFor={emailId}>Email</Label>
             <Input
+              ref={inputRef}
               id={emailId}
               type="email"
               name="email"
@@ -154,11 +280,30 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setTouched(true)}
               aria-invalid={error ? true : undefined}
-              aria-describedby={error ? errorId : undefined}
+              aria-describedby={describedBy}
               className="h-11"
               autoFocus
             />
+            <div id={hintId} aria-live="polite" className="empty:hidden">
+              {suggestion && (
+                <p className="text-sm text-muted-foreground">
+                  Did you mean{" "}
+                  <button
+                    type="button"
+                    className="rounded-sm font-medium break-all text-foreground underline underline-offset-2 hover:decoration-primary"
+                    onClick={() => {
+                      setEmail(suggestion);
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    {suggestion}
+                  </button>
+                  ?
+                </p>
+              )}
+            </div>
           </div>
           <Button type="submit" variant="brand" size="lg" className="w-full" disabled={sending || googlePending}>
             {sending ? <Loader2 className="animate-spin" aria-hidden /> : <Mail aria-hidden />}
@@ -180,9 +325,10 @@ export function LoginForm({ callbackURL, errorCallbackURL, googleEnabled, devMai
               className="w-full"
               onClick={onGoogle}
               disabled={sending || googlePending}
+              aria-busy={googlePending || undefined}
             >
               {googlePending ? <Loader2 className="animate-spin" aria-hidden /> : <GoogleIcon className="size-5" />}
-              Continue with Google
+              {googlePending ? "Opening Google…" : "Continue with Google"}
             </Button>
           </>
         )}

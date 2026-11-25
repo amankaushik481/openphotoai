@@ -11,7 +11,7 @@ import { getCurrentUser } from "@/server/auth/session";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in with a magic link or Google.",
+  description: "Sign in to your account, or create one, with a one-click email link.",
   robots: { index: false },
 };
 

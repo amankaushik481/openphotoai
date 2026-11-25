@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { pickShowcasePacks } from "@/components/marketing/packs-showcase";
-import { packCategoryCounts, relatedPacks } from "@/content/packs";
+import { packCategoryCounts, packSearchEntry, relatedPacks, searchPacks } from "@/content/packs";
 import { buildBreadcrumbJsonLd, buildPackJsonLd, buildPackListJsonLd } from "@/content/structured-data";
 import { APP } from "@/config/app";
 import { listPackSummaries, listPacks, toPackSummary } from "@/server/packs/registry";
@@ -51,6 +51,50 @@ describe("pack gallery helpers", () => {
   it("category counts add up for the real pack catalogue", async () => {
     const real = await listPackSummaries();
     expect(packCategoryCounts(real).reduce((n, c) => n + c.count, 0)).toBe(real.length);
+  });
+});
+
+describe("pack gallery search", () => {
+  const entries = [
+    packSearchEntry({
+      ...summary("linkedin-headshots", "professional"),
+      name: "LinkedIn Headshots",
+      tagline: "Recruiter-ready",
+      tags: ["corporate"],
+    }),
+    packSearchEntry({ ...summary("paris", "travel"), name: "Paris", tagline: "Café terraces", sampleTitles: ["Eiffel Tower at dusk"] }),
+    packSearchEntry({ ...summary("beach", "travel"), name: "Beach Resort", tagline: "Sun and sea" }),
+  ];
+  const slugs = (q: string) => {
+    const r = searchPacks(entries, q);
+    return r === null ? null : [...r].sort();
+  };
+
+  it("matches name, tagline, category, tags and shot titles, ignoring case, accents and plurals", () => {
+    expect(slugs("headshot")).toEqual(["linkedin-headshots"]);
+    expect(slugs("HEADSHOTS")).toEqual(["linkedin-headshots"]);
+    expect(slugs("cafe")).toEqual(["paris"]);
+    expect(slugs("eiffel")).toEqual(["paris"]);
+    expect(slugs("corporate")).toEqual(["linkedin-headshots"]);
+    expect(slugs("travel")).toEqual(["beach", "paris"]);
+    expect(slugs("professional")).toEqual(["linkedin-headshots"]);
+  });
+
+  it("requires every word to match", () => {
+    expect(slugs("travel sea")).toEqual(["beach"]);
+    expect(slugs("travel  linkedin")).toEqual([]);
+    expect(slugs("zzz")).toEqual([]);
+  });
+
+  it("an empty or punctuation-only query means no filter", () => {
+    expect(slugs("")).toBeNull();
+    expect(slugs("   ")).toBeNull();
+    expect(slugs(" ,. ")).toBeNull();
+  });
+
+  it("the real catalogue finds headshot packs", async () => {
+    const real = (await listPackSummaries()).map(packSearchEntry);
+    expect(searchPacks(real, "headshot")?.has("linkedin-headshots")).toBe(true);
   });
 });
 

@@ -7,17 +7,18 @@ import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { PackCategoryFilter } from "@/components/marketing/pack-category-filter";
 import { APP } from "@/config/app";
-import { packCategoryCounts } from "@/content/packs";
+import { packCategoryCounts, packSearchEntry } from "@/content/packs";
+import { marketingMetadata } from "@/content/site";
 import { buildBreadcrumbJsonLd, buildPackListJsonLd } from "@/content/structured-data";
 import { listPackSummaries } from "@/server/packs/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
   const packs = await listPackSummaries();
-  return {
+  return marketingMetadata({
     title: "AI photo packs",
     description: `${packs.length} AI photo packs for LinkedIn headshots, dating, travel, fashion and more. Preview any pack free, then generate photos that look like you with ${APP.name}.`,
-    alternates: { canonical: "/packs" },
-  };
+    path: "/packs",
+  });
 }
 
 export default async function PacksPage() {
@@ -57,10 +58,10 @@ export default async function PacksPage() {
               No packs are installed yet. Add JSON files to the <code className="font-mono">packs/</code> folder.
             </p>
           ) : (
-            <PackCategoryFilter categories={categories} total={packs.length}>
+            <PackCategoryFilter categories={categories} index={packs.map(packSearchEntry)}>
               <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
                 {packs.map((pack, i) => (
-                  <li key={pack.slug} data-category={pack.category}>
+                  <li key={pack.slug} data-slug={pack.slug} data-category={pack.category}>
                     <PackCard pack={pack} priority={i < 4} />
                   </li>
                 ))}

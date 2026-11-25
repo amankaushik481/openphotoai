@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -10,6 +11,7 @@ import { GithubIcon } from "@/components/layout/icons";
 import { LogoMark } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { MARKETING_LINKS } from "@/components/layout/marketing-nav";
+import { isCurrentPath } from "@/components/layout/marketing-nav-links";
 import { APP } from "@/config/app";
 import { useT } from "@/i18n/react";
 
@@ -24,6 +26,8 @@ export function MarketingMobileNavSheet({
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
   const t = useT();
+  const pathname = usePathname();
+  const navRef = React.useRef<HTMLElement>(null);
   const close = () => onOpenChange(false);
 
   return (
@@ -31,6 +35,14 @@ export function MarketingMobileNavSheet({
       <SheetContent
         side="right"
         className="w-[85%] max-w-xs"
+        // Radix skips links when picking the first element to focus, which landed on the theme toggle at the
+        // bottom. Start at the first menu link instead.
+        onOpenAutoFocus={(event) => {
+          const first = navRef.current?.querySelector<HTMLElement>("a[href]");
+          if (!first) return;
+          event.preventDefault();
+          first.focus();
+        }}
         // No Radix <SheetTrigger>: return focus to our own trigger button on close.
         onCloseAutoFocus={(event) => {
           event.preventDefault();
@@ -44,7 +56,7 @@ export function MarketingMobileNavSheet({
           </SheetTitle>
           <SheetDescription className="sr-only">{t("nav.mainNavigation")}</SheetDescription>
         </SheetHeader>
-        <nav aria-label={t("nav.mainNavigation")} className="flex flex-col gap-1 px-2">
+        <nav ref={navRef} aria-label={t("nav.mainNavigation")} className="flex flex-col gap-1 px-2">
           {MARKETING_LINKS.map((link) =>
             link.external ? (
               <a
@@ -64,7 +76,8 @@ export function MarketingMobileNavSheet({
                 key={link.href}
                 href={link.href}
                 onClick={close}
-                className="flex h-11 items-center rounded-md px-3 text-base font-medium hover:bg-accent"
+                aria-current={isCurrentPath(pathname, link.href) ? "page" : undefined}
+                className="flex h-11 items-center rounded-md px-3 text-base font-medium hover:bg-accent aria-[current=page]:bg-accent"
               >
                 {t(link.labelKey)}
               </Link>
