@@ -106,7 +106,6 @@ describe("sessions card", () => {
     const now = new Date().toISOString();
     const html = renderToStaticMarkup(
       <SessionsCard
-        revokeDelayMinutes={5}
         sessions={[
           { id: "ses_1", current: true, userAgent: CHROME_MAC, ipAddress: null, createdAt: now, lastActiveAt: now, expiresAt: now },
           { id: "ses_2", current: false, userAgent: SAFARI_IPHONE, ipAddress: "203.0.113.7", createdAt: now, lastActiveAt: now, expiresAt: now },
@@ -133,7 +132,7 @@ describe("sessions card", () => {
       lastActiveAt: now,
       expiresAt: now,
     }));
-    const html = renderToStaticMarkup(<SessionsCard revokeDelayMinutes={5} sessions={many} />);
+    const html = renderToStaticMarkup(<SessionsCard sessions={many} />);
     expect(html.match(/<li /g)).toHaveLength(5);
     expect(html).toContain("Show 3 more sessions");
     expect(html).toContain("7 other devices are signed in.");

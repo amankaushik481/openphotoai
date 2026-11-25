@@ -18,13 +18,13 @@ import { describeUserAgent, deviceName } from "./user-agent";
 const VISIBLE_SESSIONS = 5;
 
 /** Where you're signed in, with "sign out" per device and for every other device. */
-export function SessionsCard({ sessions, revokeDelayMinutes }: { sessions: SessionDTO[]; revokeDelayMinutes: number }) {
+export function SessionsCard({ sessions }: { sessions: SessionDTO[] }) {
   const router = useRouter();
   const others = sessions.filter((s) => !s.current);
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? sessions : sessions.slice(0, VISIBLE_SESSIONS);
   const hidden = sessions.length - visible.length;
-  const delay = `Those devices are signed out within ${revokeDelayMinutes} minutes and need a new sign-in link.`;
+  const delay = "Those devices are signed out right away and need a new sign-in link.";
 
   async function revoke(session: SessionDTO) {
     await api(`/api/account/sessions/${encodeURIComponent(session.id)}`, { method: "DELETE" });
@@ -84,7 +84,7 @@ export function SessionsCard({ sessions, revokeDelayMinutes }: { sessions: Sessi
                       </Button>
                     }
                     title={`Sign out ${name}?`}
-                    description={`It's signed out within ${revokeDelayMinutes} minutes and needs a new sign-in link to get back in.`}
+                    description="It's signed out right away and needs a new sign-in link to get back in."
                     confirmLabel="Sign out device"
                     destructive
                     onConfirm={() => revoke(s)}

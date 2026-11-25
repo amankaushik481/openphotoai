@@ -1,16 +1,13 @@
 /**
  * Active sign-in sessions for the settings page: list them and sign out other devices.
- * Session tokens never leave the server (rows are addressed by id). Better Auth's cookie cache
- * keeps a revoked session usable for up to 5 minutes (docs/KNOWN_ISSUES.md, SEC-14).
+ * Session tokens never leave the server (rows are addressed by id). Better Auth's cookie cache is
+ * off (docs/reviews/security-2.md, S2-2), so a revoked session stops working on its next request.
  */
 import { and, desc, eq, gt, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { session } from "@/db/schema";
 import { getAuth } from "@/server/auth/auth";
 import { errors } from "@/server/http";
-
-/** Minutes a revoked session can keep working through Better Auth's cookie cache. */
-export const SESSION_REVOKE_DELAY_MINUTES = 5;
 
 export interface SessionDTO {
   id: string;

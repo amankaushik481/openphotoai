@@ -9,7 +9,7 @@ import { SessionsCard } from "@/components/settings/sessions-card";
 import { SignInMethodsCard } from "@/components/settings/sign-in-methods-card";
 import { DELETION_LINK_TTL_HOURS } from "@/server/account/deletion-request";
 import { listSignInMethods } from "@/server/account/profile";
-import { currentSessionId, listSessions, SESSION_REVOKE_DELAY_MINUTES } from "@/server/account/sessions";
+import { currentSessionId, listSessions } from "@/server/account/sessions";
 import { requireUserPage } from "@/server/auth/session";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -26,7 +26,7 @@ export default async function SettingsPage() {
         <ProfileCard initialName={user.name} email={user.email} />
         <PreferencesCard initialMarketingOptIn={user.marketingOptIn} />
         <SignInMethodsCard email={user.email} methods={methods} />
-        <SessionsCard sessions={sessions} revokeDelayMinutes={SESSION_REVOKE_DELAY_MINUTES} />
+        <SessionsCard sessions={sessions} />
         <DataExportCard />
         <DangerZoneCard email={user.email} linkTtlHours={DELETION_LINK_TTL_HOURS} />
       </div>
