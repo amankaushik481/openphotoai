@@ -38,7 +38,7 @@ function Json({ value, label }: { value: unknown; label: string }) {
     <pre
       tabIndex={0}
       aria-label={label}
-      className="max-h-96 overflow-auto rounded-lg bg-muted p-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap"
+      className="max-h-96 overflow-auto border border-foreground/15 bg-muted/60 p-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap"
     >
       {value === null || value === undefined ? "—" : JSON.stringify(value, null, 2)}
     </pre>
