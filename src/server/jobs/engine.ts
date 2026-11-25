@@ -18,7 +18,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { creditCost } from "@/config/credits";
 import { getPlan } from "@/config/plans";
-import { db } from "@/db";
+import { db, type Database, type Tx } from "@/db";
 import { batches, jobs, user as userTable, webhookEvents } from "@/db/schema";
 import type { BatchRow, JobRow, UserRow } from "@/db/types";
 import { env } from "@/lib/env";
@@ -193,20 +193,22 @@ function assertBalanceNotNegative(user: UserRow): void {
   );
 }
 
-/** Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). */
-async function assertConcurrency(user: UserRow): Promise<void> {
+/**
+ * Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). A check
+ * outside a transaction is only a fast path: parallel requests all pass it, so the authoritative check
+ * runs again with `tx` while the user row is locked, right before the job / batch row is inserted.
+ */
+async function assertConcurrency(user: UserRow, tx: Database | Tx = db): Promise<void> {
   const plan = getPlan(user.plan);
   const limit = plan.limits.maxConcurrentJobs;
-  const [[active], [running]] = await Promise.all([
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(jobs)
-      .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId))),
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(batches)
-      .where(and(eq(batches.userId, user.id), eq(batches.status, "running"))),
-  ]);
+  const [active] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(jobs)
+    .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId)));
+  const [running] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(batches)
+    .where(and(eq(batches.userId, user.id), eq(batches.status, "running")));
   if (Number(active?.n ?? 0) + Number(running?.n ?? 0) >= limit) {
     const upgrade = user.plan === "studio" ? "" : " or upgrade your plan";
     throw errors.planLimit(
@@ -256,7 +258,11 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
       // Lock the user row BEFORE inserting the job: the jobs.user_id FK takes a KEY SHARE lock on the
       // user row, and the debit below takes FOR UPDATE. Two concurrent creates for the same user would
       // otherwise each hold KEY SHARE and wait on the other's FOR UPDATE -> Postgres deadlock (40P01).
-      if (credits > 0) await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      // The same lock serializes the concurrency check with the insert (parallel creates can't overshoot).
+      if (credits > 0 || !opts?.batchId) {
+        await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      }
+      if (!opts?.batchId) await assertConcurrency(user, tx);
       const [row] = await tx
         .insert(jobs)
         .values({
@@ -388,16 +394,21 @@ export async function createBatch(
   await rateLimit("jobsPerDay", subject, req.count);
   await assertConcurrency(user);
 
-  const [batch] = await db
-    .insert(batches)
-    .values({
-      userId: user.id,
-      modelId: req.modelId,
-      packId: pack.slug,
-      brandKitId: req.brandKitId ?? null,
-      total: req.count,
-    })
-    .returning();
+  const [batch] = await db.transaction(async (tx) => {
+    // Authoritative concurrency check under the user lock (see assertConcurrency).
+    await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+    await assertConcurrency(user, tx);
+    return tx
+      .insert(batches)
+      .values({
+        userId: user.id,
+        modelId: req.modelId,
+        packId: pack.slug,
+        brandKitId: req.brandKitId ?? null,
+        total: req.count,
+      })
+      .returning();
+  });
   const batchId = batch!.id;
 
   // Round-robin over the pack's prompts, one image per job for maximum variety.
