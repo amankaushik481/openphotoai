@@ -123,6 +123,19 @@ export interface AdminJobDetail {
 
 /** Keys of `jobs.output` that point at private provider artifacts (trained weights). */
 const REDACTED_OUTPUT_KEYS = new Set(["modelRef"]);
+/** URLs (provider files, signed links) and storage keys: never shown, even to admins. */
+const SENSITIVE_STRING = /^(https?:\/\/|data:|users\/)/i;
+
+/** Deep copy of a job's output with weight references, URLs and storage keys replaced by "[redacted]". */
+export function redactJobOutput(value: unknown, key?: string): unknown {
+  if (key && REDACTED_OUTPUT_KEYS.has(key) && value) return "[redacted]";
+  if (typeof value === "string") return SENSITIVE_STRING.test(value) ? "[redacted]" : value;
+  if (Array.isArray(value)) return value.map((v) => redactJobOutput(v));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redactJobOutput(v, k)]));
+  }
+  return value;
+}
 
 /** Job inspector: the job, its credits, outputs and safety events. Throws not_found. */
 export async function getAdminJobDetail(jobId: string): Promise<AdminJobDetail> {
@@ -155,10 +168,6 @@ export async function getAdminJobDetail(jobId: string): Promise<AdminJobDetail> 
     db.select().from(moderationEvents).where(eq(moderationEvents.jobId, jobId)).orderBy(desc(moderationEvents.createdAt)),
   ]);
 
-  const output = row.job.output
-    ? Object.fromEntries(
-        Object.entries(row.job.output).map(([key, value]) => [key, REDACTED_OUTPUT_KEYS.has(key) && value ? "[redacted]" : value]),
-      )
-    : null;
+  const output = row.job.output ? (redactJobOutput(row.job.output) as JobRow["output"]) : null;
   return { job: { ...row.job, output, userEmail: row.userEmail }, ledger, media: outputs, events };
 }

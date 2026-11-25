@@ -91,12 +91,12 @@ export function TeamManager({ initialDetail, teams, packs, canCreateTeam }: Team
         </Alert>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="grid min-w-0 gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="grid min-w-0 grid-cols-1 gap-6">
           <MembersCard detail={detail} onChanged={refresh} onGiveCredits={(userId) => setTransferTo(userId)} />
           <BrandKitsCard teamId={teamId} kits={detail.brandKits} canManage={me.canManage} packs={packs} onChanged={refresh} />
         </div>
-        <div className="grid min-w-0 gap-6">
+        <div className="grid min-w-0 grid-cols-1 gap-6">
           <CreditsCard isOwner={me.isOwner} ownerName={team.ownerName} onTransfer={() => setTransferTo(null)} />
           <TeamGalleryNote />
           <TeamSettingsCard detail={detail} onChanged={refresh} />

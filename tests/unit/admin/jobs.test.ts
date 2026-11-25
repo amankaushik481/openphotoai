@@ -84,7 +84,11 @@ describe("getAdminJobDetail (job inspector)", () => {
     const job = await chargedJob(6, {
       status: "succeeded",
       type: "train",
-      output: { modelRef: "https://fal.media/files/secret-lora.safetensors", finalPrompt: "a photo" },
+      output: {
+        modelRef: "fal-lora-ref-123",
+        finalPrompt: "a photo",
+        plan: { identity: { url: "https://cdn.test/u/selfie.jpg?sig=x", key: "users/usr_1/photos/a.jpg" }, seeds: [1, 2] },
+      },
     });
     await refundJob(job.id, { amount: 2, tag: "likeness", note: "Low likeness" });
     await createTestMedia(u.id, { jobId: job.id });
@@ -92,7 +96,11 @@ describe("getAdminJobDetail (job inspector)", () => {
 
     const detail = await getAdminJobDetail(job.id);
     expect(detail.job).toMatchObject({ id: job.id, userEmail: "u@example.com", status: "succeeded" });
-    expect(detail.job.output).toEqual({ modelRef: "[redacted]", finalPrompt: "a photo" });
+    expect(detail.job.output).toEqual({
+      modelRef: "[redacted]",
+      finalPrompt: "a photo",
+      plan: { identity: { url: "[redacted]", key: "[redacted]" }, seeds: [1, 2] },
+    });
     expect(detail.ledger.map((e) => [e.reason, e.delta])).toEqual([
       ["job_debit", -6],
       ["job_refund", 2],
