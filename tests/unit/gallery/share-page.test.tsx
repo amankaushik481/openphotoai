@@ -50,6 +50,38 @@ describe("/s/[token]", () => {
     expect(meta.openGraph?.images).toBeDefined();
   });
 
+  it("offers a download (attachment URL), a made-with card and a descriptive share preview", async () => {
+    const m = await seedMedia(alice.id, 1);
+    const link = await createShare(alice.id, { mediaId: m.id });
+
+    const html = renderToStaticMarkup(await SharedMediaPage(props(link.token))).replace(/&amp;/g, "&");
+    const download = /href="([^"]+)" download=""/.exec(html)?.[1];
+    expect(download).toBeDefined();
+    expect(new URL(download!, "http://x.invalid").searchParams.get("dl")).toMatch(new RegExp(`^openshoot-${m.id}\\.`));
+    expect(html).toContain("Download photo");
+    expect(html).toContain("Made with OpenShoot</h2>");
+    expect(html).toContain('href="/packs"');
+
+    const meta = await generateMetadata(props(link.token));
+    expect(meta.openGraph?.siteName).toBe("OpenShoot");
+    expect(meta.description).toContain("open-source AI photographer");
+    expect(JSON.stringify(meta.openGraph?.images)).toContain('"alt":"AI-generated photo made with OpenShoot"');
+  });
+
+  it("previews a shared video with its poster frame", async () => {
+    const v = await seedMedia(alice.id, 1, {
+      kind: "video",
+      mimeType: "video/mp4",
+      storageKey: `users/${alice.id}/media/clip.mp4`,
+      thumbKey: `users/${alice.id}/media/clip.thumb.webp`,
+    });
+    const link = await createShare(alice.id, { mediaId: v.id });
+    const meta = await generateMetadata(props(link.token));
+    expect(meta.title).toBe("Shared video");
+    expect(JSON.stringify(meta.openGraph?.images)).toContain("clip.thumb.webp");
+    expect(meta.twitter).toMatchObject({ card: "summary_large_image" });
+  });
+
   it("renders a shared folder", async () => {
     const [folder] = await db.insert(folders).values({ userId: alice.id, name: "Summer trip" }).returning();
     await seedMedia(alice.id, 1, { folderId: folder!.id });
