@@ -25,7 +25,12 @@ async function chargedJob(amount: number, overrides: Parameters<typeof createTes
 describe("listJobs", () => {
   it("filters by status, type and user, newest first with cost + credits columns", async () => {
     const other = await createTestUser();
-    const failed = await createTestJob(u.id, { status: "failed", error: "provider exploded", costUsd: 0.035, createdAt: new Date(Date.now() - 1000) });
+    const failed = await createTestJob(u.id, {
+      status: "failed",
+      error: "provider exploded",
+      costUsd: 0.035,
+      createdAt: new Date(Date.now() - 1000),
+    });
     await createTestJob(u.id, { status: "succeeded" });
     await createTestJob(other.id, { status: "failed" });
 
@@ -34,7 +39,12 @@ describe("listJobs", () => {
 
     const mineFailed = await listJobs({ status: "failed", userId: u.id });
     expect(mineFailed.jobs).toEqual([
-      expect.objectContaining({ id: failed.id, error: "provider exploded", userEmail: "u@example.com", creditsCharged: 0 }),
+      expect.objectContaining({
+        id: failed.id,
+        error: "provider exploded",
+        userEmail: "u@example.com",
+        creditsCharged: 0,
+      }),
     ]);
     expect(mineFailed.jobs[0]!.costUsd).toBeCloseTo(0.035);
     expect((await listJobs({ type: "video" })).jobs).toHaveLength(0);
@@ -55,8 +65,16 @@ describe("refundJobAdmin", () => {
     const result = await refundJobAdmin(admin.id, job.id, "Bad results");
     expect(result).toEqual({ refunded: 5, creditsRefunded: 8 });
 
-    const [entry] = await db.select().from(creditLedger).where(eq(creditLedger.idempotencyKey, `job:${job.id}:refund:admin`));
-    expect(entry).toMatchObject({ delta: 5, reason: "job_refund", createdBy: admin.id, note: "Admin refund: Bad results" });
+    const [entry] = await db
+      .select()
+      .from(creditLedger)
+      .where(eq(creditLedger.idempotencyKey, `job:${job.id}:refund:admin`));
+    expect(entry).toMatchObject({
+      delta: 5,
+      reason: "job_refund",
+      createdBy: admin.id,
+      note: "Admin refund: Bad results",
+    });
     expect((await db.select().from(jobs).where(eq(jobs.id, job.id)))[0]!.creditsRefunded).toBe(8);
   });
 
@@ -87,12 +105,20 @@ describe("getAdminJobDetail (job inspector)", () => {
       output: {
         modelRef: "fal-lora-ref-123",
         finalPrompt: "a photo",
-        plan: { identity: { url: "https://cdn.test/u/selfie.jpg?sig=x", key: "users/usr_1/photos/a.jpg" }, seeds: [1, 2] },
+        plan: {
+          identity: { url: "https://cdn.test/u/selfie.jpg?sig=x", key: "users/usr_1/photos/a.jpg" },
+          seeds: [1, 2],
+        },
+        // Regression (review): URLs inside provider error text were shown as-is (only leading ones were caught).
+        failureDetail:
+          "could not download https://bucket.s3.test/users/usr_1/uploads/up_1.jpg?X-Amz-Signature=abc (key users/usr_1/uploads/up_1.jpg)",
       },
     });
     await refundJob(job.id, { amount: 2, tag: "likeness", note: "Low likeness" });
     await createTestMedia(u.id, { jobId: job.id });
-    await db.insert(moderationEvents).values({ userId: u.id, jobId: job.id, kind: "output_blocked", details: { n: 1 } });
+    await db
+      .insert(moderationEvents)
+      .values({ userId: u.id, jobId: job.id, kind: "output_blocked", details: { n: 1 } });
 
     const detail = await getAdminJobDetail(job.id);
     expect(detail.job).toMatchObject({ id: job.id, userEmail: "u@example.com", status: "succeeded" });
@@ -100,6 +126,7 @@ describe("getAdminJobDetail (job inspector)", () => {
       modelRef: "[redacted]",
       finalPrompt: "a photo",
       plan: { identity: { url: "[redacted]", key: "[redacted]" }, seeds: [1, 2] },
+      failureDetail: "could not download [redacted] (key [redacted])",
     });
     expect(detail.ledger.map((e) => [e.reason, e.delta])).toEqual([
       ["job_debit", -6],

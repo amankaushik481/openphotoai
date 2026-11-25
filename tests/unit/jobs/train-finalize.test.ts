@@ -37,7 +37,11 @@ const LORA_URL = "https://v3.fal.media/files/lora/abc/pytorch_lora_weights.safet
 const LORA_BYTES = new Uint8Array(4096).fill(7);
 
 /** fetch() of the weights: resolves at once unless a test parks the next call. */
-const weightsFetch = { park: false, parked: null as null | (() => void), onFetch: null as null | (() => Promise<void>) };
+const weightsFetch = {
+  park: false,
+  parked: null as null | (() => void),
+  onFetch: null as null | (() => Promise<void>),
+};
 
 function fakeFal() {
   const base = createMockAIProvider();
@@ -94,7 +98,13 @@ beforeEach(async () => {
   // The 40 credits the job was charged (so refunds have something to give back).
   const { applyCredit } = await import("@/server/credits/ledger");
   await applyCredit({ userId: u.id, delta: 40, reason: "admin_adjust", idempotencyKey: `seed:${u.id}` });
-  await applyCredit({ userId: u.id, delta: -40, reason: "job_debit", jobId: job.id, idempotencyKey: `job:${job.id}:debit` });
+  await applyCredit({
+    userId: u.id,
+    delta: -40,
+    reason: "job_debit",
+    jobId: job.id,
+    idempotencyKey: `job:${job.id}:debit`,
+  });
 });
 
 afterEach(() => {
@@ -199,7 +209,11 @@ describe("model deletion racing a training completion", () => {
           return new;
         end $$`),
     );
-    await db.execute(sql.raw(`create trigger sim_late_ready before update on identity_models for each row execute function sim_late_ready()`));
+    await db.execute(
+      sql.raw(
+        `create trigger sim_late_ready before update on identity_models for each row execute function sim_late_ready()`,
+      ),
+    );
     const { deleteModelCompletely } = await import("@/server/models/service");
     const result = await deleteModelCompletely(u.id, model.id, { notify: false });
     expect(fal.deleteModel).toHaveBeenCalledWith(LORA_URL);
@@ -220,11 +234,15 @@ describe("finalization lease heartbeat", () => {
     // Nearly FINALIZE_LEASE_SEC into the download...
     await db
       .update(jobs)
-      .set({ output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now() - make_interval(secs => ${FINALIZE_LEASE_SEC - 10})))` })
+      .set({
+        output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now() - make_interval(secs => ${FINALIZE_LEASE_SEC - 10})))`,
+      })
       .where(eq(jobs.id, job.id));
     const leaseAge = async () => {
       const [row] = await db
-        .select({ age: sql<number>`extract(epoch from now() - (${jobs.output} -> 'finalizing' ->> 'at')::timestamptz)` })
+        .select({
+          age: sql<number>`extract(epoch from now() - (${jobs.output} -> 'finalizing' ->> 'at')::timestamptz)`,
+        })
         .from(jobs)
         .where(eq(jobs.id, job.id));
       return Number(row!.age);
@@ -236,10 +254,7 @@ describe("finalization lease heartbeat", () => {
     expect(await leaseAge()).toBeLessThan(60);
 
     // A cron pass once the original lease would have expired can't take over.
-    await db
-      .update(jobs)
-      .set({ lastPolledAt: null })
-      .where(eq(jobs.id, job.id));
+    await db.update(jobs).set({ lastPolledAt: null }).where(eq(jobs.id, job.id));
     const other = await syncJob(job.id, { force: true });
     expect(other.status).toBe("running");
     expect(other.attempts).toBe(1);
@@ -248,5 +263,55 @@ describe("finalization lease heartbeat", () => {
     const done = await slow;
     expect(done.status).toBe("succeeded");
     expect(done.attempts).toBe(1);
+  });
+});
+
+// Regression (review): the model turning ready moved into the success transaction (handler commit),
+// out of complete()'s error handling. A failing commit escaped completeJob: the lease sat until it
+// expired, discard() never ran (each attempt's weights copy was orphaned), and attempts never counted
+// toward MAX_FINALIZE_ATTEMPTS.
+describe("a failing commit of the success transaction", () => {
+  it("drops the attempt's weights copy, gives the lease back, and fails + refunds after the last attempt", async () => {
+    await db.execute(
+      sql.raw(`create function sim_commit_fails() returns trigger language plpgsql as $$
+        begin
+          if new.status = 'ready' then raise exception 'simulated commit failure'; end if;
+          return new;
+        end $$`),
+    );
+    await db.execute(
+      sql.raw(
+        `create trigger sim_commit_fails before update on identity_models for each row execute function sim_commit_fails()`,
+      ),
+    );
+    const stored: string[] = [];
+    const put = getStorage().put.bind(getStorage());
+    vi.spyOn(getStorage(), "put").mockImplementation(async (key, ...rest) => {
+      if (key.includes("/weights/")) stored.push(key);
+      return put(key, ...rest);
+    });
+    const { MAX_FINALIZE_ATTEMPTS } = await import("@/server/jobs/engine");
+
+    await syncJob(job.id, { force: true });
+    let { job: j } = await reload();
+    expect(j.status).toBe("running");
+    expect(stored).toHaveLength(1);
+    expect(await getStorage().exists(stored[0]!)).toBe(false); // discarded, not orphaned
+    // The lease was given back (backdated), not held until it expires.
+    const finalizing = (j.output as { finalizing?: { at: string } }).finalizing;
+    expect(finalizing).toBeDefined();
+    expect(Date.now() - Date.parse(finalizing!.at)).toBeGreaterThan(60_000);
+
+    for (let i = 1; i < MAX_FINALIZE_ATTEMPTS; i++) {
+      await db.execute(sql`update jobs set output = output - 'finalizing' where id = ${job.id}`);
+      await syncJob(job.id, { force: true });
+    }
+    ({ job: j } = await reload());
+    expect(j.status).toBe("failed");
+    expect(await getBalance(u.id)).toBe(40); // refunded
+    expect(stored).toHaveLength(MAX_FINALIZE_ATTEMPTS);
+    for (const key of stored) expect(await getStorage().exists(key)).toBe(false);
+    const { model: m } = await reload();
+    expect(m.status).not.toBe("ready");
   });
 });

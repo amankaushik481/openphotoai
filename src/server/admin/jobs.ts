@@ -42,7 +42,9 @@ export interface ListJobsFilter {
 }
 
 /** Newest first, across all users. `cursor` is the id of the last job of the previous page. */
-export async function listJobs(filter: ListJobsFilter = {}): Promise<{ jobs: AdminJobItem[]; nextCursor: string | null }> {
+export async function listJobs(
+  filter: ListJobsFilter = {},
+): Promise<{ jobs: AdminJobItem[]; nextCursor: string | null }> {
   const limit = pageSize(filter.limit);
   const conditions: SQL[] = [];
   if (filter.status) conditions.push(eq(jobs.status, filter.status));
@@ -98,7 +100,9 @@ export async function refundJobAdmin(
     .limit(1);
   if (!job) throw errors.notFound("Job");
   if (!isTerminalJobStatus(job.status)) {
-    throw errors.conflict("This job is still in progress. Failed jobs are refunded automatically; refund it once it has finished.");
+    throw errors.conflict(
+      "This job is still in progress. Failed jobs are refunded automatically; refund it once it has finished.",
+    );
   }
   if (job.charged - job.refunded <= 0) throw errors.conflict("Nothing left to refund on this job.");
 
@@ -116,20 +120,30 @@ export interface AdminJobDetail {
   /** Every ledger entry for this job (debit, refunds), oldest first. */
   ledger: CreditLedgerRow[];
   /** Media the job produced (removed and deleted ones included). */
-  media: { id: string; kind: string; isDraft: boolean; removedAt: Date | null; deletedAt: Date | null; createdAt: Date }[];
+  media: {
+    id: string;
+    kind: string;
+    isDraft: boolean;
+    removedAt: Date | null;
+    deletedAt: Date | null;
+    createdAt: Date;
+  }[];
   /** Safety events recorded for this job, newest first. */
   events: ModerationEventRow[];
 }
 
 /** Keys of `jobs.output` that point at private provider artifacts (trained weights). */
 const REDACTED_OUTPUT_KEYS = new Set(["modelRef"]);
-/** URLs (provider files, signed links) and storage keys: never shown, even to admins. */
-const SENSITIVE_STRING = /^(https?:\/\/|data:|users\/)/i;
+/**
+ * URLs (provider files, signed links), data URIs and storage keys: never shown, even to admins.
+ * Matched anywhere in a string: provider error text (`failureDetail`) quotes signed URLs mid-sentence.
+ */
+const SENSITIVE_SUBSTRING = /\b(?:https?:\/\/|data:)[^\s"'<>()[\]{}]+|(?<![\w/])users\/[^\s"'<>()[\]{}]+/gi;
 
 /** Deep copy of a job's output with weight references, URLs and storage keys replaced by "[redacted]". */
 export function redactJobOutput(value: unknown, key?: string): unknown {
   if (key && REDACTED_OUTPUT_KEYS.has(key) && value) return "[redacted]";
-  if (typeof value === "string") return SENSITIVE_STRING.test(value) ? "[redacted]" : value;
+  if (typeof value === "string") return value.replace(SENSITIVE_SUBSTRING, "[redacted]");
   if (Array.isArray(value)) return value.map((v) => redactJobOutput(v));
   if (value && typeof value === "object") {
     return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redactJobOutput(v, k)]));
@@ -165,9 +179,15 @@ export async function getAdminJobDetail(jobId: string): Promise<AdminJobDetail> 
       .from(media)
       .where(eq(media.jobId, jobId))
       .orderBy(asc(media.createdAt)),
-    db.select().from(moderationEvents).where(eq(moderationEvents.jobId, jobId)).orderBy(desc(moderationEvents.createdAt)),
+    db
+      .select()
+      .from(moderationEvents)
+      .where(eq(moderationEvents.jobId, jobId))
+      .orderBy(desc(moderationEvents.createdAt)),
   ]);
 
   const output = row.job.output ? (redactJobOutput(row.job.output) as JobRow["output"]) : null;
-  return { job: { ...row.job, output, userEmail: row.userEmail }, ledger, media: outputs, events };
+  // API callers can pass image URLs in the input: same treatment.
+  const input = redactJobOutput(row.job.input) as JobRow["input"];
+  return { job: { ...row.job, input, output, userEmail: row.userEmail }, ledger, media: outputs, events };
 }
