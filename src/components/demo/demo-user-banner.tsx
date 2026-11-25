@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -25,16 +25,27 @@ export function DemoUserBanner({ cookieName, ttlHours }: DemoUserBannerProps) {
     <div
       role="status"
       data-testid="demo-user-banner"
-      className="flex items-center gap-3 border-b border-primary/25 bg-primary/10 py-2 pr-2 pl-4 text-sm text-foreground"
+      className="flex items-center gap-3 border-b border-darkroom-line bg-darkroom py-1.5 pr-2 pl-4 text-sm text-darkroom-foreground sm:pl-6 lg:pl-8"
     >
-      <FlaskConical className="size-4 shrink-0 text-primary" aria-hidden />
-      <p className="flex-1">
-        <strong className="font-semibold">You&apos;re in a demo</strong>
+      {/* Darkroom band: a lab label for a throwaway roll. */}
+      <span aria-hidden="true" className="flex shrink-0 items-center gap-2 font-mono text-[0.625rem] tracking-[0.18em] text-darkroom-safelight uppercase">
+        <span className="size-1.5 rounded-full bg-darkroom-safelight shadow-[0_0_8px_var(--darkroom-safelight)]" />
+        <span className="hidden sm:inline">Demo roll</span>
+      </span>
+      <p className="min-w-0 flex-1 text-darkroom-muted">
+        <strong className="font-medium text-darkroom-foreground">You&apos;re in a demo</strong>
         <span aria-hidden> — </span>
         <span className="sr-only">: </span>
         data is deleted after {ttlHours}h.
       </p>
-      <Button type="button" variant="ghost" size="icon-sm" onClick={dismiss} aria-label="Dismiss demo notice">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={dismiss}
+        aria-label="Dismiss demo notice"
+        className="text-darkroom-muted hover:bg-white/10 hover:text-darkroom-foreground"
+      >
         <XIcon aria-hidden />
       </Button>
     </div>

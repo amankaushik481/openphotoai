@@ -61,8 +61,11 @@ export const APP_NAV_GROUPS: NavGroup[] = [
 
 export const ADMIN_LINK: NavItem = { href: "/admin", labelKey: "nav.admin", icon: ShieldIcon };
 
-/** Mobile bottom bar (the 5th slot is "More"). */
-export const MOBILE_PRIMARY_NAV: NavItem[] = [item.create, item.packs, item.gallery, item.models];
+/** Mobile bottom bar, left to right around the raised Create (shutter) button; the last slot is "More". */
+export const MOBILE_PRIMARY_NAV: NavItem[] = [item.packs, item.gallery, item.models];
+
+/** The raised safelight action in the middle of the mobile bottom bar. */
+export const MOBILE_CREATE_NAV: NavItem = item.create;
 
 /** Everything else, shown in the mobile "More" sheet. */
 export const MOBILE_MORE_NAV: NavItem[] = [
@@ -84,7 +87,6 @@ export const ADMIN_NAV: NavItem[] = [
   { href: "/admin/moderation", labelKey: "admin.moderation", icon: ShieldAlertIcon },
   { href: "/admin/revenue", labelKey: "admin.revenue", icon: DollarSignIcon },
 ];
-
 
 export function isNavActive(pathname: string | null, nav: Pick<NavItem, "href" | "match">): boolean {
   if (!pathname) return false;
