@@ -9,7 +9,7 @@ import { FinalCta } from "@/components/marketing/final-cta";
 import { JsonLd } from "@/components/marketing/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CREDIT_COSTS } from "@/config/credits";
+import { CREDIT_COSTS, INSTANT_MODE_MULTIPLIER } from "@/config/credits";
 import { formatCreditCost } from "@/content/credit-costs";
 import { PACK_CATEGORY_INFO, relatedPacks } from "@/content/packs";
 import { marketingMetadata, packPath, packSignupHref } from "@/content/site";
@@ -74,10 +74,7 @@ export default async function PackPage({ params }: Params) {
         <nav aria-label="Breadcrumb">
           <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <li>
-              <Link
-                href="/packs"
-                className="rounded-sm hover:text-foreground"
-              >
+              <Link href="/packs" className="rounded-sm hover:text-foreground">
                 Packs
               </Link>
             </li>
@@ -85,10 +82,7 @@ export default async function PackPage({ params }: Params) {
               <ChevronRightIcon className="size-3.5" />
             </li>
             <li>
-              <Link
-                href={`/packs?category=${pack.category}`}
-                className="rounded-sm hover:text-foreground"
-              >
+              <Link href={`/packs?category=${pack.category}`} className="rounded-sm hover:text-foreground">
                 {category.label}
               </Link>
             </li>
@@ -103,7 +97,7 @@ export default async function PackPage({ params }: Params) {
 
         <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14">
           <div
-            className="grain relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl shadow-[0_30px_80px_-40px_rgb(0_0_0/0.5)] lg:sticky lg:top-24"
+            className="grain relative mx-auto aspect-[16/10] w-full max-w-md overflow-hidden rounded-3xl sm:aspect-[4/5] shadow-[0_30px_80px_-40px_rgb(0_0_0/0.5)] lg:sticky lg:top-24"
             style={pack.cover ? undefined : { backgroundImage: packGradient(pack.colors) }}
           >
             {pack.cover ? (
@@ -151,6 +145,11 @@ export default async function PackPage({ params }: Params) {
                 </div>
               ))}
             </dl>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {formatCreditCost(CREDIT_COSTS.generateStandard)} per standard photo (
+              {formatCreditCost(CREDIT_COSTS.generateStandard * INSTANT_MODE_MULTIPLIER)} with an Instant model). Drafts
+              are free, and you choose which styles to render.
+            </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
