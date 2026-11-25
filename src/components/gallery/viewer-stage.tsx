@@ -221,7 +221,8 @@ export function ViewerStage({
           title={zoomed ? "Zoom out (Esc)" : "Zoom in (or double-click the photo)"}
           onClick={() => toggleZoomAt()}
           onPointerDown={(e) => e.stopPropagation()}
-          className="absolute right-3 bottom-3 bg-background/85 shadow-sm backdrop-blur-sm"
+          // Top-right: AI labels and watermarks sit at the bottom of the photo.
+          className="absolute top-3 right-3 bg-background/85 shadow-sm backdrop-blur-sm"
         >
           {zoomed ? <ZoomOutIcon /> : <ZoomInIcon />}
         </Button>
