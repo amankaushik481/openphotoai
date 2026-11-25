@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
 import { GithubIcon } from "@/components/layout/icons";
 import { LogoMark } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -34,7 +33,7 @@ export function MarketingMobileNavSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-[85%] max-w-xs"
+        className="w-[88%] max-w-sm"
         // Radix skips links when picking the first element to focus, which landed on the theme toggle at the
         // bottom. Start at the first menu link instead.
         onOpenAutoFocus={(event) => {
@@ -49,26 +48,36 @@ export function MarketingMobileNavSheet({
           triggerRef.current?.focus();
         }}
       >
-        <SheetHeader className="border-b">
-          <SheetTitle className="flex items-center gap-2">
+        <SheetHeader className="border-b border-border">
+          <SheetTitle className="flex items-center gap-2.5">
             <LogoMark className="size-6" />
-            <span className="font-display text-xl font-normal">{APP.name}</span>
+            <span className="font-display text-[1.45rem] font-normal">{APP.name}</span>
           </SheetTitle>
           <SheetDescription className="sr-only">{t("nav.mainNavigation")}</SheetDescription>
         </SheetHeader>
-        <nav ref={navRef} aria-label={t("nav.mainNavigation")} className="flex flex-col gap-1 px-2">
-          {MARKETING_LINKS.map((link) =>
-            link.external ? (
+        <nav ref={navRef} aria-label={t("nav.mainNavigation")} className="flex flex-col px-5">
+          {MARKETING_LINKS.map((link, i) => {
+            const no = (
+              <span aria-hidden="true" className="mono-caps w-8 shrink-0 text-muted-foreground not-italic">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+            );
+            const row =
+              "flex min-h-14 items-baseline gap-2 border-b border-border py-3 font-display text-[1.875rem] leading-none tracking-[-0.01em] aria-[current=page]:italic";
+            return link.external ? (
               <a
                 key={link.href}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={close}
-                className="flex h-11 items-center gap-2 rounded-md px-3 text-base font-medium hover:bg-accent"
+                className={row}
               >
-                <GithubIcon className="size-4" />
-                {t(link.labelKey)}
+                {no}
+                <span className="flex items-center gap-2">
+                  {t(link.labelKey)}
+                  <GithubIcon className="size-4 self-center" />
+                </span>
                 <span className="sr-only">(opens in a new tab)</span>
               </a>
             ) : (
@@ -77,23 +86,23 @@ export function MarketingMobileNavSheet({
                 href={link.href}
                 onClick={close}
                 aria-current={isCurrentPath(pathname, link.href) ? "page" : undefined}
-                className="flex h-11 items-center rounded-md px-3 text-base font-medium hover:bg-accent aria-[current=page]:bg-accent"
+                className={row}
               >
+                {no}
                 {t(link.labelKey)}
               </Link>
-            ),
-          )}
+            );
+          })}
         </nav>
-        <Separator />
-        <div className="flex flex-col gap-2 px-4 pb-4">
-          <Button asChild variant="brand" size="lg" onClick={close}>
+        <div className="mt-auto flex flex-col gap-3 px-5 pb-6">
+          <Button asChild variant="brand" size="lg" onClick={close} className="h-12 rounded-[3px]">
             <Link href="/app">{t("nav.getStarted")}</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" onClick={close}>
+          <Button asChild variant="outline" size="lg" onClick={close} className="h-12 rounded-[3px]">
             <Link href="/login">{t("nav.signIn")}</Link>
           </Button>
-          <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
-            <span>{t("user.theme")}</span>
+          <div className="flex items-center justify-between border-t border-border pt-3 text-sm text-muted-foreground">
+            <span className="mono-caps">{t("user.theme")}</span>
             <ThemeToggle />
           </div>
         </div>
