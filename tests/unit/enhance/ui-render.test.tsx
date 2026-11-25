@@ -79,9 +79,11 @@ describe("EnhanceQuickActions", () => {
   it("renders labelled icon buttons with costs", () => {
     const html = renderToStaticMarkup(<EnhanceQuickActions media={media()} />);
     expect(html).toContain('aria-label="Quick enhancements"');
-    expect(html).toContain('aria-label="Upscale 2× (2 credits)"');
-    expect(html).toContain('aria-label="Restore face (1 credit)"');
-    expect(html).toContain('aria-label="Remove background (1 credit)"');
+    // Names start with the visible "<label> <cost>" and keep the cost out of parentheses: label-in-name
+    // checks (axe label-content-name-mismatch) ignore parenthesized text.
+    expect(html).toContain('aria-label="Upscale 2×, 2 credits"');
+    expect(html).toContain('aria-label="Restore face, 1 credit"');
+    expect(html).toContain('aria-label="Remove background, 1 credit"');
     expect(html).not.toContain('aria-disabled="true"');
   });
 

@@ -68,7 +68,11 @@ function QuickActionButton({
   const router = useRouter();
   const availability = actionAvailability(media, spec.action);
   const cost = enhanceCost(spec.action);
-  const label = `${spec.label} (${cost === 1 ? "1 credit" : `${cost} credits`})`;
+  const costText = cost === 1 ? "1 credit" : `${cost} credits`;
+  const label = `${spec.label} (${costText})`;
+  // Accessible name: starts with the visible "<label> <cost>" (WCAG 2.5.3 label in name). Parenthesized
+  // text doesn't count as part of the name for that check, so the cost isn't in parentheses here.
+  const name = `${spec.label}, ${costText}`;
 
   const { busy, run } = useEnhanceJob({
     onJobCreated: (job) => {
@@ -106,7 +110,7 @@ function QuickActionButton({
           type="button"
           size={labeled ? "sm" : "icon-sm"}
           variant={labeled ? "outline" : "ghost"}
-          aria-label={availability.reason ? `${spec.label}: ${availability.reason}` : tooltip}
+          aria-label={availability.reason ? `${name}: ${availability.reason}` : busy ? `${name}: working…` : name}
           aria-disabled={blocked || undefined}
           aria-busy={busy || undefined}
           // Touch has no hover tooltip: show the name and credit cost before a tap starts a paid job.

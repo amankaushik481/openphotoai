@@ -71,13 +71,14 @@ export function UserMenu({ user, shortcuts = false }: { user: ShellUser; shortcu
 
   return (
     <DropdownMenu>
-      {/* The name includes the visible initials (WCAG 2.5.3 label in name: voice users say what they see). */}
+      {/* The name starts with the visible initials (WCAG 2.5.3 label in name: voice users say what they
+          see). Not in parentheses: label-in-name checks ignore parenthesized text. */}
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
           className="rounded-full"
-          aria-label={`${t("user.menu")} (${initials(user.name, user.email)})`}
+          aria-label={`${initials(user.name, user.email)}, ${t("user.menu")}`}
         >
           <Avatar className="size-8 ring-1 ring-border">
             {user.image && <AvatarImage src={user.image} alt="" />}
