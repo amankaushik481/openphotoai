@@ -15,7 +15,7 @@ import { env } from "@/lib/env";
 import { newId } from "@/lib/ids";
 import { CLIENT_IP_HEADER } from "@/server/http";
 import { enforceMagicLinkRateLimit, toVerifyPageUrl } from "./magic-link";
-import { admitSignIn, onUserCreated, prepareNewUser, type SignInBlock } from "./user-policy";
+import { admitSignIn, onUserCreated, prepareNewUser, sanitizeDisplayName, type SignInBlock } from "./user-policy";
 
 const ID_PREFIX: Record<string, string> = { user: "usr", session: "ses", account: "acc", verification: "ver" };
 
@@ -71,6 +71,9 @@ function createAuth() {
       // Only the IP our auth route resolved with the trusted-proxy rules (clientIpFromHeaders); the
       // route strips any client-sent copy. Unknown IP => Better Auth's shared per-path bucket.
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+      // Better Auth skips its origin, callback-URL and CSRF checks when NODE_ENV is "test" unless this
+      // is set explicitly. It is the production value; setting it makes the unit tests exercise it.
+      disableOriginCheck: false,
     },
     // Profile edits go through PATCH /api/me (validated, length-capped). Better Auth's update-user
     // would accept any `image` URL (rendered to teammates) and an unbounded `name` (used in emails).
@@ -95,7 +98,10 @@ function createAuth() {
     session: {
       expiresIn: SESSION_TTL_SEC,
       updateAge: 60 * 60 * 24,
-      cookieCache: { enabled: true, maxAge: 5 * 60 },
+      // No cookie cache: a cached `session_data` cookie kept a signed-out or revoked session (a stolen
+      // cookie) working for up to its maxAge. Every request reads the session row instead (one indexed
+      // lookup next to the user row request auth loads anyway), so revocation is immediate.
+      cookieCache: { enabled: false },
     },
     onAPIError: { errorURL: `${appUrl}/login` },
     databaseHooks: {
@@ -105,6 +111,11 @@ function createAuth() {
           after: async (created) => {
             await onUserCreated({ id: created.id, email: created.email, name: created.name });
           },
+        },
+        // Defence in depth (update-user is disabled): any name Better Auth writes later is sanitized too.
+        update: {
+          before: async (data) =>
+            typeof data.name === "string" ? { data: { ...data, name: sanitizeDisplayName(data.name) } } : { data },
         },
       },
       session: {

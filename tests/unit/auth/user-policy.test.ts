@@ -49,8 +49,9 @@ describe("prepareNewUser", () => {
     });
   });
 
-  it("assigns admin for ADMIN_EMAILS (case-insensitive)", () => {
-    expect(prepareNewUser({ email: "BOSS@example.com" }, admins).role).toBe("admin");
+  it("assigns admin for verified ADMIN_EMAILS addresses (case-insensitive)", () => {
+    expect(prepareNewUser({ email: "BOSS@example.com", emailVerified: true }, admins).role).toBe("admin");
+    expect(prepareNewUser({ email: "BOSS@example.com", emailVerified: false }, admins).role).toBe("user");
     expect(isAdminEmail("boss@example.com", admins)).toBe(true);
     expect(isAdminEmail("boss@example.co", admins)).toBe(false);
   });
