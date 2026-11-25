@@ -12,7 +12,7 @@ export interface GalleryFilters {
   showHidden?: boolean;
 }
 
-export type GalleryView = "all" | "favorites" | "videos";
+export type GalleryView = "all" | "favorites" | "photos" | "videos";
 
 type ParamsLike = Pick<URLSearchParams, "get">;
 
@@ -67,6 +67,7 @@ export function mediaPageUrl(f: GalleryFilters, opts: { cursor?: string | null; 
 export function viewOf(f: GalleryFilters): GalleryView {
   if (f.favorite) return "favorites";
   if (f.kind === "video") return "videos";
+  if (f.kind === "image") return "photos";
   return "all";
 }
 
@@ -74,7 +75,7 @@ export function withView(f: GalleryFilters, view: GalleryView): GalleryFilters {
   return {
     ...f,
     favorite: view === "favorites" ? true : undefined,
-    kind: view === "videos" ? "video" : undefined,
+    kind: view === "videos" ? "video" : view === "photos" ? "image" : undefined,
   };
 }
 

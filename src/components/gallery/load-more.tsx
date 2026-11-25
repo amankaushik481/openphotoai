@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { LoaderCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface LoadMoreProps {
   hasMore: boolean;
@@ -13,7 +13,8 @@ export interface LoadMoreProps {
 
 /**
  * Infinite scroll: loads the next page when the sentinel nears the viewport. The button is the
- * fallback (no IntersectionObserver, keyboard users, or a page that doesn't fill the screen).
+ * fallback (no IntersectionObserver, keyboard users, or a page that doesn't fill the screen). While a
+ * page loads, placeholder tiles hold its place, so the grid grows instead of jumping.
  */
 export function LoadMore({ hasMore, loading, onLoadMore }: LoadMoreProps) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -34,9 +35,24 @@ export function LoadMore({ hasMore, loading, onLoadMore }: LoadMoreProps) {
 
   if (!hasMore) return null;
   return (
-    <div ref={ref} className="flex justify-center py-6">
+    <div ref={ref} className="@container flex flex-col items-center gap-4 py-2">
+      {loading && (
+        <ul
+          aria-hidden="true"
+          className="grid w-full grid-cols-2 gap-2 sm:gap-3 @md:grid-cols-3 @3xl:grid-cols-4 @6xl:grid-cols-5"
+        >
+          {/* One row at every column count (2 / 3 / 4 / 5). */}
+          {[undefined, undefined, "hidden @md:block", "hidden @3xl:block", "hidden @6xl:block"].map((cls, i) => (
+            <li key={i} className={cls}>
+              <Skeleton className="aspect-[4/5] w-full rounded-lg" />
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="sr-only" role="status">
+        {loading ? "Loading more photos…" : ""}
+      </p>
       <Button type="button" variant="outline" onClick={onLoadMore} disabled={loading} aria-busy={loading}>
-        {loading && <LoaderCircleIcon aria-hidden="true" className="animate-spin" />}
         {loading ? "Loading…" : "Load more"}
       </Button>
     </div>

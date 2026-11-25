@@ -8,6 +8,7 @@ import { AppError } from "@/server/http";
 import { requireUserPage } from "@/server/auth/session";
 import { getBatchForUser } from "@/server/jobs/batches";
 import { getPack, toPackSummary } from "@/server/packs/registry";
+import { BatchItems } from "./batch-items";
 
 export const metadata: Metadata = { title: "Batch" };
 
@@ -42,6 +43,9 @@ export default async function BatchPage({ params, searchParams }: Props) {
         pack={summary ? { slug: summary.slug, name: summary.name, emoji: summary.emoji, colors: summary.colors } : null}
         requested={Number.isInteger(requested) && requested > 0 && requested <= 50 ? requested : undefined}
       />
+      <div className="mt-8">
+        <BatchItems batchId={batch.id} promptTitles={pack?.prompts.map((p) => p.title) ?? []} />
+      </div>
     </>
   );
 }

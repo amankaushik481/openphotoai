@@ -77,8 +77,11 @@ describe("gallery filters", () => {
     );
   });
 
-  it("maps the All / Favorites / Videos view", () => {
+  it("maps the All / Favorites / Photos / Videos view", () => {
     expect(viewOf({})).toBe("all");
+    expect(viewOf({ kind: "image" })).toBe("photos");
+    expect(withView({ kind: "video" }, "photos")).toEqual({ favorite: undefined, kind: "image" });
+    expect(withView({ kind: "image" }, "all")).toEqual({ favorite: undefined, kind: undefined });
     expect(viewOf(withView({ folderId: "f" }, "favorites"))).toBe("favorites");
     expect(withView({ favorite: true, packId: "p" }, "videos")).toEqual({
       favorite: undefined,
