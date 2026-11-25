@@ -92,29 +92,51 @@ export function KpiCard({
   );
 }
 
-/** "Next page" link that keeps the current query (cursor pagination). */
+/** `pathname?query` without empty values (and never a stale cursor unless given). */
+export function hrefWith(pathname: string, query: Record<string, string | number | undefined | null>): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== null && value !== "") params.set(key, String(value));
+  const qs = params.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
+}
+
+/**
+ * Cursor pagination: "First page" (when on a later page) and "Next page" links that keep the current
+ * filters. Keyset cursors only go forward, so "back" means the browser's Back or the first page.
+ */
 export function NextPageLink({
   pathname,
   query,
   cursor,
+  onLaterPage = false,
 }: {
   pathname: string;
   query: Record<string, string | undefined>;
+  /** The next page's cursor (null on the last page). */
   cursor: string | null;
+  /** The current page was reached through a cursor. */
+  onLaterPage?: boolean;
 }) {
-  if (!cursor) return null;
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) if (value && key !== "cursor") params.set(key, value);
-  params.set("cursor", cursor);
+  if (!cursor && !onLaterPage) return null;
+  const filters = Object.fromEntries(Object.entries(query).filter(([key]) => key !== "cursor"));
+  const linkClass = "rounded-sm py-1 text-sm font-medium text-primary underline-offset-4 hover:underline";
   return (
-    <div className="flex justify-end px-4 pt-4 sm:px-6">
-      <Link
-        href={`${pathname}?${params.toString()}`}
-        className="rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline"
-      >
-        Next page →
-      </Link>
-    </div>
+    <nav aria-label="Pagination" className="flex items-center justify-between gap-4 px-4 pt-4 sm:px-6">
+      {onLaterPage ? (
+        <Link href={hrefWith(pathname, filters)} className={linkClass}>
+          ← First page
+        </Link>
+      ) : (
+        <span />
+      )}
+      {cursor ? (
+        <Link href={hrefWith(pathname, { ...filters, cursor })} className={linkClass}>
+          Next page →
+        </Link>
+      ) : (
+        <span className="text-sm text-muted-foreground">End of list</span>
+      )}
+    </nav>
   );
 }
 

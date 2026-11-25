@@ -92,9 +92,10 @@ jobs:
       # Smoke-tests the production migration script against real Postgres. Playwright's global
       # setup then recreates the database and migrates it again from scratch.
       - name: Postgres-only unit tests (lock ordering / concurrency)
-        run: pnpm exec vitest run tests/unit/jobs/postgres-concurrency.test.ts
+        # Every tests/unit/**/postgres-concurrency.test.ts file; each creates its own database
+        # (<e2e db>_<tag>, tests/helpers/postgres.ts) on this disposable server.
+        run: pnpm exec vitest run postgres-concurrency
         env:
-          # Resets the public schema of the (disposable) e2e database; migrations below re-create it.
           TEST_POSTGRES_URL: ${{ env.E2E_DATABASE_URL }}
 
       - name: Run migrations

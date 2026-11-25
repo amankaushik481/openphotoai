@@ -16,6 +16,8 @@ import {
   listMyTeams,
   removeMember,
   renameTeam,
+  TEAM_INVITE_TTL_DAYS,
+  toTeamMemberDTO,
   updateMemberRole,
 } from "@/server/teams";
 import { createTestDb, createTestUser } from "../../helpers/db";
@@ -175,6 +177,8 @@ describe("invites", () => {
       teamName: "Acme",
       inviterName: "Olivia Owner",
       email: "new.hire@example.com",
+      expiresAt: new Date(member.createdAt.getTime() + TEAM_INVITE_TTL_DAYS * 86_400_000).toISOString(),
+      expired: false,
     });
     expect(await getInvitePreview("not-a-token")).toBeNull();
   });
@@ -256,6 +260,36 @@ describe("invites", () => {
     const [row] = await db.select().from(teamMembers).where(eq(teamMembers.email, "intended@example.com"));
     expect(row).toMatchObject({ status: "invited", userId: null });
     expect((await rejection(getTeamForMember(other.id, team.id))).code).toBe("not_found");
+  });
+
+  it("rejects an unverified account even with the invited address", async () => {
+    const team = await createTeam(owner, "Acme");
+    await inviteMember(owner, team.id, "unverified@example.com");
+    const u = await createTestUser({ email: "unverified@example.com", emailVerified: false });
+    expect((await rejection(acceptInvite(u, inviteTokenFor("unverified@example.com")))).code).toBe("forbidden");
+  });
+
+  it("expires invite links after TEAM_INVITE_TTL_DAYS; re-sending renews them", async () => {
+    const team = await createTeam(owner, "Acme");
+    const invitee = await createTestUser({ email: "late@example.com" });
+    const { member } = await inviteMember(owner, team.id, "late@example.com");
+    expect(Date.parse(toTeamMemberDTO(member, null).expiresAt!) - member.createdAt.getTime()).toBe(TEAM_INVITE_TTL_DAYS * 86_400_000);
+
+    const sentLongAgo = new Date(Date.now() - (TEAM_INVITE_TTL_DAYS + 1) * 86_400_000);
+    await db.update(teamMembers).set({ createdAt: sentLongAgo }).where(eq(teamMembers.id, member.id));
+    const stale = inviteTokenFor("late@example.com");
+    expect(await getInvitePreview(stale)).toMatchObject({ teamName: "Acme", expired: true });
+    const err = await rejection(acceptInvite(invitee, stale));
+    expect(err).toMatchObject({ code: "not_found", details: { reason: "expired" } });
+    const [still] = await db.select().from(teamMembers).where(eq(teamMembers.id, member.id));
+    expect(still).toMatchObject({ status: "invited", userId: null });
+
+    // The team re-sends: a new link with a new expiry works.
+    await inviteMember(owner, team.id, "late@example.com");
+    const fresh = inviteTokenFor("late@example.com");
+    expect(await getInvitePreview(fresh)).toMatchObject({ expired: false });
+    await expect(acceptInvite(invitee, fresh)).resolves.toMatchObject({ team: { id: team.id } });
+    expect(sentEmails.filter((e) => e.to === "late@example.com").at(-1)?.props).toMatchObject({ expiresInDays: TEAM_INVITE_TTL_DAYS });
   });
 
   it("rejects unknown or empty tokens", async () => {

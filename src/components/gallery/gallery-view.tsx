@@ -26,7 +26,10 @@ import {
   viewerHref,
   type GalleryFilters,
 } from "./gallery-filters";
+import { rememberGalleryScroll, sessionStore, takeGalleryRestore } from "./gallery-return";
+import { applyRangeSelection, toggledId } from "./gallery-selection";
 import { GalleryToolbar, type PackOption } from "./gallery-toolbar";
+import { InProgressStrip } from "./in-progress-strip";
 import { LoadMore } from "./load-more";
 import { SelectionBar } from "./selection-bar";
 import { applyBulkLocally, hiddenDeltaFor, runBulkAction, useFolders, useMediaList } from "./use-gallery";
@@ -87,17 +90,65 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
     return () => cancelAnimationFrame(frame);
   }, [selecting]);
 
+  const loadedIds = React.useMemo(
+    () => list.media.filter((m) => filters.showHidden || !m.hidden).map((m) => m.id),
+    [list.media, filters.showHidden],
+  );
+  const allSelected = loadedIds.length > 0 && loadedIds.every((id) => selected.includes(id));
+
   React.useEffect(() => {
     if (!selecting) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !document.querySelector("[role=dialog],[role=alertdialog],[role=menu]")) {
+      if (document.querySelector("[role=dialog],[role=alertdialog],[role=menu]")) return;
+      if (e.key === "Escape") {
         setSelecting(false);
         setSelected([]);
+      } else if ((e.key === "a" || e.key === "A") && (e.metaKey || e.ctrlKey) && !e.altKey) {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("input, textarea, select, [contenteditable=true]")) return;
+        e.preventDefault();
+        setSelected(loadedIds);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selecting]);
+  }, [selecting, loadedIds]);
+
+  // Shift+click selects a range (from the last tile toggled), like a file manager.
+  const shiftHeld = React.useRef(false);
+  const rangeAnchor = React.useRef<string | null>(null);
+  const changeSelection = (next: string[]) => {
+    const target = toggledId(selected, next);
+    if (target && shiftHeld.current) next = applyRangeSelection(loadedIds, selected, next, rangeAnchor.current, target);
+    if (target) rangeAnchor.current = target;
+    setSelected(next);
+  };
+
+  // Opening a photo remembers where the grid was; the viewer's "back" brings you back to it.
+  const gridRef = React.useRef<HTMLDivElement>(null);
+  const onGridClickCapture = (e: React.MouseEvent) => {
+    shiftHeld.current = e.shiftKey;
+    const link = (e.target as HTMLElement).closest?.("a[href^='/app/gallery/']");
+    if (link) rememberGalleryScroll(sessionStore(), filtersKey, window.scrollY);
+  };
+  const hasMedia = list.media.length > 0;
+  const restoredFor = React.useRef<string | null>(null);
+  React.useLayoutEffect(() => {
+    if (!hasMedia || restoredFor.current === filtersKey) return;
+    restoredFor.current = filtersKey;
+    const restore = takeGalleryRestore(sessionStore(), filtersKey);
+    if (!restore) return;
+    if (restore.scrollY !== null) window.scrollTo({ top: restore.scrollY, behavior: "instant" });
+    // Reveal (and focus, for keyboard users) the photo you were on: after browsing with the arrow keys it
+    // may not be the one you opened.
+    const tile = [...(gridRef.current?.querySelectorAll<HTMLAnchorElement>("a[href^='/app/gallery/']") ?? [])].find(
+      (a) => a.pathname === `/app/gallery/${restore.mediaId}`,
+    );
+    if (!tile) return;
+    const rect = tile.getBoundingClientRect();
+    if (rect.top < 64 || rect.bottom > window.innerHeight - 64) tile.scrollIntoView({ block: "center", behavior: "instant" });
+    tile.focus({ preventScroll: true });
+  }, [hasMedia, filtersKey]);
 
   const setFilters = (next: GalleryFilters) => router.replace(galleryHref(next), { scroll: false });
 
@@ -151,9 +202,6 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
 
   const forgetFolder = (folderId: string) =>
     void list.patchLocal((m) => (m.folderId === folderId ? { ...m, folderId: null } : m));
-
-  const loadedIds = list.media.filter((m) => filters.showHidden || !m.hidden).map((m) => m.id);
-  const allSelected = loadedIds.length > 0 && loadedIds.every((id) => selected.includes(id));
 
   const empty =
     filters.folderId && !hasNarrowingFilters({ ...filters, folderId: undefined }) ? (
@@ -220,6 +268,8 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
 
         {folderName && <h2 className="text-lg font-semibold">{folderName}</h2>}
 
+        <InProgressStrip onFinished={() => void list.revalidate()} />
+
         {list.error && !list.media.length ? (
           <Alert variant="destructive" role="alert">
             <AlertTitle>We couldn&apos;t load your gallery</AlertTitle>
@@ -232,19 +282,21 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
             </AlertDescription>
           </Alert>
         ) : (
-          <MediaGrid
-            media={list.media}
-            loading={list.isLoading}
-            skeletonCount={12}
-            hrefFor={(m) => viewerHref(m.id, filters)}
-            selectable={selecting}
-            selectedIds={selected}
-            onSelectionChange={setSelected}
-            onToggleFavorite={(m, next) => void toggleFavorite(m, next)}
-            showHidden={Boolean(filters.showHidden)}
-            empty={empty}
-            priorityCount={6}
-          />
+          <div ref={gridRef} onClickCapture={onGridClickCapture}>
+            <MediaGrid
+              media={list.media}
+              loading={list.isLoading}
+              skeletonCount={12}
+              hrefFor={(m) => viewerHref(m.id, filters)}
+              selectable={selecting}
+              selectedIds={selected}
+              onSelectionChange={changeSelection}
+              onToggleFavorite={(m, next) => void toggleFavorite(m, next)}
+              showHidden={Boolean(filters.showHidden)}
+              empty={empty}
+              priorityCount={6}
+            />
+          </div>
         )}
 
         <LoadMore hasMore={list.hasMore} loading={list.isLoadingMore} onLoadMore={list.loadMore} />

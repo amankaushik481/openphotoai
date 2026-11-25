@@ -35,6 +35,13 @@ describe("marketing pages render", () => {
     expect(html).toContain('href="/login"');
     expect(html).toContain(`href="${APP.githubUrl}"`);
     expect(html).toContain("Typical AI photo apps");
+    // Privacy & safety and open-source sections, with honest social proof only (no stars or user counts).
+    expect(html).toContain('id="safety-title"');
+    expect(html).toContain('href="/legal/privacy"');
+    expect(html).toContain('id="oss-title"');
+    expect(html).toContain("docker compose up");
+    expect(html).toContain('href="/docs"');
+    expect(html).not.toMatch(/\d[\d,.]*k?\+? (users|customers|happy|stars)/i);
     const packs = await listPacks();
     expect(html).toContain(`href="/packs/${packs.find((p) => p.featured)?.slug ?? packs[0]!.slug}"`);
     expect(jsonLd(html).length).toBeGreaterThan(0);
@@ -48,6 +55,10 @@ describe("marketing pages render", () => {
     for (const pack of CREDIT_PACKS) expect(html).toContain(pack.name);
     expect(html).toContain("Monthly");
     expect(html).toContain("Yearly");
+    // Plan comparison table (one column per plan) and "what credits buy".
+    expect(html).toContain("Plans compared feature by feature");
+    expect(count(html, /<th scope="col"[^>]*>/g)).toBeGreaterThanOrEqual(1 + Object.keys(PLANS).length);
+    expect(html).toContain(`What ${Math.min(...CREDIT_PACKS.map((p) => p.credits))} credits buy`);
   });
 
   it("faq page: FAQPage JSON-LD and native accordions", () => {

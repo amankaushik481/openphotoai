@@ -37,6 +37,7 @@ function member(over: Partial<TeamMemberDTO>): TeamMemberDTO {
     role: "member",
     status: "active",
     createdAt: "2026-01-01T00:00:00.000Z",
+    expiresAt: null,
     ...over,
   };
 }
@@ -101,6 +102,23 @@ describe("TeamManager", () => {
     expect(html).toContain("Edit Website headshots");
     expect(html).toContain("Delete team");
     expect(html).toContain("Team gallery");
+  });
+
+  it("labels pending and expired invites, explains roles and seats", () => {
+    const owner = detail("owner");
+    owner.members.push(
+      member({ id: "tm_p", userId: null, email: "fresh@example.com", name: null, status: "invited", expiresAt: "2999-01-01T00:00:00.000Z" }),
+      member({ id: "tm_e", userId: null, email: "stale@example.com", name: null, status: "invited", expiresAt: "2020-01-01T00:00:00.000Z" }),
+    );
+    const html = renderToStaticMarkup(
+      withKits([], <TeamManager initialDetail={owner} teams={[owner.team]} packs={packs} canCreateTeam={false} />),
+    );
+    expect(html).toContain("Pending");
+    expect(html).toContain("Expired");
+    expect(html).toContain("Link expired");
+    expect(html).toContain("link works until");
+    expect(html).toContain("pending and expired invites hold a seat");
+    expect(html).toContain("invite and remove members, edit brand kits");
   });
 
   it("shows members a read-only view with a leave button", () => {

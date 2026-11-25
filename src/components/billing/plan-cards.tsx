@@ -29,13 +29,27 @@ export interface PlanCardsProps {
   defaultInterval?: BillingInterval;
   /** Show the Free plan card. Defaults to true in public mode. */
   includeFree?: boolean;
+  /**
+   * App mode: called instead of starting the checkout right away (e.g. to confirm a plan switch first).
+   * Receives the checkout item and the button key (see `useBillingActions().pending`).
+   */
+  onChoose?: (item: PlanCheckoutItem, key: string) => void;
   className?: string;
 }
+
+export type PlanCheckoutItem = { type: "plan"; planId: Exclude<PlanId, "free">; interval: BillingInterval };
 
 const ORDER: PlanId[] = ["free", "starter", "pro", "studio"];
 
 /** Plan cards with a monthly / yearly toggle (the yearly badge is derived from the plan prices). */
-export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "month", includeFree, className }: PlanCardsProps) {
+export function PlanCards({
+  mode,
+  currentPlanId = "free",
+  defaultInterval = "month",
+  includeFree,
+  onChoose,
+  className,
+}: PlanCardsProps) {
   const [interval, setBillingInterval] = React.useState<BillingInterval>(defaultInterval);
   const { pending, checkout } = useBillingActions();
   const showFree = includeFree ?? mode === "public";
@@ -105,13 +119,14 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
             action = null;
           } else {
             const upgrade = ORDER.indexOf(plan.id) > currentRank;
+            const item: PlanCheckoutItem = { type: "plan", planId: plan.id as Exclude<PlanId, "free">, interval };
             action = (
               <Button
                 className="w-full"
                 variant={plan.popular ? "brand" : "outline"}
                 disabled={pending !== null}
                 aria-busy={pending === key}
-                onClick={() => checkout({ type: "plan", planId: plan.id as Exclude<PlanId, "free">, interval }, key)}
+                onClick={() => (onChoose ? onChoose(item, key) : void checkout(item, key))}
               >
                 {pending === key && <LoaderCircleIcon aria-hidden="true" className="animate-spin" />}
                 {upgrade ? `Upgrade to ${plan.name}` : `Switch to ${plan.name}`}
@@ -134,7 +149,8 @@ export function PlanCards({ mode, currentPlanId = "free", defaultInterval = "mon
 
       {mode === "app" && currentPlanId !== "free" && (
         <p className="text-center text-xs text-muted-foreground">
-          Switching plans starts a new billing period; your current subscription is canceled automatically.
+          Switching plans starts a new billing period today and ends your current subscription right away, without a
+          refund for unused time. Your credits stay.
         </p>
       )}
     </div>

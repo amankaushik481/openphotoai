@@ -4,6 +4,7 @@ import { CircleCheckIcon, LoaderCircleIcon, RotateCwIcon, Trash2Icon, TriangleAl
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { clearViewerStorage } from "@/components/create/use-stored";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -80,6 +81,7 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
       setPhase({ kind: "done" });
       // The server already dropped every session; this clears the cookie in this browser.
       await signOut().catch(() => undefined);
+      clearViewerStorage();
       router.refresh();
     } catch (err) {
       if (err instanceof ApiClientError && err.code === "not_found") {
@@ -156,7 +158,11 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
       {live}
       <CardHeader className="justify-items-center text-center">
         <StatusIcon tone="danger">
-          {busy ? <LoaderCircleIcon className="size-6 animate-spin" aria-hidden /> : <Trash2Icon className="size-6" aria-hidden />}
+          {busy ? (
+            <LoaderCircleIcon className="size-6 animate-spin" aria-hidden />
+          ) : (
+            <Trash2Icon className="size-6" aria-hidden />
+          )}
         </StatusIcon>
         <CardTitle as="h1" className="text-xl">
           {busy ? "Deleting your account…" : "Delete your account permanently"}
@@ -176,7 +182,10 @@ export function DeleteAccountConfirm({ token }: { token: string | null }) {
         ) : (
           <>
             {phase.kind === "error" && (
-              <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              <p
+                role="alert"
+                className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              >
                 {phase.message}
               </p>
             )}

@@ -23,6 +23,12 @@ export default async function DevEmailsPage() {
           The latest {emails.length === 100 ? "100 " : ""}emails recorded by the mock email provider. Nothing here was
           actually delivered. This page only exists while <code className="font-mono">EMAIL_PROVIDER=mock</code>.
         </p>
+        <Link
+          href="/dev/emails/templates"
+          className="mt-2 inline-block text-sm text-violet-700 underline-offset-4 hover:underline dark:text-violet-300"
+        >
+          Preview every template (light and dark) →
+        </Link>
       </header>
 
       {emails.length === 0 ? (

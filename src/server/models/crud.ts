@@ -3,7 +3,7 @@ import { and, desc, eq, gt, isNotNull, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getPlan } from "@/config/plans";
 import { db } from "@/db";
-import { identityModels, modelShares } from "@/db/schema";
+import { identityModels, modelShares, user as userTable } from "@/db/schema";
 import type { IdentityModelRow, UserRow } from "@/db/types";
 import { newTriggerWord } from "@/lib/ids";
 import { errors } from "@/server/http";
@@ -72,29 +72,36 @@ export async function getViewableModel(userId: string, modelId: string): Promise
 
 export async function createModel(user: UserRow, input: z.infer<typeof createModelBody>): Promise<IdentityModelRow> {
   const plan = getPlan(user.plan);
-  const count = await db.$count(identityModels, and(eq(identityModels.userId, user.id), isNull(identityModels.deletedAt)));
-  if (count >= plan.limits.maxModels) {
+  const limitReached = () => {
     const n = plan.limits.maxModels;
     const upgrade = user.plan === "studio" ? "" : " or upgrade your plan";
-    throw errors.planLimit(
+    return errors.planLimit(
       `The ${plan.name} plan includes ${n} identity ${n === 1 ? "model" : "models"}. Delete one${upgrade} to create another.`,
     );
-  }
+  };
+  const countModels = (tx: Pick<typeof db, "$count"> = db) =>
+    tx.$count(identityModels, and(eq(identityModels.userId, user.id), isNull(identityModels.deletedAt)));
+  if ((await countModels()) >= plan.limits.maxModels) throw limitReached();
 
   for (let attempt = 1; ; attempt++) {
     try {
-      const [row] = await db
-        .insert(identityModels)
-        .values({
-          userId: user.id,
-          name: input.name,
-          subject: input.subject,
-          triggerWord: newTriggerWord(),
-          status: "awaiting_consent",
-          metadata: {},
-        })
-        .returning();
-      return row!;
+      return await db.transaction(async (tx) => {
+        // Count again under the account lock: parallel creates each passed the check above.
+        await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+        if ((await countModels(tx)) >= plan.limits.maxModels) throw limitReached();
+        const [row] = await tx
+          .insert(identityModels)
+          .values({
+            userId: user.id,
+            name: input.name,
+            subject: input.subject,
+            triggerWord: newTriggerWord(),
+            status: "awaiting_consent",
+            metadata: {},
+          })
+          .returning();
+        return row!;
+      });
     } catch (err) {
       if (attempt < TRIGGER_WORD_ATTEMPTS && isUniqueViolation(err)) continue;
       throw err;

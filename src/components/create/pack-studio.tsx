@@ -85,7 +85,7 @@ export function PackStudio({ pack, modelModes: fallbackModes, drafts, plan: init
   const [error, setError] = React.useState<FriendlyError | null>(null);
   const { draftsLeft, spend: spendDraft, exhaust: exhaustDrafts } = useDraftAllowance(drafts.remaining);
   const { modes: modelModes } = useModelModes(fallbackModes);
-  const session = useGenerationSession({ nextPath, limit: 6 });
+  const session = useGenerationSession({ nextPath, limit: 6, persistKey: `pack:${pack.slug}` });
 
   const count = clampBatchSize(countInput, plan);
   const identityMode = resolveIdentityMode(model ?? (modelId ? { id: modelId } : null), modelModes);

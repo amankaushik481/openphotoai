@@ -1,6 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,21 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 }
 
+/** Pre-filled appeal email, so support can find the account straight away. */
+function appealMailto(email: string | null): string {
+  const subject = encodeURIComponent(`Account suspension review${email ? ` (${email})` : ""}`);
+  const body = encodeURIComponent(
+    `Hi, my ${APP.name} account${email ? ` (${email})` : ""} was suspended and I think it's a mistake.\n\nWhat happened:\n`,
+  );
+  return `mailto:${APP.supportEmail}?subject=${subject}&body=${body}`;
+}
+
 export default async function SuspendedPage() {
   const user = await getCurrentUser();
+  // Not (or no longer) suspended: an expired ban is cleared on sign-in, so don't tell them they're blocked.
+  if (user && !user.banned) redirect("/app");
   const suspended = user?.banned ? user : null;
+  const mailto = appealMailto(suspended?.email ?? null);
 
   return (
     <AuthShell>
@@ -44,7 +57,7 @@ export default async function SuspendedPage() {
           )}
           <p className="text-muted-foreground">
             If you think this is a mistake, email{" "}
-            <a href={`mailto:${APP.supportEmail}`} className="font-medium text-foreground underline underline-offset-2">
+            <a href={mailto} className="font-medium text-foreground underline underline-offset-2">
               {APP.supportEmail}
             </a>{" "}
             from the address on your account and we&apos;ll take a look.
@@ -58,7 +71,7 @@ export default async function SuspendedPage() {
             <SignOutButton variant="outline" className="w-full sm:w-auto" />
           ) : (
             <Button asChild variant="outline" className="w-full sm:w-auto">
-              <a href={`mailto:${APP.supportEmail}`}>Contact support</a>
+              <a href={mailto}>Contact support</a>
             </Button>
           )}
         </CardFooter>

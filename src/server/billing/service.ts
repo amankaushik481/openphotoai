@@ -72,7 +72,8 @@ export async function startCheckout(u: UserRow, item: CheckoutItem): Promise<{ u
       email: u.email,
       customerId,
       item: parsed.data,
-      successUrl: `${billingUrl()}?success=1`,
+      // `since`: payments from this moment on belong to this checkout (see checkoutConfirmation).
+      successUrl: `${billingUrl()}?success=1&since=${Date.now()}`,
       cancelUrl: `${billingUrl()}?canceled=1`,
     });
   } catch (err) {

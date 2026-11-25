@@ -31,11 +31,14 @@ export function VideoPlayer({
   media,
   className,
   captionsScript,
+  onError,
 }: {
   media: MediaDTO;
   className?: string;
   /** Talking videos: the spoken script, shown as closed captions. */
   captionsScript?: string | null;
+  /** The clip failed to load (e.g. its signed URL expired while the page stayed open). */
+  onError?: () => void;
 }) {
   const aspectRatio = media.width && media.height ? `${media.width} / ${media.height}` : undefined;
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -48,6 +51,7 @@ export function VideoPlayer({
       preload="metadata"
       poster={media.thumbUrl}
       src={media.url}
+      onError={onError}
       className={className ?? "max-h-[70dvh] w-full rounded-lg bg-black object-contain"}
       style={aspectRatio ? { aspectRatio } : undefined}
     >
@@ -68,7 +72,7 @@ function jobTitle(job: JobDTO): string {
 /** Progress -> player for one video job started on this page. */
 export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
   const { mutate: refreshMe } = useMe();
-  const { job, cancel } = useJob(initialJob.id, {
+  const { job, cancel, mutate } = useJob(initialJob.id, {
     fallbackJob: initialJob,
     onTerminal: (done) => {
       if (done.status === "succeeded") toast.success("Your video is ready.");
@@ -77,6 +81,13 @@ export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
     },
   });
   const [canceling, setCanceling] = React.useState(false);
+  // Finished jobs aren't polled, so their signed URLs age with the tab: refetch once if the clip won't load.
+  const refetched = React.useRef(false);
+  const refreshUrls = () => {
+    if (refetched.current) return;
+    refetched.current = true;
+    void mutate();
+  };
   const current = job ?? initialJob;
   const video = current.media.find((m) => m.kind === "video");
   const inFlight = current.status === "queued" || current.status === "running";
@@ -103,6 +114,7 @@ export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
         <VideoPlayer
           media={video}
           captionsScript={current.input.type === "talking_video" ? current.input.script : null}
+          onError={refreshUrls}
         />
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild variant="brand">

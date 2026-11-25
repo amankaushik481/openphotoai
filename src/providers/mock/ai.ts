@@ -76,9 +76,13 @@ const COST_CAPABILITY: Record<MockKind, Capability> = {
   talk: "talkingVideo",
 };
 
-/** HMAC-SHA256 (hex) of a webhook body with the app secret — the `x-mock-signature` value. */
+/**
+ * HMAC-SHA256 (hex) of a webhook body — the `x-mock-signature` value. The key is derived for this one
+ * purpose: BETTER_AUTH_SECRET itself also HMACs session cookies, so it must never sign anything else.
+ */
 export function signMockWebhook(rawBody: string): string {
-  return createHmac("sha256", env.authSecret).update(rawBody).digest("hex");
+  const key = createHmac("sha256", env.authSecret).update("openshoot:mock-ai-webhook:v1").digest();
+  return createHmac("sha256", key).update(rawBody).digest("hex");
 }
 
 export function createMockAIProvider(opts: MockAIProviderOptions = {}): MockAIProvider {

@@ -60,6 +60,27 @@ export function weakAuthSecretReason(secret: string | undefined): string | null 
   return null;
 }
 
+/**
+ * S3 secrets that are published (docker-compose.yml / .env.example MinIO defaults, MinIO's own default).
+ * Anyone who can reach the endpoint could read every stored photo with them.
+ */
+const PUBLISHED_S3_SECRETS = new Set(["openshoot-dev-secret", "minioadmin"]);
+
+/**
+ * True when only this machine or its Docker network can reach `endpoint`: loopback, or a bare service
+ * name such as `minio` (what docker-compose uses). Unset (AWS), public and LAN hosts are reachable.
+ */
+function isLoopbackOrServiceEndpoint(endpoint: string | undefined): boolean {
+  if (!endpoint) return false;
+  let host: string;
+  try {
+    host = new URL(endpoint).hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  } catch {
+    return false;
+  }
+  return host === "localhost" || host.endsWith(".localhost") || /^127\.\d+\.\d+\.\d+$/.test(host) || host === "::1" || !/[.:]/.test(host);
+}
+
 /** Reverse-proxy hops are capped: more than this is a misconfiguration. */
 const MAX_TRUSTED_PROXY_HOPS = 10;
 
@@ -226,6 +247,21 @@ const schema = z
           code: "custom",
           path: ["BETTER_AUTH_SECRET"],
           message: `BETTER_AUTH_SECRET is unsafe for production: ${weak}. Generate one with \`openssl rand -base64 32\` (${MIN_AUTH_SECRET_LENGTH}+ random characters).`,
+        });
+      // The bundled MinIO's published credentials are only safe while nobody else can reach it.
+      if (
+        e.STORAGE_DRIVER === "s3" &&
+        e.S3_SECRET_ACCESS_KEY &&
+        PUBLISHED_S3_SECRETS.has(e.S3_SECRET_ACCESS_KEY) &&
+        !isLoopbackOrServiceEndpoint(e.S3_ENDPOINT)
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["S3_SECRET_ACCESS_KEY"],
+          message:
+            "S3_SECRET_ACCESS_KEY is a published default (the docker-compose MinIO password) but S3_ENDPOINT is reachable " +
+            "from outside this machine: anyone could read every stored photo. Set MINIO_ROOT_PASSWORD (or your provider's " +
+            "secret) to a random value, e.g. `openssl rand -base64 32`.",
         });
       // No real/mock mixing: real AI spend must be paid for, and sign-in links must never be public.
       if (e.aiProvider !== "mock" && (e.paymentProvider === "mock" || e.emailProvider === "mock")) {

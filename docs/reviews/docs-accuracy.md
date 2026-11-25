@@ -38,6 +38,6 @@ tables, cron schedules, worker defaults and the pack format all matched the code
   running app, which was out of scope for this pass.
 - `docker/auth-secret.mjs` (code comment) points at `tests/unit/core/auth-secret.test.ts`, which doesn't exist; the
   tests live in `tests/unit/security/env-production.test.ts`.
-- `src/config/plans.ts` highlights still say "All 40+ photo packs" (UI copy, not docs).
+- ~~`src/config/plans.ts` highlights still say "All 40+ photo packs"~~ (fixed: "All 60+ photo packs").
 - Third-party facts (Vercel Hobby cron and body limits, Stripe and Resend dashboard steps, provider prices marked
   UNVERIFIED in MODELS.md) were not re-checked. MODELS.md, RESEARCH.md and PROGRESS.md were only link-checked.

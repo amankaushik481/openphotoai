@@ -33,6 +33,18 @@ export function formatCompact(n: number): string {
   return compact.format(n);
 }
 
+/** Milliseconds → "850 ms", "12.4 s", "3 min 05 s", "1 h 02 min". */
+export function formatDuration(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) return "—";
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  const seconds = ms / 1000;
+  if (seconds < 60) return `${seconds.toFixed(1)} s`;
+  const totalSeconds = Math.round(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  if (minutes < 60) return `${minutes} min ${String(totalSeconds % 60).padStart(2, "0")} s`;
+  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")} min`;
+}
+
 /** 0.1234 → "12.3%"; null → "—". */
 export function formatPercent(rate: number | null, digits = 1): string {
   if (rate === null || !Number.isFinite(rate)) return "—";

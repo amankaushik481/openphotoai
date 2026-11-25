@@ -8,6 +8,7 @@ import { api } from "@/lib/api-client";
 import type { CheckoutItem } from "@/providers/types";
 import type { PlanId } from "@/types/domain";
 import { formatCredits, formatPrice } from "./format";
+import { startBillingRedirect } from "./use-billing-actions";
 
 export interface CheckoutIntentDialogProps {
   /** What the visitor picked on the public pricing page before signing in. */
@@ -43,7 +44,8 @@ export function CheckoutIntentDialog({ item, currentPlanId, onDone }: CheckoutIn
   const alreadyOnPlan = item.type === "plan" && item.planId === currentPlanId;
   const copy = describe(item);
   const [open, setOpen] = React.useState(!alreadyOnPlan && copy !== null);
-  const [leaving, setLeaving] = React.useState(false);
+  // A ref, not state: ConfirmDialog closes in the same tick the navigation starts.
+  const leaving = React.useRef(false);
 
   if (!copy || alreadyOnPlan) return null;
 
@@ -52,16 +54,27 @@ export function CheckoutIntentDialog({ item, currentPlanId, onDone }: CheckoutIn
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next && !leaving) onDone();
+        if (!next && !leaving.current) onDone();
       }}
       title={copy.title}
       description={copy.description}
       confirmLabel="Continue to checkout"
       cancelLabel="Not now"
       onConfirm={async () => {
-        const { url } = await api<{ url: string }>("/api/billing/checkout", { method: "POST", body: { item } });
-        setLeaving(true);
-        window.location.assign(url);
+        // Shares the page-wide guard with the plan and pack buttons: one checkout at a time.
+        await startBillingRedirect(
+          "intent",
+          () => api<{ url: string }>("/api/billing/checkout", { method: "POST", body: { item } }),
+          {
+            navigate: (url) => {
+              leaving.current = true;
+              window.location.assign(url);
+            },
+            onError: (err) => {
+              throw err; // ConfirmDialog shows the toast and stays open
+            },
+          },
+        );
       }}
     />
   );

@@ -96,6 +96,8 @@ export const MODERATION_EVENT_KINDS = [
   "multi_person_unauthorized",
   "report_actioned",
   "account_suspended",
+  /** An admin lifted a suspension (audit entry, stored as reviewed). */
+  "account_unsuspended",
   /** A chargeback was opened (or closed) on one of the user's payments: review the account. */
   "payment_disputed",
 ] as const;

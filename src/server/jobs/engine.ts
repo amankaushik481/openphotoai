@@ -18,7 +18,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { creditCost } from "@/config/credits";
 import { getPlan } from "@/config/plans";
-import { db } from "@/db";
+import { db, type Database, type Tx } from "@/db";
 import { batches, jobs, user as userTable, webhookEvents } from "@/db/schema";
 import type { BatchRow, JobRow, UserRow } from "@/db/types";
 import { env } from "@/lib/env";
@@ -85,6 +85,14 @@ export interface SyncJobOptions {
 }
 /** How long a finalization lease is valid before another worker may take over. */
 export const FINALIZE_LEASE_SEC = 300;
+/**
+ * The lease holder renews its lease this often while it ingests (slow downloads, video re-encodes,
+ * a LoRA weights copy can outlast FINALIZE_LEASE_SEC), so a healthy attempt is never taken over
+ * mid-way (which made two workers ingest the same outputs, and could starve a job of a winner)...
+ */
+export const FINALIZE_RENEW_INTERVAL_MS = 60_000;
+/** ...but only up to this long in total: a hung attempt must not hold the job until JOB_TIMEOUT_SEC. */
+export const FINALIZE_MAX_HOLD_SEC = 30 * 60;
 /** Completion (download + ingest) attempts before the job is failed and refunded. */
 export const MAX_FINALIZE_ATTEMPTS = 3;
 export const JOB_TIMEOUT_SEC = 2 * 60 * 60;
@@ -134,8 +142,8 @@ async function loadJob(jobId: string): Promise<JobRow> {
   return row;
 }
 
-async function findByIdempotencyKey(userId: string, key: string): Promise<JobRow | undefined> {
-  const [row] = await db
+async function findByIdempotencyKey(userId: string, key: string, tx: Database | Tx = db): Promise<JobRow | undefined> {
+  const [row] = await tx
     .select()
     .from(jobs)
     .where(and(eq(jobs.userId, userId), eq(jobs.idempotencyKey, key)))
@@ -185,25 +193,25 @@ function assertBalanceNotNegative(user: UserRow): void {
   );
 }
 
-/** Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). */
-async function assertConcurrency(user: UserRow): Promise<void> {
+/**
+ * Plan concurrency: active standalone jobs + running batches (a batch occupies one slot). A check
+ * outside a transaction is only a fast path: parallel requests all pass it, so the authoritative check
+ * runs again with `tx` while the user row is locked, right before the job / batch row is inserted.
+ */
+async function assertConcurrency(user: UserRow, tx: Database | Tx = db): Promise<void> {
   const plan = getPlan(user.plan);
   const limit = plan.limits.maxConcurrentJobs;
-  const [[active], [running]] = await Promise.all([
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(jobs)
-      .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId))),
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(batches)
-      .where(and(eq(batches.userId, user.id), eq(batches.status, "running"))),
-  ]);
+  const [active] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(jobs)
+    .where(and(eq(jobs.userId, user.id), inArray(jobs.status, ACTIVE_STATUSES), isNull(jobs.batchId)));
+  const [running] = await tx
+    .select({ n: sql<number>`count(*)::int` })
+    .from(batches)
+    .where(and(eq(batches.userId, user.id), eq(batches.status, "running")));
   if (Number(active?.n ?? 0) + Number(running?.n ?? 0) >= limit) {
     const upgrade = user.plan === "studio" ? "" : " or upgrade your plan";
-    throw errors.planLimit(
-      `The ${plan.name} plan runs up to ${limit} jobs at once. Wait for one to finish${upgrade}.`,
-    );
+    throw errors.planLimit(`The ${plan.name} plan runs up to ${limit} jobs at once. Wait for one to finish${upgrade}.`);
   }
 }
 
@@ -236,19 +244,40 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
   // Free drafts are capped per image per day (smaller allowance for users who never paid).
   const drafts = draftImages(parsed);
   if (drafts > 0) await consumeFreeDrafts(user, drafts);
-  if (!opts?.batchId) await assertConcurrency(user);
+  if (!opts?.batchId) {
+    try {
+      await assertConcurrency(user);
+    } catch (err) {
+      // The same key's first request may have committed since the lookup above: that's a replay.
+      const existing = idempotencyKey ? await findByIdempotencyKey(user.id, idempotencyKey) : undefined;
+      if (existing) return existing;
+      throw err;
+    }
+  }
 
   const credits = plan.credits ?? creditCost(parsed);
   if (!Number.isInteger(credits) || credits < 0) throw new Error(`invalid credit cost ${credits} for ${parsed.type}`);
   const provider: AIProviderName = env.aiProvider;
 
   let job: JobRow;
+  /** Set when a concurrent request with the same Idempotency-Key created the job first. */
+  let replay: JobRow | undefined;
   try {
     job = await db.transaction(async (tx) => {
       // Lock the user row BEFORE inserting the job: the jobs.user_id FK takes a KEY SHARE lock on the
       // user row, and the debit below takes FOR UPDATE. Two concurrent creates for the same user would
       // otherwise each hold KEY SHARE and wait on the other's FOR UPDATE -> Postgres deadlock (40P01).
-      if (credits > 0) await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      // The same lock serializes the concurrency check with the insert (parallel creates can't overshoot).
+      if (credits > 0 || !opts?.batchId) {
+        await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      }
+      // A concurrent replay of this Idempotency-Key waited on the lock above while the first request
+      // committed its job: hand that job back, before the concurrency check counts it against us.
+      if (idempotencyKey) {
+        replay = await findByIdempotencyKey(user.id, idempotencyKey, tx);
+        if (replay) return replay;
+      }
+      if (!opts?.batchId) await assertConcurrency(user, tx);
       const [row] = await tx
         .insert(jobs)
         .values({
@@ -278,6 +307,7 @@ export async function createJob(user: UserRow, input: JobInput, opts?: CreateJob
     }
     throw err;
   }
+  if (replay) return replay;
 
   const submitOpts = {
     webhookUrl: env.webhooksEnabled ? `${env.webhookBase}/api/webhooks/ai/${provider}` : undefined,
@@ -328,7 +358,11 @@ export interface CreateBatchResult {
 const batchJobKey = (key: string, index: number) => `${key}:${index}`;
 
 /** The batch an earlier request with this Idempotency-Key created (found via its first child job). */
-async function findBatchByIdempotencyKey(user: UserRow, key: string, req: CreateBatchRequest): Promise<CreateBatchResult | null> {
+async function findBatchByIdempotencyKey(
+  user: UserRow,
+  key: string,
+  req: CreateBatchRequest,
+): Promise<CreateBatchResult | null> {
   const first = await findByIdempotencyKey(user.id, batchJobKey(key, 0));
   if (!first) return null;
   const [batch] = first.batchId
@@ -347,6 +381,20 @@ async function findBatchByIdempotencyKey(user: UserRow, key: string, req: Create
     .where(and(eq(jobs.batchId, batch.id), eq(jobs.userId, user.id)))
     .orderBy(jobs.createdAt);
   return { batch, jobs: childJobs, requested: batch.total, replayed: true };
+}
+
+/** findBatchByIdempotencyKey, retried briefly while a concurrent request is still creating job 0. */
+async function waitForBatchByIdempotencyKey(
+  user: UserRow,
+  key: string,
+  req: CreateBatchRequest,
+): Promise<CreateBatchResult | null> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const found = await findBatchByIdempotencyKey(user, key, req);
+    if (found) return found;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return null;
 }
 
 /**
@@ -378,18 +426,34 @@ export async function createBatch(
   const subject = `user:${user.id}`;
   await rateLimit("batchesPerHour", subject);
   await rateLimit("jobsPerDay", subject, req.count);
-  await assertConcurrency(user);
 
-  const [batch] = await db
-    .insert(batches)
-    .values({
-      userId: user.id,
-      modelId: req.modelId,
-      packId: pack.slug,
-      brandKitId: req.brandKitId ?? null,
-      total: req.count,
-    })
-    .returning();
+  let batch: typeof batches.$inferSelect | undefined;
+  try {
+    await assertConcurrency(user);
+    [batch] = await db.transaction(async (tx) => {
+      // Authoritative concurrency check under the user lock (see assertConcurrency).
+      await tx.select({ id: userTable.id }).from(userTable).where(eq(userTable.id, user.id)).for("update");
+      await assertConcurrency(user, tx);
+      return tx
+        .insert(batches)
+        .values({
+          userId: user.id,
+          modelId: req.modelId,
+          packId: pack.slug,
+          brandKitId: req.brandKitId ?? null,
+          total: req.count,
+        })
+        .returning();
+    });
+  } catch (err) {
+    // A concurrent request with the same key may be creating this batch right now: its batch and
+    // jobs count against the plan limit. Hand over to it (its job 0 lands right after its batch row).
+    if (idempotencyKey && err instanceof AppError && err.code === "plan_limit") {
+      const winner = await waitForBatchByIdempotencyKey(user, idempotencyKey, req);
+      if (winner) return winner;
+    }
+    throw err;
+  }
   const batchId = batch!.id;
 
   // Round-robin over the pack's prompts, one image per job for maximum variety.
@@ -434,7 +498,12 @@ export async function createBatch(
         }),
       ),
     );
-    if (idempotencyKey && chunk[0] === 0 && results[0]?.status === "fulfilled" && results[0].value.batchId !== batchId) {
+    if (
+      idempotencyKey &&
+      chunk[0] === 0 &&
+      results[0]?.status === "fulfilled" &&
+      results[0].value.batchId !== batchId
+    ) {
       await db.delete(batches).where(and(eq(batches.id, batchId), eq(batches.userId, user.id)));
       const winner = await findBatchByIdempotencyKey(user, idempotencyKey, req);
       if (winner) return winner;
@@ -462,7 +531,12 @@ export async function createBatch(
   }
   const finalBatch =
     childJobs.length < req.count ? await setBatchTotal(batchId, childJobs.length) : await reloadBatch(batchId);
-  return { batch: finalBatch ?? batch!, jobs: childJobs, requested: req.count, ...(stoppedReason ? { stoppedReason } : {}) };
+  return {
+    batch: finalBatch ?? batch!,
+    jobs: childJobs,
+    requested: req.count,
+    ...(stoppedReason ? { stoppedReason } : {}),
+  };
 }
 
 async function reloadBatch(batchId: string): Promise<BatchRow | undefined> {
@@ -536,7 +610,8 @@ export async function syncJob(jobId: string, opts?: SyncJobOptions): Promise<Job
     return claimed;
   }
   // Ingestion is slow (downloads, safety models, re-encodes): let user-facing polls answer right away.
-  if (status.state === "succeeded" && opts?.deferCompletion?.(() => applyProviderStatus(claimed, status))) return claimed;
+  if (status.state === "succeeded" && opts?.deferCompletion?.(() => applyProviderStatus(claimed, status)))
+    return claimed;
   return applyProviderStatus(claimed, status);
 }
 
@@ -584,6 +659,42 @@ async function acquireLease(jobId: string, token: string): Promise<JobRow | null
   return row ?? null;
 }
 
+/** Extend a lease this attempt still holds (heartbeat). */
+async function renewLease(jobId: string, token: string): Promise<void> {
+  await db
+    .update(jobs)
+    .set({ output: sql`jsonb_set(${jobs.output}, '{finalizing,at}', to_jsonb(now()))` })
+    .where(
+      and(eq(jobs.id, jobId), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`),
+    );
+}
+
+/** Renew the lease every FINALIZE_RENEW_INTERVAL_MS (up to FINALIZE_MAX_HOLD_SEC) until stopped. */
+function startLeaseHeartbeat(jobId: string, token: string): () => void {
+  const startedAt = Date.now();
+  const timer = setInterval(() => {
+    if (Date.now() - startedAt > FINALIZE_MAX_HOLD_SEC * 1000) {
+      clearInterval(timer);
+      return;
+    }
+    renewLease(jobId, token).catch((err) =>
+      console.warn(`[jobs] lease renewal failed for ${jobId}:`, errorMessage(err)),
+    );
+  }, FINALIZE_RENEW_INTERVAL_MS);
+  timer.unref?.();
+  return () => clearInterval(timer);
+}
+
+/** Run a completion hook that must not throw (afterCommit / discard). */
+async function runHook(jobId: string, name: string, hook: (() => Promise<void>) | undefined): Promise<void> {
+  if (!hook) return;
+  try {
+    await hook();
+  } catch (err) {
+    console.error(`[jobs] ${name} hook failed for ${jobId}:`, err);
+  }
+}
+
 /** Give the lease back so a later sync retries, after `retryAfterSec` (backoff). */
 async function releaseLease(jobId: string, token: string, retryAfterSec: number): Promise<void> {
   const ageSec = Math.max(0, FINALIZE_LEASE_SEC - retryAfterSec);
@@ -596,7 +707,11 @@ async function releaseLease(jobId: string, token: string, retryAfterSec: number)
 }
 
 /** Default completion: images -> ingestImages, videos -> ingestVideos (plan.prompt/seed/isDraft conventions). */
-async function defaultComplete(job: JobRow, output: ProviderOutput, plan: Record<string, unknown>): Promise<CompleteResult> {
+async function defaultComplete(
+  job: JobRow,
+  output: ProviderOutput,
+  plan: Record<string, unknown>,
+): Promise<CompleteResult> {
   const prompt = typeof plan.prompt === "string" ? plan.prompt : undefined;
   const seed = typeof plan.seed === "number" ? plan.seed : output.seed;
   const mediaIds: string[] = [];
@@ -637,11 +752,13 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
   const handler = getHandler(leased.type);
   const plan = planDataOf(leased);
   let result: CompleteResult;
+  const stopHeartbeat = startLeaseHeartbeat(job.id, token);
   try {
     result = handler.complete
       ? await handler.complete({ job: leased, output, plan })
       : await defaultComplete(leased, output, plan);
   } catch (err) {
+    stopHeartbeat();
     console.error(`[jobs] completion attempt ${leased.attempts} failed for ${job.id}:`, err);
     // Deterministic failures (bad output, invalid data) fail + refund right away: retrying can't help.
     const final = isNonRetryable(err);
@@ -653,14 +770,48 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
     await releaseLease(job.id, token, 30 * leased.attempts);
     return loadJob(job.id);
   }
+  try {
+    return await finishCompletion(job, leased, token, handler, result);
+  } catch (err) {
+    // Refunds or the success transaction (incl. the handler's commit, e.g. the model turning ready)
+    // failed, so nothing committed: drop this attempt's outputs and weights copy, then retry later
+    // or give up, exactly like an ingestion error (otherwise the lease sat until it expired and every
+    // retry stored another weights copy).
+    console.error(`[jobs] finalizing attempt ${leased.attempts} failed for ${job.id}:`, err);
+    await deleteMediaByIds(job.userId, result.mediaIds).catch((e) =>
+      console.error(`[jobs] couldn't drop outputs of ${job.id}:`, errorMessage(e)),
+    );
+    await runHook(job.id, "discard", result.discard);
+    if (isNonRetryable(err) || leased.attempts >= MAX_FINALIZE_ATTEMPTS) {
+      return failJob(job.id, MSG.ingest, "internal", "failed", { detail: errorMessage(err) });
+    }
+    await releaseLease(job.id, token, 30 * leased.attempts);
+    return loadJob(job.id);
+  } finally {
+    stopHeartbeat();
+  }
+}
 
+/** Refunds for blocked / missing outputs, then the lease-guarded running -> succeeded transition. */
+async function finishCompletion(
+  job: JobRow,
+  leased: JobRow,
+  token: string,
+  handler: ReturnType<typeof getHandler>,
+  result: CompleteResult,
+): Promise<JobRow> {
   const kept = result.mediaIds.length;
   const blocked = result.blockedCount;
   // Refunded (and discarded) by ingestion under the likeness guarantee: neither kept nor missing.
   const discarded = result.discardedCount ?? 0;
-  if (kept === 0 && blocked > 0) return failJob(job.id, MSG.allBlocked, "content_blocked", "blocked");
-  if (kept === 0 && discarded > 0) return failJob(job.id, MSG.lowLikeness, "low_likeness");
-  if (kept === 0 && !handler.complete) return failJob(job.id, MSG.noOutput, "provider_error");
+  const failWith = async (...args: Parameters<typeof failJob>) => {
+    const failed = await failJob(...args);
+    await runHook(job.id, "discard", result.discard);
+    return failed;
+  };
+  if (kept === 0 && blocked > 0) return failWith(job.id, MSG.allBlocked, "content_blocked", "blocked");
+  if (kept === 0 && discarded > 0) return failWith(job.id, MSG.lowLikeness, "low_likeness");
+  if (kept === 0 && !handler.complete) return failWith(job.id, MSG.noOutput, "provider_error");
 
   // Proportional refunds for blocked (and, by default ingestion, missing) outputs.
   const produced = kept + blocked + discarded;
@@ -668,10 +819,18 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
   const perOutput = leased.creditsCharged / Math.max(1, expected);
   const missing = Math.max(0, expected - produced);
   if (blocked > 0 && Math.floor(perOutput * blocked) > 0) {
-    await refundJob(job.id, { amount: Math.floor(perOutput * blocked), tag: "blocked", note: "Blocked by safety filter" });
+    await refundJob(job.id, {
+      amount: Math.floor(perOutput * blocked),
+      tag: "blocked",
+      note: "Blocked by safety filter",
+    });
   }
   if (missing > 0 && Math.floor(perOutput * missing) > 0) {
-    await refundJob(job.id, { amount: Math.floor(perOutput * missing), tag: "missing", note: "Fewer results than requested" });
+    await refundJob(job.id, {
+      amount: Math.floor(perOutput * missing),
+      tag: "missing",
+      note: "Fewer results than requested",
+    });
   }
 
   const { finalizing: _lease, ...prevOutput } = leased.output ?? {};
@@ -680,23 +839,45 @@ async function completeJob(job: JobRow, output: ProviderOutput): Promise<JobRow>
   const done = await db.transaction(async (tx) => {
     const [row] = await tx
       .update(jobs)
-      .set({ status: "succeeded", progress: 100, output: nextOutput, completedAt: new Date(), error: null, errorCode: null })
-      .where(and(eq(jobs.id, job.id), eq(jobs.status, "running"), sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`))
+      .set({
+        status: "succeeded",
+        progress: 100,
+        output: nextOutput,
+        completedAt: new Date(),
+        error: null,
+        errorCode: null,
+      })
+      .where(
+        and(
+          eq(jobs.id, job.id),
+          eq(jobs.status, "running"),
+          sql`${jobs.output} -> 'finalizing' ->> 'token' = ${token}`,
+        ),
+      )
       .returning();
-    if (row?.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    if (!row) return undefined;
+    if (row.batchId) await bumpBatchCounters(tx, row.batchId, "succeeded");
+    await result.commit?.(tx);
     return row;
   });
-  if (done) return done;
+  if (done) {
+    await runHook(job.id, "afterCommit", result.afterCommit);
+    return done;
+  }
 
   // Lost the lease (canceled meanwhile, or another worker took over): discard what we stored.
   await deleteMediaByIds(job.userId, result.mediaIds);
+  await runHook(job.id, "discard", result.discard);
   return loadJob(job.id);
 }
 
 /* ───────────────────────────── webhooks ───────────────────────────── */
 
 /** Verify + apply an AI provider webhook. Idempotent (webhook_events). */
-export async function handleAIWebhook(provider: AIProviderName, req: WebhookRequest): Promise<{ ok: true; jobId?: string }> {
+export async function handleAIWebhook(
+  provider: AIProviderName,
+  req: WebhookRequest,
+): Promise<{ ok: true; jobId?: string }> {
   let event: AIWebhookEvent;
   try {
     event = await getAIProvider(provider).parseWebhook(req);
@@ -803,7 +984,12 @@ export async function failJob(
     await refundJob(jobId, {
       amount: job.creditsCharged - job.creditsRefunded,
       tag: "final",
-      note: job.status === "canceled" ? "Job canceled" : job.status === "blocked" ? "Blocked by safety filter" : "Job failed",
+      note:
+        job.status === "canceled"
+          ? "Job canceled"
+          : job.status === "blocked"
+            ? "Blocked by safety filter"
+            : "Job failed",
     });
     job = await loadJob(jobId);
   }
@@ -821,7 +1007,10 @@ export async function failJob(
 /* ───────────────────────────── cron / worker ───────────────────────────── */
 
 /** Cron/worker: sync running jobs not updated recently; fail jobs stuck too long (with refund). */
-export async function pollStaleJobs(opts?: { limit?: number; olderThanSec?: number }): Promise<{ checked: number; completed: number; failed: number }> {
+export async function pollStaleJobs(opts?: {
+  limit?: number;
+  olderThanSec?: number;
+}): Promise<{ checked: number; completed: number; failed: number }> {
   const limit = opts?.limit ?? 25;
   const olderThanSec = opts?.olderThanSec ?? 10;
   let failed = 0;
@@ -833,7 +1022,10 @@ export async function pollStaleJobs(opts?: { limit?: number; olderThanSec?: numb
     .from(jobs)
     .where(
       or(
-        and(eq(jobs.status, "queued"), sql`${jobs.createdAt} < now() - make_interval(secs => ${QUEUED_TIMEOUT_SEC}::int)`),
+        and(
+          eq(jobs.status, "queued"),
+          sql`${jobs.createdAt} < now() - make_interval(secs => ${QUEUED_TIMEOUT_SEC}::int)`,
+        ),
         and(
           eq(jobs.status, "running"),
           sql`${startedAt} < now() - make_interval(secs => case when ${jobs.type} = 'train' then ${TRAIN_TIMEOUT_SEC}::int else ${JOB_TIMEOUT_SEC}::int end)`,
@@ -843,7 +1035,10 @@ export async function pollStaleJobs(opts?: { limit?: number; olderThanSec?: numb
     .limit(limit);
   for (const job of stuck) {
     const ref = refOf(job);
-    if (ref) await getAIProvider(ref.provider).cancel(ref).catch(() => undefined);
+    if (ref)
+      await getAIProvider(ref.provider)
+        .cancel(ref)
+        .catch(() => undefined);
     const row = await failJob(job.id, MSG.timeout, "timeout");
     if (row.status === "failed") failed++;
   }

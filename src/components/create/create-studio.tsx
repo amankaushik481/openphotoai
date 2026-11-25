@@ -33,12 +33,23 @@ import {
   type IdentityMode,
 } from "@/components/create/logic";
 import { PackQuickPicker, PackShotSelect, PackSwatch } from "@/components/create/pack-quick-picker";
+import {
+  CREATE_PROMPT_KEY,
+  CREATE_SETTINGS_KEY,
+  initialCreateSettings,
+  parseCreateSettings,
+  serializeCreateSettings,
+  submitBlockReason,
+  type CreateSettings,
+} from "@/components/create/persist";
+import { useStoredValue, writeStored } from "@/components/create/use-stored";
 import { PromptField } from "@/components/create/prompt-field";
 import { ReferencePicker, type ReferenceUpload } from "@/components/create/reference-picker";
 import { useDraftAllowance } from "@/components/create/use-draft-allowance";
 import { useGenerationSession } from "@/components/create/use-generation-session";
 import { useModelModes } from "@/components/create/use-model-modes";
 import { useT } from "@/i18n/react";
+import { cn } from "@/lib/utils";
 import type { AspectRatio, IdentityModelDTO, Quality } from "@/types/domain";
 import type { PackSummary } from "@/types/pack";
 
@@ -58,6 +69,14 @@ const MODES: { value: CreateMode; label: string; icon: typeof TypeIcon }[] = [
 ];
 
 const NEXT_PATH = "/app/create";
+
+/** One-tap starters for an empty prompt (the helper's "Improve" makes them detailed). */
+const PROMPT_STARTERS = [
+  "Professional headshot, modern office",
+  "Golden hour on a rooftop",
+  "Candid in a cozy café",
+  "Hiking in the mountains",
+] as const;
 
 export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial }: CreateStudioProps) {
   const t = useT();
@@ -80,9 +99,24 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
   const [seed, setSeed] = React.useState("");
   const [brandKitId, setBrandKitId] = React.useState<string | undefined>();
   const [submitting, setSubmitting] = React.useState(false);
+  // Synchronous double-submit guard (Ctrl+Enter auto-repeat, double taps): state updates lag a render.
+  const submittingRef = React.useRef(false);
   const [error, setError] = React.useState<FriendlyError | null>(null);
 
-  const session = useGenerationSession({ nextPath: NEXT_PATH });
+  const session = useGenerationSession({ nextPath: NEXT_PATH, persistKey: "create" });
+  useRememberedSettings({
+    initial,
+    draftsLeft,
+    values: { modelId, mode, aspectRatio, numImages, quality, prompt },
+    apply: (saved) => {
+      if (saved.modelId) setModelId(saved.modelId);
+      if (saved.mode) setMode(saved.mode);
+      if (saved.aspectRatio) setAspectRatio(saved.aspectRatio);
+      if (saved.numImages) setNumImages(saved.numImages);
+      if (saved.quality) setQuality(saved.quality);
+      if (saved.prompt) setPrompt(saved.prompt);
+    },
+  });
   const { brandKits } = useBrandKits();
   const { modes: modelModes, models } = useModelModes(fallbackModes);
   // A `?model=` deep link to a model that isn't one of the user's own: let the picker choose instead.
@@ -93,6 +127,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
   const selectedPack = packs.find((p) => p.slug === packId);
   // The daily allowance counts draft images, so a 4-draft request needs 4 left.
   const draftBlocked = quality === "draft" && draftsLeft < numImages;
+  const blockReason = submitBlockReason({ models, modelId, quality, numImages, draftsLeft });
 
   const submitLabel = submitting
     ? "Starting…"
@@ -100,7 +135,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
 
   async function onSubmit(e?: React.FormEvent) {
     e?.preventDefault();
-    if (submitting) return;
+    if (submittingRef.current) return;
     const built = buildGenerateRequest({
       mode,
       modelId,
@@ -119,6 +154,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       return;
     }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setError(null);
     try {
@@ -133,6 +169,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
         setQuality("standard");
       }
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -144,6 +181,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       variant="brand"
       size="lg"
       disabled={submitting || !modelId || draftBlocked}
+      aria-describedby={blockReason ? `${formId}-block-reason` : undefined}
       className={className}
     >
       {submitting ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" />}
@@ -190,6 +228,7 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
               modelId={modelId}
               required
               label="Describe your photo"
+              starters={PROMPT_STARTERS}
               onSubmitShortcut={() => void onSubmit()}
             />
           </TabsContent>
@@ -283,6 +322,11 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
         <div className="flex flex-col gap-3">
           <CostHint credits={cost} />
           {submitButton("hidden w-full md:inline-flex")}
+          {blockReason && (
+            <p id={`${formId}-block-reason`} className="text-sm text-muted-foreground" role="status">
+              {blockReason}
+            </p>
+          )}
           <p className="hidden text-xs text-muted-foreground md:block">
             Tip: press <kbd className="rounded border px-1 font-sans">Ctrl/⌘</kbd> +{" "}
             <kbd className="rounded border px-1 font-sans">Enter</kbd> in the prompt to generate. Failed or blocked photos
@@ -334,8 +378,9 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
       <StickyActionBar>
         <div className="flex min-w-0 flex-1 flex-col text-xs leading-tight">
           <span className="font-semibold tabular-nums">{cost === 0 ? "Free" : `${cost} ${plural(cost, "credit")}`}</span>
-          <span className="truncate text-muted-foreground">
-            {quality === "draft" ? `${draftsLeft} free ${plural(draftsLeft, "draft")} left today` : "Refunded if it fails"}
+          <span className={cn("text-muted-foreground", blockReason ? "line-clamp-2" : "truncate")}>
+            {blockReason ??
+              (quality === "draft" ? `${draftsLeft} free ${plural(draftsLeft, "draft")} left today` : "Refunded if it fails")}
           </span>
         </div>
         {submitButton("h-11 flex-1")}
@@ -359,4 +404,48 @@ function scrollToResults(el: HTMLElement | null) {
   if (!el || typeof window === "undefined" || !window.matchMedia("(max-width: 1023px)").matches) return;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+
+type RememberedValues = Omit<CreateSettings, "modelId"> & { modelId: string | null; prompt: string };
+
+/**
+ * Remember the last settings in this browser (localStorage) and the unsent prompt in this tab
+ * (sessionStorage). Restored once the browser can read them (not during SSR); deep links win.
+ */
+function useRememberedSettings({
+  initial,
+  draftsLeft,
+  values,
+  apply,
+}: {
+  initial: CreateStudioProps["initial"];
+  draftsLeft: number;
+  values: RememberedValues;
+  apply: (saved: Partial<CreateSettings> & { prompt?: string }) => void;
+}) {
+  // Null during SSR + hydration; the stored values once the browser can read them.
+  const storedSettings = useStoredValue("local", CREATE_SETTINGS_KEY, parseCreateSettings);
+  const storedPrompt = useStoredValue("session", CREATE_PROMPT_KEY, (raw) => (raw ?? "").slice(0, 1500));
+  const [restored, setRestored] = React.useState(false);
+  if (storedSettings !== null && storedPrompt !== null && !restored) {
+    // Once, while rendering (React re-renders before painting); later choices are the user's.
+    setRestored(true);
+    const saved: Partial<CreateSettings> & { prompt?: string } = initialCreateSettings(storedSettings, {
+      draftsLeft,
+      deepLink: { modelId: initial?.modelId, mode: initial?.mode ?? (initial?.packId ? "pack" : undefined) },
+    });
+    if (storedPrompt.trim() && !initial?.prompt) saved.prompt = storedPrompt;
+    apply(saved);
+  }
+
+  const { modelId, mode, aspectRatio, numImages, quality, prompt } = values;
+  React.useEffect(() => {
+    if (!restored) return;
+    const settings: Partial<CreateSettings> = { ...(modelId ? { modelId } : {}), mode, aspectRatio, numImages, quality };
+    writeStored("local", CREATE_SETTINGS_KEY, settings, serializeCreateSettings);
+  }, [restored, modelId, mode, aspectRatio, numImages, quality]);
+  React.useEffect(() => {
+    if (!restored) return;
+    writeStored("session", CREATE_PROMPT_KEY, prompt, (text) => (text.trim() ? text : null));
+  }, [restored, prompt]);
 }

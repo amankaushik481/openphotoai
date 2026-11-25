@@ -20,7 +20,7 @@ export function AppTopbar({ user }: { user: ShellUser }) {
             </Link>
           </Button>
           <CreditBadge />
-          <UserMenu user={user} />
+          <UserMenu user={user} shortcuts />
         </div>
       </div>
     </header>

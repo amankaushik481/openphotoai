@@ -25,7 +25,8 @@ interface DeletionRequested {
   expiresInHours: number;
 }
 
-export function DangerZoneCard({ email }: { email: string }) {
+/** `linkTtlHours`: how long the emailed confirmation link works (DELETION_LINK_TTL_HOURS). */
+export function DangerZoneCard({ email, linkTtlHours = 24 }: { email: string; linkTtlHours?: number }) {
   const inputId = useId();
   const errorId = useId();
   const [open, setOpen] = useState(false);
@@ -95,10 +96,28 @@ export function DangerZoneCard({ email }: { email: string }) {
           <form onSubmit={onSubmit} className="grid gap-4">
             <DialogHeader>
               <DialogTitle>Delete your account?</DialogTitle>
-              <DialogDescription>
-                We&apos;ll email a confirmation link to {email}. Your account is deleted only after you click it.
-              </DialogDescription>
+              <DialogDescription>Deletion takes two steps, so nobody can do it by accident (or from your unlocked laptop).</DialogDescription>
             </DialogHeader>
+            <ol className="grid gap-2 text-sm">
+              {[
+                <>
+                  We email a confirmation link to <span className="font-medium break-all">{email}</span>. It works for{" "}
+                  {linkTtlHours} hours.
+                </>,
+                <>Open it and press “Delete my account permanently”. Until then, nothing is deleted and you can keep using your account.</>,
+                <>Everything listed on this page is erased right away and can&apos;t be recovered. You get a final email when it&apos;s done.</>,
+              ].map((step, i) => (
+                <li key={i} className="flex gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-xs font-semibold text-destructive"
+                  >
+                    {i + 1}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
             <div className="grid gap-2">
               <Label htmlFor={inputId}>
                 Type <span className="font-mono font-semibold">{CONFIRM_WORD}</span> to continue

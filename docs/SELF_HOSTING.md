@@ -32,7 +32,12 @@ Rules enforced at startup in production (`NODE_ENV=production`, which both Verce
 - `BETTER_AUTH_SECRET` must be at least 32 characters, have some variety, and not be a published placeholder.
 - A real AI provider requires real payments **and** real email. Mock checkout would hand out free credits spent on
   your AI account, and the public dev mailbox would expose sign-in links. An all-mock deployment (a demo) is allowed
-  and shows a "Demo mode" banner.
+  and shows a "Demo mode" banner. Its `/dev/emails` mailbox is public, so anyone can sign in as any account there:
+  treat demo accounts as public. Mail to admins (`ADMIN_EMAILS` and every account with the admin role) is never shown
+  in that mailbox, so admins of a demo deployment sign in with Google (or configure real email).
+- The bundled MinIO's published password (`openshoot-dev-secret`, or MinIO's own `minioadmin`) is refused as
+  `S3_SECRET_ACCESS_KEY` unless `S3_ENDPOINT` is loopback or a Docker service name: set `MINIO_ROOT_PASSWORD` to a
+  random value before putting MinIO behind a public hostname.
 - A real AI provider requires real safety providers: `FACE_PROVIDER` and `MODERATION_PROVIDER` can't be `mock`
   (they default to `local`, which needs no keys).
 - Each selected provider needs its keys (for example `AI_PROVIDER=replicate` needs `REPLICATE_API_TOKEN` and
@@ -312,8 +317,10 @@ photos.example.com {
 ```
 
 nginx or Traefik work the same way. Set `TRUSTED_PROXY_HOPS=1` (2 if a CDN such as Cloudflare sits in front of
-the proxy). Otherwise client IPs are unknown and the per-IP rate limits (magic links, reports, deletion
-confirmations) are shared by every visitor. Set the proxy's request body limit to about 10 MB (nginx:
+the proxy). Otherwise client IPs are unknown and the per-IP rate limits are shared by every visitor. That matters most
+for sign-in: Better Auth then allows about 5 magic-link requests a minute for the whole site, so anyone can keep
+everybody else from signing in. (Account-deletion confirmations, signed-in reporters and the demo button fall back to
+per-token, per-account and deployment-wide limits, so they keep working.) Set the proxy's request body limit to about 10 MB (nginx:
 `client_max_body_size 10m`): photo uploads are capped at 8 MB by the app, and the proxy limit bounds everything else.
 
 ### Webhooks

@@ -6,6 +6,8 @@ import { DemoLoginButton } from "@/components/demo/demo-login-button";
 import { GithubIcon } from "@/components/layout/icons";
 import { PortraitArt, type PortraitHair } from "@/components/marketing/portrait-art";
 import { APP } from "@/config/app";
+import { CREDIT_COSTS } from "@/config/credits";
+import { formatCreditCost } from "@/content/credit-costs";
 import { cn } from "@/lib/utils";
 
 interface Frame {
@@ -70,7 +72,9 @@ export function Hero() {
             Take a live selfie, add a few photos, and get studio-quality headshots, dating photos, travel shots and
             videos that actually look like you. Shots that miss on likeness are refunded automatically.
           </p>
-          <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+          {/* Phones: the secondary buttons share a row, so the demo button appearing (after its probe) widens
+              "Self-host it" instead of pushing the content below down (no layout shift). */}
+          <div className="mt-9 flex w-full flex-wrap gap-3 sm:w-auto">
             <Button asChild variant="brand" size="lg" className="w-full sm:w-auto">
               <Link href="/login">
                 Create your photos
@@ -78,8 +82,8 @@ export function Hero() {
               </Link>
             </Button>
             {/* Static page: the island asks the server whether DEMO_MODE is on and stays hidden otherwise. */}
-            <DemoLoginButton probe />
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+            <DemoLoginButton probe label="Try the demo" className="w-auto min-w-max flex-1 sm:flex-none" />
+            <Button asChild variant="outline" size="lg" className="min-w-max flex-1 sm:flex-none">
               <a href={APP.githubUrl} target="_blank" rel="noopener noreferrer">
                 <GithubIcon className="size-4" />
                 Self-host it
@@ -88,8 +92,8 @@ export function Hero() {
             </Button>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">
-            Free drafts <span aria-hidden="true">·</span> No subscription needed <span aria-hidden="true">·</span> Pack
-            credits never expire
+            Free drafts <span aria-hidden="true">·</span> From {formatCreditCost(CREDIT_COSTS.generateStandard)} a photo{" "}
+            <span aria-hidden="true">·</span> Credits never expire
           </p>
         </div>
 
