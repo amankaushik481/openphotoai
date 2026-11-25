@@ -2,7 +2,12 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Folio, SHELL } from "@/components/marketing/editorial";
-import { LIGHTING_LABEL, PortraitArt, type LightingSetup, type PortraitHair } from "@/components/marketing/portrait-art";
+import {
+  LIGHTING_LABEL,
+  PortraitArt,
+  type LightingSetup,
+  type PortraitHair,
+} from "@/components/marketing/portrait-art";
 import { CREDIT_COSTS } from "@/config/credits";
 import { cn } from "@/lib/utils";
 import type { PackCategory, PackSummary } from "@/types/pack";
@@ -47,8 +52,8 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
         </h2>
         <div className="flex flex-col items-start gap-5 lg:col-span-4 lg:col-start-9 lg:self-end lg:pb-2">
           <p className="text-lg leading-relaxed text-pretty text-muted-foreground">
-            {packs.length} curated packs, {styles.toLocaleString("en-US")} styles. Each pack is an open JSON file, and you
-            can preview every one free with drafts.
+            {packs.length} curated packs, {styles.toLocaleString("en-US")} styles. Each pack is an open JSON file, and
+            you can preview every one free with drafts.
           </p>
           <Link
             href="/packs"
@@ -96,7 +101,12 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
                     aria-hidden="true"
                     className="grain-over relative col-start-3 row-start-1 aspect-[4/5] w-14 overflow-hidden rounded-[1px] sm:w-16 lg:hidden"
                   >
-                    <PortraitArt id={`idx-m-${pack.slug}`} setup={setup} hair={HAIR[i % HAIR.length]} x={i % 2 ? 6 : -6} />
+                    <PortraitArt
+                      id={`idx-m-${pack.slug}`}
+                      setup={setup}
+                      hair={HAIR[i % HAIR.length]}
+                      x={i % 2 ? 6 : -6}
+                    />
                   </span>
                 </Link>
                 {/* Wide screens: the print for this row, shown while it is pointed at (the first by default). */}
@@ -106,7 +116,12 @@ export function PacksShowcase({ packs }: { packs: readonly PackSummary[] }) {
                 >
                   <div className="print-paper p-3 pb-10 shadow-print">
                     <div className="grain-over relative aspect-[4/5] overflow-hidden">
-                      <PortraitArt id={`idx-${pack.slug}`} setup={setup} hair={HAIR[i % HAIR.length]} x={i % 2 ? 8 : -8} />
+                      <PortraitArt
+                        id={`idx-${pack.slug}`}
+                        setup={setup}
+                        hair={HAIR[i % HAIR.length]}
+                        x={i % 2 ? 8 : -8}
+                      />
                     </div>
                     <figcaption className="mt-3 flex justify-between font-mono text-[0.625rem] tracking-[0.16em] text-[#16140f] uppercase">
                       <span>

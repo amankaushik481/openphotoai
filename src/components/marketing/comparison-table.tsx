@@ -1,19 +1,14 @@
-import { CheckIcon, MinusIcon } from "lucide-react";
-
-import { MarketingSection, SectionHeading } from "@/components/marketing/section-heading";
+import { Folio, SHELL } from "@/components/marketing/editorial";
 import { APP } from "@/config/app";
 import { getLegalVariables } from "@/content/legal";
+import { cn } from "@/lib/utils";
 
 /** Generic comparison: no competitor names or trademarks, only common industry practice. */
 function rows(): { topic: string; us: string; typical: string }[] {
   const legal = getLegalVariables();
   return [
     { topic: "Credit-pack credits", us: "Never expire", typical: "Often expire monthly" },
-    {
-      topic: "Plan credits",
-      us: "Never expire",
-      typical: "Use them or lose them",
-    },
+    { topic: "Plan credits", us: "Never expire", typical: "Use them or lose them" },
     { topic: "Photo doesn't look like you", us: "Credits refunded automatically", typical: "Usually no refund" },
     { topic: "Failed or blocked results", us: "Refunded automatically", typical: "Often still charged" },
     {
@@ -30,73 +25,90 @@ function rows(): { topic: string; us: string; typical: string }[] {
   ];
 }
 
+/** "The fine print": a typeset ledger of how we handle what people complain about most. */
 export function ComparisonTable() {
+  const caption = `${APP.name} compared with typical AI photo apps`;
   return (
-    <MarketingSection labelledBy="compare-title">
-      <SectionHeading
-        id="compare-title"
-        eyebrow="Honest by design"
-        title="The fine print, minus the fine print."
-        lead="How we handle the things people complain about most with AI photo apps."
-      />
-      {/* Phones: a stacked list (a reflowed table loses its header association). */}
-      <ul className="mt-12 flex flex-col gap-3 sm:hidden" aria-label={`${APP.name} compared with typical AI photo apps`}>
-        {rows().map((row) => (
-          <li key={row.topic} className="rounded-2xl border bg-card p-4 shadow-xs">
-            <h3 className="text-sm font-medium">{row.topic}</h3>
-            <dl className="mt-2 grid gap-2 text-sm">
-              <div>
-                <dt className="sr-only">{APP.name}</dt>
-                <dd className="flex items-start gap-2">
-                  <CheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
-                  {row.us}
-                </dd>
-              </div>
-              <div className="text-muted-foreground">
-                <dt className="sr-only">Typical AI photo apps</dt>
-                <dd className="flex items-start gap-2">
-                  <MinusIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-                  {row.typical}
-                </dd>
-              </div>
-            </dl>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-12 hidden overflow-hidden rounded-2xl border bg-card shadow-xs sm:block">
-        <table className="w-full border-collapse text-left text-sm">
-          <caption className="sr-only">{APP.name} compared with typical AI photo apps</caption>
+    <section aria-labelledby="compare-title" className="border-t border-border py-20 sm:py-28 lg:py-36">
+      <div className={cn(SHELL, "grid gap-y-6 lg:grid-cols-12 lg:gap-x-10")}>
+        <Folio no="06" label="Terms" className="lg:col-span-12" />
+        <h2
+          id="compare-title"
+          className="font-display text-[clamp(2.9rem,8vw,5.5rem)] leading-[0.92] tracking-[-0.03em] lg:col-span-8"
+        >
+          The fine print, <span className="block italic">minus the fine print.</span>
+        </h2>
+        <p className="max-w-[30rem] text-lg leading-relaxed text-pretty text-muted-foreground lg:col-span-4 lg:self-end lg:pb-2">
+          How we handle the things people complain about most with AI photo apps.
+        </p>
+      </div>
+
+      <div className={cn(SHELL, "mt-14 sm:mt-20")}>
+        {/* Phones: a stacked list (a reflowed table loses its header association). */}
+        <ul className="border-t border-foreground sm:hidden" aria-label={caption}>
+          {rows().map((row) => (
+            <li key={row.topic} className="border-b border-border py-4">
+              <h3 className="mono-caps text-[0.625rem] text-muted-foreground">{row.topic}</h3>
+              <dl className="mt-2 grid gap-1">
+                <div>
+                  <dt className="sr-only">{APP.name}</dt>
+                  <dd className="flex gap-2.5 font-medium">
+                    <span aria-hidden="true" className="font-mono text-safelight-ink">
+                      ✓
+                    </span>
+                    {row.us}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="sr-only">Typical AI photo apps</dt>
+                  <dd className="flex gap-2.5 text-muted-foreground">
+                    <span aria-hidden="true" className="font-mono">
+                      —
+                    </span>
+                    {row.typical}
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+        <table className="hidden w-full border-collapse text-left sm:table">
+          <caption className="sr-only">{caption}</caption>
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th scope="col" className="w-[34%] px-4 py-3.5 font-medium text-muted-foreground sm:px-6">
+            <tr className="border-b border-foreground">
+              <th scope="col" className="w-[30%] pb-3 font-normal">
                 <span className="sr-only">Topic</span>
               </th>
-              <th scope="col" className="px-4 py-3.5 font-semibold sm:px-6">
-                <span className="inline-flex items-center gap-2">
-                  <span aria-hidden="true" className="size-2 rounded-full bg-brand-gradient" />
-                  {APP.name}
-                </span>
+              <th scope="col" className="mono-caps pb-3 text-foreground">
+                {APP.name}
               </th>
-              <th scope="col" className="px-4 py-3.5 font-medium text-muted-foreground sm:px-6">
+              <th scope="col" className="mono-caps pb-3 font-medium text-muted-foreground">
                 Typical AI photo apps
               </th>
             </tr>
           </thead>
           <tbody>
             {rows().map((row) => (
-              <tr key={row.topic} className="border-b last:border-0">
-                <th scope="row" className="px-4 py-4 align-top font-medium sm:px-6">
+              <tr key={row.topic} className="group border-b border-border">
+                <th
+                  scope="row"
+                  className="py-4 pr-6 align-baseline font-display text-[1.375rem] leading-tight font-normal lg:text-[1.625rem]"
+                >
                   {row.topic}
                 </th>
-                <td className="px-4 py-4 align-top sm:px-6">
-                  <span className="flex items-start gap-2">
-                    <CheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-success" />
+                <td className="py-4 pr-6 align-baseline">
+                  <span className="flex gap-3 font-medium">
+                    <span aria-hidden="true" className="font-mono text-safelight-ink">
+                      ✓
+                    </span>
                     {row.us}
                   </span>
                 </td>
-                <td className="px-4 py-4 align-top text-muted-foreground sm:px-6">
-                  <span className="flex items-start gap-2">
-                    <MinusIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+                <td className="py-4 align-baseline text-muted-foreground">
+                  <span className="flex gap-3">
+                    <span aria-hidden="true" className="font-mono">
+                      —
+                    </span>
                     {row.typical}
                   </span>
                 </td>
@@ -104,10 +116,10 @@ export function ComparisonTable() {
             ))}
           </tbody>
         </table>
+        <p className="mono-caps mt-6 leading-relaxed text-muted-foreground">
+          “Typical” reflects common practices in the AI photo app market, not any specific company.
+        </p>
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">
-        “Typical” reflects common practices in the AI photo app market, not any specific company.
-      </p>
-    </MarketingSection>
+    </section>
   );
 }

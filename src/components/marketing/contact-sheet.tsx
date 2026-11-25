@@ -128,7 +128,10 @@ export function ContactSheet({
                 >
                   <span>{n}A</span>
                   <span>
-                    {Math.round(f.score * 100)}%{f.reject ? " · refunded" : f.keep ? " · best" : ""}
+                    {Math.round(f.score * 100)}%
+                    <span className="hidden @min-[13rem]:inline">
+                      {f.reject ? " · refunded" : f.keep ? " · best" : ""}
+                    </span>
                   </span>
                 </p>
               )}

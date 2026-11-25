@@ -55,7 +55,9 @@ export function LikenessProof() {
                 <span className="mono-caps pt-1 text-safelight-ink">{String(i + 1).padStart(2, "0")}</span>
                 <div>
                   <h3 className="font-medium">{step.title}</h3>
-                  <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-pretty text-muted-foreground">{step.body}</p>
+                  <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-pretty text-muted-foreground">
+                    {step.body}
+                  </p>
                 </div>
               </li>
             ))}
@@ -75,8 +77,10 @@ export function LikenessProof() {
                   style={{ left: `${(i / 14) * 100}%` }}
                 />
               ))}
-              <span className="absolute top-[3.75rem] left-0 mono-caps text-[0.625rem] text-muted-foreground">30%</span>
-              <span className="absolute top-[3.75rem] right-0 mono-caps text-[0.625rem] text-muted-foreground">100%</span>
+              <span className="absolute top-[1.9rem] left-0 mono-caps text-[0.625rem] text-muted-foreground">30%</span>
+              <span className="absolute top-[1.9rem] right-0 mono-caps text-[0.625rem] text-muted-foreground">
+                100%
+              </span>
               {/* Refund line. */}
               <span
                 className="absolute top-2 bottom-4 border-l-2 border-dashed border-safelight-ink"
@@ -112,7 +116,12 @@ export function LikenessProof() {
                 className="absolute top-[3.75rem] mono-caps text-[0.625rem] whitespace-nowrap"
                 style={{ left: scale(best), transform: "translateX(-60%)" }}
               >
-                Best · {frameNumber(START, ROLL.findIndex((f) => f.score === best))}A
+                Best ·{" "}
+                {frameNumber(
+                  START,
+                  ROLL.findIndex((f) => f.score === best),
+                )}
+                A
               </span>
             </div>
           </div>
