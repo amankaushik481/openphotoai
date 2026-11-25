@@ -88,6 +88,31 @@ describe("email templates", () => {
     expect(email.subject.length).toBeLessThan(100);
   });
 
+  it.each(templateNames)("%s supports dark mode and keeps CSS out of the plain-text version", async (name) => {
+    const email = await renderEmail(name, SAMPLES[name] as never);
+    expect(email.html).toContain('name="color-scheme" content="light dark"');
+    expect(email.html).toContain("@media (prefers-color-scheme: dark)");
+    expect(email.html).toContain("[data-ogsc] .os-text");
+    // Every visible block is re-colorable: body, card and the text inside it.
+    for (const cls of ["os-body", "os-card", "os-text", "os-muted"]) expect(email.html).toContain(cls);
+    expect(email.text).not.toMatch(/prefers-color-scheme|!important|os-body/);
+  });
+
+  it("only links to absolute https/mailto URLs (no relative links that break in mail clients)", async () => {
+    for (const name of templateNames) {
+      const email = await renderEmail(name, SAMPLES[name] as never);
+      const hrefs = [...email.html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]!);
+      for (const href of hrefs) expect(href, `${name}: ${href}`).toMatch(/^(https?:\/\/|mailto:)/);
+    }
+  });
+
+  it("states how long time-limited links work", async () => {
+    expect((await renderEmail("magic_link", SAMPLES.magic_link)).text).toContain("expires in 15 minutes");
+    expect((await renderEmail("deletion_confirm_request", SAMPLES.deletion_confirm_request)).text).toContain("24 hours");
+    const team = await renderEmail("team_invite", { ...SAMPLES.team_invite, expiresInDays: 14 });
+    expect(team.text).toContain("works for 14 days");
+  });
+
   it("pluralizes credits in the low-credit subject", () => {
     expect(EMAIL_SUBJECTS.low_credits({ name: "A", balance: 1, url: "" })).toContain("1 credit left");
     expect(EMAIL_SUBJECTS.low_credits({ name: "A", balance: 0, url: "" })).toContain("0 credits left");
