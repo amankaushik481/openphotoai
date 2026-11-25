@@ -101,7 +101,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
 
       <div className="grid gap-6">
         <Section id="ledger" flush title="Credit ledger" description="Newest 50 entries.">
-          <Table>
+          <Table scrollLabel="Credit ledger">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">When</TableHead>
@@ -149,7 +149,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
         </Section>
 
         <Section id="models" flush title="Identity models">
-          <Table>
+          <Table scrollLabel="Identity models">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">Name</TableHead>
@@ -181,7 +181,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
 
         <div id="billing" className="grid min-w-0 gap-6 lg:grid-cols-2">
           <Section flush title="Subscriptions">
-            <Table>
+            <Table scrollLabel="Subscriptions">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">Plan</TableHead>
@@ -208,7 +208,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
           </Section>
 
           <Section flush title="Payments" description="Newest 50.">
-            <Table>
+            <Table scrollLabel="Payments">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">When</TableHead>
@@ -238,7 +238,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
 
         <div id="moderation" className="grid min-w-0 gap-6 lg:grid-cols-2">
           <Section flush title="Reports against this user">
-            <Table>
+            <Table scrollLabel="Reports against this user">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">When</TableHead>
@@ -266,7 +266,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
           </Section>
 
           <Section flush title="Safety events" description="Newest 50 (blocked prompts, outputs, consent checks, admin actions).">
-            <Table>
+            <Table scrollLabel="Safety events">
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">When</TableHead>

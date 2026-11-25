@@ -80,8 +80,10 @@ function Code({ children }: { children: React.ReactNode }) {
 function Pre({ children, label }: { children: string; label: string }) {
   return (
     <pre
+      // Focusable so keyboard users can scroll long lines on narrow screens (as in the API docs).
+      tabIndex={0}
       aria-label={label}
-      className="overflow-x-auto rounded-xl border bg-[oklch(0.17_0.008_55)] p-4 font-mono text-[13px] leading-relaxed text-[oklch(0.93_0.008_84)]"
+      className="overflow-x-auto rounded-xl border bg-[oklch(0.17_0.008_55)] p-4 font-mono text-[13px] leading-relaxed text-[oklch(0.93_0.008_84)] [--focus-offset:-2px]"
     >
       <code>{children}</code>
     </pre>

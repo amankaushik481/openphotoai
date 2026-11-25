@@ -66,7 +66,7 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
         </Section>
 
         <Section flush title="MRR by plan" description="Active subscriptions; yearly plans count 1/12 of their price.">
-          <Table>
+          <Table scrollLabel="MRR by plan">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">Plan</TableHead>
@@ -126,7 +126,7 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
             </div>
           ))}
         </dl>
-        <Table>
+        <Table scrollLabel="Provider cost vs revenue">
           <TableHeader>
             <TableRow>
               <TableHead scope="col">Job type</TableHead>
@@ -177,7 +177,7 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <Section flush title="Daily breakdown" description="Days with payments or refunds.">
-          <Table>
+          <Table scrollLabel="Daily breakdown">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">Day</TableHead>
@@ -220,7 +220,7 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
             )
           }
         >
-          <Table>
+          <Table scrollLabel="Payments">
             <TableHeader>
               <TableRow>
                 <TableHead scope="col">When</TableHead>

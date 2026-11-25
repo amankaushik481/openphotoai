@@ -55,7 +55,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           )
         }
       >
-        <Table>
+        <Table scrollLabel="Users">
           <TableHeader>
             <TableRow>
               <TableHead scope="col">User</TableHead>

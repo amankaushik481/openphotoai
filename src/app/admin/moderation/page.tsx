@@ -115,7 +115,7 @@ export default async function AdminModerationPage() {
         title={`Safety events to review (${events.length})`}
         description="Blocked prompts, outputs, references and failed consent checks. Marking an event reviewed removes it from this list."
       >
-        <Table>
+        <Table scrollLabel="Safety events to review">
           <TableHeader>
             <TableRow>
               <TableHead scope="col">When</TableHead>

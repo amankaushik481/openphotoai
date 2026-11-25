@@ -59,7 +59,8 @@ export function UserMenu({ user }: { user: ShellUser }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full" aria-label={t("user.menu")}>
-          <Avatar className="size-8 ring-1 ring-border">
+          {/* Decorative: the button is named by aria-label (initials as visible text fail "label in name"). */}
+          <Avatar className="size-8 ring-1 ring-border" aria-hidden="true">
             {user.image && <AvatarImage src={user.image} alt="" />}
             <AvatarFallback className="bg-brand-soft text-xs text-brand-soft-foreground">
               {initials(user.name, user.email)}

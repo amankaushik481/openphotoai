@@ -55,7 +55,7 @@ photo is discarded instead of hidden; invoices with a zero total (trials, 100% c
 
 Fixed from `docs/reviews/accessibility-mobile.md`: all High findings, and all Medium findings except A11Y-36
 (deferred) and A11Y-29 and MOB-3 (fixed in part). Of the Lows, all are fixed except A11Y-18 and A11Y-21 (deferred)
-and A11Y-11 and A11Y-24 (fixed in part). The remainder of each is listed below.
+and A11Y-24 (fixed in part). The remainder of each is listed below.
 
 Main approach: one token-level focus style in `globals.css` (`:focus-visible` → 2px solid `--ring`, ≥ 5:1 on every
 surface in both themes), plus an unlayered `forced-colors` rule that draws a `CanvasText` outline on any focused
@@ -71,7 +71,6 @@ clipping parent would hide an outer outline.
 | A11Y-24 (part) | On the pack page at desktop widths, the form comes first in the DOM but is shown in the right-hand column. | Matching DOM to visual order means moving the form to the left column on desktop (it must stay first on phones), which is a layout decision. | The form is a self-contained, labelled region. The drafts live region is now always mounted, so the first "started" message is announced. |
 | A11Y-21 | Create-form validation errors aren't tied to their field (`aria-invalid` / `aria-describedby`). | `buildGenerateRequest` returns only a message. Mapping it to a field changes the create logic's result type and its tests. | The error is a focused, named group with a clear message that names the field ("Describe the photo you want."). |
 | A11Y-18 | FAQ questions are headings inside native `<summary>`, which VoiceOver/Safari flatten, so heading navigation skips them. | Accepted: native `<details>` works without JavaScript and is keyboard and screen-reader operable everywhere. | The questions are reachable as disclosure buttons. The page has a category index. |
-| A11Y-11 (part) | Admin tables (revenue, user detail) don't pass `scrollLabel` to `Table`, so their scrollers aren't focusable in Safari. | Admin is a desktop tool where these tables rarely overflow. Opting in is one prop per table. | Chrome and Firefox make scrollers keyboard-focusable on their own. The API-docs, legal, self-hosting, API-keys, credit-history and admin jobs tables are focusable, named regions. |
 | MOB-3 (part) | On touch screens, `sm` buttons grow to 40px (not 44px). `icon-sm` buttons keep a 32px look with a 44px invisible hit area (`size-7` overrides get 40px). | A larger `icon-sm` hit area would overlap neighbours in dense toolbars (gap-1), so taps near an edge would hit the wrong button. | Default buttons are 44px tall on coarse pointers. Dialog and sheet close buttons, the favourite heart, the switch and the slider thumb have 44px hit areas. |
 ## Performance
 

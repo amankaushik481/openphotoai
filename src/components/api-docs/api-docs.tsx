@@ -183,7 +183,7 @@ export function ApiDocs({ spec }: { spec: OpenApiDocument }) {
             <Prose>
               <p>
                 Create a key on the{" "}
-                <Link href="/app/api-keys" className="text-primary underline-offset-2 hover:underline">
+                <Link href="/app/api-keys" className="text-primary underline underline-offset-2">
                   API keys
                 </Link>{" "}
                 page. API access is included in the {plans.join(" and ")} plans; keys of accounts on other plans are
