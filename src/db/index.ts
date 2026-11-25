@@ -73,8 +73,12 @@ export function getDb(): Database {
   if (globalForDb.__openshootDb) return (instance = globalForDb.__openshootDb);
   const url = process.env.DATABASE_URL?.trim() || DEFAULT_DATABASE_URL;
   instance = createDb(url);
-  // Reuse across hot reloads in dev.
-  if (process.env.NODE_ENV !== "production") globalForDb.__openshootDb = instance;
+  // One client per process, in production too: a Next.js build loads separate copies of this module
+  // for route handlers and for pages. Without the shared instance each copy opens its own pool, and
+  // with PGlite its own in-memory copy of the data directory, so pages never see what API routes
+  // wrote (e.g. /verify reported every fresh magic link as expired under `pnpm start`).
+  // Also survives hot reloads in dev.
+  globalForDb.__openshootDb = instance;
   return instance;
 }
 
