@@ -87,6 +87,17 @@ describe("EnhanceQuickActions", () => {
     expect(html).not.toContain('aria-disabled="true"');
   });
 
+  it("keeps the visible label and cost two words when labelled (label in name)", () => {
+    const html = renderToStaticMarkup(<EnhanceQuickActions media={media()} labeled />);
+    const visible = (label: string) =>
+      html
+        .match(new RegExp(`aria-label="${label}"[^>]*>(.*?)</button>`))?.[1]
+        ?.replace(/<[^>]+>/g, "")
+        .trim();
+    expect(visible("Restore face, 1 credit")).toBe("Restore face 1");
+    expect(visible("Remove background, 1 credit")).toBe("Remove background 1");
+  });
+
   it("marks actions unavailable for videos", () => {
     const html = renderToStaticMarkup(<EnhanceQuickActions media={media({ kind: "video", mimeType: "video/mp4" })} />);
     expect(html.match(/aria-disabled="true"/g)).toHaveLength(3);

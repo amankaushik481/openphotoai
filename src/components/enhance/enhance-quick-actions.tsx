@@ -125,7 +125,8 @@ function QuickActionButton({
           {busy ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <spec.Icon aria-hidden="true" />}
           {labeled ? (
             <span aria-hidden="true" className="flex items-center gap-1.5">
-              {spec.label}
+              {/* The space keeps "Restore face 1" two words in the text (the flex gap is visual only). */}
+              {spec.label}{" "}
               <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums">
                 <CoinsIcon className="size-3" />
                 {cost}
