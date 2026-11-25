@@ -106,7 +106,7 @@ function TransferForm({
       </DialogHeader>
 
       {recipients.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+        <p className="border border-dashed border-foreground/25 p-4 text-sm text-muted-foreground">
           Nobody has joined yet. Invite teammates first — credits can be sent once they accept.
         </p>
       ) : (

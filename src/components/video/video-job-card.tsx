@@ -13,6 +13,7 @@ import { useJob } from "@/hooks/use-job";
 import { useMe } from "@/hooks/use-me";
 import type { JobDTO, MediaDTO } from "@/types/domain";
 import { jobErrorText } from "./post-job";
+import { FilmStrip } from "@/components/gallery/marks";
 
 /** Shown while a video renders: they take minutes, and work continues server-side. */
 export function VideoWaitNotice() {
@@ -106,16 +107,19 @@ export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
 
   if (current.status === "succeeded" && video) {
     return (
-      <article className="flex flex-col gap-3 rounded-xl border bg-card p-4" aria-label={title}>
+      <article className="flex flex-col gap-3 border border-foreground/15 bg-card p-3 sm:p-4" aria-label={title}>
         <div className="flex items-center justify-between gap-3">
           <h3 className="truncate text-sm font-medium">{title}</h3>
           <JobStatusBadge status={current.status} />
         </div>
-        <VideoPlayer
-          media={video}
-          captionsScript={current.input.type === "talking_video" ? current.input.script : null}
-          onError={refreshUrls}
-        />
+        <FilmStrip edge={`OpenShoot 400 · ▸ ${video.id.slice(-4).toUpperCase()}`}>
+          <VideoPlayer
+            media={video}
+            captionsScript={current.input.type === "talking_video" ? current.input.script : null}
+            onError={refreshUrls}
+            className="max-h-[70dvh] w-full bg-black object-contain"
+          />
+        </FilmStrip>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild variant="brand">
             <a href={video.downloadUrl} download>
@@ -135,7 +139,7 @@ export function VideoJobCard({ initialJob }: { initialJob: JobDTO }) {
   }
 
   return (
-    <article className="flex flex-col gap-3 rounded-xl border bg-card p-4" aria-label={title}>
+    <article className="flex flex-col gap-3 border border-foreground/15 bg-card p-3 sm:p-4" aria-label={title}>
       <JobProgress job={current} title={title} bare />
       {inFlight && (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

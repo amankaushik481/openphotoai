@@ -15,9 +15,9 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Stamp } from "@/components/gallery/readout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,7 +110,7 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
             <li key={m.id} className="flex items-center gap-3 px-6 py-3">
               <Avatar className="size-9">
                 {m.image && <AvatarImage src={m.image} alt="" />}
-                <AvatarFallback className="bg-brand-soft text-xs text-brand-soft-foreground">
+                <AvatarFallback className="bg-secondary font-mono text-[11px] tracking-wider text-foreground">
                   {m.status === "invited" ? <MailIcon aria-hidden="true" className="size-4" /> : initials(m.name || m.email)}
                 </AvatarFallback>
               </Avatar>
@@ -137,12 +137,12 @@ export function MembersCard({ detail, onChanged, onGiveCredits }: MembersCardPro
               <div className="flex shrink-0 items-center gap-1.5">
                 {m.status === "invited" ? (
                   expired ? (
-                    <Badge variant="destructive">Expired</Badge>
+                    <Stamp tone="safelight">Expired</Stamp>
                   ) : (
-                    <Badge variant="warning">Pending</Badge>
+                    <Stamp tone="warning">Pending</Stamp>
                   )
                 ) : (
-                  <Badge variant={m.role === "member" ? "outline" : "soft"}>{ROLE_LABELS[m.role]}</Badge>
+                  <Stamp tone={m.role === "member" ? "muted" : "ink"}>{ROLE_LABELS[m.role]}</Stamp>
                 )}
                 {hasActions && (
                   <DropdownMenu>

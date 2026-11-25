@@ -214,7 +214,7 @@ export default async function AdminRevenuePage({ searchParams }: { searchParams:
           description={cursor ? "Older payments in this period." : "Newest first, 50 per page."}
           action={
             cursor && (
-              <Link href={`/admin/revenue?days=${days}`} className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+              <Link href={`/admin/revenue?days=${days}`} className="text-sm font-medium underline underline-offset-4">
                 Newest
               </Link>
             )

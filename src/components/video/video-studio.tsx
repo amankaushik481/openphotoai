@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ClapperboardIcon, MicIcon } from "lucide-react";
+import { FilmIcon, MicIcon } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MediaPicker } from "@/components/app/media-picker";
@@ -12,6 +12,8 @@ import { PhotoToVideoForm } from "./photo-to-video-form";
 import { SourcePhoto } from "./source-photo";
 import { TalkingVideoForm } from "./talking-video-form";
 import { VideoJobCard } from "./video-job-card";
+import { STUDIO_TAB, STUDIO_TABS_LIST } from "@/components/edit/studio";
+import { cn } from "@/lib/utils";
 
 export type VideoTab = "photo" | "talking";
 
@@ -77,28 +79,32 @@ export function VideoStudio({ initialSource, initialTab, sourceMissing = false }
         />
 
         <div className="flex min-w-0 flex-col gap-6">
-          <Tabs value={tab} onValueChange={changeTab} className="gap-5">
-            <TabsList className="h-10 w-full sm:w-fit">
-              <TabsTrigger value="photo" className="px-4">
-                <ClapperboardIcon aria-hidden="true" />
+          <Tabs value={tab} onValueChange={changeTab} className="gap-0 border border-foreground/15 bg-card">
+            <p className="flex items-center justify-between gap-3 px-4 pt-3 font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase sm:px-5">
+              <span>Studio · motion</span>
+              <span>{source ? `Frame ${source.id.slice(-4).toUpperCase()}` : "No frame"}</span>
+            </p>
+            <TabsList className={cn(STUDIO_TABS_LIST, "px-4 sm:px-5")}>
+              <TabsTrigger value="photo" className={STUDIO_TAB}>
+                <FilmIcon aria-hidden="true" />
                 Photo to video
               </TabsTrigger>
-              <TabsTrigger value="talking" className="px-4">
+              <TabsTrigger value="talking" className={STUDIO_TAB}>
                 <MicIcon aria-hidden="true" />
                 Talking video
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="photo">
+            <TabsContent value="photo" className="p-4 sm:p-5">
               <PhotoToVideoForm source={source} onChooseSource={openPicker} onCreated={onCreated} />
             </TabsContent>
-            <TabsContent value="talking">
+            <TabsContent value="talking" className="p-4 sm:p-5">
               <TalkingVideoForm source={source} onChooseSource={openPicker} onCreated={onCreated} />
             </TabsContent>
           </Tabs>
 
           {jobs.length > 0 && (
             <section ref={resultsRef} aria-labelledby="video-results" className="flex scroll-mt-20 flex-col gap-3">
-              <h2 id="video-results" className="text-lg font-semibold">
+              <h2 id="video-results" className="border-t border-foreground/80 pt-3 font-display text-3xl leading-none tracking-tight">
                 Your videos
               </h2>
               {jobs.map((job) => (

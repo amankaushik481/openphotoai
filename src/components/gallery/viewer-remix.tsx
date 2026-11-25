@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import useSWR from "swr";
-import { CoinsIcon, LoaderCircleIcon, RepeatIcon, ShuffleIcon } from "lucide-react";
+import { LoaderCircleIcon, RepeatIcon, ShuffleIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { ApiClientError, api, fetcher } from "@/lib/api-client";
 import { errorMessage } from "@/i18n";
 import type { JobDTO, MediaDTO } from "@/types/domain";
 import { creditsLabel, createAgainHref, variationCost, variationRequest } from "./viewer-actions";
+import { CreditReadout } from "./readout";
 
 function idempotencyKey(): string {
   return typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -70,7 +71,7 @@ export function ViewerRemix({ media }: { media: MediaDTO }) {
 
   return (
     <section aria-labelledby="viewer-remix" className="flex flex-col gap-2">
-      <h2 id="viewer-remix" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+      <h2 id="viewer-remix" className="mono-caps text-muted-foreground">
         More like this
       </h2>
       <div className="flex flex-wrap gap-2">
@@ -85,10 +86,7 @@ export function ViewerRemix({ media }: { media: MediaDTO }) {
           >
             {pending ? <LoaderCircleIcon aria-hidden="true" className="animate-spin" /> : <ShuffleIcon aria-hidden="true" />}
             {count === 1 ? "Make a variation" : `Make ${count} variations`}
-            <span aria-hidden="true" className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums">
-              <CoinsIcon className="size-3" />
-              {cost === 0 ? "Free" : cost}
-            </span>
+            <CreditReadout credits={cost} />
           </Button>
         )}
         {againHref && (

@@ -4,7 +4,7 @@ import { DownloadIcon, LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { ApiClientError } from "@/lib/api-client";
 import type { ApiErrorBody } from "@/types/domain";
 import { apiErrorText } from "./client-errors";

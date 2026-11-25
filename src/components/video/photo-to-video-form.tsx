@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { CheckIcon, ClapperboardIcon, LoaderCircleIcon } from "lucide-react";
+import { CheckIcon, FilmIcon, LoaderCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import {
   videoCredits,
   type VideoDuration,
 } from "./video-options";
+import { STUDIO_CHIP, STUDIO_CHIP_ON, STUDIO_LABEL, STUDIO_TOGGLE } from "@/components/edit/studio";
 
 export interface PhotoToVideoFormProps {
   source: MediaDTO | null;
@@ -59,7 +60,9 @@ export function PhotoToVideoForm({ source, onChooseSource, onCreated }: PhotoToV
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Label htmlFor={promptId}>How should it move?</Label>
+        <Label htmlFor={promptId} className={STUDIO_LABEL}>
+          How should it move?
+        </Label>
         <Textarea
           id={promptId}
           value={prompt}
@@ -83,7 +86,7 @@ export function PhotoToVideoForm({ source, onChooseSource, onCreated }: PhotoToV
                   variant={active ? "secondary" : "outline"}
                   aria-pressed={active}
                   onClick={() => setPrompt((p) => togglePresetPhrase(p, preset.phrase))}
-                  className={cn("rounded-full", active && "ring-1 ring-primary/40")}
+                  className={cn(STUDIO_CHIP, active && STUDIO_CHIP_ON)}
                 >
                   {active && <CheckIcon aria-hidden="true" />}
                   {preset.label}
@@ -95,7 +98,9 @@ export function PhotoToVideoForm({ source, onChooseSource, onCreated }: PhotoToV
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label id={durationId}>Length</Label>
+        <Label id={durationId} className={STUDIO_LABEL}>
+          Length
+        </Label>
         <ToggleGroup
           type="single"
           variant="outline"
@@ -105,9 +110,14 @@ export function PhotoToVideoForm({ source, onChooseSource, onCreated }: PhotoToV
           className="w-full sm:w-fit"
         >
           {VIDEO_DURATIONS.map((d) => (
-            <ToggleGroupItem key={d} value={String(d)} className="h-auto flex-col gap-0 px-5 py-2">
-              <span className="font-medium">{d} seconds</span>
-              <span className="text-xs text-muted-foreground">{videoCredits(d)} credits</span>
+            <ToggleGroupItem key={d} value={String(d)} className={cn("h-auto flex-col gap-0.5 px-5 py-2", STUDIO_TOGGLE)}>
+              {/* Darkroom-timer readout; the spelled-out line below is the accessible name. */}
+              <span aria-hidden="true" className="font-mono text-sm font-medium tabular-nums">
+                00:{String(d).padStart(2, "0")}
+              </span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
+                {d} seconds · {videoCredits(d)} credits
+              </span>
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -116,7 +126,7 @@ export function PhotoToVideoForm({ source, onChooseSource, onCreated }: PhotoToV
       <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
         <CostHint input={request} />
         <Button type="submit" variant="brand" size="lg" disabled={submitting} className="w-full sm:w-auto">
-          {submitting ? <LoaderCircleIcon className="animate-spin" /> : <ClapperboardIcon />}
+          {submitting ? <LoaderCircleIcon className="animate-spin" /> : <FilmIcon />}
           {!source ? "Choose a photo" : submitting ? "Starting…" : "Make video"}
         </Button>
       </div>

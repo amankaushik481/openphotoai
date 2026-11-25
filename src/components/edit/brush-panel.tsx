@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { MaskPainterHandle } from "./mask-painter";
 import { BRUSH_PRESETS } from "./presets";
 import { apiErrorText, submitJob } from "./use-session-jobs";
+import { STUDIO_CHIP, STUDIO_CHIP_ON, STUDIO_LABEL } from "./studio";
 
 const MAX_PROMPT = 800;
 
@@ -34,7 +35,12 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
   const [pending, setPending] = React.useState(false);
   const trimmed = prompt.trim();
   const valid = trimmed.length >= 2;
-  const input: JobInput = { type: "inpaint", sourceMediaId: media.id, maskUploadId: "pending", prompt: trimmed || "edit" };
+  const input: JobInput = {
+    type: "inpaint",
+    sourceMediaId: media.id,
+    maskUploadId: "pending",
+    prompt: trimmed || "edit",
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +63,12 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
         toast.error(apiErrorText(err));
         return;
       }
-      const job = await submitJob({ type: "inpaint", sourceMediaId: media.id, maskUploadId: uploadId, prompt: trimmed });
+      const job = await submitJob({
+        type: "inpaint",
+        sourceMediaId: media.id,
+        maskUploadId: uploadId,
+        prompt: trimmed,
+      });
       if (job) {
         onJobCreated(job);
         toast.success("Repainting the brushed area…");
@@ -75,7 +86,7 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
       </p>
 
       <div className="flex flex-col gap-2">
-        <p id={presetsLabelId} className="text-sm font-medium">
+        <p id={presetsLabelId} className={STUDIO_LABEL}>
           Quick picks
         </p>
         <div role="group" aria-labelledby={presetsLabelId} className="flex flex-wrap gap-2">
@@ -87,10 +98,7 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
               variant="outline"
               aria-pressed={prompt === preset.instruction}
               onClick={() => setPrompt(preset.instruction)}
-              className={cn(
-                "rounded-full",
-                prompt === preset.instruction && "border-primary bg-brand-soft text-brand-soft-foreground",
-              )}
+              className={cn(STUDIO_CHIP, prompt === preset.instruction && STUDIO_CHIP_ON)}
             >
               {preset.label}
             </Button>
@@ -99,7 +107,9 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor={textareaId}>What should appear in the brushed area?</Label>
+        <Label htmlFor={textareaId} className={STUDIO_LABEL}>
+          What should appear in the brushed area?
+        </Label>
         <Textarea
           id={textareaId}
           value={prompt}
@@ -118,7 +128,11 @@ export function BrushPanel({ media, painter, painted, onJobCreated }: BrushPanel
           <p className="text-sm text-muted-foreground">Describe what should appear in the brushed area to continue.</p>
         )}
         <Button type="submit" variant="brand" size="lg" disabled={!valid || !painted || pending} className="w-full">
-          {pending ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <BrushIcon aria-hidden="true" />}
+          {pending ? (
+            <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+          ) : (
+            <BrushIcon aria-hidden="true" />
+          )}
           {pending ? "Starting…" : "Repaint area"}
         </Button>
       </div>

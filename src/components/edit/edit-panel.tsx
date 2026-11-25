@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ImageIcon, LoaderCircleIcon, ScissorsIcon, ShirtIcon, SmileIcon, WandSparklesIcon } from "lucide-react";
+import { ApertureIcon, FocusIcon, ImageIcon, LoaderCircleIcon, ScissorsIcon, ShirtIcon, SmileIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,17 +14,24 @@ import { cn } from "@/lib/utils";
 import { CountPicker } from "./count-picker";
 import { EDIT_COUNTS, EDIT_KIND_INFO, EDIT_PRESETS, type EditKind } from "./presets";
 import { submitJob } from "./use-session-jobs";
+import { STUDIO_CHIP, STUDIO_CHIP_ON, STUDIO_LABEL, STUDIO_TOGGLE } from "./studio";
 
 const KIND_ICONS: Record<EditKind, typeof ShirtIcon> = {
   outfit: ShirtIcon,
   background: ImageIcon,
   hair: ScissorsIcon,
   expression: SmileIcon,
-  custom: WandSparklesIcon,
+  custom: FocusIcon,
 };
 
 const MAX_INSTRUCTION = 800;
-const EMPTY_INSTRUCTIONS: Record<EditKind, string> = { outfit: "", background: "", hair: "", expression: "", custom: "" };
+const EMPTY_INSTRUCTIONS: Record<EditKind, string> = {
+  outfit: "",
+  background: "",
+  hair: "",
+  expression: "",
+  custom: "",
+};
 
 export interface EditPanelProps {
   media: MediaDTO;
@@ -46,14 +53,26 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
   const trimmed = instruction.trim();
   const valid = trimmed.length >= 2;
   const info = EDIT_KIND_INFO[kind];
-  const input: JobInput = { type: "edit", sourceMediaId: media.id, edit: kind, instruction: trimmed || "edit", numImages: count };
+  const input: JobInput = {
+    type: "edit",
+    sourceMediaId: media.id,
+    edit: kind,
+    instruction: trimmed || "edit",
+    numImages: count,
+  };
   const setInstruction = (value: string) => setInstructions((prev) => ({ ...prev, [kind]: value }));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid || pending) return;
     setPending(true);
-    const job = await submitJob({ type: "edit", sourceMediaId: media.id, edit: kind, instruction: trimmed, numImages: count });
+    const job = await submitJob({
+      type: "edit",
+      sourceMediaId: media.id,
+      edit: kind,
+      instruction: trimmed,
+      numImages: count,
+    });
     setPending(false);
     if (job) {
       onJobCreated(job);
@@ -64,7 +83,9 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Label id={kindLabelId}>What to change</Label>
+        <Label id={kindLabelId} className={STUDIO_LABEL}>
+          What to change
+        </Label>
         <ToggleGroup
           type="single"
           variant="outline"
@@ -80,7 +101,7 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
               <ToggleGroupItem
                 key={k}
                 value={k}
-                className="flex-none rounded-full px-3 first:rounded-full last:rounded-full data-[variant=outline]:border-l"
+                className={cn("flex-none px-3 data-[variant=outline]:border-l", STUDIO_TOGGLE)}
               >
                 <Icon aria-hidden="true" />
                 {EDIT_KIND_INFO[k].label}
@@ -91,7 +112,7 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
       </div>
 
       <div className="flex flex-col gap-2">
-        <p id={presetsLabelId} className="text-sm font-medium">
+        <p id={presetsLabelId} className={STUDIO_LABEL}>
           Quick picks
         </p>
         <div role="group" aria-labelledby={presetsLabelId} className="flex flex-wrap gap-2">
@@ -103,10 +124,7 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
               variant="outline"
               aria-pressed={instruction === preset.instruction}
               onClick={() => setInstruction(preset.instruction)}
-              className={cn(
-                "rounded-full",
-                instruction === preset.instruction && "border-primary bg-brand-soft text-brand-soft-foreground",
-              )}
+              className={cn(STUDIO_CHIP, instruction === preset.instruction && STUDIO_CHIP_ON)}
             >
               {preset.label}
             </Button>
@@ -115,7 +133,9 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor={textareaId}>{info.prompt}</Label>
+        <Label htmlFor={textareaId} className={STUDIO_LABEL}>
+          {info.prompt}
+        </Label>
         <Textarea
           id={textareaId}
           value={instruction}
@@ -125,9 +145,7 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
           rows={3}
           className="min-h-20"
         />
-        <p className="text-xs text-muted-foreground">
-          Your face and everything you don&apos;t mention stay the same.
-        </p>
+        <p className="text-xs text-muted-foreground">Your face and everything you don&apos;t mention stay the same.</p>
       </div>
 
       <CountPicker value={count} onValueChange={setCount} options={EDIT_COUNTS} label="Versions" disabled={pending} />
@@ -135,7 +153,11 @@ export function EditPanel({ media, onJobCreated, disabled = false }: EditPanelPr
       <div className="flex flex-col gap-3">
         <CostHint input={input} />
         <Button type="submit" variant="brand" size="lg" disabled={!valid || pending || disabled} className="w-full">
-          {pending ? <LoaderCircleIcon className="animate-spin" aria-hidden="true" /> : <WandSparklesIcon aria-hidden="true" />}
+          {pending ? (
+            <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
+          ) : (
+            <ApertureIcon aria-hidden="true" />
+          )}
           {pending ? "Starting…" : "Apply edit"}
         </Button>
       </div>

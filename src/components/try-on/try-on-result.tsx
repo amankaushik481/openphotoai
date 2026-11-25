@@ -10,6 +10,7 @@ import { JobProgress } from "@/components/app/job-progress";
 import type { GarmentUpload } from "@/components/try-on/types";
 import type { JobDTO, MediaDTO } from "@/types/domain";
 import { cn } from "@/lib/utils";
+import { PRINT } from "@/components/edit/studio";
 
 export interface TryOnResultProps {
   job: JobDTO | undefined;
@@ -30,8 +31,8 @@ export function pickResult(job: JobDTO | undefined): MediaDTO | null {
 function Panel({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
     <figure className={cn("flex min-w-0 flex-col gap-2", className)}>
-      <div className="relative aspect-[4/5] overflow-hidden rounded-lg border bg-muted">{children}</div>
-      <figcaption className="text-center text-xs font-medium text-muted-foreground sm:text-sm">{label}</figcaption>
+      <div className={cn("relative aspect-[4/5] overflow-hidden", PRINT)}>{children}</div>
+      <figcaption className="mono-caps text-center text-muted-foreground">{label}</figcaption>
     </figure>
   );
 }
@@ -66,7 +67,7 @@ export function TryOnResult({ job, person, garment, onTryAnother, onRetry, onCan
             <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center text-sm text-muted-foreground">
               {inFlight ? (
                 <>
-                  <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-primary" />
+                  <LoaderCircleIcon aria-hidden="true" className="size-6 animate-spin text-safelight-ink" />
                   Usually ready in under a minute.
                 </>
               ) : (

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SparklesIcon } from "lucide-react";
+import { ApertureIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app/page-header";
@@ -25,7 +25,7 @@ export default async function GalleryPage() {
         actions={
           <Button asChild variant="brand">
             <Link href="/app/create">
-              <SparklesIcon aria-hidden="true" />
+              <ApertureIcon aria-hidden="true" />
               {t("nav.create")}
             </Link>
           </Button>

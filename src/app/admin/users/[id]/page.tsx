@@ -93,7 +93,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
 
       <nav aria-label="Sections" className="my-6 flex flex-wrap gap-x-4 gap-y-2 text-sm">
         {SECTIONS.map((s) => (
-          <a key={s.id} href={`#${s.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
+          <a key={s.id} href={`#${s.id}`} className="font-medium underline underline-offset-4">
             {s.label}
           </a>
         ))}

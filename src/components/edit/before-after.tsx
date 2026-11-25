@@ -47,7 +47,8 @@ export function BeforeAfter({
   return (
     <div
       ref={boxRef}
-      className={cn("relative isolate touch-pan-y overflow-hidden rounded-xl bg-muted select-none", className)}
+      // A split print: the original on the left, the result on the right, a paper seam between them.
+      className={cn("relative isolate touch-pan-y overflow-hidden bg-muted select-none", className)}
       style={{ aspectRatio: width && height ? `${width} / ${height}` : "4 / 5", ...style }}
       onPointerDown={(e) => {
         if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -66,7 +67,12 @@ export function BeforeAfter({
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer */}
-      <img src={afterUrl} alt={`${alt} (${afterLabel.toLowerCase()})`} draggable={false} className="absolute inset-0 size-full object-contain" />
+      <img
+        src={afterUrl}
+        alt={`${alt} (${afterLabel.toLowerCase()})`}
+        draggable={false}
+        className="absolute inset-0 size-full object-contain"
+      />
       {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer */}
       <img
         src={beforeUrl}
@@ -76,14 +82,17 @@ export function BeforeAfter({
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
       />
 
-      <span className="pointer-events-none absolute top-2 left-2 rounded-md bg-black/55 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+      <span className="mono-caps pointer-events-none absolute top-2 left-2 bg-[#fbf8f2] px-1.5 py-1 text-[#16140f]">
         {beforeLabel}
       </span>
-      <span className="pointer-events-none absolute top-2 right-2 rounded-md bg-black/55 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+      <span className="mono-caps pointer-events-none absolute top-2 right-2 bg-[#fbf8f2] px-1.5 py-1 text-[#16140f]">
         {afterLabel}
       </span>
 
-      <div className="pointer-events-none absolute inset-y-0 w-0.5 -translate-x-1/2 bg-white/90 shadow-[0_0_0_1px_rgb(0_0_0/0.25)]" style={{ left: `${pos}%` }} />
+      <div
+        className="pointer-events-none absolute inset-y-0 w-1 -translate-x-1/2 bg-[#fbf8f2] shadow-[0_0_0_1px_rgb(22_20_15/0.3)]"
+        style={{ left: `${pos}%` }}
+      />
       <div
         role="slider"
         tabIndex={0}
@@ -98,7 +107,7 @@ export function BeforeAfter({
           e.preventDefault();
           setPos(next);
         }}
-        className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-white bg-black/45 text-white shadow-lg backdrop-blur-sm focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-hidden"
+        className="absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center border border-[#16140f]/30 bg-[#fbf8f2] text-[#16140f] shadow-[0_6px_14px_-8px_rgb(22_20_15/0.6)] focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-hidden"
         style={{ left: `${pos}%` }}
       >
         <ChevronsLeftRightIcon aria-hidden="true" className="size-5" />

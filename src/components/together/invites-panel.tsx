@@ -5,14 +5,16 @@ import Link from "next/link";
 import { InboxIcon, SendIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
-import { Badge } from "@/components/ui/badge";
+import { Stamp } from "@/components/gallery/readout";
+import { STUDIO_TAB, STUDIO_TABS_LIST } from "@/components/edit/studio";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api-client";
 import type { InviteListDTO, ReceivedInviteDTO, SentInviteDTO } from "@/server/together/types";
 import type { InviteStatus } from "@/types/domain";
-import { formatDate, INVITE_STATUS_LABEL, INVITE_STATUS_VARIANT } from "./format";
+import { formatDate, INVITE_STATUS_LABEL, INVITE_STATUS_TONE } from "./format";
 
 export interface InvitesPanelProps {
   invites: InviteListDTO;
@@ -20,7 +22,7 @@ export interface InvitesPanelProps {
 }
 
 function StatusBadge({ status }: { status: InviteStatus }) {
-  return <Badge variant={INVITE_STATUS_VARIANT[status]}>{INVITE_STATUS_LABEL[status]}</Badge>;
+  return <Stamp tone={INVITE_STATUS_TONE[status]}>{INVITE_STATUS_LABEL[status]}</Stamp>;
 }
 
 async function revoke(id: string) {
@@ -37,16 +39,16 @@ export function InvitesPanel({ invites, onChanged }: InvitesPanelProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={waiting > 0 ? "received" : "sent"} className="gap-4">
-          <TabsList className="w-full">
-            <TabsTrigger value="sent" className="flex-1">
+          <TabsList className={STUDIO_TABS_LIST}>
+            <TabsTrigger value="sent" className={STUDIO_TAB}>
               Sent
             </TabsTrigger>
-            <TabsTrigger value="received" className="flex-1">
+            <TabsTrigger value="received" className={STUDIO_TAB}>
               Received
               {waiting > 0 && (
-                <Badge variant="brand" className="ml-1 px-1.5 py-0 text-[10px]" aria-label={`${waiting} waiting`}>
+                <span className={cn("ml-1 bg-safelight px-1.5 py-0.5 text-[10px] leading-none text-white")} aria-label={`${waiting} waiting`}>
                   {waiting}
-                </Badge>
+                </span>
               )}
             </TabsTrigger>
           </TabsList>
@@ -80,7 +82,7 @@ export function InvitesPanel({ invites, onChanged }: InvitesPanelProps) {
 
 function EmptyList({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <p className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-4 text-sm text-muted-foreground [&_svg]:size-4 [&_svg]:shrink-0">
+    <p className="flex items-center gap-2 border border-dashed border-foreground/25 px-3 py-4 text-sm text-muted-foreground [&_svg]:size-4 [&_svg]:shrink-0">
       {icon}
       {text}
     </p>

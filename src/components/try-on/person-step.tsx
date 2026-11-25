@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ImagesIcon, ShieldCheckIcon, UserRoundIcon } from "lucide-react";
+import { ImagesIcon, ShieldCheckIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { MediaPicker } from "@/components/app/media-picker";
 import { StepSection } from "@/components/try-on/step-section";
 import type { MediaDTO } from "@/types/domain";
+import { PRINT } from "@/components/edit/studio";
+import { cn } from "@/lib/utils";
 
 export interface PersonStepProps {
   person: MediaDTO | null;
@@ -28,7 +30,7 @@ export function PersonStep({ person, onChange, disabled = false }: PersonStepPro
     >
       {person ? (
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
-          <div className="relative aspect-[4/5] w-40 overflow-hidden rounded-lg border bg-muted sm:w-44">
+          <div className={cn("relative aspect-[4/5] w-40 overflow-hidden sm:w-44", PRINT)}>
             {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs must bypass the image optimizer */}
             <img src={person.thumbUrl || person.url} alt="Your selected photo" className="size-full object-cover" />
           </div>
@@ -38,13 +40,11 @@ export function PersonStep({ person, onChange, disabled = false }: PersonStepPro
           </Button>
         </div>
       ) : (
-        <div className="grain flex flex-col items-center gap-3 rounded-lg border border-dashed px-4 py-8 text-center">
-          <span
-            aria-hidden="true"
-            className="flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground"
-          >
-            <UserRoundIcon className="size-6" />
-          </span>
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
+          <div aria-hidden="true" className="flex aspect-[4/5] w-40 items-end border border-dashed border-foreground/25 bg-muted/40 p-2 sm:w-44">
+            <span className="mono-caps text-muted-foreground">No frame</span>
+          </div>
+          <div className="flex flex-col items-start gap-2">
           <Button type="button" variant="outline" onClick={() => setOpen(true)} disabled={disabled}>
             <ImagesIcon />
             Choose from your photos
@@ -56,10 +56,11 @@ export function PersonStep({ person, onChange, disabled = false }: PersonStepPro
             </Link>
             .
           </p>
+          </div>
         </div>
       )}
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
-        <ShieldCheckIcon aria-hidden="true" className="mt-px size-4 shrink-0 text-primary" />
+        <ShieldCheckIcon aria-hidden="true" className="mt-px size-4 shrink-0 text-safelight-ink" />
         For everyone&apos;s safety, try-on only works on photos we created of you.
       </p>
 

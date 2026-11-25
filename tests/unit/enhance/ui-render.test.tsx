@@ -94,8 +94,15 @@ describe("EnhanceQuickActions", () => {
         .match(new RegExp(`aria-label="${label}"[^>]*>(.*?)</button>`))?.[1]
         ?.replace(/<[^>]+>/g, "")
         .trim();
-    expect(visible("Restore face, 1 credit")).toBe("Restore face 1");
-    expect(visible("Remove background, 1 credit")).toBe("Remove background 1");
+    // The visible text (label + cost readout, e.g. "Restore face 1 cr") must appear in the accessible name,
+    // compared the way axe does: lowercased, punctuation dropped, whitespace collapsed.
+    const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, "").replace(/\s+/g, " ").trim();
+    for (const name of ["Restore face, 1 credit", "Remove background, 1 credit"]) {
+      const text = visible(name);
+      expect(text).toBeTruthy();
+      expect(text).toMatch(/\s\d/); // label and cost stay separate words
+      expect(norm(name)).toContain(norm(text!));
+    }
   });
 
   it("marks actions unavailable for videos", () => {

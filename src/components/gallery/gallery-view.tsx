@@ -3,20 +3,20 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FolderOpenIcon, ImagesIcon, RotateCwIcon, SearchXIcon, SparklesIcon } from "lucide-react";
+import { ApertureIcon, RotateCwIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { EmptyState } from "@/components/app/empty-state";
-import { MediaGrid } from "@/components/app/media-grid";
 import { ApiClientError, api } from "@/lib/api-client";
 import type { BulkAction } from "@/server/gallery/dto";
 import type { MediaDTO } from "@/types/domain";
 import { errorMessage } from "@/i18n";
 import { useT } from "@/i18n/react";
+import { ContactGrid } from "./contact-grid";
 import { downloadMediaZip } from "./download-zip";
+import { EmptySheet } from "./empty-sheet";
 import { FolderNav } from "./folder-nav";
 import {
   galleryHref,
@@ -205,8 +205,8 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
 
   const empty =
     filters.folderId && !hasNarrowingFilters({ ...filters, folderId: undefined }) ? (
-      <EmptyState
-        icon={<FolderOpenIcon />}
+      <EmptySheet
+        label="Empty folder"
         title={t("empty.folder")}
         description={t("empty.folderBody")}
         action={
@@ -216,8 +216,8 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
         }
       />
     ) : hasNarrowingFilters(filters) ? (
-      <EmptyState
-        icon={<SearchXIcon />}
+      <EmptySheet
+        label="No match"
         title={t("empty.filtered")}
         description={list.hiddenCount > 0 && !filters.showHidden ? t("empty.filteredHiddenBody") : undefined}
         action={
@@ -227,14 +227,13 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
         }
       />
     ) : (
-      <EmptyState
-        icon={<ImagesIcon />}
+      <EmptySheet
         title={t("empty.gallery")}
         description={t("empty.galleryBody")}
         action={
           <Button asChild variant="brand">
             <Link href="/app/create">
-              <SparklesIcon aria-hidden="true" />
+              <ApertureIcon aria-hidden="true" />
               {t("nav.create")}
             </Link>
           </Button>
@@ -266,7 +265,12 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
           onOpenFolders={() => setFoldersOpen(true)}
         />
 
-        {folderName && <h2 className="text-lg font-semibold">{folderName}</h2>}
+        {folderName && (
+          <h2 className="flex items-baseline gap-3 font-display text-2xl leading-none tracking-tight sm:text-3xl">
+            <span className="mono-caps text-muted-foreground">Folder</span>
+            {folderName}
+          </h2>
+        )}
 
         <InProgressStrip onFinished={() => void list.revalidate()} />
 
@@ -283,7 +287,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
           </Alert>
         ) : (
           <div ref={gridRef} onClickCapture={onGridClickCapture}>
-            <MediaGrid
+            <ContactGrid
               media={list.media}
               loading={list.isLoading}
               skeletonCount={12}
@@ -299,7 +303,12 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
           </div>
         )}
 
-        <LoadMore hasMore={list.hasMore} loading={list.isLoadingMore} onLoadMore={list.loadMore} />
+        <LoadMore
+          hasMore={list.hasMore}
+          loading={list.isLoadingMore}
+          onLoadMore={list.loadMore}
+          nextFrame={loadedIds.length}
+        />
 
         {selecting && (
           <SelectionBar
@@ -323,7 +332,7 @@ export function GalleryView({ packs }: { packs: readonly PackOption[] }) {
       <Sheet open={foldersOpen} onOpenChange={setFoldersOpen}>
         <SheetContent side="left" className="overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Folders</SheetTitle>
+            <SheetTitle className="font-display text-2xl font-normal">Folders</SheetTitle>
             <SheetDescription className="sr-only">Pick a folder to show, or manage your folders.</SheetDescription>
           </SheetHeader>
           <FolderNav

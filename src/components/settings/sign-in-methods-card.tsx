@@ -1,7 +1,7 @@
 import { MailIcon } from "lucide-react";
 import { GoogleIcon } from "@/components/auth/google-icon";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stamp } from "@/components/gallery/readout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import type { SignInMethodDTO } from "@/server/account/profile";
 
 const LABELS: Record<string, string> = { email: "Email link", google: "Google" };
@@ -19,23 +19,21 @@ export function SignInMethodsCard({ email, methods }: { email: string; methods: 
         <CardDescription>Ways you can sign in to this account.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ul className="divide-y rounded-lg border">
+        <ul className="divide-y divide-foreground/10 border-y border-foreground/15">
           {methods.map((m) => (
-            <li key={m.providerId} className="flex items-center gap-3 px-4 py-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
-                {m.providerId === "google" ? (
-                  <GoogleIcon className="size-4" />
-                ) : (
-                  <MailIcon aria-hidden className="size-4 text-muted-foreground" />
-                )}
-              </span>
+            <li key={m.providerId} className="flex items-center gap-3 py-3">
+              {m.providerId === "google" ? (
+                <GoogleIcon className="size-4 shrink-0" />
+              ) : (
+                <MailIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+              )}
               <div className="grid min-w-0 flex-1 gap-0.5">
                 <span className="text-sm font-medium">{LABELS[m.providerId] ?? m.providerId}</span>
                 <span className="text-xs break-words text-muted-foreground">
                   {m.providerId === "email" ? `A sign-in link sent to ${email}` : m.linkedAt && `Linked ${formatDate(m.linkedAt)}`}
                 </span>
               </div>
-              <Badge variant="secondary">Connected</Badge>
+              <Stamp tone="success">Connected</Stamp>
             </li>
           ))}
         </ul>

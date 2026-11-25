@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { LoaderCircleIcon, PlusIcon, SparklesIcon, UserPlusIcon } from "lucide-react";
+import { ApertureIcon, LoaderCircleIcon, PlusIcon, UserPlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { AspectRatioPicker } from "@/components/app/aspect-ratio-picker";
 import { CostHint } from "@/components/app/cost-hint";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,8 @@ import type { AspectRatio, CreateJobRequest, IdentityModelDTO, JobDTO } from "@/
 import type { PackSummary } from "@/types/pack";
 import { PackPicker } from "./pack-picker";
 import { modelDetail, PersonPicker, type PersonOption } from "./person-picker";
+import { STUDIO_LABEL, STUDIO_TAB, STUDIO_TABS_LIST, STUDIO_TOGGLE } from "@/components/edit/studio";
+import { cn } from "@/lib/utils";
 
 const RATIOS: readonly AspectRatio[] = ["4:5", "1:1", "3:4", "2:3", "9:16", "16:9"];
 const COUNTS = [1, 2, 3, 4] as const;
@@ -162,7 +164,7 @@ export function TogetherComposer({
               value={secondId}
               onValueChange={setSecondChoice}
               empty={
-                <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                <div className="flex flex-col items-start gap-3 border border-dashed border-foreground/25 p-4 text-sm text-muted-foreground">
                   <p>Nobody has shared a model with you yet. Invite a friend — once they accept, they show up here.</p>
                   <Button asChild size="sm" variant="outline">
                     <a href={`#${inviteAnchor}`}>
@@ -177,12 +179,16 @@ export function TogetherComposer({
 
           <Tabs value={mode} onValueChange={(v) => setMode(v as SceneMode)} className="gap-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-sm font-medium" id="together-scene-label">
+              <span className={STUDIO_LABEL} id="together-scene-label">
                 Scene
               </span>
-              <TabsList aria-labelledby="together-scene-label">
-                <TabsTrigger value="prompt">Describe it</TabsTrigger>
-                <TabsTrigger value="pack">Use a pack</TabsTrigger>
+              <TabsList aria-labelledby="together-scene-label" className={cn(STUDIO_TABS_LIST, "w-auto border-b-0")}>
+                <TabsTrigger value="prompt" className={STUDIO_TAB}>
+                  Describe it
+                </TabsTrigger>
+                <TabsTrigger value="pack" className={STUDIO_TAB}>
+                  Use a pack
+                </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="prompt" className="flex flex-col gap-2">
@@ -210,8 +216,8 @@ export function TogetherComposer({
                 <PackPicker packs={packs} value={packId} onValueChange={setPackId} name="together-pack" legend="Pack" />
               )}
               <div className="flex flex-col gap-2">
-                <Label htmlFor="together-extra">
-                  Extra details <span className="font-normal text-muted-foreground">(optional)</span>
+                <Label htmlFor="together-extra" className={STUDIO_LABEL}>
+                  Extra details <span className="tracking-normal normal-case">(optional)</span>
                 </Label>
                 <Input
                   id="together-extra"
@@ -227,7 +233,9 @@ export function TogetherComposer({
           <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto]">
             <AspectRatioPicker value={aspectRatio} onValueChange={setAspectRatio} options={RATIOS} />
             <div className="flex flex-col gap-2">
-              <Label id="together-count-label">Photos</Label>
+              <Label id="together-count-label" className={STUDIO_LABEL}>
+                Photos
+              </Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
@@ -240,7 +248,7 @@ export function TogetherComposer({
                   <ToggleGroupItem
                     key={n}
                     value={String(n)}
-                    className="h-11 min-w-11 tabular-nums"
+                    className={cn("h-11 min-w-11 font-mono tabular-nums", STUDIO_TOGGLE)}
                     aria-label={`${n} photos`}
                   >
                     {n}
@@ -270,7 +278,7 @@ export function TogetherComposer({
             {submitting ? (
               <LoaderCircleIcon className="animate-spin" aria-hidden="true" />
             ) : (
-              <SparklesIcon aria-hidden="true" />
+              <ApertureIcon aria-hidden="true" />
             )}
             {numImages === 1 ? "Create photo" : `Create ${numImages} photos`}
           </Button>

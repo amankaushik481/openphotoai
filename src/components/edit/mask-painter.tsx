@@ -119,7 +119,16 @@ const clampBrush = (n: number) => Math.min(BRUSH_MAX, Math.max(BRUSH_MIN, n));
  * reticle (Shift+arrows paint, Space stamps), [ ] brush size, B/E/H tools, +/−/0 zoom, arrows pan with the
  * hand tool, Ctrl+Z / Ctrl+Shift+Z undo/redo. `ref.exportMask()` returns the black/white PNG.
  */
-export function MaskPainter({ imageUrl, width, height, alt, disabled = false, onPaintChange, ref, className }: MaskPainterProps) {
+export function MaskPainter({
+  imageUrl,
+  width,
+  height,
+  alt,
+  disabled = false,
+  onPaintChange,
+  ref,
+  className,
+}: MaskPainterProps) {
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const hintId = React.useId();
@@ -310,7 +319,12 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
     for (const sample of samples.length ? samples : [e]) {
       const p = canvasPointOf(sample);
       if (!p) continue;
-      drawDabs(ctx, active.stroke.mode, active.stroke.size, interpolateStroke(active.last, p, dabSpacing(active.stroke.size)));
+      drawDabs(
+        ctx,
+        active.stroke.mode,
+        active.stroke.size,
+        interpolateStroke(active.last, p, dabSpacing(active.stroke.size)),
+      );
       active.stroke.points.push(p);
       active.last = p;
     }
@@ -364,7 +378,11 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
     const d = dir[key];
     if (!d) return false;
     // Half a brush per press, in canvas pixels.
-    const step = screenToCanvasLength(Math.max(4, live.current.brush / 2), canvas.getBoundingClientRect().width, canvas.width);
+    const step = screenToCanvasLength(
+      Math.max(4, live.current.brush / 2),
+      canvas.getBoundingClientRect().width,
+      canvas.width,
+    );
     const next = {
       x: Math.min(size.width, Math.max(0, start.x + d.x * step)),
       y: Math.min(size.height, Math.max(0, start.y + d.y * step)),
@@ -482,7 +500,7 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         className={cn(
           // Phones: cap the height so the page can still be scrolled beside/below the canvas; with the
           // move tool at 100% a one-finger drag scrolls the page instead of being captured.
-          "relative mx-auto w-full overflow-hidden rounded-xl bg-muted select-none [--painter-max-h:55dvh] sm:[--painter-max-h:70dvh]",
+          "relative mx-auto w-full overflow-hidden bg-muted select-none [--painter-max-h:55dvh] sm:[--painter-max-h:70dvh]",
           tool === "move" && view.scale === 1 ? "touch-pan-y" : "touch-none",
           tool === "move" ? "cursor-grab active:cursor-grabbing" : showRing ? "cursor-none" : "cursor-crosshair",
           disabled && "pointer-events-none opacity-70",
@@ -504,7 +522,8 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
             className="size-full object-contain"
             onLoad={(e) => {
               const img = e.currentTarget;
-              if (img.naturalWidth && img.naturalHeight) setMeasured({ width: img.naturalWidth, height: img.naturalHeight });
+              if (img.naturalWidth && img.naturalHeight)
+                setMeasured({ width: img.naturalWidth, height: img.naturalHeight });
             }}
           />
           {work && (
@@ -538,7 +557,7 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
           />
         )}
         {!painted && (
-          <span className="pointer-events-none absolute inset-x-0 bottom-3 mx-auto w-fit rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <span className="mono-caps pointer-events-none absolute inset-x-0 bottom-3 mx-auto w-fit bg-[#fbf8f2] px-2 py-1.5 text-[#16140f]">
             Brush over the area to change
           </span>
         )}
@@ -547,10 +566,10 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         {keyStatus}
       </p>
       <p id={hintId} className="sr-only">
-        Drag or tap to paint the area to repaint. Keyboard: arrow keys move the brush cursor, Shift plus arrows
-        paint along the way, Space paints one dab. Shortcuts: B paint, E erase, H move (then arrow keys move
-        around), open and close bracket change the brush size, plus and minus zoom, 0 resets the zoom, Control Z
-        undoes and Control Shift Z redoes.
+        Drag or tap to paint the area to repaint. Keyboard: arrow keys move the brush cursor, Shift plus arrows paint
+        along the way, Space paints one dab. Shortcuts: B paint, E erase, H move (then arrow keys move around), open and
+        close bracket change the brush size, plus and minus zoom, 0 resets the zoom, Control Z undoes and Control Shift
+        Z redoes.
       </p>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -578,13 +597,37 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
         </ToggleGroup>
 
         <div className="ml-auto flex items-center gap-1">
-          <Button type="button" variant="ghost" size="icon-sm" onClick={undo} disabled={disabled || history.done.length === 0} aria-label="Undo" title="Undo (Ctrl+Z)">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={undo}
+            disabled={disabled || history.done.length === 0}
+            aria-label="Undo"
+            title="Undo (Ctrl+Z)"
+          >
             <Undo2Icon />
           </Button>
-          <Button type="button" variant="ghost" size="icon-sm" onClick={redo} disabled={disabled || history.undone.length === 0} aria-label="Redo" title="Redo (Ctrl+Shift+Z)">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={redo}
+            disabled={disabled || history.undone.length === 0}
+            aria-label="Redo"
+            title="Redo (Ctrl+Shift+Z)"
+          >
             <Redo2Icon />
           </Button>
-          <Button type="button" variant="ghost" size="icon-sm" onClick={clear} disabled={disabled || !visibleStrokes(history.done).length} aria-label="Clear mask" title="Clear mask">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={clear}
+            disabled={disabled || !visibleStrokes(history.done).length}
+            aria-label="Clear mask"
+            title="Clear mask"
+          >
             <Trash2Icon />
           </Button>
         </div>
@@ -607,32 +650,84 @@ export function MaskPainter({ imageUrl, width, height, alt, disabled = false, on
           <span className="w-10 shrink-0 text-right text-xs text-muted-foreground tabular-nums">{brush}px</span>
         </div>
         <div className="flex items-center gap-1">
-          <Button type="button" variant="ghost" size="icon-sm" onClick={() => zoomBy(1 / ZOOM_STEP)} disabled={disabled || view.scale <= 1} aria-label="Zoom out" title="Zoom out (−)">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => zoomBy(1 / ZOOM_STEP)}
+            disabled={disabled || view.scale <= 1}
+            aria-label="Zoom out"
+            title="Zoom out (−)"
+          >
             <ZoomOutIcon />
           </Button>
           <span className="w-11 text-center text-xs text-muted-foreground tabular-nums" aria-live="polite">
             {Math.round(view.scale * 100)}%
           </span>
-          <Button type="button" variant="ghost" size="icon-sm" onClick={() => zoomBy(ZOOM_STEP)} disabled={disabled || view.scale >= MAX_ZOOM} aria-label="Zoom in" title="Zoom in (+)">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => zoomBy(ZOOM_STEP)}
+            disabled={disabled || view.scale >= MAX_ZOOM}
+            aria-label="Zoom in"
+            title="Zoom in (+)"
+          >
             <ZoomInIcon />
           </Button>
-          <Button type="button" variant="ghost" size="icon-sm" onClick={() => setView(IDENTITY_VIEW)} disabled={disabled || view.scale === 1} aria-label="Reset zoom" title="Reset zoom (0)">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setView(IDENTITY_VIEW)}
+            disabled={disabled || view.scale === 1}
+            aria-label="Reset zoom"
+            title="Reset zoom (0)"
+          >
             <RotateCcwIcon />
           </Button>
         </div>
         {/* Single-pointer alternative to dragging / two-finger panning (WCAG 2.5.7). */}
         {view.scale > 1 && (
           <div role="group" aria-label="Move the zoomed photo" className="flex items-center gap-1">
-            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(KEY_PAN_PX, 0)} disabled={disabled} aria-label="Show more on the left">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => panBy(KEY_PAN_PX, 0)}
+              disabled={disabled}
+              aria-label="Show more on the left"
+            >
               <ArrowLeftIcon />
             </Button>
-            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(0, KEY_PAN_PX)} disabled={disabled} aria-label="Show more above">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => panBy(0, KEY_PAN_PX)}
+              disabled={disabled}
+              aria-label="Show more above"
+            >
               <ArrowUpIcon />
             </Button>
-            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(0, -KEY_PAN_PX)} disabled={disabled} aria-label="Show more below">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => panBy(0, -KEY_PAN_PX)}
+              disabled={disabled}
+              aria-label="Show more below"
+            >
               <ArrowDownIcon />
             </Button>
-            <Button type="button" variant="ghost" size="icon-sm" onClick={() => panBy(-KEY_PAN_PX, 0)} disabled={disabled} aria-label="Show more on the right">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => panBy(-KEY_PAN_PX, 0)}
+              disabled={disabled}
+              aria-label="Show more on the right"
+            >
               <ArrowRightIcon />
             </Button>
           </div>

@@ -33,7 +33,7 @@ export function EnhanceResult({ media, alt, className }: EnhanceResultProps) {
   return (
     <figure className={cn("flex flex-col gap-2", className)}>
       <div
-        className={cn("flex justify-center overflow-hidden rounded-lg border", !transparent && "bg-muted")}
+        className={cn("flex justify-center overflow-hidden border border-foreground/15 p-1.5", !transparent && "bg-[#fbf8f2]")}
         style={transparent ? CHECKERBOARD_STYLE : undefined}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs must bypass the image optimizer */}
@@ -47,7 +47,7 @@ export function EnhanceResult({ media, alt, className }: EnhanceResultProps) {
         />
       </div>
       <figcaption className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <span className="text-muted-foreground tabular-nums">{details}</span>
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">{details}</span>
         <span className="flex gap-2">
           <Button asChild size="sm" variant="outline">
             <a href={media.downloadUrl} download>

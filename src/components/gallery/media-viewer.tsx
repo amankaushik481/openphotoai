@@ -8,7 +8,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ClapperboardIcon,
-  CoinsIcon,
   DownloadIcon,
   EyeIcon,
   EyeOffIcon,
@@ -18,17 +17,14 @@ import {
   PencilIcon,
   Share2Icon,
   ShirtIcon,
-  SparklesIcon,
+  SunMediumIcon,
   Trash2Icon,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { CopyButton } from "@/components/app/copy-button";
-import { MediaCard } from "@/components/app/media-card";
 import { useScriptCaptions } from "@/components/app/use-script-captions";
 import { EnhanceQuickActions } from "@/components/enhance/enhance-panel";
 import { ApiClientError, api } from "@/lib/api-client";
@@ -39,7 +35,9 @@ import { useT } from "@/i18n/react";
 import { SIGNED_URL_REFRESH_MS } from "./gallery-cache";
 import { galleryHref, serializeGalleryFilters, viewerHref, type GalleryFilters } from "./gallery-filters";
 import { rememberGalleryReturn, sessionStore } from "./gallery-return";
+import { PencilDot, captionDate } from "./marks";
 import { MoveToFolderMenu } from "./move-to-folder-menu";
+import { CreditReadout, LeaderRow, MONO_LABEL } from "./readout";
 import { ShareDialog } from "./share-dialog";
 import { useCachedListPatcher, useFolders } from "./use-gallery";
 import { VIEWER_TOOL_COSTS, creditsLabel } from "./viewer-actions";
@@ -94,17 +92,14 @@ function overlayOpen(): boolean {
   return Boolean(document.querySelector("[role=dialog],[role=alertdialog],[role=menu],[role=listbox]"));
 }
 
-/** Small price tag on an action ("2" credits, or "Free"); the full text is the button's description. */
+/** Price readout on an action ("2+ CR", or "FREE"); the full text is the button's description. */
 function CostTag({ credits, from = false }: { credits: number; from?: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="inline-flex items-center gap-0.5 text-xs font-normal text-muted-foreground tabular-nums"
-    >
-      {credits > 0 && <CoinsIcon className="size-3" />}
-      {credits > 0 ? `${credits}${from ? "+" : ""}` : "Free"}
-    </span>
-  );
+  return <CreditReadout credits={credits} from={from} />;
+}
+
+/** Short frame reference for edge print and titles: the last 4 characters of the id. */
+function frameRef(id: string): string {
+  return id.slice(-4).toUpperCase();
 }
 
 export function MediaViewer({
@@ -287,9 +282,12 @@ export function MediaViewer({
           </Link>
         </Button>
         <div className="flex items-center gap-3">
-          <p className="hidden text-xs text-muted-foreground pointer-fine:lg:block" aria-hidden="true">
-            <kbd className="font-sans">←</kbd> <kbd className="font-sans">→</kbd> to browse ·{" "}
-            <kbd className="font-sans">Esc</kbd> to go back
+          <p
+            className="hidden font-mono text-[11px] tracking-[0.12em] text-muted-foreground uppercase pointer-fine:lg:block"
+            aria-hidden="true"
+          >
+            <kbd className="font-mono">←</kbd> <kbd className="font-mono">→</kbd> browse ·{" "}
+            <kbd className="font-mono">Esc</kbd> back
           </p>
           <nav aria-label="Browse" className="flex items-center gap-1">
             <NavButton
@@ -324,10 +322,9 @@ export function MediaViewer({
           onRetry={() => onLoadEvent({ type: "retry" })}
         >
           {media.hidden && (
-            <Badge variant="secondary" className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm">
-              <EyeOffIcon aria-hidden="true" />
+            <span className="mono-caps absolute bottom-3 left-3 border border-foreground/20 bg-card px-2 py-1.5 text-foreground">
               Hidden
-            </Badge>
+            </span>
           )}
           <figcaption className="sr-only">
             {media.kind === "video" ? "AI-generated video" : "AI-generated photo"}, created{" "}
@@ -335,15 +332,31 @@ export function MediaViewer({
           </figcaption>
         </ViewerStage>
 
-        <aside className="flex flex-col gap-5" aria-label="Details and actions">
+        <aside className="flex flex-col gap-6" aria-label="Details and actions">
+          {/* Edge print for this frame: reference, date and size, like the rebate of a negative. */}
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-foreground/15 pb-3 font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase tabular-nums">
+            <span className="text-foreground">
+              <span aria-hidden="true" className="text-safelight-ink">
+                ▸{" "}
+              </span>
+              {media.kind === "video" ? "Clip" : "Frame"} {frameRef(media.id)}
+            </span>
+            <span>{captionDate(media.createdAt)}</span>
+            {media.width && media.height && (
+              <span>
+                {media.width}×{media.height}
+              </span>
+            )}
+          </p>
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              variant={media.isFavorite ? "secondary" : "outline"}
+              variant="outline"
               aria-pressed={media.isFavorite}
               onClick={() => void patch({ isFavorite: !media.isFavorite })}
+              className={cn(media.isFavorite && "border-safelight-ink/60")}
             >
-              <HeartIcon aria-hidden="true" className={cn(media.isFavorite && "fill-current text-rose-500")} />
+              {media.isFavorite ? <PencilDot className="size-3.5" /> : <HeartIcon aria-hidden="true" />}
               {media.isFavorite ? "Favorited" : "Favorite"}
             </Button>
             <Button asChild variant="outline">
@@ -374,8 +387,8 @@ export function MediaViewer({
           </div>
 
           {isImage && (
-            <section aria-labelledby="viewer-create" className="flex flex-col gap-2">
-              <h2 id="viewer-create" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            <section aria-labelledby="viewer-create" className="flex flex-col gap-2.5">
+              <h2 id="viewer-create" className={MONO_LABEL}>
                 Create from this
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -407,12 +420,14 @@ export function MediaViewer({
                   </Link>
                 </Button>
               </div>
-              <h3 className="mt-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                <SparklesIcon aria-hidden="true" className="size-3.5" />
+              <h3 className="mt-2 flex items-center gap-1.5 font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase">
+                <SunMediumIcon aria-hidden="true" className="size-3.5" />
                 Enhance in one click
               </h3>
-              <EnhanceQuickActions media={media} labeled />
-              <p className="text-xs text-muted-foreground">Prices are in credits and charged only when you start.</p>
+              <EnhanceQuickActions media={media} labeled className="gap-2" />
+              <p className="text-xs text-muted-foreground">
+                Prices are in credits (<span className="font-mono">CR</span>) and charged only when you start.
+              </p>
             </section>
           )}
 
@@ -470,28 +485,28 @@ export function MediaViewer({
             />
           </div>
 
-          <Separator />
+          <div className="border-t border-foreground/15" />
 
           <MediaDetails media={media} details={details} />
 
           {parent && (
             <section aria-labelledby="viewer-parent" className="flex flex-col gap-2">
-              <h2 id="viewer-parent" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+              <h2 id="viewer-parent" className={MONO_LABEL}>
                 {lineageLabel}
               </h2>
-              <MediaCard media={parent} href={viewerHref(parent.id, {})} className="w-28" />
+              <PrintThumb media={parent} className="w-28" />
             </section>
           )}
 
           {childMedia.length > 0 && (
             <section aria-labelledby="viewer-children" className="flex flex-col gap-2">
-              <h2 id="viewer-children" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+              <h2 id="viewer-children" className={MONO_LABEL}>
                 Versions made from this
               </h2>
               <ul className="grid grid-cols-4 gap-2">
                 {childMedia.map((c) => (
                   <li key={c.id}>
-                    <MediaCard media={c} href={viewerHref(c.id, {})} style={{ aspectRatio: "1 / 1" }} />
+                    <PrintThumb media={c} />
                   </li>
                 ))}
               </ul>
@@ -548,13 +563,14 @@ function NavButton({
   );
 }
 
+/** A light-meter scale: ticks every 10%, a safelight needle at the reading. */
 function ScoreMeter({ label, value, hint }: { label: string; value: number; hint: string }) {
   const pct = Math.round(Math.min(1, Math.max(0, value)) * 100);
   return (
-    <div className="grid gap-1">
-      <div className="flex items-baseline justify-between gap-2 text-sm">
-        <span>{label}</span>
-        <span className="text-muted-foreground tabular-nums">{pct}%</span>
+    <div className="grid gap-1.5">
+      <div className="flex items-baseline justify-between gap-2 font-mono text-[11px] tracking-[0.14em] uppercase">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-sm tracking-normal text-foreground tabular-nums">{pct}%</span>
       </div>
       <div
         role="meter"
@@ -563,13 +579,43 @@ function ScoreMeter({ label, value, hint }: { label: string; value: number; hint
         aria-valuemax={100}
         aria-valuenow={pct}
         aria-valuetext={`${pct}%`}
-        aria-describedby={undefined}
         title={hint}
-        className="h-2 overflow-hidden rounded-full bg-muted"
+        className="relative h-3 border-b border-foreground/40"
       >
-        <div className="h-full rounded-full bg-brand-gradient" style={{ width: `${pct}%` }} />
+        {Array.from({ length: 11 }, (_, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={cn("absolute bottom-0 w-px bg-foreground/35", i % 5 === 0 ? "h-3" : "h-1.5")}
+            style={{ left: `${i * 10}%` }}
+          />
+        ))}
+        <span aria-hidden="true" className="absolute bottom-0 left-0 h-0.5 bg-safelight-ink" style={{ width: `${pct}%` }} />
+        <span
+          aria-hidden="true"
+          className="absolute -bottom-0.5 h-4 w-0.5 -translate-x-1/2 bg-safelight-ink"
+          style={{ left: `${pct}%` }}
+        />
       </div>
     </div>
+  );
+}
+
+/** A small print of a related photo (lineage), linking to it in the viewer. */
+function PrintThumb({ media, className }: { media: MediaDTO; className?: string }) {
+  const alt = media.prompt ? media.prompt.slice(0, 140) : media.kind === "video" ? "Video" : "Photo";
+  return (
+    <Link
+      href={viewerHref(media.id, {})}
+      aria-label={alt}
+      className={cn("block border border-foreground/10 bg-card p-1 pb-0", className)}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer */}
+      <img src={media.thumbUrl || media.url} alt="" loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+      <span aria-hidden="true" className="flex h-5 items-center font-mono text-[9px] tracking-[0.12em] text-muted-foreground uppercase">
+        ▸ {frameRef(media.id)}
+      </span>
+    </Link>
   );
 }
 
@@ -581,7 +627,7 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
   if (details.packSlug) {
     rows.push([
       "Pack",
-      <Link key="pack" href={`/app/packs/${details.packSlug}`} className="underline-offset-4 hover:underline">
+      <Link key="pack" href={`/app/packs/${details.packSlug}`} className="underline underline-offset-4">
         {details.packName ?? details.packSlug}
       </Link>,
     ]);
@@ -589,7 +635,7 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
   if (details.batchId) {
     rows.push([
       "Batch",
-      <Link key="batch" href={`/app/batches/${details.batchId}`} className="underline-offset-4 hover:underline">
+      <Link key="batch" href={`/app/batches/${details.batchId}`} className="underline underline-offset-4">
         View batch
       </Link>,
     ]);
@@ -600,8 +646,20 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
       {created.toLocaleString(t.locale, { dateStyle: "medium", timeStyle: "short" })}
     </time>,
   ]);
-  if (media.width && media.height) rows.push(["Resolution", `${media.width} × ${media.height}`]);
-  if (media.durationSec != null) rows.push(["Duration", `${Math.round(media.durationSec)}s`]);
+  if (media.width && media.height)
+    rows.push([
+      "Resolution",
+      <span key="res" className="font-mono text-xs tabular-nums">
+        {media.width} × {media.height}
+      </span>,
+    ]);
+  if (media.durationSec != null)
+    rows.push([
+      "Duration",
+      <span key="dur" className="font-mono text-xs tabular-nums">
+        {Math.round(media.durationSec)}s
+      </span>,
+    ]);
   if (details.seed != null)
     rows.push([
       "Seed",
@@ -612,18 +670,20 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Lab stamps. */}
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">
-          <SparklesIcon aria-hidden="true" />
-          AI-generated
-        </Badge>
-        {media.isDraft && <Badge variant="outline">{t("media.draft")}</Badge>}
+        <span className="mono-caps border border-foreground/30 px-2 py-1.5 text-foreground">AI-generated</span>
+        {media.isDraft && (
+          <span className="mono-caps border border-dashed border-foreground/30 px-2 py-1.5 text-muted-foreground">
+            {t("media.draft")}
+          </span>
+        )}
       </div>
 
       {media.prompt && (
         <section aria-labelledby="viewer-prompt" className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
-            <h2 id="viewer-prompt" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            <h2 id="viewer-prompt" className={MONO_LABEL}>
               Prompt
             </h2>
             <CopyButton value={media.prompt} toastMessage="Prompt copied" variant="ghost" />
@@ -632,18 +692,17 @@ function MediaDetails({ media, details }: Pick<MediaViewerProps, "media" | "deta
         </section>
       )}
 
-      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
+      <dl className="flex flex-col gap-2 text-sm">
         {rows.map(([label, value]) => (
-          <React.Fragment key={label}>
-            <dt className="text-muted-foreground">{label}</dt>
-            <dd className="min-w-0 text-right break-words">{value}</dd>
-          </React.Fragment>
+          <LeaderRow key={label} label={label}>
+            {value}
+          </LeaderRow>
         ))}
       </dl>
 
       {media.scores && (media.scores.likeness != null || media.scores.quality != null) && (
         <section aria-labelledby="viewer-scores" className="flex flex-col gap-3">
-          <h2 id="viewer-scores" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          <h2 id="viewer-scores" className={MONO_LABEL}>
             Scores
           </h2>
           {media.scores.likeness != null && (

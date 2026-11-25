@@ -3,22 +3,11 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
-import {
-  CircleCheckIcon,
-  ClockIcon,
-  CoinsIcon,
-  FlaskConicalIcon,
-  InfoIcon,
-  LoaderCircleIcon,
-  RefreshCwIcon,
-  XIcon,
-} from "lucide-react";
+import { LoaderCircleIcon, RefreshCwIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP } from "@/config/app";
 import { getPlan } from "@/config/plans";
 import { ME_KEY } from "@/hooks/use-me";
@@ -32,6 +21,7 @@ import { CreditHistory, CREDITS_KEY, type CreditsPage } from "./credit-history";
 import { CreditPackCards } from "./credit-pack-cards";
 import { CurrentPlanCard } from "./current-plan-card";
 import { formatCredits } from "./format";
+import { LabNotice } from "./lab-notice";
 import { PaymentHistory } from "./payment-history";
 import { PlanCards, type PlanCheckoutItem } from "./plan-cards";
 import { PlanChangeDialog } from "./plan-change-dialog";
@@ -166,11 +156,9 @@ export function BillingDashboard({
       )}
 
       {isTestMode && (
-        <Alert variant="brand">
-          <FlaskConicalIcon aria-hidden="true" />
-          <AlertTitle>Test mode</AlertTitle>
-          <AlertDescription>Payments are simulated with a test checkout. No real money is charged.</AlertDescription>
-        </Alert>
+        <LabNotice label="Lab notice · test mode" title="Test mode" tone="danger" role="note">
+          Payments are simulated with a test checkout. No real money is charged.
+        </LabNotice>
       )}
 
       {isTestMode && mockPortal && <MockPortalPanel summary={summary} onChanged={refresh} />}
@@ -184,49 +172,59 @@ export function BillingDashboard({
         />
       )}
 
-      <section aria-label="Plan and credits" className="grid gap-4 lg:grid-cols-[3fr_2fr]">
-        <CurrentPlanCard summary={summary} onManage={openPortal} managing={pending === "portal"} />
-        <Card className="gap-4">
-          <CardHeader className="gap-1.5">
-            <CardDescription>Credit balance</CardDescription>
-            <CardTitle as="p" className="flex items-center gap-2 text-4xl font-semibold tabular-nums">
-              <CoinsIcon aria-hidden="true" className="size-7 text-primary" />
+      {/* The account statement: plan on the left, the balance as a big lab readout on the right. */}
+      <section aria-label="Plan and credits" className="border border-foreground/20 bg-card">
+        <p
+          aria-hidden="true"
+          className="flex justify-between gap-3 border-b border-dashed border-foreground/20 px-4 py-2 font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase sm:px-6"
+        >
+          <span>OpenShoot lab · account statement</span>
+          <span className="max-sm:hidden">{isTestMode ? "Test mode" : "Live"}</span>
+        </p>
+        <div className="grid lg:grid-cols-[3fr_2fr]">
+          <CurrentPlanCard summary={summary} onManage={openPortal} managing={pending === "portal"} />
+          <div className="flex flex-col gap-3 border-t border-foreground/15 p-4 sm:p-6 lg:border-t-0 lg:border-l">
+            <p className="mono-caps text-muted-foreground">Credit balance</p>
+            <p className="flex items-baseline gap-2 font-mono text-5xl leading-none font-medium tracking-tight tabular-nums sm:text-6xl">
               <span aria-live="polite">{formatCredits(credits.balance)}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <span aria-hidden="true" className="text-sm tracking-[0.16em] text-muted-foreground uppercase">
+                cr
+              </span>
+            </p>
             {credits.balance < 0 ? (
-              <p className="text-destructive">
+              <p className="text-sm text-destructive">
                 Your balance is below zero because a payment was refunded or disputed. New jobs are paused until you top
                 up.
               </p>
             ) : (
-              <p>Credits never expire. Failed or blocked generations are refunded automatically.</p>
+              <p className="max-w-[46ch] text-sm text-muted-foreground">
+                Credits never expire. Failed or blocked generations are refunded automatically.
+              </p>
             )}
-            <a href="#buy-credits" className="font-medium text-primary underline-offset-4 hover:underline">
+            <a href="#buy-credits" className="w-fit text-sm font-medium underline underline-offset-4">
               Buy credits
             </a>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </section>
 
-      <section aria-labelledby="buy-credits" className="flex flex-col gap-4">
-        <div>
-          <h2 id="buy-credits" className="scroll-mt-20 text-lg font-semibold">
-            Buy credits
-          </h2>
-          <p className="text-sm text-muted-foreground">One-time packs. No subscription needed. Credits never expire.</p>
-        </div>
+      <section aria-labelledby="buy-credits" className="flex flex-col gap-5">
+        <SectionHead
+          folio="01"
+          id="buy-credits"
+          title="Buy credits"
+          description="One-time packs. No subscription needed. Credits never expire."
+        />
         <CreditPackCards mode="app" />
       </section>
 
-      <section aria-labelledby="plans" className="flex flex-col gap-4">
-        <div>
-          <h2 id="plans" className="text-lg font-semibold">
-            Plans
-          </h2>
-          <p className="text-sm text-muted-foreground">Monthly credits, more models, bigger batches and API access.</p>
-        </div>
+      <section aria-labelledby="plans" className="flex flex-col gap-5">
+        <SectionHead
+          folio="02"
+          id="plans"
+          title="Plans"
+          description="Monthly credits, more models, bigger batches and API access."
+        />
         <PlanCards
           mode="app"
           currentPlanId={summary.plan}
@@ -257,22 +255,18 @@ export function BillingDashboard({
         />
       )}
 
-      <section aria-labelledby="credit-history" className="flex flex-col gap-4">
-        <div>
-          <h2 id="credit-history" className="text-lg font-semibold">
-            Credit history
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Every credit in and out, with the reason. Dates are in your time zone.
-          </p>
-        </div>
+      <section aria-labelledby="credit-history" className="flex flex-col gap-5">
+        <SectionHead
+          folio="03"
+          id="credit-history"
+          title="Credit history"
+          description="Every credit in and out, with the reason. Dates are in your time zone."
+        />
         <CreditHistory firstPage={credits} />
       </section>
 
-      <section aria-labelledby="payments" className="flex flex-col gap-4">
-        <h2 id="payments" className="text-lg font-semibold">
-          Payments &amp; receipts
-        </h2>
+      <section aria-labelledby="payments" className="flex flex-col gap-5">
+        <SectionHead folio="04" id="payments" title="Payments & receipts" />
         <PaymentHistory
           payments={initialPayments}
           canManageBilling={summary.canManageBilling}
@@ -281,6 +275,31 @@ export function BillingDashboard({
           openingPortal={pending === "portal"}
         />
       </section>
+    </div>
+  );
+}
+
+/** Editorial section heading: a mono folio number, the title in the serif, a plain line under it. */
+function SectionHead({
+  folio,
+  id,
+  title,
+  description,
+}: {
+  folio: string;
+  id: string;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-foreground/80 pt-3">
+      <p aria-hidden="true" className="mono-caps text-muted-foreground">
+        No. {folio}
+      </p>
+      <h2 id={id} className="scroll-mt-20 font-display text-3xl leading-none tracking-tight sm:text-4xl">
+        {title}
+      </h2>
+      {description && <p className="max-w-[62ch] text-sm text-muted-foreground">{description}</p>}
     </div>
   );
 }
@@ -304,21 +323,16 @@ function CheckoutNotice({
   onCheckAgain: () => void;
 }) {
   const dismiss = (
-    <Button variant="ghost" size="icon-sm" onClick={onDismiss} aria-label="Dismiss" className="absolute top-2 right-2">
+    <Button variant="ghost" size="icon-sm" onClick={onDismiss} aria-label="Dismiss">
       <XIcon aria-hidden="true" />
     </Button>
   );
 
   if (notice === "canceled" || !confirmation) {
     return (
-      <Alert role="status" className="pr-12">
-        <InfoIcon aria-hidden="true" />
-        <AlertTitle>Checkout canceled</AlertTitle>
-        <AlertDescription>
-          No payment was made. You can pick a plan or credit pack whenever you&apos;re ready.
-        </AlertDescription>
-        {dismiss}
-      </Alert>
+      <LabNotice role="status" label="Lab notice · no charge" title="Checkout canceled" action={dismiss}>
+        No payment was made. You can pick a plan or credit pack whenever you&apos;re ready.
+      </LabNotice>
     );
   }
 
@@ -329,45 +343,44 @@ function CheckoutNotice({
       "A receipt is on its way to your inbox.",
     ].filter(Boolean);
     return (
-      <Alert role="status" variant="success" className="pr-12">
-        <CircleCheckIcon aria-hidden="true" />
-        <AlertTitle>Payment received — thank you!</AlertTitle>
-        <AlertDescription>{parts.join(" ")}</AlertDescription>
-        {dismiss}
-      </Alert>
+      <LabNotice
+        role="status"
+        tone="success"
+        label="Lab notice · received"
+        title="Payment received — thank you!"
+        action={dismiss}
+      >
+        {parts.join(" ")}
+      </LabNotice>
     );
   }
 
   if (confirmation.state === "delayed") {
     return (
-      <Alert role="status" variant="warning" className="pr-12">
-        <ClockIcon aria-hidden="true" />
-        <AlertTitle>Still waiting for the payment confirmation</AlertTitle>
-        <AlertDescription>
-          <p>
-            This is taking longer than usual. Don&apos;t pay again: your credits and plan appear here as soon as the
-            payment provider confirms. If nothing changes within an hour, email {APP.supportEmail}.
-          </p>
-          <Button variant="outline" size="sm" className="mt-2" onClick={onCheckAgain}>
-            <RefreshCwIcon aria-hidden="true" />
-            Check again
-          </Button>
-        </AlertDescription>
-        {dismiss}
-      </Alert>
+      <LabNotice
+        role="status"
+        tone="warning"
+        label="Lab notice · awaiting confirmation"
+        title="Still waiting for the payment confirmation"
+        action={dismiss}
+      >
+        <p>
+          This is taking longer than usual. Don&apos;t pay again: your credits and plan appear here as soon as the
+          payment provider confirms. If nothing changes within an hour, email {APP.supportEmail}.
+        </p>
+        <Button variant="outline" size="sm" className="mt-2" onClick={onCheckAgain}>
+          <RefreshCwIcon aria-hidden="true" />
+          Check again
+        </Button>
+      </LabNotice>
     );
   }
 
   return (
-    <Alert role="status" variant="brand" className="pr-12">
-      <LoaderCircleIcon aria-hidden="true" className="motion-safe:animate-spin" />
-      <AlertTitle>Confirming your payment…</AlertTitle>
-      <AlertDescription>
-        Thanks! We&apos;re waiting for the payment provider to confirm, which usually takes a few seconds (at most{" "}
-        {Math.round(CONFIRM_FAST_FOR_MS / 1000)} s). Your credits and plan update here automatically.
-      </AlertDescription>
-      {dismiss}
-    </Alert>
+    <LabNotice role="status" tone="working" label="Lab notice · confirming" title="Confirming your payment…" action={dismiss}>
+      Thanks! We&apos;re waiting for the payment provider to confirm, which usually takes a few seconds (at most{" "}
+      {Math.round(CONFIRM_FAST_FOR_MS / 1000)} s). Your credits and plan update here automatically.
+    </LabNotice>
   );
 }
 
@@ -392,21 +405,20 @@ function MockPortalPanel({ summary, onChanged }: { summary: BillingSummaryDTO; o
   }
 
   return (
-    <Card className="gap-4 border-dashed">
-      <CardHeader className="gap-1.5">
-        <CardTitle className="text-base">Test billing portal</CardTitle>
-        <CardDescription>
-          With Stripe configured, “Manage billing” opens Stripe&apos;s customer portal (payment method, invoices,
-          cancellation). In test mode you can cancel your subscription here: it ends now and you move to Free; your
-          credits stay.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button variant="destructive" onClick={cancel} disabled={!cancellable || busy} aria-busy={busy}>
-          {busy && <LoaderCircleIcon aria-hidden="true" className="animate-spin" />}
-          {cancellable ? "Cancel subscription now" : "No active subscription"}
-        </Button>
-      </CardContent>
-    </Card>
+    <section aria-labelledby="test-portal" className="flex flex-col gap-3 border border-dashed border-foreground/30 p-4 sm:p-5">
+      <p className="mono-caps text-safelight-ink">Test mode · stand-in</p>
+      <h2 id="test-portal" className="font-display text-2xl leading-none">
+        Test billing portal
+      </h2>
+      <p className="max-w-[68ch] text-sm text-muted-foreground">
+        With Stripe configured, “Manage billing” opens Stripe&apos;s customer portal (payment method, invoices,
+        cancellation). In test mode you can cancel your subscription here: it ends now and you move to Free; your credits
+        stay.
+      </p>
+      <Button variant="destructive" onClick={cancel} disabled={!cancellable || busy} aria-busy={busy} className="self-start">
+        {busy && <LoaderCircleIcon aria-hidden="true" className="animate-spin" />}
+        {cancellable ? "Cancel subscription now" : "No active subscription"}
+      </Button>
+    </section>
   );
 }

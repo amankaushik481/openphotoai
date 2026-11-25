@@ -61,9 +61,9 @@ export function PersonPicker({
               <label
                 key={model.id}
                 className={cn(
-                  "relative flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border bg-card px-3 py-2 transition-colors",
+                  "relative flex min-h-14 cursor-pointer items-center gap-3 rounded-sm border border-foreground/15 bg-card px-3 py-2 transition-colors",
                   "hover:bg-accent/50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-                  checked && "border-primary bg-brand-soft/40",
+                  checked && "border-safelight-ink bg-accent/60",
                   disabled && "cursor-not-allowed opacity-60 hover:bg-card",
                 )}
               >
@@ -76,9 +76,9 @@ export function PersonPicker({
                   onChange={() => onValueChange(model.id)}
                   className="sr-only"
                 />
-                <Avatar className="size-10 rounded-lg">
+                <Avatar className="size-10 rounded-none">
                   {model.coverUrl && <AvatarImage src={model.coverUrl} alt="" />}
-                  <AvatarFallback className="rounded-lg bg-brand-soft text-xs text-brand-soft-foreground">
+                  <AvatarFallback className="rounded-none bg-secondary font-mono text-[11px] text-foreground">
                     {initials(model.name)}
                   </AvatarFallback>
                 </Avatar>
@@ -89,8 +89,8 @@ export function PersonPicker({
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-full border",
-                    checked ? "border-primary bg-primary text-primary-foreground" : "border-input",
+                    "flex size-5 shrink-0 items-center justify-center border",
+                    checked ? "border-safelight-ink bg-safelight text-white" : "border-input",
                   )}
                 >
                   {checked && <CheckIcon className="size-3.5" />}

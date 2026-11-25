@@ -35,6 +35,7 @@ import {
   type EnhanceErrorInfo,
 } from "./enhance-ui";
 import { useEnhanceJob } from "./use-enhance-job";
+import { STUDIO_LABEL, STUDIO_TOGGLE } from "@/components/edit/studio";
 
 export { EnhanceQuickActions, type EnhanceQuickActionsProps } from "./enhance-quick-actions";
 
@@ -128,17 +129,24 @@ function UpscaleCard({ media, onJobCreated }: { media: MediaDTO; onJobCreated?: 
           aria-describedby={hintId}
         >
           {UPSCALE_SCALES.map((s) => (
-            <ToggleGroupItem key={s} value={String(s)} disabled={!allowed.includes(s)} className="min-w-12">
+            <ToggleGroupItem
+              key={s}
+              value={String(s)}
+              disabled={!allowed.includes(s)}
+              className={cn("min-w-12 font-mono", STUDIO_TOGGLE)}
+            >
               {s}×
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
         <div className="flex items-center gap-2">
           <Switch id={switchId} checked={faceRestore} onCheckedChange={setFaceRestore} disabled={isVideo} />
-          <Label htmlFor={switchId}>Restore face</Label>
+          <Label htmlFor={switchId} className={STUDIO_LABEL}>
+            Restore face
+          </Label>
         </div>
       </div>
-      <p id={hintId} className="text-sm text-muted-foreground tabular-nums">
+      <p id={hintId} className="font-mono text-xs text-muted-foreground tabular-nums">
         {preview ? (
           <>
             {formatSize(preview.from)} → <span className="font-medium text-foreground">{formatSize(preview.to)}</span>{" "}
@@ -186,10 +194,10 @@ function ActionCard({
   const isVideo = media.kind !== "image";
 
   return (
-    <Card role="region" aria-labelledby={headingId} className="gap-4 py-5">
+    <Card role="region" aria-labelledby={headingId} className="gap-4 rounded-none border-foreground/15 py-5 shadow-none">
       <CardHeader className="px-5">
-        <CardTitle id={headingId} className="flex items-center gap-2 text-base">
-          <span className="text-primary [&_svg]:size-5">{icon}</span>
+        <CardTitle id={headingId} className="flex items-center gap-2 font-display text-2xl leading-none font-normal">
+          <span className="text-muted-foreground [&_svg]:size-4">{icon}</span>
           {title}
         </CardTitle>
         <CardDescription>{description}</CardDescription>

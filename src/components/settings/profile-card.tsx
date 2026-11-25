@@ -6,7 +6,7 @@ import { useId, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ME_KEY } from "@/hooks/use-me";

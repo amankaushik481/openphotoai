@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FlagIcon, ImageOffIcon, ShieldCheckIcon } from "lucide-react";
-
-import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/admin/badges";
 import { formatDateTime, humanize, summarizeDetails } from "@/components/admin/format";
@@ -10,7 +7,8 @@ import { Kbd } from "@/components/admin/kbd";
 import { MarkReviewedButton, ReportActions } from "@/components/admin/moderation-actions";
 import { TriageKeyboard } from "@/components/admin/triage-keyboard";
 import { EmptyRow, Section } from "@/components/admin/section";
-import { Badge } from "@/components/ui/badge";
+import { PencilCircle, PencilCross } from "@/components/gallery/marks";
+import { Stamp } from "@/components/gallery/readout";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { listModerationQueue, REPORT_REASON_LABELS, type QueueReport } from "@/server/admin";
 import { requireAdminPage } from "@/server/auth/session";
@@ -19,7 +17,7 @@ export const metadata: Metadata = { title: "Moderation" };
 
 const SEVERE_REASONS: ReadonlySet<QueueReport["reason"]> = new Set(["minor", "non_consensual", "sexual"]);
 
-function ReportCard({ report, adminId }: { report: QueueReport; adminId: string }) {
+function ReportCard({ report, adminId, index }: { report: QueueReport; adminId: string; index: number }) {
   const media = report.media;
   const canRemove = Boolean((media && !media.removedAt) || (report.shareLink && !report.shareLink.revokedAt));
   const canSuspend = Boolean(report.target && !report.target.banned && report.target.role !== "admin" && report.target.id !== adminId);
@@ -29,9 +27,11 @@ function ReportCard({ report, adminId }: { report: QueueReport; adminId: string 
       data-triage-item
       tabIndex={-1}
       aria-label={`Report: ${REPORT_REASON_LABELS[report.reason]}${report.target ? ` against ${report.target.email}` : ""}`}
-      className="flex min-w-0 scroll-mt-24 flex-col gap-4 rounded-xl border bg-card p-4 shadow-xs transition-colors focus-within:border-primary/40 sm:flex-row"
+      className="flex min-w-0 scroll-mt-24 flex-col gap-4 border border-foreground/15 bg-card p-3 shadow-[0_8px_18px_-14px_rgb(22_20_15/0.45)] transition-colors [--focus-offset:-2px] focus-within:border-foreground/40 sm:flex-row sm:p-4 dark:shadow-none"
     >
-      <div className="size-28 shrink-0 overflow-hidden rounded-lg border bg-muted sm:size-32">
+      {/* The reported frame, as a print with its frame number; severe reports are circled in grease pencil. */}
+      <div className="relative w-fit shrink-0 self-start border border-foreground/10 bg-[#fbf8f2] p-1.5 pb-0">
+        <div className="size-28 overflow-hidden bg-muted sm:size-32">
         {media?.thumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- private signed URLs bypass the image optimizer
           <img
@@ -42,20 +42,27 @@ function ReportCard({ report, adminId }: { report: QueueReport; adminId: string 
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="flex size-full flex-col items-center justify-center gap-1 p-2 text-center text-xs text-muted-foreground">
-            <ImageOffIcon aria-hidden="true" className="size-5" />
+          <div className="relative flex size-full items-end p-2 font-mono text-[10px] tracking-[0.12em] text-[#615a50] uppercase">
             {media?.removedAt ? "Removed" : report.shareLink?.folderId ? "Folder share" : "No preview"}
+            {media?.removedAt && <PencilCross strokeWidth={2} className="absolute inset-3 h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)]" />}
           </div>
+        )}
+        </div>
+        <p aria-hidden="true" className="flex h-6 items-center font-mono text-[10px] tracking-[0.12em] text-[#615a50]">
+          ▸ {String(index + 1).padStart(2, "0")}
+        </p>
+        {SEVERE_REASONS.has(report.reason) && (
+          <PencilCircle variant={index} strokeWidth={2.6} className="absolute -inset-2 h-[calc(100%+1rem)] w-[calc(100%+1rem)]" />
         )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={SEVERE_REASONS.has(report.reason) ? "destructive" : "warning"}>{REPORT_REASON_LABELS[report.reason]}</Badge>
-          <span className="text-xs text-muted-foreground">{formatDateTime(report.createdAt)}</span>
+          <Stamp tone={SEVERE_REASONS.has(report.reason) ? "safelight" : "warning"}>{REPORT_REASON_LABELS[report.reason]}</Stamp>
+          <span className="font-mono text-[11px] text-muted-foreground">{formatDateTime(report.createdAt)}</span>
         </div>
         <p className="text-sm break-words whitespace-pre-line">{report.details || <span className="text-muted-foreground">No details given.</span>}</p>
-        <dl className="grid gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-[auto_minmax(0,1fr)]">
+        <dl className="grid gap-x-4 gap-y-1 font-mono text-[11px] text-muted-foreground sm:grid-cols-[auto_minmax(0,1fr)] [&_dt]:tracking-[0.12em] [&_dt]:uppercase">
           <dt>Owner</dt>
           <dd className="min-w-0 truncate">
             {report.target ? (
@@ -99,8 +106,8 @@ export default async function AdminModerationPage() {
         description="Abuse reports from share pages and safety events that blocked something. Newest first."
       />
 
-      <p className="mb-6 hidden flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pointer-fine:flex">
-        <span className="font-medium text-foreground">Keyboard triage:</span>
+      <p className="mb-6 hidden flex-wrap items-center gap-x-3 gap-y-1 border-y border-foreground/15 py-2 text-xs text-muted-foreground pointer-fine:flex">
+        <span className="mono-caps text-foreground">Keyboard triage</span>
         <span>
           <Kbd>J</Kbd> / <Kbd>K</Kbd> next / previous
         </span>
@@ -121,20 +128,26 @@ export default async function AdminModerationPage() {
 
       <TriageKeyboard>
         <section aria-labelledby="reports-heading" className="mb-8">
-          <h2 id="reports-heading" className="mb-3 flex items-center gap-2 text-lg font-semibold">
-            <FlagIcon aria-hidden="true" className="size-5 text-muted-foreground" />
+          <h2 id="reports-heading" className="mb-3 flex items-center gap-3 font-mono text-xs font-semibold tracking-[0.14em] uppercase">
             Open reports
-            <Badge variant={reports.length ? "warning" : "outline"}>{reports.length}</Badge>
+            <Stamp tone={reports.length ? "safelight" : "muted"}>{reports.length}</Stamp>
           </h2>
-          {reports.length === 0 ? (
-            <EmptyState size="sm" icon={<ShieldCheckIcon />} title="No open reports" description="New reports from share pages show up here." />
-          ) : (
-            <ul className="grid gap-3">
-              {reports.map((r) => (
-                <ReportCard key={r.id} report={r} adminId={admin.id} />
-              ))}
-            </ul>
-          )}
+          {/* The light table: reported frames laid out like prints for review. */}
+          <div className="border border-foreground/15 bg-secondary p-3 sm:p-5 dark:bg-darkroom-raised">
+            {reports.length === 0 ? (
+              <div className="flex flex-col gap-1 py-6">
+                <p className="mono-caps text-muted-foreground">Light table · clear</p>
+                <p className="font-display text-2xl leading-none">No open reports</p>
+                <p className="text-sm text-muted-foreground">New reports from share pages show up here.</p>
+              </div>
+            ) : (
+              <ul className="grid gap-4">
+                {reports.map((r, i) => (
+                  <ReportCard key={r.id} report={r} adminId={admin.id} index={i} />
+                ))}
+              </ul>
+            )}
+          </div>
         </section>
 
         <Section

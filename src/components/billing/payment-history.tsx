@@ -1,9 +1,7 @@
 "use client";
 
-import { LoaderCircleIcon, ReceiptIcon } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
 
-import { EmptyState } from "@/components/app/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PaymentHistoryItemDTO } from "@/server/billing/payment-history";
@@ -12,14 +10,14 @@ import { LocalDate } from "./local-date";
 
 const STATUS: Record<
   PaymentHistoryItemDTO["type"] | PaymentHistoryItemDTO["status"],
-  { label: string; variant: "success" | "warning" | "destructive" | "outline" }
+  { label: string; stamp: string }
 > = {
-  paid: { label: "Paid", variant: "success" },
-  refunded: { label: "Refunded", variant: "warning" },
-  failed: { label: "Failed", variant: "destructive" },
-  refund: { label: "Refund", variant: "outline" },
-  chargeback: { label: "Chargeback", variant: "destructive" },
-  payment: { label: "Paid", variant: "success" },
+  paid: { label: "Paid", stamp: "border-success/50 text-success" },
+  refunded: { label: "Refunded", stamp: "border-warning/50 text-warning" },
+  failed: { label: "Failed", stamp: "border-safelight-ink/60 text-safelight-ink" },
+  refund: { label: "Refund", stamp: "border-foreground/30 text-muted-foreground" },
+  chargeback: { label: "Chargeback", stamp: "border-safelight-ink/60 text-safelight-ink" },
+  payment: { label: "Paid", stamp: "border-success/50 text-success" },
 };
 
 export interface PaymentHistoryProps {
@@ -35,35 +33,46 @@ export interface PaymentHistoryProps {
 export function PaymentHistory({ payments, canManageBilling, testMode, onOpenPortal, openingPortal }: PaymentHistoryProps) {
   if (payments.length === 0) {
     return (
-      <EmptyState
-        size="sm"
-        icon={<ReceiptIcon />}
-        title="No payments yet"
-        description="Credit packs and plan payments show up here, each with an emailed receipt."
-      />
+      <div className="flex flex-col gap-1.5 border-y border-dashed border-foreground/30 py-6">
+        <p aria-hidden="true" className="mono-caps text-muted-foreground">
+          Receipts · none on file
+        </p>
+        <h3 className="font-display text-2xl leading-none">No payments yet</h3>
+        <p className="text-sm text-muted-foreground">
+          Credit packs and plan payments show up here, each with an emailed receipt.
+        </p>
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <ul className="divide-y rounded-xl border bg-card" aria-label="Payments">
+      {/* Receipt slips: description, a dotted leader, the amount in mono, and a status stamp. */}
+      <ul className="divide-y divide-dashed divide-foreground/20 border-y border-foreground/30" aria-label="Payments">
         {payments.map((p) => {
           const status = p.type === "payment" ? STATUS[p.status] : STATUS[p.type];
           return (
-            <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
+            <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
                   {p.type === "refund" ? "Refund: " : p.type === "chargeback" ? "Chargeback: " : ""}
                   {p.description}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
                   <LocalDate iso={p.createdAt} />
                   {p.credits !== 0 && <> · {formatCreditDelta(p.credits)} credits</>}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <Badge variant={status.variant}>{status.label}</Badge>
-                <span className={cn("w-20 text-right text-sm font-medium tabular-nums", p.amountCents < 0 && "text-muted-foreground")}>
+                <span className={cn("border px-1.5 py-1 font-mono text-[10px] leading-none tracking-[0.14em] uppercase", status.stamp)}>
+                  {status.label}
+                </span>
+                <span
+                  className={cn(
+                    "w-24 text-right font-mono text-sm font-medium tabular-nums",
+                    p.amountCents < 0 && "text-muted-foreground",
+                  )}
+                >
                   {formatMoney(p.amountCents, p.currency)}
                 </span>
               </div>

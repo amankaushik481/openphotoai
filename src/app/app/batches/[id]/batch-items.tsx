@@ -2,20 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import {
-  BanIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  CircleAlertIcon,
-  CoinsIcon,
-  HourglassIcon,
-  LoaderCircleIcon,
-  RotateCcwIcon,
-  ShieldAlertIcon,
-} from "lucide-react";
+import { ChevronDownIcon, LoaderCircleIcon, RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { newIdempotencyKey } from "@/components/create/logic";
+import { PencilCross, frameNumber } from "@/components/gallery/marks";
+import { CreditReadout } from "@/components/gallery/readout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { isTerminalStatus } from "@/hooks/job-status";
@@ -25,16 +17,24 @@ import { ApiClientError, api } from "@/lib/api-client";
 import { errorMessage } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { JobDTO } from "@/types/domain";
-import { batchItemState, batchItemTitle, retryCost, retryRequest, type BatchItemKind } from "./batch-items-logic";
+import {
+  batchItemState,
+  batchItemTitle,
+  darkroomStatus,
+  retryCost,
+  retryRequest,
+  type BatchItemKind,
+} from "./batch-items-logic";
 
-const ICONS: Record<BatchItemKind, React.ReactNode> = {
-  waiting: <HourglassIcon className="text-muted-foreground" />,
-  running: <LoaderCircleIcon className="animate-spin text-primary motion-reduce:animate-none" />,
-  done: <CheckIcon className="text-success" />,
-  partial: <CircleAlertIcon className="text-warning" />,
-  failed: <CircleAlertIcon className="text-destructive" />,
-  blocked: <ShieldAlertIcon className="text-warning" />,
-  canceled: <BanIcon className="text-muted-foreground" />,
+/** Status chip colours: safelight for trouble and for the lamp that's on while developing. */
+const CHIP: Record<BatchItemKind, string> = {
+  waiting: "border-foreground/20 text-muted-foreground",
+  running: "border-safelight-ink/50 text-safelight-ink",
+  done: "border-success/40 text-success",
+  partial: "border-foreground/25 text-foreground",
+  failed: "border-safelight-ink/60 text-safelight-ink",
+  blocked: "border-safelight-ink/60 text-safelight-ink",
+  canceled: "border-foreground/20 text-muted-foreground",
 };
 
 function creditsText(n: number): string {
@@ -100,18 +100,19 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
 
   return (
     <section aria-labelledby="batch-items-title" className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="batch-items-title" className="text-lg font-semibold">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-foreground/15 pb-2">
+        <h2 id="batch-items-title" className="font-display text-2xl font-normal tracking-tight sm:text-3xl">
           <button
             type="button"
             aria-expanded={expanded}
             aria-controls="batch-items-list"
             onClick={() => setOpen(!expanded)}
-            className="inline-flex items-center gap-1.5 rounded-sm"
+            className="inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-sm text-left"
           >
             Each photo
-            <span className="text-sm font-normal text-muted-foreground">
-              {jobs.length} · {problems > 0 ? `${problems} didn't work` : isTerminal ? "all done" : "in progress"}
+            <span className="font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase tabular-nums">
+              {jobs.length} frames ·{" "}
+              {problems > 0 ? `${problems} didn't work` : isTerminal ? "all done" : "in progress"}
             </span>
             <ChevronDownIcon
               aria-hidden="true"
@@ -135,103 +136,140 @@ export function BatchItems({ batchId, promptTitles }: { batchId: string; promptT
             ) : (
               <RotateCcwIcon aria-hidden="true" />
             )}
-            Retry {failed.length} failed · {creditsText(retryCost(failed))}
+            Retry {failed.length} failed
+            <span className="sr-only"> · {creditsText(retryCost(failed))}</span>
+            <CreditReadout credits={retryCost(failed)} />
           </Button>
         )}
       </div>
 
       {expanded && (
-        <ul id="batch-items-list" className="flex flex-col divide-y rounded-xl border bg-card">
-          {jobs.map((job, i) => {
-            const state = batchItemState(job);
-            const title = batchItemTitle(job, i, promptTitles);
-            const thumb = job.media[0];
-            const retryJob = latestRetry(job);
-            const retryState = retryJob ? batchItemState(retryJob) : null;
-            return (
-              <li key={job.id} className="flex items-center gap-3 px-3 py-2.5 text-sm sm:px-4">
-                <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted [&_svg]:size-4">
-                  {thumb ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- private signed URL
-                    <img src={thumb.thumbUrl} alt="" className="size-full object-cover" loading="lazy" />
-                  ) : (
-                    <span aria-hidden="true">{ICONS[state.kind]}</span>
-                  )}
-                </span>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="truncate font-medium">
-                    {thumb ? (
-                      <Link href={`/app/gallery/${thumb.id}`} className="underline-offset-4 hover:underline">
-                        {title}
-                      </Link>
-                    ) : (
-                      title
+        <div className="@container">
+          <ul
+            id="batch-items-list"
+            className="grid grid-cols-2 gap-x-3 gap-y-4 @md:grid-cols-4 @3xl:grid-cols-6 @6xl:grid-cols-8"
+          >
+            {jobs.map((job, i) => {
+              const state = batchItemState(job);
+              const title = batchItemTitle(job, i, promptTitles);
+              const thumb = job.media[0];
+              const retryJob = latestRetry(job);
+              const retryState = retryJob ? batchItemState(retryJob) : null;
+              const trouble = state.kind === "failed" || state.kind === "blocked" || (state.kind === "partial" && !thumb);
+              return (
+                <li key={job.id} className="flex min-w-0 flex-col border border-foreground/10 bg-card p-1.5 pb-2">
+                  {/* The frame: the print, the developer tray (with the safelight on), or a crossed-out blank. */}
+                  <div
+                    className={cn(
+                      "relative aspect-[4/5] overflow-hidden",
+                      thumb ? "bg-muted" : state.kind === "running" ? "bg-darkroom" : "border border-dashed border-foreground/20 bg-muted/40",
                     )}
-                  </p>
-                  <p className={cn("text-xs", state.kind === "failed" ? "text-destructive" : "text-muted-foreground")}>
-                    {state.label}
-                    {retryState && (
-                      <>
-                        {" · Retry: "}
-                        {retryJob?.status === "succeeded" && retryJob.media[0] ? (
-                          <Link
-                            href={`/app/gallery/${retryJob.media[0].id}`}
-                            className="font-medium text-foreground underline underline-offset-4"
-                          >
-                            done, open it
-                          </Link>
-                        ) : (
-                          retryState.label.toLowerCase()
-                        )}
-                      </>
-                    )}
-                  </p>
-                  {state.kind === "running" && (
-                    <Progress
-                      value={job.progress}
-                      aria-label={`${title} progress`}
-                      className="h-1"
-                      indicatorClassName="bg-brand-gradient"
-                    />
-                  )}
-                </div>
-                {canRetry(job) && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => void retry([job], job.id)}
-                    disabled={submitting !== null}
-                    aria-label={`Retry ${title} (${creditsText(retryCost([job]))})`}
                   >
-                    {submitting === job.id ? (
-                      <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
-                    ) : (
-                      <RotateCcwIcon aria-hidden="true" />
+                    {thumb ? (
+                      <Link href={`/app/gallery/${thumb.id}`} tabIndex={-1} aria-hidden="true" className="block size-full">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- private signed URL */}
+                        <img src={thumb.thumbUrl} alt="" className="size-full object-cover" loading="lazy" />
+                      </Link>
+                    ) : state.kind === "running" ? (
+                      <div className="flex size-full flex-col items-center justify-center gap-2 shadow-[inset_0_0_60px_-20px_var(--darkroom-safelight)]">
+                        <span className="font-mono text-2xl text-darkroom-foreground tabular-nums">
+                          {Math.min(99, Math.max(1, Math.round(job.progress || 0)))}
+                          <span className="text-sm text-darkroom-muted">%</span>
+                        </span>
+                      </div>
+                    ) : null}
+                    {trouble && (
+                      <PencilCross strokeWidth={2.4} className="absolute inset-3 h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)]" />
                     )}
-                    Retry
-                    <span
-                      aria-hidden="true"
-                      className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums"
-                    >
-                      <CoinsIcon className="size-3" />
-                      {retryCost([job]) || "Free"}
-                    </span>
-                  </Button>
-                )}
-                {retryJob && !isTerminalStatus(retryJob.status) && (
-                  <LoaderCircleIcon
-                    aria-hidden="true"
-                    className="size-4 animate-spin text-primary motion-reduce:animate-none"
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                  </div>
+
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-2">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <span className="font-mono text-[11px] tracking-[0.12em] text-foreground tabular-nums">
+                        <span aria-hidden="true" className="text-safelight-ink">
+                          ▸{" "}
+                        </span>
+                        {frameNumber(i)}
+                      </span>
+                      <span
+                        className={cn(
+                          "border px-1.5 py-1 font-mono text-[10px] leading-none tracking-[0.12em] uppercase",
+                          CHIP[state.kind],
+                        )}
+                      >
+                        {darkroomStatus(state)}
+                      </span>
+                    </div>
+                    <p className="truncate text-[13px] leading-snug font-medium">
+                      {thumb ? (
+                        <Link href={`/app/gallery/${thumb.id}`} className="underline-offset-4 hover:underline">
+                          {title}
+                        </Link>
+                      ) : (
+                        title
+                      )}
+                    </p>
+                    <p className={cn("text-xs", state.kind === "failed" ? "text-destructive" : "text-muted-foreground")}>
+                      {state.label}
+                      {retryState && (
+                        <>
+                          {" · Retry: "}
+                          {retryJob?.status === "succeeded" && retryJob.media[0] ? (
+                            <Link
+                              href={`/app/gallery/${retryJob.media[0].id}`}
+                              className="font-medium text-foreground underline underline-offset-4"
+                            >
+                              done, open it
+                            </Link>
+                          ) : (
+                            retryState.label.toLowerCase()
+                          )}
+                        </>
+                      )}
+                    </p>
+                    {state.kind === "running" && (
+                      <Progress
+                        value={job.progress}
+                        aria-label={`${title} progress`}
+                        className="h-1 rounded-none bg-foreground/10"
+                        indicatorClassName="bg-safelight"
+                      />
+                    )}
+                    {canRetry(job) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void retry([job], job.id)}
+                        disabled={submitting !== null}
+                        aria-label={`Retry ${title} (${creditsText(retryCost([job]))})`}
+                        className="mt-auto self-start"
+                      >
+                        {submitting === job.id ? (
+                          <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+                        ) : (
+                          <RotateCcwIcon aria-hidden="true" />
+                        )}
+                        Retry
+                        <CreditReadout credits={retryCost([job])} />
+                      </Button>
+                    )}
+                    {retryJob && !isTerminalStatus(retryJob.status) && (
+                      <p className="flex items-center gap-1.5 font-mono text-[10px] tracking-[0.12em] text-safelight-ink uppercase">
+                        <LoaderCircleIcon aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
+                        Retry developing
+                      </p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
       {problems > 0 && (
-        <p className="text-xs text-muted-foreground">
+        <p className="max-w-[68ch] border-l-2 border-safelight-ink pl-3 text-xs text-muted-foreground">
+          <span className="mono-caps mr-2 text-safelight-ink">Lab notice</span>
           Photos that fail or are blocked are refunded automatically. Blocked photos broke a safety rule, so retrying
           them won&apos;t help; failed ones usually work on a second try.
         </p>

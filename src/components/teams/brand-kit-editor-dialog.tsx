@@ -242,7 +242,7 @@ function BrandKitForm({
         </div>
       </div>
 
-      <section aria-labelledby={ids.preview} className="grid gap-2 rounded-lg border bg-muted/40 p-4">
+      <section aria-labelledby={ids.preview} className="grid gap-2 border border-dashed border-foreground/25 bg-muted/40 p-4">
         <div className="flex items-center justify-between gap-2">
           <h3 id={ids.preview} className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             Live preview
@@ -254,7 +254,7 @@ function BrandKitForm({
           {fragment ? (
             <>
               <span className="text-muted-foreground">, </span>
-              <mark className="rounded bg-brand-soft px-0.5 text-brand-soft-foreground">{fragment}</mark>
+              <mark className="bg-transparent px-0.5 text-foreground underline decoration-safelight-ink decoration-2 underline-offset-4">{fragment}</mark>
             </>
           ) : null}
         </p>

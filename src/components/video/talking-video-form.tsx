@@ -24,6 +24,7 @@ import {
   VOICE_ORDER,
   type Voice,
 } from "./video-options";
+import { STUDIO_CHIP_ON, STUDIO_LABEL } from "@/components/edit/studio";
 
 export interface TalkingVideoFormProps {
   source: MediaDTO | null;
@@ -69,7 +70,9 @@ export function TalkingVideoForm({ source, onChooseSource, onCreated }: TalkingV
   return (
     <form onSubmit={submit} className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Label htmlFor={scriptId}>What should you say?</Label>
+        <Label htmlFor={scriptId} className={STUDIO_LABEL}>
+          What should you say?
+        </Label>
         <Textarea
           id={scriptId}
           value={script}
@@ -100,7 +103,7 @@ export function TalkingVideoForm({ source, onChooseSource, onCreated }: TalkingV
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend id={voiceId} className="mb-2 text-sm leading-none font-medium">
+        <legend id={voiceId} className="mono-caps mb-2 text-muted-foreground">
           Voice
         </legend>
         <RadioGroup
@@ -116,8 +119,8 @@ export function TalkingVideoForm({ source, onChooseSource, onCreated }: TalkingV
                 key={v}
                 htmlFor={itemId}
                 className={cn(
-                  "flex cursor-pointer items-start gap-3 rounded-lg border p-3 font-normal transition-colors hover:bg-accent/50",
-                  voice === v && "border-primary bg-brand-soft/40",
+                  "flex cursor-pointer items-start gap-3 rounded-sm border border-foreground/15 p-3 font-normal transition-colors hover:bg-accent/50",
+                  voice === v && STUDIO_CHIP_ON,
                 )}
               >
                 <RadioGroupItem value={v} id={itemId} className="mt-0.5" />
@@ -131,9 +134,9 @@ export function TalkingVideoForm({ source, onChooseSource, onCreated }: TalkingV
         </RadioGroup>
       </fieldset>
 
-      <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+      <div className="border-l-2 border-safelight-ink bg-muted/40 p-3 text-sm">
         <p className="flex items-center gap-2 font-medium">
-          <ShieldCheckIcon aria-hidden="true" className="size-4 text-primary" />
+          <ShieldCheckIcon aria-hidden="true" className="size-4 text-safelight-ink" />
           What you can say
         </p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">

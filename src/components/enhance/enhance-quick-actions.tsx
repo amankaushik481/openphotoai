@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { CoinsIcon, EraserIcon, ImageUpscaleIcon, LoaderCircleIcon, ScanFaceIcon } from "lucide-react";
+import { EraserIcon, ImageUpscaleIcon, LoaderCircleIcon, ScanFaceIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { friendlyJobError } from "@/components/app/job-progress";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { CreditReadout } from "@/components/gallery/readout";
 import { useT } from "@/i18n/react";
 import { cn } from "@/lib/utils";
 import type { JobDTO, MediaDTO } from "@/types/domain";
@@ -127,10 +128,7 @@ function QuickActionButton({
             <span aria-hidden="true" className="flex items-center gap-1.5">
               {/* The space keeps "Restore face 1" two words in the text (the flex gap is visual only). */}
               {spec.label}{" "}
-              <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground tabular-nums">
-                <CoinsIcon className="size-3" />
-                {cost}
-              </span>
+              <CreditReadout credits={cost} />
             </span>
           ) : (
             <span aria-hidden="true" className="hidden text-xs pointer-coarse:inline">

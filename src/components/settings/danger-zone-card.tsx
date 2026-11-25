@@ -1,10 +1,10 @@
 "use client";
 
-import { LoaderCircleIcon, MailCheckIcon, Trash2Icon } from "lucide-react";
+import { LoaderCircleIcon, Trash2Icon } from "lucide-react";
 import { useId, useState, type FormEvent } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LabNotice } from "@/components/billing/lab-notice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/settings/editorial-card";
 import {
   Dialog,
   DialogContent,
@@ -63,7 +63,7 @@ export function DangerZoneCard({ email, linkTtlHours = 24 }: { email: string; li
   }
 
   return (
-    <Card className="border-destructive/40">
+    <Card className="border-t-2 border-destructive/60">
       <CardHeader>
         <CardTitle className="text-destructive">Delete account</CardTitle>
         <CardDescription>
@@ -74,14 +74,10 @@ export function DangerZoneCard({ email, linkTtlHours = 24 }: { email: string; li
       <CardContent className="grid gap-4">
         <DeletionScope />
         {sent && (
-          <Alert variant="brand" role="status">
-            <MailCheckIcon aria-hidden />
-            <AlertTitle>We emailed you a confirmation link</AlertTitle>
-            <AlertDescription>
-              Open the email we sent to <span className="font-medium text-foreground">{email}</span> and confirm there.
-              Nothing is deleted until you do; the link expires in {sent.expiresInHours} hours.
-            </AlertDescription>
-          </Alert>
+          <LabNotice role="status" tone="danger" label="Lab notice · check your inbox" title="We emailed you a confirmation link">
+            Open the email we sent to <span className="font-medium text-foreground">{email}</span> and confirm there.
+            Nothing is deleted until you do; the link expires in {sent.expiresInHours} hours.
+          </LabNotice>
         )}
       </CardContent>
       <CardFooter className="justify-end border-t pt-6">
@@ -108,11 +104,8 @@ export function DangerZoneCard({ email, linkTtlHours = 24 }: { email: string; li
                 <>Everything listed on this page is erased right away and can&apos;t be recovered. You get a final email when it&apos;s done.</>,
               ].map((step, i) => (
                 <li key={i} className="flex gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-xs font-semibold text-destructive"
-                  >
-                    {i + 1}
+                  <span aria-hidden="true" className="shrink-0 pt-0.5 font-mono text-xs text-destructive tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
                   <span>{step}</span>
                 </li>
