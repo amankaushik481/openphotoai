@@ -83,7 +83,8 @@ export function BillingDashboard({
 
   return (
     <div className="flex flex-col gap-10">
-      <PageHeader title="Billing" description="Your plan, credits and payments." />
+      {/* The column gap already spaces the header: drop its own bottom margin (it doubled the gap). */}
+      <PageHeader title="Billing" description="Your plan, credits and payments." className="mb-0 sm:mb-0" />
 
       {notice && !dismissed && (
         <Alert role="status" variant={notice === "success" ? "success" : "default"} className="pr-12">

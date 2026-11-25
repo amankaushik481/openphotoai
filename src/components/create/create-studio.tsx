@@ -174,9 +174,10 @@ export function CreateStudio({ packs, modelModes: fallbackModes, drafts, initial
           }}
           className="gap-4 rounded-xl border bg-card p-4 shadow-xs"
         >
-          <TabsList className="grid h-10 w-full grid-cols-3">
+          {/* Content-sized tabs: equal thirds truncated "Style reference" even on desktop. */}
+          <TabsList className="flex h-10 w-full">
             {MODES.map(({ value, label, icon: Icon }) => (
-              <TabsTrigger key={value} value={value} className="gap-1.5 px-1.5 text-xs sm:text-sm">
+              <TabsTrigger key={value} value={value} className="flex-auto gap-1.5 px-1.5 text-xs sm:text-sm">
                 <Icon aria-hidden="true" />
                 <span className="truncate">{label}</span>
               </TabsTrigger>

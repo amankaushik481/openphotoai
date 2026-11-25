@@ -148,7 +148,8 @@ function StatCard({
   action: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border bg-card p-5 shadow-xs">
+    // flex-wrap: in narrow columns (tablet with sidebar) the action drops below instead of covering the value.
+    <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-5 shadow-xs">
       <span
         aria-hidden="true"
         className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-soft-foreground [&_svg]:size-5"
