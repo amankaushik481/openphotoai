@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatCredits } from "@/components/billing/format";
 import { useMe } from "@/hooks/use-me";
 import { ApiClientError, fetcher } from "@/lib/api-client";
 import type { TeamDetailDTO, TeamSummaryDTO } from "@/server/teams/types";
@@ -175,7 +176,7 @@ function CreditsCard({ isOwner, ownerName, onTransfer }: { isOwner: boolean; own
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">Your balance</p>
-        <p className="text-2xl font-semibold tabular-nums">{user ? user.credits.toLocaleString() : "—"}</p>
+        <p className="text-2xl font-semibold tabular-nums">{user ? formatCredits(user.credits) : "—"}</p>
       </CardContent>
       {isOwner && (
         <CardFooter>

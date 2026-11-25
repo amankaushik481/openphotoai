@@ -9,7 +9,16 @@
  *
  * Generation applies kits through src/server/jobs/brand-kits.ts (getUsableBrandKit).
  */
-export { canManage, getTeamForManager, getTeamForMember, getTeamForOwner, type TeamAccess } from "./access";
+export {
+  canManage,
+  getTeamForManager,
+  getTeamForMember,
+  getTeamForOwner,
+  inviteExpiresAt,
+  isInviteExpired,
+  TEAM_INVITE_TTL_DAYS,
+  type TeamAccess,
+} from "./access";
 export { createTeam, deleteTeam, getTeamDetail, listMyTeams, renameTeam, teamSeatLimit } from "./service";
 export {
   acceptInvite,

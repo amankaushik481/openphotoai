@@ -30,7 +30,7 @@ export interface EmailTemplates {
     providerNote?: string;
   };
   multi_person_invite: { inviterName: string; message?: string | null; url: string };
-  team_invite: { inviterName: string; teamName: string; url: string };
+  team_invite: { inviterName: string; teamName: string; url: string; /** How long the link works. */ expiresInDays?: number };
   account_suspended: { reason: string };
   report_received: { reportId: string };
 }
