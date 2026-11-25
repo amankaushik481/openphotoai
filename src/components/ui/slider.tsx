@@ -46,11 +46,11 @@ function Slider({
     >
       <SliderPrimitive.Track
         data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
+        className="relative grow overflow-hidden rounded-none bg-foreground/15 data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5"
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
-          className="absolute bg-primary data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+          className="absolute bg-safelight-ink data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
         />
       </SliderPrimitive.Track>
       {Array.from({ length: _values.length }, (_, index) => (
@@ -59,7 +59,7 @@ function Slider({
           key={index}
           aria-label={thumbLabels?.[index] ?? (ariaLabelledBy ? ariaLabel : (ariaLabel ?? "Value"))}
           aria-labelledby={thumbLabels?.[index] ? undefined : ariaLabelledBy}
-          className="relative block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 disabled:pointer-events-none disabled:opacity-50 pointer-coarse:size-5 pointer-coarse:after:absolute pointer-coarse:after:-inset-3"
+          className="relative block h-4.5 w-2.5 shrink-0 rounded-[1px] border border-foreground bg-background ring-ring/40 transition-[color,box-shadow] hover:ring-4 disabled:pointer-events-none disabled:opacity-50 pointer-coarse:size-5 pointer-coarse:after:absolute pointer-coarse:after:-inset-3"
         />
       ))}
     </SliderPrimitive.Root>
